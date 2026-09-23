@@ -41,7 +41,7 @@ The specification below is implemented in `src/pe_value_os/`. CI is green on Git
 
 Verification on 2026-09-23 (Python 3.14, `mcp` 2.2.0, PostgreSQL 18):
 
-- `uv sync --extra dev && uv run pytest`: 334 passed with `PVC_TEST_DATABASE_URL` set. Without a database, the PostgreSQL tests are skipped.
+- `uv sync --extra dev && uv run pytest`: 335 passed with `PVC_TEST_DATABASE_URL` set. Without a database, the PostgreSQL tests are skipped.
 - `ruff check`, `ruff format --check`, `mypy` and the skills lint are clean. `pip-audit` finds no known vulnerabilities in the locked runtime dependencies.
 - `pvc eval --suite all --gate` passes. `pvc demo` runs all five scenarios. `python -m pe_value_os.db.migrate_check` round-trips.
 - `pvc run`, `status` and `resume` work against PostgreSQL as the row-level-security-bound `pvc_app` role.
