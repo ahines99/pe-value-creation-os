@@ -771,7 +771,11 @@ def generate_company(spec: CompanySpec, out_dir: Path) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     for old in d.glob("*.csv"):
         old.unlink()
-    manifest = {"company_id": spec.company_id, "reference_date": REFERENCE_DATE.isoformat(), "datasets": {}}
+    manifest: dict[str, Any] = {
+        "company_id": spec.company_id,
+        "reference_date": REFERENCE_DATE.isoformat(),
+        "datasets": {},
+    }
     for kind, records in files.items():
         text = overrides.get(kind) or to_csv(records)
         (d / f"{kind}.csv").write_text(text, encoding="utf-8", newline="\n")
