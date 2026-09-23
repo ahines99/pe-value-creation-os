@@ -68,7 +68,7 @@ jobs:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Dependency audit
-        run: uv export --frozen --no-hashes --extra server > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
+        run: uv export --frozen --no-hashes --extra server --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -92,3 +92,22 @@ jobs:
         with:
           name: eval-report
           path: var/eval-report.*
+
+  container-scan:
+    # PVC-096: build the production image and fail on HIGH/CRITICAL vulnerabilities that have a fix.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build --pull --tag "pvc:ci-${GITHUB_SHA}" .
+      - name: Scan image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: pvc:ci-${{ github.sha }}
+          scan-type: image
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+          version: v0.70.0

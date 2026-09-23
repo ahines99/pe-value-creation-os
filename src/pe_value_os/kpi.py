@@ -34,10 +34,20 @@ class UnmonitorableKpi(ValueError):
     pass
 
 
-def _audit(repo: Repository, company_id: str, event_type: str, actor: str, run_id: str | None = None,
-           **payload: Any) -> None:
-    repo.append_audit(AuditEvent(run_id=run_id, company_id=company_id, step="kpi_monitoring", actor=actor,
-                                 event_type=event_type, created_at=datetime.now(UTC), payload=payload))
+def _audit(
+    repo: Repository, company_id: str, event_type: str, actor: str, run_id: str | None = None, **payload: Any
+) -> None:
+    repo.append_audit(
+        AuditEvent(
+            run_id=run_id,
+            company_id=company_id,
+            step="kpi_monitoring",
+            actor=actor,
+            event_type=event_type,
+            created_at=datetime.now(UTC),
+            payload=payload,
+        )
+    )
 
 
 def plan_kpis(plan: dict[str, Any]) -> list[dict[str, Any]]:
@@ -50,18 +60,29 @@ def check_monitorable(plan: dict[str, Any]) -> None:
         raise UnmonitorableKpi(f"KPIs cannot be monitored (no registered metric): {sorted(set(bad))}")
 
 
-def activate_plan(repo: Repository, plan: PlanRecord, approved_plan: dict[str, Any], start: date,
-                  actor: str) -> list[KpiDefinition]:
+def activate_plan(
+    repo: Repository, plan: PlanRecord, approved_plan: dict[str, Any], start: date, actor: str
+) -> list[KpiDefinition]:
     check_monitorable(approved_plan)
     now = datetime.now(UTC)
     defs = [
         KpiDefinition(
-            kpi_id=k["kpi_id"], company_id=plan.company_id, plan_id=plan.plan_id, run_id=plan.run_id,
-            metric=k["metric"], metric_params=k.get("metric_params", {}), description=k["description"],
-            baseline=Decimal(str(k["baseline"])), day_100_target=Decimal(str(k["day_100_target"])),
-            run_rate_target=Decimal(str(k["run_rate_target"])), direction=k["direction"],
-            cadence_days=int(k["cadence_days"]), source=k["source"], evidence_ids=k.get("evidence_ids", []),
-            start_date=start, created_at=now,
+            kpi_id=k["kpi_id"],
+            company_id=plan.company_id,
+            plan_id=plan.plan_id,
+            run_id=plan.run_id,
+            metric=k["metric"],
+            metric_params=k.get("metric_params", {}),
+            description=k["description"],
+            baseline=Decimal(str(k["baseline"])),
+            day_100_target=Decimal(str(k["day_100_target"])),
+            run_rate_target=Decimal(str(k["run_rate_target"])),
+            direction=k["direction"],
+            cadence_days=int(k["cadence_days"]),
+            source=k["source"],
+            evidence_ids=k.get("evidence_ids", []),
+            start_date=start,
+            created_at=now,
         )
         for k in plan_kpis(approved_plan)
     ]
@@ -93,8 +114,16 @@ def _due(d: KpiDefinition, last: KpiObservation | None, now: datetime) -> bool:
     return last is None or now - last.observed_at >= timedelta(days=d.cadence_days)
 
 
-def refresh_company(repo: Repository, adapter: SourceAdapter, company_id: str, policy: PolicyConfig, *,
-                    now: datetime | None = None, force: bool = False, actor: str = "system:kpi") -> list[KpiObservation]:
+def refresh_company(
+    repo: Repository,
+    adapter: SourceAdapter,
+    company_id: str,
+    policy: PolicyConfig,
+    *,
+    now: datetime | None = None,
+    force: bool = False,
+    actor: str = "system:kpi",
+) -> list[KpiObservation]:
     now = now or datetime.now(UTC)
     defs = repo.list_kpi_definitions(company_id)
     if not defs:
@@ -113,10 +142,18 @@ def refresh_company(repo: Repository, adapter: SourceAdapter, company_id: str, p
             continue
         target = q_ratio(target_on(d, now.date()))
         off, variance = _off_track(d, value.value, target, policy.kpi.off_track_tolerance)
-        obs = KpiObservation(observation_id=str(uuid.uuid4()), kpi_id=d.kpi_id, company_id=company_id,
-                             observed_at=now, period_end=value.period_end, value=value.value, target=target,
-                             status="off_track" if off else "on_track", variance=variance,
-                             evidence_ids=value.evidence_ids)
+        obs = KpiObservation(
+            observation_id=str(uuid.uuid4()),
+            kpi_id=d.kpi_id,
+            company_id=company_id,
+            observed_at=now,
+            period_end=value.period_end,
+            value=value.value,
+            target=target,
+            status="off_track" if off else "on_track",
+            variance=variance,
+            evidence_ids=value.evidence_ids,
+        )
         repo.add_kpi_observation(obs)
         out.append(obs)
         _audit(repo, company_id, "kpi_observed", actor, d.run_id, kpi_id=d.kpi_id, status=obs.status)
@@ -135,18 +172,34 @@ def detect_variance(d: KpiDefinition, history: list[KpiObservation], policy: Pol
     alerts: list[KpiAlert] = []
     now = datetime.now(UTC)
     if last.status == "off_track":
-        alerts.append(KpiAlert(alert_id=str(uuid.uuid4()), kpi_id=d.kpi_id, company_id=d.company_id,
-                               observation_id=last.observation_id, rule="threshold", created_at=now,
-                               detail=f"{d.metric} {last.value} vs target {last.target} (variance {last.variance})"))
+        alerts.append(
+            KpiAlert(
+                alert_id=str(uuid.uuid4()),
+                kpi_id=d.kpi_id,
+                company_id=d.company_id,
+                observation_id=last.observation_id,
+                rule="threshold",
+                created_at=now,
+                detail=f"{d.metric} {last.value} vs target {last.target} (variance {last.variance})",
+            )
+        )
     n = policy.kpi.trend_decline_periods
     if len(history) > n:
-        window = [o.value for o in history[-(n + 1):]]
+        window = [o.value for o in history[-(n + 1) :]]
         pairs = list(pairwise(window))
         worse = all((b < a) if d.direction == "increase" else (b > a) for a, b in pairs)
         if worse:
-            alerts.append(KpiAlert(alert_id=str(uuid.uuid4()), kpi_id=d.kpi_id, company_id=d.company_id,
-                                   observation_id=last.observation_id, rule="trend", created_at=now,
-                                   detail=f"{d.metric} moved the wrong way for {n} consecutive observations"))
+            alerts.append(
+                KpiAlert(
+                    alert_id=str(uuid.uuid4()),
+                    kpi_id=d.kpi_id,
+                    company_id=d.company_id,
+                    observation_id=last.observation_id,
+                    rule="trend",
+                    created_at=now,
+                    detail=f"{d.metric} moved the wrong way for {n} consecutive observations",
+                )
+            )
     return alerts
 
 
@@ -161,8 +214,13 @@ def build_digest(repo: Repository, company_id: str, *, channel: str, base_url: s
         return None
     lines = [f"- {d.description}: {o.value} vs target {o.target} (as of {o.period_end})" for d, o in off]
     link = f"{base_url.rstrip('/')}/companies/{company_id}/kpis" if base_url else f"/companies/{company_id}/kpis"
-    n = Notification(notification_id=str(uuid.uuid4()), company_id=company_id, channel=channel,
-                     subject=f"{len(off)} KPI(s) off track", body="\n".join([*lines, "", f"Details: {link}"]),
-                     created_at=datetime.now(UTC))
+    n = Notification(
+        notification_id=str(uuid.uuid4()),
+        company_id=company_id,
+        channel=channel,
+        subject=f"{len(off)} KPI(s) off track",
+        body="\n".join([*lines, "", f"Details: {link}"]),
+        created_at=datetime.now(UTC),
+    )
     repo.add_notification(n)
     return n

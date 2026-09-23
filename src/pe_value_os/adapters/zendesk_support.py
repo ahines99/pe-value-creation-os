@@ -33,11 +33,20 @@ class ZendeskSupportAdapter:
     name = "zendesk"
     provides = frozenset({DatasetKind.SUPPORT})
 
-    def __init__(self, subdomain: str, email: str, token: str, config: ZendeskConfig, *,
-                 transport: httpx.BaseTransport | None = None, base_url: str | None = None):
+    def __init__(
+        self,
+        subdomain: str,
+        email: str,
+        token: str,
+        config: ZendeskConfig,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        base_url: str | None = None,
+    ):
         auth = base64.b64encode(f"{email}/token:{token}".encode()).decode()
-        self.api = ApiClient(base_url or f"https://{subdomain}.zendesk.com", {"Authorization": f"Basic {auth}"},
-                             transport=transport)
+        self.api = ApiClient(
+            base_url or f"https://{subdomain}.zendesk.com", {"Authorization": f"Basic {auth}"}, transport=transport
+        )
         self.config = config
 
     def organizations(self) -> list[dict[str, Any]]:
@@ -51,8 +60,10 @@ class ZendeskSupportAdapter:
             page = self.api.get(nxt.replace(self.api.base_url, ""))
 
     def foreign_entities(self) -> list[ForeignEntity]:
-        return [ForeignEntity("zendesk", str(o["id"]), o.get("name"), (o.get("domain_names") or [None])[0])
-                for o in self.organizations()]
+        return [
+            ForeignEntity("zendesk", str(o["id"]), o.get("name"), (o.get("domain_names") or [None])[0])
+            for o in self.organizations()
+        ]
 
     def load_datasets(self, company_id: str, sink: EvidenceSink | None) -> dict[DatasetKind, Dataset]:
         tickets: list[dict[str, Any]] = []
@@ -72,18 +83,36 @@ class ZendeskSupportAdapter:
                 continue
             fields = {f["id"]: f.get("value") for f in t.get("custom_fields", [])}
             score = (t.get("satisfaction_rating") or {}).get("score")
-            rows.append({
-                "ticket_id": str(t["id"]), "customer_id": str(t["organization_id"]),
-                "created_at": t["created_at"].replace("Z", ""), "category": fields.get(self.config.category_field_id),
-                "severity": {"urgent": "high", "high": "high", "normal": "medium"}.get(t.get("priority") or "", "low"),
-                "tier": "tier1" if t.get("group_id") in self.config.tier1_group_ids else "tier2",
-                "handle_minutes": fields.get(self.config.handle_minutes_field_id),
-                "csat": {"good": 5, "bad": 2}.get(score or ""),
-            })
-        ds = dataset_from_records(DatasetKind.SUPPORT, company_id, rows,
-                                  source_uri="zendesk://api/v2/incremental/tickets", as_of=None, sink=sink,
-                                  raw_payload=pages)
+            rows.append(
+                {
+                    "ticket_id": str(t["id"]),
+                    "customer_id": str(t["organization_id"]),
+                    "created_at": t["created_at"].replace("Z", ""),
+                    "category": fields.get(self.config.category_field_id),
+                    "severity": {"urgent": "high", "high": "high", "normal": "medium"}.get(
+                        t.get("priority") or "", "low"
+                    ),
+                    "tier": "tier1" if t.get("group_id") in self.config.tier1_group_ids else "tier2",
+                    "handle_minutes": fields.get(self.config.handle_minutes_field_id),
+                    "csat": {"good": 5, "bad": 2}.get(score or ""),
+                }
+            )
+        ds = dataset_from_records(
+            DatasetKind.SUPPORT,
+            company_id,
+            rows,
+            source_uri="zendesk://api/v2/incremental/tickets",
+            as_of=None,
+            sink=sink,
+            raw_payload=pages,
+        )
         if skipped:
-            ds.row_errors.append(RowError(source="zendesk tickets", row=0, field="organization_id",
-                                          message=f"{skipped} tickets without an organization were excluded"))
+            ds.row_errors.append(
+                RowError(
+                    source="zendesk tickets",
+                    row=0,
+                    field="organization_id",
+                    message=f"{skipped} tickets without an organization were excluded",
+                )
+            )
         return {DatasetKind.SUPPORT: ds}

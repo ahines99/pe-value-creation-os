@@ -58,16 +58,28 @@ def apply_edits(plan: dict[str, Any], remove_initiatives: list[str]) -> tuple[di
     before = Decimal(plan["total_run_rate_ebitda_base"])
     after = sum((Decimal(i["run_rate_ebitda_base"]) for ws in kept_ws for i in ws["initiatives"]), Decimal(0))
     approved["total_run_rate_ebitda_base"] = str(after)
-    approved["total_in_year_ebitda_base"] = str(sum(
-        (Decimal(i["in_year_ebitda_base"]) for ws in kept_ws for i in ws["initiatives"]), Decimal(0)))
-    diff = {"removed_initiatives": sorted(remove), "removed_titles": removed_titles,
-            "run_rate_ebitda_base_before": str(before), "run_rate_ebitda_base_after": str(after)}
+    approved["total_in_year_ebitda_base"] = str(
+        sum((Decimal(i["in_year_ebitda_base"]) for ws in kept_ws for i in ws["initiatives"]), Decimal(0))
+    )
+    diff = {
+        "removed_initiatives": sorted(remove),
+        "removed_titles": removed_titles,
+        "run_rate_ebitda_base_before": str(before),
+        "run_rate_ebitda_base_after": str(after),
+    }
     return approved, diff
 
 
-def decide(ctx: RunContext, run_id: str, principal: security.Principal, decision: ApprovalDecision, *,
-           rationale: str | None = None, remove_initiatives: list[str] | None = None,
-           exclude_opportunities: list[str] | None = None) -> ApprovalRecord:
+def decide(
+    ctx: RunContext,
+    run_id: str,
+    principal: security.Principal,
+    decision: ApprovalDecision,
+    *,
+    rationale: str | None = None,
+    remove_initiatives: list[str] | None = None,
+    exclude_opportunities: list[str] | None = None,
+) -> ApprovalRecord:
     run = ctx.repo.get_run(run_id)
     _require_approver(principal, run.company_id, ctx.policy.approval.approver_role)
     if decision in (ApprovalDecision.REJECTED, ApprovalDecision.CHANGES_REQUESTED) and not (rationale or "").strip():
@@ -91,11 +103,23 @@ def decide(ctx: RunContext, run_id: str, principal: security.Principal, decision
         edits["exclude_opportunities"] = sorted(exclude_opportunities or [])
     rec = ctx.repo.record_decision(req.approval_id, decision, principal.subject, rationale, edits, diff)
     changed = bool(diff)
-    ctx.repo.append_audit(AuditEvent(
-        run_id=run_id, company_id=run.company_id, step="human_approval", actor=principal.subject,
-        event_type="approval_decided", created_at=datetime.now(UTC),
-        payload={"approval_id": rec.approval_id, "decision": decision.value, "changed": changed,
-                 "plan_id": plan.plan_id, "policy_version": ctx.policy.version}))
+    ctx.repo.append_audit(
+        AuditEvent(
+            run_id=run_id,
+            company_id=run.company_id,
+            step="human_approval",
+            actor=principal.subject,
+            event_type="approval_decided",
+            created_at=datetime.now(UTC),
+            payload={
+                "approval_id": rec.approval_id,
+                "decision": decision.value,
+                "changed": changed,
+                "plan_id": plan.plan_id,
+                "policy_version": ctx.policy.version,
+            },
+        )
+    )
     hours = ((rec.decided_at or datetime.now(UTC)) - rec.requested_at).total_seconds() / 3600
     metrics().approval_turnaround.record(hours, {"decision": decision.value})
     metrics().approval_decisions.add(1, {"decision": decision.value, "changed": str(changed).lower()})
@@ -112,8 +136,9 @@ def _finalize_interactive(ctx: RunContext, state: RunState, rec: ApprovalRecord,
     if rec.decision == ApprovalDecision.APPROVED:
         approved = rec.edits.get("approved_plan") or plan.plan
         ctx.repo.update_plan_status(plan_id, "approved", approved)
-        kpi.activate_plan(ctx.repo, plan, approved, (rec.decided_at or datetime.now(UTC)).date(),
-                          actor=rec.decided_by or "unknown")
+        kpi.activate_plan(
+            ctx.repo, plan, approved, (rec.decided_at or datetime.now(UTC)).date(), actor=rec.decided_by or "unknown"
+        )
         state.status, state.pause_reason = Status.COMPLETE, None
     elif rec.decision == ApprovalDecision.REJECTED:
         ctx.repo.update_plan_status(plan_id, "rejected")
@@ -131,5 +156,8 @@ def override_stats(ctx: RunContext) -> dict[str, Any]:
     for run in ctx.repo.list_runs():
         decided += [a for a in ctx.repo.list_approvals(run.run_id) if a.decision is not None]
     changed = sum(1 for a in decided if a.diff or a.decision != ApprovalDecision.APPROVED)
-    return {"decisions": len(decided), "changed_or_rejected": changed,
-            "override_rate": round(changed / len(decided), 4) if decided else None}
+    return {
+        "decisions": len(decided),
+        "changed_or_rejected": changed,
+        "override_rate": round(changed / len(decided), 4) if decided else None,
+    }

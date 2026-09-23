@@ -67,8 +67,7 @@ def _segment_opening(o: Opportunity, data: CompanyData) -> Decimal:
     seg = o.metric_params.get("segment")
     ra = analyse_retention(data)
     row = next((s for s in ra.segments if s.dimension == "segment" and s.value == seg), None) if seg else None
-    return row.opening_arr if row else sum((s.opening_arr for s in ra.segments if s.dimension == "segment"),
-                                           Decimal(0))
+    return row.opening_arr if row else sum((s.opening_arr for s in ra.segments if s.dimension == "segment"), Decimal(0))
 
 
 def _grr_target(b: Decimal, o: Opportunity, d: CompanyData) -> Decimal:
@@ -83,25 +82,41 @@ def _gm_target(b: Decimal, o: Opportunity, d: CompanyData) -> Decimal:
 
 KPI_RULES: dict[tuple[Lever, str], KpiRule] = {
     (Lever.PRICING, "discounted_arr"): KpiRule(
-        "avg_new_deal_discount_rate", "Average new-deal discount", "segment",
-        lambda b, o, d: max(Decimal(0), b - _eff(o))),
+        "avg_new_deal_discount_rate",
+        "Average new-deal discount",
+        "segment",
+        lambda b, o, d: max(Decimal(0), b - _eff(o)),
+    ),
     (Lever.PRICING, "renewing_arr"): KpiRule(
-        "renewal_uplift_realization", "Realized / contracted renewal uplift", None,
-        lambda b, o, d: min(Decimal(1), b + o.base.realization_rate * (1 - b))),
+        "renewal_uplift_realization",
+        "Realized / contracted renewal uplift",
+        None,
+        lambda b, o, d: min(Decimal(1), b + o.base.realization_rate * (1 - b)),
+    ),
     (Lever.PRICING, "legacy_price_book_arr"): KpiRule(
-        "legacy_arr_share", "Share of ARR on legacy price books", None,
-        lambda b, o, d: b * (1 - o.base.realization_rate)),
+        "legacy_arr_share",
+        "Share of ARR on legacy price books",
+        None,
+        lambda b, o, d: b * (1 - o.base.realization_rate),
+    ),
     (Lever.RETENTION, "addressable_churned_arr"): KpiRule(
-        "segment_grr", "Segment gross revenue retention", "segment", _grr_target, unscoped_metric="grr"),
+        "segment_grr", "Segment gross revenue retention", "segment", _grr_target, unscoped_metric="grr"
+    ),
     (Lever.RETENTION, "failed_payment_churned_arr"): KpiRule(
-        "involuntary_churn_share", "Share of churn from failed payments", None, lambda b, o, d: b * (1 - _eff(o))),
+        "involuntary_churn_share", "Share of churn from failed payments", None, lambda b, o, d: b * (1 - _eff(o))
+    ),
     (Lever.SALES_EFFICIENCY, "s_and_m_expense"): KpiRule(
-        "cac_payback_months", "CAC payback (months)", None, lambda b, o, d: b * (1 - _eff(o))),
+        "cac_payback_months", "CAC payback (months)", None, lambda b, o, d: b * (1 - _eff(o))
+    ),
     (Lever.GROSS_MARGIN, "hosting_cost"): KpiRule(
-        "subscription_gross_margin", "Subscription gross margin", None, _gm_target),
+        "subscription_gross_margin", "Subscription gross margin", None, _gm_target
+    ),
     (Lever.AI_AUTOMATION, "support_cost_tier1"): KpiRule(
-        "tier1_tickets_per_customer_month", "Tier-1 tickets per customer per month", None,
-        lambda b, o, d: b * (1 - _eff(o))),
+        "tier1_tickets_per_customer_month",
+        "Tier-1 tickets per customer per month",
+        None,
+        lambda b, o, d: b * (1 - _eff(o)),
+    ),
 }
 
 
@@ -121,8 +136,11 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
     rule = KPI_RULES.get((o.lever, o.baseline_metric))
     if rule is None:
         return None
-    params = {rule.params_from: o.metric_params[rule.params_from]} if rule.params_from and \
-        o.metric_params.get(rule.params_from) else {}
+    params = (
+        {rule.params_from: o.metric_params[rule.params_from]}
+        if rule.params_from and o.metric_params.get(rule.params_from)
+        else {}
+    )
     if rule.params_from and not params and rule.unscoped_metric:
         rule = KpiRule(rule.unscoped_metric, "Gross revenue retention", None, rule.target)
     try:
@@ -135,11 +153,17 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
     return PlanKpi(
         kpi_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"kpi:{o.opportunity_id}:{rule.metric}")),
         opportunity_id=o.opportunity_id,
-        metric=rule.metric, description=rule.description + (f" ({params['segment']})" if params else ""),
-        baseline=base.value, day_100_target=q_ratio(base.value + (target - base.value) * frac),
-        run_rate_target=target, direction=spec.direction, cadence_days=policy.kpi.default_cadence_days,
-        source=f"metric:{rule.metric}", evidence_ids=base.evidence_ids,
-        monitorable=rule.metric in REGISTRY, metric_params=params,
+        metric=rule.metric,
+        description=rule.description + (f" ({params['segment']})" if params else ""),
+        baseline=base.value,
+        day_100_target=q_ratio(base.value + (target - base.value) * frac),
+        run_rate_target=target,
+        direction=spec.direction,
+        cadence_days=policy.kpi.default_cadence_days,
+        source=f"metric:{rule.metric}",
+        evidence_ids=base.evidence_ids,
+        monitorable=rule.metric in REGISTRY,
+        metric_params=params,
     )
 
 
@@ -167,11 +191,16 @@ def build_plan(
         for opp, vc in lever_items:
             ps = rank.get(opp.opportunity_id)
             reasons = [APPROVAL_REASONS[lever]] if lever in APPROVAL_REASONS else []
-            initiatives.append(Initiative(
-                opportunity_id=opp.opportunity_id, title=opp.title, classification=classify(opp, policy),
-                run_rate_ebitda_base=vc.annual_ebitda_base,
-                in_year_ebitda_base=ps.in_year_ebitda_base if ps else Decimal(0),
-                requires_approval_reasons=reasons))
+            initiatives.append(
+                Initiative(
+                    opportunity_id=opp.opportunity_id,
+                    title=opp.title,
+                    classification=classify(opp, policy),
+                    run_rate_ebitda_base=vc.annual_ebitda_base,
+                    in_year_ebitda_base=ps.in_year_ebitda_base if ps else Decimal(0),
+                    requires_approval_reasons=reasons,
+                )
+            )
             decisions += [f"{opp.title}: {r}" for r in reasons]
             k = _kpi(opp, data, policy)
             if k:
@@ -180,13 +209,21 @@ def build_plan(
         quick = [i.title for i in initiatives if i.classification == InitiativeClass.QUICK_WIN]
         structural = [i.title for i in initiatives if i.classification == InitiativeClass.STRUCTURAL]
         milestones = {
-            "day_30": ["Baselines confirmed against system data and signed off by the owner",
-                       "Workstream owner and team named", *[f"Launch: {t}" for t in quick],
-                       *[f"Design and pilot scope agreed: {t}" for t in structural]],
-            "day_60": [*[f"First KPI readout: {t}" for t in quick],
-                       *[f"Pilot live in at least one segment: {t}" for t in structural]],
-            "day_100": ["Rollout decision for each pilot", "KPIs tracking against day-100 targets",
-                        "Next-phase plan and budget request"],
+            "day_30": [
+                "Baselines confirmed against system data and signed off by the owner",
+                "Workstream owner and team named",
+                *[f"Launch: {t}" for t in quick],
+                *[f"Design and pilot scope agreed: {t}" for t in structural],
+            ],
+            "day_60": [
+                *[f"First KPI readout: {t}" for t in quick],
+                *[f"Pilot live in at least one segment: {t}" for t in structural],
+            ],
+            "day_100": [
+                "Rollout decision for each pilot",
+                "KPIs tracking against day-100 targets",
+                "Next-phase plan and budget request",
+            ],
         }
         deps = []
         if lever == Lever.PRICING:
@@ -195,20 +232,35 @@ def build_plan(
                 deps.append("Price changes sequenced after the retention health score identifies at-risk accounts")
         if lever == Lever.AI_AUTOMATION:
             deps.append("Evaluation set and rollback plan before any customer-facing automation")
-        workstreams.append(Workstream(
-            workstream_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"ws:{run_id}:{lever.value}")),
-            name=WORKSTREAM_NAME[lever], lever=lever, owner_role=OWNER[lever], initiatives=initiatives,
-            milestones=milestones, kpis=kpis, dependencies=deps, risks=risks))
+        workstreams.append(
+            Workstream(
+                workstream_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"ws:{run_id}:{lever.value}")),
+                name=WORKSTREAM_NAME[lever],
+                lever=lever,
+                owner_role=OWNER[lever],
+                initiatives=initiatives,
+                milestones=milestones,
+                kpis=kpis,
+                dependencies=deps,
+                risks=risks,
+            )
+        )
 
     if data_gaps:
         decisions.append("Accept or remediate open data gaps: " + "; ".join(data_gaps[:5]))
     total_rr = sum((vc.annual_ebitda_base for _, vc in items), Decimal(0))
-    total_iy = sum((rank[o.opportunity_id].in_year_ebitda_base for o, _ in items if o.opportunity_id in rank),
-                   Decimal(0))
+    total_iy = sum(
+        (rank[o.opportunity_id].in_year_ebitda_base for o, _ in items if o.opportunity_id in rank), Decimal(0)
+    )
     return Plan(
-        plan_id=str(uuid.uuid4()), run_id=run_id, company_id=data.company_id, workstreams=workstreams,
-        total_run_rate_ebitda_base=q_money(total_rr), total_in_year_ebitda_base=q_money(total_iy),
-        excluded_opportunities=list(excluded or []), decisions_requiring_approval=decisions,
+        plan_id=str(uuid.uuid4()),
+        run_id=run_id,
+        company_id=data.company_id,
+        workstreams=workstreams,
+        total_run_rate_ebitda_base=q_money(total_rr),
+        total_in_year_ebitda_base=q_money(total_iy),
+        excluded_opportunities=list(excluded or []),
+        decisions_requiring_approval=decisions,
         governance=["Weekly workstream check-in", "Biweekly steering committee", "Monthly sponsor update"],
         narrative=f"Reviewer notes applied: {reviewer_notes}" if reviewer_notes else None,
     )

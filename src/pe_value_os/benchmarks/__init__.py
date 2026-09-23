@@ -52,12 +52,22 @@ def get_benchmark(metric: str, peer_set: str, path: str | None = None) -> Benchm
         if r["metric"] == metric and r["peer_set"] == peer_set:
             n = int(r["n"])
             if n < MIN_PEERS:
-                raise InsufficientPeers(f"Peer set {peer_set!r} has {n} companies for {metric!r}; minimum is "
-                                        f"{MIN_PEERS} to preserve anonymity")
+                raise InsufficientPeers(
+                    f"Peer set {peer_set!r} has {n} companies for {metric!r}; minimum is "
+                    f"{MIN_PEERS} to preserve anonymity"
+                )
             return BenchmarkDistribution(
-                metric=metric, peer_set=peer_set, n=n, p25=Decimal(r["p25"]), p50=Decimal(r["p50"]),
-                p75=Decimal(r["p75"]), source=r["source"], licence=r["licence"],
-                as_of=date.fromisoformat(r["as_of"]), dataset_sha256=digest,
-                synthetic=r["source"].upper().startswith("SYNTHETIC"))
+                metric=metric,
+                peer_set=peer_set,
+                n=n,
+                p25=Decimal(r["p25"]),
+                p50=Decimal(r["p50"]),
+                p75=Decimal(r["p75"]),
+                source=r["source"],
+                licence=r["licence"],
+                as_of=date.fromisoformat(r["as_of"]),
+                dataset_sha256=digest,
+                synthetic=r["source"].upper().startswith("SYNTHETIC"),
+            )
     available = sorted({(r["metric"], r["peer_set"]) for r in rows})
     raise KeyError(f"No benchmark for {metric!r} in {peer_set!r}; available: {available}")

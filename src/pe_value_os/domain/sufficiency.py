@@ -82,8 +82,14 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
         required = name in rule.required
         ds = data.datasets.get(kind)
         if ds is not None and not ds.records and ds.row_errors:
-            gaps.append(Gap(code="row_errors", dataset=name, blocking=required,
-                            detail=f"'{name}' has no valid rows ({len(ds.row_errors)} invalid); first: {ds.row_errors[0]}"))
+            gaps.append(
+                Gap(
+                    code="row_errors",
+                    dataset=name,
+                    blocking=required,
+                    detail=f"'{name}' has no valid rows ({len(ds.row_errors)} invalid); first: {ds.row_errors[0]}",
+                )
+            )
             continue
         if ds is None or not ds.records:
             gaps.append(
@@ -159,9 +165,15 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                 )
             er = data.entity_resolution or {}
             if er.get("review_queue") or er.get("unresolved_rows"):
-                gaps.append(Gap(code="unresolved_entities", dataset=name, blocking=False,
-                                detail=f"{er.get('review_queue', 0)} identifiers await review; unresolved rows "
-                                       f"{er.get('unresolved_rows', {})} are reported under segment 'unknown'"))
+                gaps.append(
+                    Gap(
+                        code="unresolved_entities",
+                        dataset=name,
+                        blocking=False,
+                        detail=f"{er.get('review_queue', 0)} identifiers await review; unresolved rows "
+                        f"{er.get('unresolved_rows', {})} are reported under segment 'unknown'",
+                    )
+                )
     status = SufficiencyStatus.INSUFFICIENT if any(g.blocking for g in gaps) else SufficiencyStatus.SUFFICIENT
     return SufficiencyResult(analysis=analysis, status=status, gaps=gaps, evidence_ids=evidence)
 

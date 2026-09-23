@@ -37,23 +37,33 @@ class Usage:
     @property
     def cost_usd(self) -> float:
         pin, pout = PRICES.get(self.model, (5.0, 25.0))
-        return round((self.input_tokens * pin + self.cache_read_input_tokens * pin * 0.1
-                      + self.output_tokens * pout) / 1_000_000, 6)
+        return round(
+            (self.input_tokens * pin + self.cache_read_input_tokens * pin * 0.1 + self.output_tokens * pout)
+            / 1_000_000,
+            6,
+        )
 
 
 class LLMClient(Protocol):
     model: str
 
-    def complete_json(self, system: str, user: str, schema: dict[str, Any], *, purpose: str,
-                      max_tokens: int = 16000) -> tuple[dict[str, Any], Usage]: ...
+    def complete_json(
+        self, system: str, user: str, schema: dict[str, Any], *, purpose: str, max_tokens: int = 16000
+    ) -> tuple[dict[str, Any], Usage]: ...
 
 
 def _record(usage: Usage, purpose: str) -> None:
     metrics().model_tokens.add(usage.input_tokens, {"model": usage.model, "direction": "input", "purpose": purpose})
     metrics().model_tokens.add(usage.output_tokens, {"model": usage.model, "direction": "output", "purpose": purpose})
     metrics().model_cost.add(usage.cost_usd, {"model": usage.model, "purpose": purpose})
-    log.info("model_call", model=usage.model, input_tokens=usage.input_tokens, output_tokens=usage.output_tokens,
-             cost_usd=usage.cost_usd, event_type=purpose)
+    log.info(
+        "model_call",
+        model=usage.model,
+        input_tokens=usage.input_tokens,
+        output_tokens=usage.output_tokens,
+        cost_usd=usage.cost_usd,
+        event_type=purpose,
+    )
 
 
 class AnthropicJsonClient:
@@ -67,12 +77,14 @@ class AnthropicJsonClient:
             client = anthropic.Anthropic(max_retries=2, timeout=120.0)
         self.client = client
 
-    def complete_json(self, system: str, user: str, schema: dict[str, Any], *, purpose: str,
-                      max_tokens: int = 16000) -> tuple[dict[str, Any], Usage]:
+    def complete_json(
+        self, system: str, user: str, schema: dict[str, Any], *, purpose: str, max_tokens: int = 16000
+    ) -> tuple[dict[str, Any], Usage]:
         import anthropic
 
         kwargs: dict[str, Any] = dict(
-            model=self.model, max_tokens=max_tokens,
+            model=self.model,
+            max_tokens=max_tokens,
             system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],
             output_config={"format": {"type": "json_schema", "schema": schema}, "effort": "high"},
@@ -80,8 +92,9 @@ class AnthropicJsonClient:
         with span(f"model:{purpose}", model=self.model):
             try:
                 if self.use_fallbacks:
-                    resp = self.client.beta.messages.create(betas=["server-side-fallback-2026-07-01"],
-                                                            fallbacks="default", **kwargs)
+                    resp = self.client.beta.messages.create(
+                        betas=["server-side-fallback-2026-07-01"], fallbacks="default", **kwargs
+                    )
                 else:
                     resp = self.client.messages.create(**kwargs)
             except (anthropic.APIConnectionError, anthropic.RateLimitError, anthropic.InternalServerError) as e:
@@ -91,8 +104,12 @@ class AnthropicJsonClient:
                     raise ModelUnavailable(f"HTTP {e.status_code}") from e
                 raise
         u = resp.usage
-        usage = Usage(model=getattr(resp, "model", self.model), input_tokens=u.input_tokens,
-                      output_tokens=u.output_tokens, cache_read_input_tokens=u.cache_read_input_tokens or 0)
+        usage = Usage(
+            model=getattr(resp, "model", self.model),
+            input_tokens=u.input_tokens,
+            output_tokens=u.output_tokens,
+            cache_read_input_tokens=u.cache_read_input_tokens or 0,
+        )
         _record(usage, purpose)
         if resp.stop_reason == "refusal":
             raise ModelUnavailable("refusal")
@@ -113,8 +130,9 @@ class ScriptedLLMClient:
     model: str = "scripted"
     prompts: list[dict[str, Any]] = field(default_factory=list)
 
-    def complete_json(self, system: str, user: str, schema: dict[str, Any], *, purpose: str,
-                      max_tokens: int = 16000) -> tuple[dict[str, Any], Usage]:
+    def complete_json(
+        self, system: str, user: str, schema: dict[str, Any], *, purpose: str, max_tokens: int = 16000
+    ) -> tuple[dict[str, Any], Usage]:
         self.prompts.append({"system": system, "user": user, "schema": schema, "purpose": purpose})
         if not self.responses:
             raise ModelUnavailable("no scripted response")

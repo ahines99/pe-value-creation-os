@@ -98,12 +98,15 @@ class S3EvidenceStore:
     """S3 backend. The bucket must have versioning and Object Lock (governance or compliance mode) enabled;
     see infra/terraform/modules/pvc/storage.tf. `client` is a boto3 S3 client (injected for testing)."""
 
-    def __init__(self, bucket: str, client: Any = None, prefix: str = "evidence"):
+    def __init__(self, bucket: str, client: Any = None, prefix: str = "evidence", kms_key_id: str | None = None):
         if client is None:  # pragma: no cover - requires boto3 and AWS credentials
             import boto3
 
             client = boto3.client("s3")
         self.bucket, self.client, self.prefix = bucket, client, prefix.strip("/")
+        # With a key id, objects are encrypted with that customer-managed key; without one the bucket's default
+        # encryption applies (never the AWS-managed aws/s3 key by accident).
+        self._sse = {"ServerSideEncryption": "aws:kms", "SSEKMSKeyId": kms_key_id} if kms_key_id else {}
 
     def _key(self, company_id: str, evidence_id: str, name: str) -> str:
         return f"{self.prefix}/{_safe(company_id)}/{_safe(evidence_id)}/{name}"
@@ -118,9 +121,7 @@ class S3EvidenceStore:
             return key
         except self._not_found():
             pass
-        self.client.put_object(
-            Bucket=self.bucket, Key=key, Body=content, Metadata={"sha256": digest}, ServerSideEncryption="aws:kms"
-        )
+        self.client.put_object(Bucket=self.bucket, Key=key, Body=content, Metadata={"sha256": digest}, **self._sse)
         return key
 
     def _not_found(self) -> type[Exception]:
@@ -137,7 +138,7 @@ class S3EvidenceStore:
 
     def put_derived(self, company_id: str, evidence_id: str, text: str) -> str:
         key = self._key(company_id, evidence_id, "derived.txt")
-        self.client.put_object(Bucket=self.bucket, Key=key, Body=text.encode("utf-8"), ServerSideEncryption="aws:kms")
+        self.client.put_object(Bucket=self.bucket, Key=key, Body=text.encode("utf-8"), **self._sse)
         return key
 
     def get_derived(self, company_id: str, evidence_id: str) -> str | None:

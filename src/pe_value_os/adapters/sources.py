@@ -28,9 +28,16 @@ class DatasetSource(Protocol):
     def load_datasets(self, company_id: str, sink: EvidenceSink | None) -> dict[DatasetKind, Dataset]: ...
 
 
-def dataset_from_records(kind: DatasetKind, company_id: str, rows: Iterable[dict[str, Any]], *, source_uri: str,
-                         as_of: datetime | None, sink: EvidenceSink | None,
-                         raw_payload: Any = None) -> Dataset:
+def dataset_from_records(
+    kind: DatasetKind,
+    company_id: str,
+    rows: Iterable[dict[str, Any]],
+    *,
+    source_uri: str,
+    as_of: datetime | None,
+    sink: EvidenceSink | None,
+    raw_payload: Any = None,
+) -> Dataset:
     """Validate mapped rows and register evidence.
 
     Evidence content is the raw vendor payload when given (canonical JSON), otherwise the canonical CSV of the
@@ -46,16 +53,24 @@ def dataset_from_records(kind: DatasetKind, company_id: str, rows: Iterable[dict
     ev = make_evidence(company_id, source_uri, f"dataset:{kind.value}", content, as_of, {"dataset": kind.value})
     if sink:
         sink.add_evidence(ev)
-    return Dataset(kind=kind, records=records, evidence_id=ev.evidence_id, as_of=as_of, source_uri=source_uri,
-                   row_errors=errors)
+    return Dataset(
+        kind=kind, records=records, evidence_id=ev.evidence_id, as_of=as_of, source_uri=source_uri, row_errors=errors
+    )
 
 
 class ApiClient:
-    def __init__(self, base_url: str, headers: dict[str, str], *, transport: httpx.BaseTransport | None = None,
-                 timeout: float = 30.0):
+    def __init__(
+        self,
+        base_url: str,
+        headers: dict[str, str],
+        *,
+        transport: httpx.BaseTransport | None = None,
+        timeout: float = 30.0,
+    ):
         self.base_url = base_url.rstrip("/")
-        self.client = checked_client(base_url=self.base_url, headers=headers, timeout=timeout,
-                                     **({"transport": transport} if transport else {}))
+        self.client = checked_client(
+            base_url=self.base_url, headers=headers, timeout=timeout, **({"transport": transport} if transport else {})
+        )
 
     def get(self, path: str, params: dict[str, Any] | None = None) -> Any:
         try:

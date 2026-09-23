@@ -78,9 +78,9 @@ class Resolver:
         by_domain: dict[str, list[str]] = defaultdict(list)
         by_name: dict[str, list[str]] = defaultdict(list)
         for c in sorted(customers, key=lambda c: c.customer_id):
-            if (d := norm_domain(c.domain)):
+            if d := norm_domain(c.domain):
                 by_domain[d].append(c.customer_id)
-            if (n := norm_name(c.name)):
+            if n := norm_name(c.name):
                 by_name[n].append(c.customer_id)
         duplicates = {dup: ids[0] for ids in by_domain.values() if len(ids) > 1 for dup in ids[1:]}
         canonical = {c.customer_id for c in customers}
@@ -104,8 +104,9 @@ class Resolver:
                 counts["domain"] += 1
                 continue
             if len(cands) > 1:
-                review.append(ReviewItem(system=fe.system, foreign_id=fe.foreign_id, reason="ambiguous_domain",
-                                         candidates=cands))
+                review.append(
+                    ReviewItem(system=fe.system, foreign_id=fe.foreign_id, reason="ambiguous_domain", candidates=cands)
+                )
                 continue
             n = norm_name(fe.name)
             ncands = sorted({duplicates.get(i, i) for i in by_name.get(n, [])}) if n else []
@@ -113,18 +114,30 @@ class Resolver:
                 mapping[key] = ncands[0]
                 counts["name"] += 1
             elif ncands:
-                review.append(ReviewItem(system=fe.system, foreign_id=fe.foreign_id,
-                                         reason="name_match_needs_review" if len(ncands) == 1 else "ambiguous_name",
-                                         candidates=ncands))
+                review.append(
+                    ReviewItem(
+                        system=fe.system,
+                        foreign_id=fe.foreign_id,
+                        reason="name_match_needs_review" if len(ncands) == 1 else "ambiguous_name",
+                        candidates=ncands,
+                    )
+                )
             else:
-                review.append(ReviewItem(system=fe.system, foreign_id=fe.foreign_id, reason="no_match",
-                                         candidates=[]))
+                review.append(ReviewItem(system=fe.system, foreign_id=fe.foreign_id, reason="no_match", candidates=[]))
         counts["duplicates"] = len(duplicates)
         return Resolution(mapping=mapping, duplicates=duplicates, review_queue=review, method_counts=dict(counts))
 
 
-CUSTOMER_KEYED = (DatasetKind.ARR, DatasetKind.CHURN, DatasetKind.INVOICES, DatasetKind.CONCESSIONS,
-                  DatasetKind.CONTRACTS, DatasetKind.SUPPORT, DatasetKind.USAGE, DatasetKind.CRM_OPPORTUNITIES)
+CUSTOMER_KEYED = (
+    DatasetKind.ARR,
+    DatasetKind.CHURN,
+    DatasetKind.INVOICES,
+    DatasetKind.CONCESSIONS,
+    DatasetKind.CONTRACTS,
+    DatasetKind.SUPPORT,
+    DatasetKind.USAGE,
+    DatasetKind.CRM_OPPORTUNITIES,
+)
 
 
 def apply(data: CompanyData, resolution: Resolution, systems: dict[DatasetKind, str]) -> dict[str, Any]:
@@ -155,5 +168,9 @@ def apply(data: CompanyData, resolution: Resolution, systems: dict[DatasetKind, 
     cust = data.datasets.get(DatasetKind.CUSTOMERS)
     if cust:
         cust.records = [c for c in cust.records if c.customer_id not in resolution.duplicates]
-    return {"unresolved_rows": dict(unresolved), "duplicates_merged": len(resolution.duplicates),
-            "review_queue": len(resolution.review_queue), "methods": resolution.method_counts}
+    return {
+        "unresolved_rows": dict(unresolved),
+        "duplicates_merged": len(resolution.duplicates),
+        "review_queue": len(resolution.review_queue),
+        "methods": resolution.method_counts,
+    }

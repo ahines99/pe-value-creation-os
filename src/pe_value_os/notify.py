@@ -43,11 +43,16 @@ class OutboxNotifier:
         self._write(n.notification_id, {"company_id": n.company_id, "subject": n.subject, "body": n.body})
 
     def escalate(self, repo: Repository, approval: ApprovalRecord, contact: str) -> None:
-        self._write(f"escalation-{approval.approval_id}", {
-            "to": contact, "company_id": approval.company_id, "run_id": approval.run_id,
-            "subject": "Plan approval overdue",
-            "body": f"Approval {approval.approval_id} has been pending since {approval.requested_at.isoformat()}.",
-        })
+        self._write(
+            f"escalation-{approval.approval_id}",
+            {
+                "to": contact,
+                "company_id": approval.company_id,
+                "run_id": approval.run_id,
+                "subject": "Plan approval overdue",
+                "body": f"Approval {approval.approval_id} has been pending since {approval.requested_at.isoformat()}.",
+            },
+        )
 
 
 class WebhookNotifier:

@@ -90,13 +90,18 @@ def register_portco_financials(mcp: MCPServer) -> None:
     def get_company_profile(company_id: str) -> CompanyProfileResult:
         """Business model, scale, fiscal calendar and data inventory for one portfolio company."""
         data = company_data(company_id)
-        return CompanyProfileResult(profile=data.profile, reference_date=data.reference_date,
-                                    data_inventory=data.inventory(), evidence_ids=[data.profile_evidence_id])
+        return CompanyProfileResult(
+            profile=data.profile,
+            reference_date=data.reference_date,
+            data_inventory=data.inventory(),
+            evidence_ids=[data.profile_evidence_id],
+        )
 
     @mcp.tool()
     @governed("get_financials")
-    def get_financials(company_id: str, period_start: str | None = None, period_end: str | None = None
-                       ) -> FinancialsResult:
+    def get_financials(
+        company_id: str, period_start: str | None = None, period_end: str | None = None
+    ) -> FinancialsResult:
         """Monthly P&L lines by account between two months ('YYYY-MM', inclusive). Amounts are in the company
         currency. Missing months are listed, never filled in."""
         data = company_data(company_id)
@@ -112,10 +117,16 @@ def register_portco_financials(mcp: MCPServer) -> None:
                 by[p.month][p.account.value] = by[p.month].get(p.account.value, Decimal(0)) + p.amount
         months = month_range(start, end)
         return FinancialsResult(
-            company_id=company_id, currency=data.profile.currency,
-            months=[FinancialMonth(month=m, accounts={k: q_money(v) for k, v in sorted(by[m].items())})
-                    for m in months if m in by],
-            missing_months=[m for m in months if m not in by], evidence_ids=data.evidence(DatasetKind.PNL))
+            company_id=company_id,
+            currency=data.profile.currency,
+            months=[
+                FinancialMonth(month=m, accounts={k: q_money(v) for k, v in sorted(by[m].items())})
+                for m in months
+                if m in by
+            ],
+            missing_months=[m for m in months if m not in by],
+            evidence_ids=data.evidence(DatasetKind.PNL),
+        )
 
 
 def register_crm(mcp: MCPServer) -> None:
@@ -128,15 +139,22 @@ def register_crm(mcp: MCPServer) -> None:
         end = parse_period(period, ledger.last_month)
         start = add_months(end, -12)
         churn = [c for c in data.records(DatasetKind.CHURN) if start < c.month <= end]
-        renewals = [o for o in data.records(DatasetKind.CRM_OPPORTUNITIES) if o.opportunity_type == "renewal"
-                    and o.close_date and start < o.close_date <= add_months(end, 1)]
+        renewals = [
+            o
+            for o in data.records(DatasetKind.CRM_OPPORTUNITIES)
+            if o.opportunity_type == "renewal" and o.close_date and start < o.close_date <= add_months(end, 1)
+        ]
         return ChurnSummaryResult(
-            company_id=company_id, period_start=start, period_end=end,
+            company_id=company_id,
+            period_start=start,
+            period_end=end,
             churned_logos_by_type=dict(Counter(c.churn_type.value for c in churn)),
-            voluntary_reason_codes=dict(Counter(c.reason_code or "unknown" for c in churn
-                                                if c.churn_type.value == "voluntary")),
+            voluntary_reason_codes=dict(
+                Counter(c.reason_code or "unknown" for c in churn if c.churn_type.value == "voluntary")
+            ),
             renewal_opportunities=dict(Counter(o.stage for o in renewals)),
-            evidence_ids=data.evidence(DatasetKind.CHURN, DatasetKind.CRM_OPPORTUNITIES))
+            evidence_ids=data.evidence(DatasetKind.CHURN, DatasetKind.CRM_OPPORTUNITIES),
+        )
 
 
 def register_product_analytics(mcp: MCPServer) -> None:
@@ -157,10 +175,13 @@ def register_product_analytics(mcp: MCPServer) -> None:
         adv = {u.customer_id for u in usage if u.month == m and u.feature == "advanced"}
         adv_active = {u.customer_id for u in usage if u.month == m and u.feature == "advanced" and u.active_users}
         return UsageResult(
-            company_id=company_id, month=m, active_customers=len(core),
+            company_id=company_id,
+            month=m,
+            active_customers=len(core),
             core_utilisation_by_segment={k: q_ratio(Decimal(str(mean(v)))) for k, v in sorted(by_seg.items())},
             advanced_feature_adoption=q_ratio(Decimal(len(adv_active)) / len(adv)) if adv else None,
-            evidence_ids=data.evidence(DatasetKind.USAGE, DatasetKind.CUSTOMERS))
+            evidence_ids=data.evidence(DatasetKind.USAGE, DatasetKind.CUSTOMERS),
+        )
 
 
 def register_support(mcp: MCPServer) -> None:
@@ -173,8 +194,12 @@ def register_support(mcp: MCPServer) -> None:
         if not tickets:
             raise ValueError("No support data for this company")
         ledger = ArrLedger(data.records(DatasetKind.ARR))
-        end = parse_period(period, ledger.last_month if ledger.months else
-                           max(date(t.created_at.year, t.created_at.month, 1) for t in tickets))
+        end = parse_period(
+            period,
+            ledger.last_month
+            if ledger.months
+            else max(date(t.created_at.year, t.created_at.month, 1) for t in tickets),
+        )
         months = month_range(add_months(end, -11), end)
         window = [t for t in tickets if date(t.created_at.year, t.created_at.month, 1) in set(months)]
         handle: dict[str, list[Decimal]] = defaultdict(list)
@@ -183,10 +208,14 @@ def register_support(mcp: MCPServer) -> None:
         csat = [t.csat for t in window if t.csat is not None]
         cm = sum(len(ledger.active(m)) for m in months) if ledger.months else 0
         return SupportResult(
-            company_id=company_id, period_start=months[0], period_end=end, tickets=len(window),
+            company_id=company_id,
+            period_start=months[0],
+            period_end=end,
+            tickets=len(window),
             tickets_by_category=dict(sorted(Counter(t.category for t in window).items())),
             tickets_by_tier=dict(sorted(Counter(t.tier for t in window).items())),
             avg_handle_minutes_by_tier={k: q_ratio(sum(v, Decimal(0)) / len(v)) for k, v in sorted(handle.items())},
             avg_csat=q_ratio(Decimal(sum(csat)) / len(csat)) if csat else None,
             tickets_per_customer_month=q_ratio(Decimal(len(window)) / cm) if cm else None,
-            evidence_ids=data.evidence(DatasetKind.SUPPORT, DatasetKind.ARR))
+            evidence_ids=data.evidence(DatasetKind.SUPPORT, DatasetKind.ARR),
+        )

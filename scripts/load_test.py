@@ -59,8 +59,9 @@ def main() -> int:
     try:
         bootstrap_roles(db_url(admin, db), {"pvc_app": "load_pw"})
         upgrade(db_url(admin, db))
-        repo = PostgresRepository(db_url(admin, db, "pvc_app", "load_pw"), FileSystemEvidenceStore(tmp / "ev"),
-                                  max_size=args.workers + 2)
+        repo = PostgresRepository(
+            db_url(admin, db, "pvc_app", "load_pw"), FileSystemEvidenceStore(tmp / "ev"), max_size=args.workers + 2
+        )
         seed = RunContext(repo=repo, adapter=FixtureAdapter(), policy=get_policy())
         ids = []
         for i in range(args.runs):
@@ -101,14 +102,19 @@ def main() -> int:
         assert not dupes, f"runs executed more than once: {dupes}"
         assert sorted(executed) == sorted(ids), "not every run executed"
         q = statistics.quantiles(durations, n=20)
-        line = (f"| {datetime.now(UTC):%Y-%m-%d %H:%M} UTC | local PostgreSQL 18, {args.workers} workers | {args.runs} runs "
-                f"| {args.runs / wall:.1f} runs/s | p50 {statistics.median(durations):.2f} s, p95 {q[18]:.2f} s "
-                f"| no double claims; statuses {dict(statuses)} |")
+        line = (
+            f"| {datetime.now(UTC):%Y-%m-%d %H:%M} UTC | local PostgreSQL 18, {args.workers} workers | {args.runs} runs "
+            f"| {args.runs / wall:.1f} runs/s | p50 {statistics.median(durations):.2f} s, p95 {q[18]:.2f} s "
+            f"| no double claims; statuses {dict(statuses)} |"
+        )
         log = ROOT / "docs" / "load_test.md"
         if not log.exists():
-            log.write_text("# Load test results (PVC-143)\n\nTarget: 4 concurrent workers sustain the automated "
-                           "workflow with step p95 inside the 5 s SLO and no run executed twice.\n\n| When | Setup | "
-                           "Load | Throughput | Run latency | Checks |\n|---|---|---|---|---|---|\n", encoding="utf-8")
+            log.write_text(
+                "# Load test results (PVC-143)\n\nTarget: 4 concurrent workers sustain the automated "
+                "workflow with step p95 inside the 5 s SLO and no run executed twice.\n\n| When | Setup | "
+                "Load | Throughput | Run latency | Checks |\n|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
         with log.open("a", encoding="utf-8") as fh:
             fh.write(line + "\n")
         print(line)

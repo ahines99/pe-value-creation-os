@@ -24,8 +24,11 @@ def test_skills_lint_passes():
 def test_lint_catches_problems(tmp_path):
     d = tmp_path / "bad-skill"
     (d / "references").mkdir(parents=True)
-    (d / "SKILL.md").write_text("---\nname: other-name\ndescription: x\n---\nCall `made_up_tool(x)` on "
-                                "`imaginary_arr`. See `references/missing.md`.\n", encoding="utf-8")
+    (d / "SKILL.md").write_text(
+        "---\nname: other-name\ndescription: x\n---\nCall `made_up_tool(x)` on "
+        "`imaginary_arr`. See `references/missing.md`.\n",
+        encoding="utf-8",
+    )
     problems = lint(tmp_path, tools={"healthcheck"})
     joined = " ".join(problems)
     assert "does not match directory" in joined and "made_up_tool" in joined
@@ -36,8 +39,16 @@ def test_diagnostic_worked_example_meets_output_contract():
     skill = (SKILLS / "pe-value-creation-diagnostic" / "SKILL.md").read_text(encoding="utf-8")
     contract = skill.split("# Output contract", 1)[1].split("\n# ", 1)[0]
     ex = (SKILLS / "pe-value-creation-diagnostic" / "references" / "worked-example.md").read_text(encoding="utf-8")
-    headings = ("Summary", "Findings", "Opportunities", "Assumptions", "Risks and counterarguments", "Data gaps",
-                "Recommended next actions", "Open questions for management")
+    headings = (
+        "Summary",
+        "Findings",
+        "Opportunities",
+        "Assumptions",
+        "Risks and counterarguments",
+        "Data gaps",
+        "Recommended next actions",
+        "Open questions for management",
+    )
     for n, heading in enumerate(headings, start=1):
         assert re.search(rf"^{n}\. \*\*{heading}", contract, re.M), heading
         assert f"## {n}. {heading}" in ex, heading
@@ -62,9 +73,16 @@ def test_stdio_server_serves_tools():
     from mcp.client.session import ClientSession
     from mcp.client.stdio import StdioServerParameters, stdio_client
 
-    params = StdioServerParameters(command=sys.executable, args=["-m", "pe_value_os.cli", "mcp-stdio"],
-                                   env={"PVC_ENV": "dev", "PYTHONPATH": str(ROOT / "src"),
-                                        "PVC_LOG_LEVEL": "WARNING", "SYSTEMROOT": "C:\\Windows"})
+    params = StdioServerParameters(
+        command=sys.executable,
+        args=["-m", "pe_value_os.cli", "mcp-stdio"],
+        env={
+            "PVC_ENV": "dev",
+            "PYTHONPATH": str(ROOT / "src"),
+            "PVC_LOG_LEVEL": "WARNING",
+            "SYSTEMROOT": "C:\\Windows",
+        },
+    )
 
     async def go():
         async with stdio_client(params) as (r, w), ClientSession(r, w) as s:

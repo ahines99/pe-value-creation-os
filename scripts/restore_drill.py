@@ -38,14 +38,29 @@ from pe_value_os.policy import get_policy  # noqa: E402
 from pe_value_os.workflows import primary  # noqa: E402
 from pe_value_os.workflows.steps import RunContext  # noqa: E402
 
-TABLES = ["companies", "workflow_runs", "evidence", "findings", "opportunities", "value_cases", "plans", "approvals",
-          "audit_events"]
+TABLES = [
+    "companies",
+    "workflow_runs",
+    "evidence",
+    "findings",
+    "opportunities",
+    "value_cases",
+    "plans",
+    "approvals",
+    "audit_events",
+]
 COMPANIES = ["acme-healthy", "beacon-pricing", "cedar-churn", "delta-broken"]
 
 
 def db_url(admin: str, db: str, user: str | None = None, pw: str | None = None) -> str:
     p = urlsplit(admin)
-    netloc = p.netloc if not user else f"{user}:{pw}@{p.netloc.split('@')[-1]}" if pw else f"{user}@{p.netloc.split('@')[-1]}"
+    netloc = (
+        p.netloc
+        if not user
+        else f"{user}:{pw}@{p.netloc.split('@')[-1]}"
+        if pw
+        else f"{user}@{p.netloc.split('@')[-1]}"
+    )
     return urlunsplit((p.scheme, netloc, f"/{db}", p.query, p.fragment))
 
 
@@ -106,12 +121,17 @@ def main() -> int:
             visible = {r[0] for r in c.execute("select distinct company_id from workflow_runs").fetchall()}
         assert visible == {"beacon-pricing"}, f"RLS not effective after restore: {visible}"
         size_kb = dump.stat().st_size // 1024
-        line = (f"| {datetime.now(UTC):%Y-%m-%d %H:%M} UTC | local PostgreSQL 18 | {sum(before.values())} rows, "
-                f"{size_kb} KB dump | {t_dump:.2f} s | {t_restore:.2f} s | counts match; RLS verified | pass |")
+        line = (
+            f"| {datetime.now(UTC):%Y-%m-%d %H:%M} UTC | local PostgreSQL 18 | {sum(before.values())} rows, "
+            f"{size_kb} KB dump | {t_dump:.2f} s | {t_restore:.2f} s | counts match; RLS verified | pass |"
+        )
         log = ROOT / "docs" / "runbooks" / "restore-drill-log.md"
         if not log.exists():
-            log.write_text("# Restore drill log (PVC-142)\n\n| When | Environment | Data | Dump | Restore | "
-                           "Checks | Result |\n|---|---|---|---|---|---|---|\n", encoding="utf-8")
+            log.write_text(
+                "# Restore drill log (PVC-142)\n\n| When | Environment | Data | Dump | Restore | "
+                "Checks | Result |\n|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
         with log.open("a", encoding="utf-8") as fh:
             fh.write(line + "\n")
         print(line)

@@ -39,9 +39,11 @@ def _egress(monkeypatch):
 
 def vendors(sim, page=50):
     t = sim.transport()
-    return (StripeBillingAdapter("sk_test", transport=t, page_size=page),
-            HubSpotCrmAdapter("pat", transport=t, page_size=page),
-            ZendeskSupportAdapter("acme", "ops@x", "tok", ZendeskConfig(901, 902, {1}), transport=t))
+    return (
+        StripeBillingAdapter("sk_test", transport=t, page_size=page),
+        HubSpotCrmAdapter("pat", transport=t, page_size=page),
+        ZendeskSupportAdapter("acme", "ops@x", "tok", ZendeskConfig(901, 902, {1}), transport=t),
+    )
 
 
 def composite(tmp_path, sim=None):
@@ -50,10 +52,17 @@ def composite(tmp_path, sim=None):
     stripe, hubspot, zendesk = vendors(sim)
     cs = CompanySources(
         base=CsvExportAdapter(root),
-        sources={DatasetKind.INVOICES: stripe, DatasetKind.PRICE_BOOKS: stripe, DatasetKind.CONCESSIONS: stripe,
-                 DatasetKind.CUSTOMERS: hubspot, DatasetKind.CRM_OPPORTUNITIES: hubspot, DatasetKind.CHURN: hubspot,
-                 DatasetKind.SUPPORT: zendesk},
-        id_systems={DatasetKind.ARR: "stripe", DatasetKind.USAGE: "stripe", DatasetKind.CONTRACTS: "stripe"})
+        sources={
+            DatasetKind.INVOICES: stripe,
+            DatasetKind.PRICE_BOOKS: stripe,
+            DatasetKind.CONCESSIONS: stripe,
+            DatasetKind.CUSTOMERS: hubspot,
+            DatasetKind.CRM_OPPORTUNITIES: hubspot,
+            DatasetKind.CHURN: hubspot,
+            DatasetKind.SUPPORT: zendesk,
+        },
+        id_systems={DatasetKind.ARR: "stripe", DatasetKind.USAGE: "stripe", DatasetKind.CONTRACTS: "stripe"},
+    )
     return CompositeAdapter({CID: cs}), sim
 
 
@@ -81,8 +90,17 @@ def test_conformance(kind, tmp_path):
         assert ds.evidence_id in stored, k  # every dataset registered as evidence
         assert ds.evidence_id == d2.datasets[k].evidence_id, k  # deterministic for identical content
         assert all(r.company_id == CID for r in ds.records), k
-    required = {DatasetKind.PNL, DatasetKind.ARR, DatasetKind.CUSTOMERS, DatasetKind.INVOICES, DatasetKind.PRICE_BOOKS,
-                DatasetKind.CONTRACTS, DatasetKind.CHURN, DatasetKind.SUPPORT, DatasetKind.HEADCOUNT}
+    required = {
+        DatasetKind.PNL,
+        DatasetKind.ARR,
+        DatasetKind.CUSTOMERS,
+        DatasetKind.INVOICES,
+        DatasetKind.PRICE_BOOKS,
+        DatasetKind.CONTRACTS,
+        DatasetKind.CHURN,
+        DatasetKind.SUPPORT,
+        DatasetKind.HEADCOUNT,
+    }
     assert required <= set(d1.datasets)
 
 
@@ -141,8 +159,12 @@ def test_zendesk_mapping():
     src = {int(t["ticket_id"].split("-")[-1]): t for t in csv.DictReader((FIX / CID / "support.csv").open())}
     for r in recs[:100]:
         t = src[int(r.ticket_id)]
-        assert (r.category, r.tier, str(r.handle_minutes), r.severity) == (t["category"], t["tier"],
-                                                                           t["handle_minutes"], t["severity"])
+        assert (r.category, r.tier, str(r.handle_minutes), r.severity) == (
+            t["category"],
+            t["tier"],
+            t["handle_minutes"],
+            t["severity"],
+        )
 
 
 # --- round trip: composite sources reproduce the fixture's value cases ------------------------------------------
@@ -151,9 +173,15 @@ def _value_cases(adapter, tmp_path):
     with security.principal_scope(security.system_principal(CID)):
         rec, _ = primary.start(ctx, CID, "t")
         st = anyio.run(lambda: primary.execute(ctx, rec.run_id, backoff_s=0))
-        out = sorted((o.lever.value, o.baseline_metric, json.dumps(o.metric_params),
-                      str(ctx.repo.get_value_case(CID, o.opportunity_id).annual_ebitda_base))
-                     for o in ctx.repo.list_opportunities(rec.run_id))
+        out = sorted(
+            (
+                o.lever.value,
+                o.baseline_metric,
+                json.dumps(o.metric_params),
+                str(ctx.repo.get_value_case(CID, o.opportunity_id).annual_ebitda_base),
+            )
+            for o in ctx.repo.list_opportunities(rec.run_id)
+        )
     return st, out
 
 
@@ -171,17 +199,31 @@ def test_composite_round_trip_matches_fixture(tmp_path):
 
 # --- entity resolution (PVC-117) -----------------------------------------------------------------------------------
 def cust(cid, name, domain):
-    return Customer(company_id="x", customer_id=cid, name=name, segment="smb", size_band="s",
-                    acquisition_channel="inbound", first_contract_date="2025-01-01", domain=domain)
+    return Customer(
+        company_id="x",
+        customer_id=cid,
+        name=name,
+        segment="smb",
+        size_band="s",
+        acquisition_channel="inbound",
+        first_contract_date="2025-01-01",
+        domain=domain,
+    )
 
 
 def test_resolution_rules():
-    customers = [cust("1", "Acme Inc", "acme.com"), cust("2", "Beta LLC", "beta.io"), cust("3", "Beta LLC", "beta.com"),
-                 cust("4", "Acme Holdings", "ACME.com")]
-    foreign = [er.ForeignEntity("stripe", "cus_a", "whatever", "billing@www.acme.com"),
-               er.ForeignEntity("stripe", "cus_b", "Beta, LLC", None),
-               er.ForeignEntity("stripe", "cus_c", "Gamma", None),
-               er.ForeignEntity("zendesk", "77", "Beta LLC", "beta.io")]
+    customers = [
+        cust("1", "Acme Inc", "acme.com"),
+        cust("2", "Beta LLC", "beta.io"),
+        cust("3", "Beta LLC", "beta.com"),
+        cust("4", "Acme Holdings", "ACME.com"),
+    ]
+    foreign = [
+        er.ForeignEntity("stripe", "cus_a", "whatever", "billing@www.acme.com"),
+        er.ForeignEntity("stripe", "cus_b", "Beta, LLC", None),
+        er.ForeignEntity("stripe", "cus_c", "Gamma", None),
+        er.ForeignEntity("zendesk", "77", "Beta LLC", "beta.io"),
+    ]
     r = er.Resolver(overrides={"stripe:cus_c": "2"}).resolve(customers, foreign)
     assert r.duplicates == {"4": "1"}  # same normalized domain
     assert r.resolve("stripe", "cus_a") == "1" and r.resolve("zendesk", "77") == "2"
@@ -240,8 +282,10 @@ def test_warehouse_adapter_matches_fixture(pg_database):
             with conn.cursor().copy(f"copy wh.pvc_{name} from stdin with (format csv, header true)") as cp:
                 cp.write(path.read_bytes())
         conn.execute("create table wh.pvc_company_profile (company_id text, profile_json text, reference_date date)")
-        conn.execute("insert into wh.pvc_company_profile values (%s, %s, %s)",
-                     (CID, (FIX / CID / "company.json").read_text(), manifest["reference_date"]))
+        conn.execute(
+            "insert into wh.pvc_company_profile values (%s, %s, %s)",
+            (CID, (FIX / CID / "company.json").read_text(), manifest["reference_date"]),
+        )
         conn.execute("create table wh.pvc_dataset_freshness (company_id text, dataset text, as_of timestamp)")
         for name, meta in manifest["datasets"].items():
             conn.execute("insert into wh.pvc_dataset_freshness values (%s, %s, %s)", (CID, name, meta["as_of"]))
@@ -254,3 +298,39 @@ def test_warehouse_adapter_matches_fixture(pg_database):
         b = sorted(r.model_dump_json() for r in ds.records)
         assert a == b, kind
         assert got.datasets[kind].as_of == ds.as_of, kind
+
+
+class _FakeS3:
+    """Records put_object calls; head/get raise the injected not-found error."""
+
+    class exceptions:
+        ClientError = KeyError
+
+    def __init__(self):
+        self.objects: dict[str, dict] = {}
+
+    def head_object(self, Bucket, Key):
+        if Key not in self.objects:
+            raise KeyError(Key)
+        return {"Metadata": self.objects[Key].get("Metadata", {})}
+
+    def put_object(self, **kw):
+        self.objects[kw["Key"]] = kw
+
+
+def test_s3_store_uses_customer_managed_key_when_configured():
+    from pe_value_os.adapters.evidence_store import ImmutableEvidenceError, S3EvidenceStore
+
+    s3 = _FakeS3()
+    store = S3EvidenceStore("bucket", client=s3, kms_key_id="arn:aws:kms:us-east-1:111122223333:key/k")
+    key = store.put_original("acme", "ev1", b"abc")
+    assert s3.objects[key]["ServerSideEncryption"] == "aws:kms"
+    assert s3.objects[key]["SSEKMSKeyId"].endswith("key/k")
+    assert store.put_original("acme", "ev1", b"abc") == key  # idempotent for identical bytes
+    with pytest.raises(ImmutableEvidenceError):
+        store.put_original("acme", "ev1", b"different")
+
+    plain = _FakeS3()
+    S3EvidenceStore("bucket", client=plain).put_derived("acme", "ev1", "text")
+    (obj,) = plain.objects.values()
+    assert "ServerSideEncryption" not in obj and "SSEKMSKeyId" not in obj  # bucket default encryption applies

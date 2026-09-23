@@ -1,0 +1,7 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# The state bucket lives in the staging account, is versioned and encrypted, and is created once by hand
+# (docs/deployment.md, "State backends"). Locking uses S3 conditional writes (use_lockfile), no DynamoDB.
+bucket = "pvc-staging-tfstate-111111111111"
+key    = "pvc/staging/terraform.tfstate"
+region = "us-east-1"
+# kms_key_id = "arn:aws:kms:us-east-1:111111111111:key/..."

@@ -20,10 +20,15 @@ SNAP = Path(__file__).parent / "snapshots"
 UPDATE = os.environ.get("PVC_UPDATE_SNAPSHOTS") == "1"
 
 CONTRACTS = {
-    "EvidenceRef": models.EvidenceRef, "Finding": models.Finding, "AuditEvent": models.AuditEvent,
-    "OpportunityProposal": project_models.OpportunityProposal, "Opportunity": project_models.Opportunity,
-    "ValueCase": project_models.ValueCase, "PriorityScore": project_models.PriorityScore,
-    "Plan": project_models.Plan, "KpiDefinition": kpi_models.KpiDefinition,
+    "EvidenceRef": models.EvidenceRef,
+    "Finding": models.Finding,
+    "AuditEvent": models.AuditEvent,
+    "OpportunityProposal": project_models.OpportunityProposal,
+    "Opportunity": project_models.Opportunity,
+    "ValueCase": project_models.ValueCase,
+    "PriorityScore": project_models.PriorityScore,
+    "Plan": project_models.Plan,
+    "KpiDefinition": kpi_models.KpiDefinition,
     "KpiObservation": kpi_models.KpiObservation,
     **{f"source.{k.value}": t for k, t in source_models.RECORD_TYPES.items()},
 }
@@ -39,7 +44,8 @@ def check(name: str, current: dict) -> None:
             pytest.fail(f"Created missing snapshot {path.name}; review and commit it")
         return
     assert path.read_text(encoding="utf-8") == text, (
-        f"Schema for {name} changed. If intended, run PVC_UPDATE_SNAPSHOTS=1 and follow docs/data_contracts.md")
+        f"Schema for {name} changed. If intended, run PVC_UPDATE_SNAPSHOTS=1 and follow docs/data_contracts.md"
+    )
 
 
 @pytest.mark.parametrize("name", sorted(CONTRACTS))
@@ -56,8 +62,9 @@ def _tools():
 
 
 def test_tool_schema_snapshot():
-    tools = {t.name: {"description": t.description, "input": t.input_schema, "output": t.output_schema}
-             for t in _tools()}
+    tools = {
+        t.name: {"description": t.description, "input": t.input_schema, "output": t.output_schema} for t in _tools()
+    }
     check("tools", tools)
 
 

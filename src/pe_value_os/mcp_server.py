@@ -7,9 +7,12 @@ OAuth bearer tokens outside dev. Run locally with `uvicorn pe_value_os.mcp_serve
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
+from urllib.parse import urlsplit
 
 from mcp.server import MCPServer
+from mcp.server.transport_security import TransportSecuritySettings
 from pydantic import BaseModel
 
 from . import __version__, security
@@ -40,8 +43,12 @@ class Health(BaseModel):
 
 def build_server() -> MCPServer:
     mcp = MCPServer(
-        "PE Portfolio Value Creation Operating System", instructions=INSTRUCTIONS, version=__version__,
-        token_verifier=verifier_from_env(), auth=auth_settings_from_env(), middleware=[StrictArguments()],
+        "PE Portfolio Value Creation Operating System",
+        instructions=INSTRUCTIONS,
+        version=__version__,
+        token_verifier=verifier_from_env(),
+        auth=auth_settings_from_env(),
+        middleware=[StrictArguments()],
     )
 
     @mcp.tool()
@@ -68,8 +75,10 @@ def build_server() -> MCPServer:
     def data_inventory(company_id: str) -> str:
         """Datasets available for a company: rows, invalid rows, as-of dates and evidence ids."""
         data = company_data(company_id)
-        return json.dumps({"company_id": company_id, "reference_date": data.reference_date.isoformat(),
-                           "datasets": data.inventory()}, indent=2)
+        return json.dumps(
+            {"company_id": company_id, "reference_date": data.reference_date.isoformat(), "datasets": data.inventory()},
+            indent=2,
+        )
 
     @mcp.resource("run://{run_id}/summary", mime_type="application/json")
     def run_summary(run_id: str) -> str:
@@ -80,17 +89,32 @@ def build_server() -> MCPServer:
         vcs = {v.opportunity_id: v for v in ctx.repo.list_value_cases(run_id)}
         plan = ctx.repo.latest_plan(run_id)
         out: dict[str, Any] = {
-            "run_id": run_id, "company_id": rec.company_id, "status": rec.status.value,
-            "findings": [f.model_dump(mode="json", include={"finding_id", "finding_type", "title", "statement",
-                                                            "confidence", "evidence_ids"})
-                         for f in ctx.repo.list_findings(run_id)],
-            "opportunities": [{**o.model_dump(mode="json", include={"opportunity_id", "lever", "title",
-                                                                    "confidence", "evidence_ids"}),
-                               "value_case": vcs[o.opportunity_id].model_dump(mode="json")
-                               if o.opportunity_id in vcs else None}
-                              for o in ctx.repo.list_opportunities(run_id)],
-            "plan": {"plan_id": plan.plan_id, "status": plan.status,
-                     "total_run_rate_ebitda_base": plan.plan.get("total_run_rate_ebitda_base")} if plan else None,
+            "run_id": run_id,
+            "company_id": rec.company_id,
+            "status": rec.status.value,
+            "findings": [
+                f.model_dump(
+                    mode="json",
+                    include={"finding_id", "finding_type", "title", "statement", "confidence", "evidence_ids"},
+                )
+                for f in ctx.repo.list_findings(run_id)
+            ],
+            "opportunities": [
+                {
+                    **o.model_dump(
+                        mode="json", include={"opportunity_id", "lever", "title", "confidence", "evidence_ids"}
+                    ),
+                    "value_case": vcs[o.opportunity_id].model_dump(mode="json") if o.opportunity_id in vcs else None,
+                }
+                for o in ctx.repo.list_opportunities(run_id)
+            ],
+            "plan": {
+                "plan_id": plan.plan_id,
+                "status": plan.status,
+                "total_run_rate_ebitda_base": plan.plan.get("total_run_rate_ebitda_base"),
+            }
+            if plan
+            else None,
         }
         return json.dumps(out, indent=2)
 
@@ -107,5 +131,32 @@ def build_server() -> MCPServer:
     return mcp
 
 
+def transport_security_from_env() -> TransportSecuritySettings | None:
+    """DNS-rebinding protection for the public hostname.
+
+    The SDK default only accepts localhost Host headers. Behind the load balancer the Host header is the public
+    hostname from PVC_MCP_RESOURCE_URL, plus any extra hosts in PVC_MCP_ALLOWED_HOSTS (comma-separated).
+    Returns None in local dev (no resource URL), keeping the SDK's localhost-only default.
+    """
+    hosts = [h.strip() for h in os.environ.get("PVC_MCP_ALLOWED_HOSTS", "").split(",") if h.strip()]
+    resource = os.environ.get("PVC_MCP_RESOURCE_URL")
+    if resource:
+        hosts.append(urlsplit(resource).netloc)
+    if not hosts:
+        return None
+    origins = [f"https://{h}" for h in hosts] + [f"http://{h}" for h in hosts if h.startswith(("127.", "localhost"))]
+    return TransportSecuritySettings(
+        enable_dns_rebinding_protection=True, allowed_hosts=sorted(set(hosts)), allowed_origins=sorted(set(origins))
+    )
+
+
+def create_http_app(server: MCPServer | None = None) -> Any:
+    """Streamable HTTP ASGI app with transport security and request metrics."""
+    s = server or mcp
+    return RequestMetricsMiddleware(
+        s.streamable_http_app(transport_security=transport_security_from_env()), service="mcp"
+    )
+
+
 mcp = build_server()
-app = RequestMetricsMiddleware(mcp.streamable_http_app(), service="mcp")
+app = create_http_app(mcp)

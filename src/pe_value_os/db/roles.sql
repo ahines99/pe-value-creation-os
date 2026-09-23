@@ -15,3 +15,7 @@ begin
     create role pvc_readonly login;
   end if;
 end $$;
+
+-- PostgreSQL 15+ no longer lets every role create in schema public; the migrator owns the schema objects.
+-- (infra/docker/bootstrap_db.py applies the same grant on managed clusters.)
+grant usage, create on schema public to pvc_migrator;

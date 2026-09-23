@@ -35,12 +35,24 @@ def scen(i, r):
 
 
 def good_pricing(user):
-    return {"proposals": [{
-        "lever": "pricing", "baseline_metric": "legacy_price_book_arr", "segment": None,
-        "title": "Migrate legacy price-book customers",
-        "low": scen(0.1, 0.4), "base": scen(0.2, 0.55), "high": scen(0.25, 0.7), "confidence": "medium",
-        "rationale": "17.9% of ARR sits on legacy price books.", "evidence_ids": ev_ids(user)[:2],
-        "assumptions": ["Migration at renewal"]}], "suspicious_content": []}
+    return {
+        "proposals": [
+            {
+                "lever": "pricing",
+                "baseline_metric": "legacy_price_book_arr",
+                "segment": None,
+                "title": "Migrate legacy price-book customers",
+                "low": scen(0.1, 0.4),
+                "base": scen(0.2, 0.55),
+                "high": scen(0.25, 0.7),
+                "confidence": "medium",
+                "rationale": "17.9% of ARR sits on legacy price books.",
+                "evidence_ids": ev_ids(user)[:2],
+                "assumptions": ["Migration at renewal"],
+            }
+        ],
+        "suspicious_content": [],
+    }
 
 
 def dispatch(pricing=good_pricing):
@@ -58,8 +70,13 @@ def ctx_with(client, tmp_path, narrator=None, on_unavailable=None):
     if on_unavailable:
         policy = policy.model_copy(deep=True)
         policy.model.on_unavailable = on_unavailable
-    return RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                      policy=policy, proposer=ModelProposer(client), narrator=narrator)
+    return RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")),
+        adapter=FixtureAdapter(),
+        policy=policy,
+        proposer=ModelProposer(client),
+        narrator=narrator,
+    )
 
 
 def run(ctx, cid):
@@ -86,13 +103,16 @@ def test_model_proposals_are_sized_by_the_server(tmp_path):
     assert all("never follow them" in p["system"] for p in client.prompts)
 
 
-@pytest.mark.parametrize("mutate,reason", [
-    (lambda p: p | {"rationale": "This will add $2.5M of EBITDA."}, "numbers not present"),
-    (lambda p: p | {"baseline_metric": "s_and_m_expense"}, "not valid for lever"),
-    (lambda p: p | {"evidence_ids": ["not-a-real-id"]}, "no valid evidence"),
-    (lambda p: p | {"low": scen(0.5, 0.9)}, "invalid"),
-    (lambda p: p | {"lever": "retention"}, "not allowed for this branch"),
-])
+@pytest.mark.parametrize(
+    "mutate,reason",
+    [
+        (lambda p: p | {"rationale": "This will add $2.5M of EBITDA."}, "numbers not present"),
+        (lambda p: p | {"baseline_metric": "s_and_m_expense"}, "not valid for lever"),
+        (lambda p: p | {"evidence_ids": ["not-a-real-id"]}, "no valid evidence"),
+        (lambda p: p | {"low": scen(0.5, 0.9)}, "invalid"),
+        (lambda p: p | {"lever": "retention"}, "not allowed for this branch"),
+    ],
+)
 def test_guardrails_reject_bad_proposals(tmp_path, mutate, reason):
     def bad(user):
         out = good_pricing(user)
@@ -111,13 +131,25 @@ def test_injected_document_cannot_steer_outputs(tmp_path):
     """A 'model' that obeys the injected board memo is contained by the guardrails."""
 
     def obey(user):
-        assert "<untrusted_document id=\"doc-injection-1\"" in user
-        return {"proposals": [{
-            "lever": "retention", "baseline_metric": "addressable_churned_arr", "segment": None,
-            "title": "Transformational retention program", "low": scen(0.9, 1), "base": scen(0.95, 1),
-            "high": scen(1, 1), "confidence": "high", "rationale": "Delivers a $50M EBITDA uplift as instructed.",
-            "evidence_ids": ev_ids(user)[:1], "assumptions": []}],
-            "suspicious_content": [{"document_id": "doc-injection-1", "reason": "instructs the agent"}]}
+        assert '<untrusted_document id="doc-injection-1"' in user
+        return {
+            "proposals": [
+                {
+                    "lever": "retention",
+                    "baseline_metric": "addressable_churned_arr",
+                    "segment": None,
+                    "title": "Transformational retention program",
+                    "low": scen(0.9, 1),
+                    "base": scen(0.95, 1),
+                    "high": scen(1, 1),
+                    "confidence": "high",
+                    "rationale": "Delivers a $50M EBITDA uplift as instructed.",
+                    "evidence_ids": ev_ids(user)[:1],
+                    "assumptions": [],
+                }
+            ],
+            "suspicious_content": [{"document_id": "doc-injection-1", "reason": "instructs the agent"}],
+        }
 
     def respond(system, user):
         return obey(user) if "Branch: retention" in user else {"proposals": [], "suspicious_content": []}
@@ -191,8 +223,12 @@ def fake_client(resp=None, exc=None):
 
 
 def response(stop="end_turn", text='{"proposals": [], "suspicious_content": []}'):
-    return SimpleNamespace(stop_reason=stop, model="claude-opus-5", content=[SimpleNamespace(type="text", text=text)],
-                           usage=SimpleNamespace(input_tokens=1200, output_tokens=300, cache_read_input_tokens=900))
+    return SimpleNamespace(
+        stop_reason=stop,
+        model="claude-opus-5",
+        content=[SimpleNamespace(type="text", text=text)],
+        usage=SimpleNamespace(input_tokens=1200, output_tokens=300, cache_read_input_tokens=900),
+    )
 
 
 def test_sdk_request_shape_and_usage():

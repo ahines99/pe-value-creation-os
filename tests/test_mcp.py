@@ -26,8 +26,12 @@ ALL = ("acme-healthy", "beacon-pricing", "cedar-churn", "delta-broken")
 
 @pytest.fixture
 def ctx(tmp_path):
-    c = RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                   policy=get_policy(), actor="mcp")
+    c = RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")),
+        adapter=FixtureAdapter(),
+        policy=get_policy(),
+        actor="mcp",
+    )
     _runtime.set_ctx(c)
     yield c
     _runtime.set_ctx(None)
@@ -39,8 +43,9 @@ def server(ctx):
 
 
 def as_(*companies, kind="model"):
-    return security.principal_scope(security.Principal(subject=f"{kind}:tester", companies=frozenset(companies),
-                                                       principal_type=kind))
+    return security.principal_scope(
+        security.Principal(subject=f"{kind}:tester", companies=frozenset(companies), principal_type=kind)
+    )
 
 
 async def call(client, name, args):
@@ -84,14 +89,17 @@ async def test_read_tools_success_and_scope(server, tool, args):
             assert denied.is_error and "Access denied" in text(denied)
 
 
-@pytest.mark.parametrize("tool,args", [
-    ("get_financials", {"company_id": "beacon-pricing", "period_end": "last year"}),
-    ("check_data_sufficiency", {"company_id": "beacon-pricing", "analysis": "vibes"}),
-    ("compute_retention_cohorts", {"company_id": "beacon-pricing", "cohort_grain": "decade"}),
-    ("get_benchmarks", {"metric": "grr", "peer_set": "vertical_saas_smb_heavy"}),
-    ("get_benchmarks", {"metric": "made_up", "peer_set": "b2b_saas_10_50m_arr"}),
-    ("price_waterfall", {"company_id": "beacon-pricing", "period": "2026-13"}),
-])
+@pytest.mark.parametrize(
+    "tool,args",
+    [
+        ("get_financials", {"company_id": "beacon-pricing", "period_end": "last year"}),
+        ("check_data_sufficiency", {"company_id": "beacon-pricing", "analysis": "vibes"}),
+        ("compute_retention_cohorts", {"company_id": "beacon-pricing", "cohort_grain": "decade"}),
+        ("get_benchmarks", {"metric": "grr", "peer_set": "vertical_saas_smb_heavy"}),
+        ("get_benchmarks", {"metric": "made_up", "peer_set": "b2b_saas_10_50m_arr"}),
+        ("price_waterfall", {"company_id": "beacon-pricing", "period": "2026-13"}),
+    ],
+)
 async def test_invalid_arguments_are_errors(server, tool, args):
     with as_("beacon-pricing"):
         async with Client(server) as c:
@@ -128,10 +136,18 @@ async def test_propose_rejects_caller_supplied_baseline(server):
     with as_("beacon-pricing"):
         async with Client(server) as c:
             run_id = await _interactive_run(c, "beacon-pricing")
-            args = {"run_id": run_id, "lever": "pricing", "baseline_metric": "legacy_price_book_arr",
-                    "title": "Legacy migration", "low": scen("0.1", "0.4"), "base": scen("0.2", "0.55"),
-                    "high": scen("0.25", "0.7"), "confidence": "medium", "rationale": "legacy share high",
-                    "evidence_ids": []}
+            args = {
+                "run_id": run_id,
+                "lever": "pricing",
+                "baseline_metric": "legacy_price_book_arr",
+                "title": "Legacy migration",
+                "low": scen("0.1", "0.4"),
+                "base": scen("0.2", "0.55"),
+                "high": scen("0.25", "0.7"),
+                "confidence": "medium",
+                "rationale": "legacy share high",
+                "evidence_ids": [],
+            }
             with pytest.raises(Exception, match=r"does not accept arguments .*baseline_value"):
                 await c.call_tool("propose_opportunity", {**args, "baseline_value": "999999999"})
             with pytest.raises(Exception, match="ebitda_flow_through"):
@@ -142,8 +158,17 @@ async def test_record_finding_enforces_citations(server):
     with as_("beacon-pricing"):
         async with Client(server) as c:
             run_id = await _interactive_run(c, "beacon-pricing")
-            r = await c.call_tool("record_finding", {"run_id": run_id, "finding_type": "value_claim", "title": "t",
-                                                     "statement": "s", "confidence": "high", "evidence_ids": []})
+            r = await c.call_tool(
+                "record_finding",
+                {
+                    "run_id": run_id,
+                    "finding_type": "value_claim",
+                    "title": "t",
+                    "statement": "s",
+                    "confidence": "high",
+                    "evidence_ids": [],
+                },
+            )
             assert r.is_error and "PolicyViolation" in text(r)
 
 
@@ -152,9 +177,17 @@ async def test_mutating_tools_write_audit(server, ctx):
         async with Client(server) as c:
             run_id = await _interactive_run(c, "beacon-pricing")
             ev = (await c.call_tool("get_company_profile", {"company_id": "beacon-pricing"})).structured_content
-            await c.call_tool("record_finding", {"run_id": run_id, "finding_type": "observation", "title": "t",
-                                                 "statement": "s", "confidence": "low",
-                                                 "evidence_ids": ev["evidence_ids"]})
+            await c.call_tool(
+                "record_finding",
+                {
+                    "run_id": run_id,
+                    "finding_type": "observation",
+                    "title": "t",
+                    "statement": "s",
+                    "confidence": "low",
+                    "evidence_ids": ev["evidence_ids"],
+                },
+            )
         events = [e.event_type for e in ctx.repo.list_audit(run_id=run_id)]
         assert "finding_recorded" in events
         assert all(e.actor == "model:tester" for e in ctx.repo.list_audit(run_id=run_id) if e.step.startswith("tool:"))
@@ -180,24 +213,45 @@ async def _golden_pricing_flow(c) -> str:
     run_id = await _interactive_run(c, "beacon-pricing")
     pw = (await c.call_tool("price_waterfall", {"company_id": "beacon-pricing"})).structured_content
     ev = pw["evidence_ids"]
-    f = await c.call_tool("record_finding", {
-        "run_id": run_id, "finding_type": "observation", "title": "Legacy price books",
-        "statement": f"{pw['legacy']['legacy_arr_share']} of ARR on legacy price books", "confidence": "high",
-        "evidence_ids": ev})
+    f = await c.call_tool(
+        "record_finding",
+        {
+            "run_id": run_id,
+            "finding_type": "observation",
+            "title": "Legacy price books",
+            "statement": f"{pw['legacy']['legacy_arr_share']} of ARR on legacy price books",
+            "confidence": "high",
+            "evidence_ids": ev,
+        },
+    )
     assert f.is_error is False, text(f)
-    o = await c.call_tool("propose_opportunity", {
-        "run_id": run_id, "lever": "pricing", "baseline_metric": "legacy_price_book_arr",
-        "title": "Migrate legacy price-book customers", "low": scen("0.1", "0.4"), "base": scen("0.2", "0.55"),
-        "high": scen("0.25", "0.7"), "confidence": "medium", "rationale": "Legacy share above policy",
-        "evidence_ids": ev, "one_time_cost": "75000"})
+    o = await c.call_tool(
+        "propose_opportunity",
+        {
+            "run_id": run_id,
+            "lever": "pricing",
+            "baseline_metric": "legacy_price_book_arr",
+            "title": "Migrate legacy price-book customers",
+            "low": scen("0.1", "0.4"),
+            "base": scen("0.2", "0.55"),
+            "high": scen("0.25", "0.7"),
+            "confidence": "medium",
+            "rationale": "Legacy share above policy",
+            "evidence_ids": ev,
+            "one_time_cost": "75000",
+        },
+    )
     assert o.is_error is False, text(o)
     opp = o.structured_content
     assert opp["baseline_value"] == pw["legacy"]["legacy_arr"]  # server-derived, not caller-supplied
-    vc = await c.call_tool("size_value_case", {"company_id": "beacon-pricing", "opportunity_id": opp["opportunity_id"],
-                                               "ev_multiple": "10"})
+    vc = await c.call_tool(
+        "size_value_case",
+        {"company_id": "beacon-pricing", "opportunity_id": opp["opportunity_id"], "ev_multiple": "10"},
+    )
     assert vc.is_error is False and vc.structured_content["calc_version"] == "value-case/1"
-    ev_list = await c.call_tool("list_evidence", {"company_id": "beacon-pricing",
-                                                  "opportunity_id": opp["opportunity_id"]})
+    ev_list = await c.call_tool(
+        "list_evidence", {"company_id": "beacon-pricing", "opportunity_id": opp["opportunity_id"]}
+    )
     assert {e["evidence_id"] for e in ev_list.structured_content["result"]} >= set(ev)
     pr = await c.call_tool("prioritize_opportunities", {"run_id": run_id})
     assert pr.structured_content["result"][0]["rank"] == 1
@@ -250,15 +304,37 @@ async def test_golden_4_retention_proposal_sized_from_company_data(server):
             run_id = await _interactive_run(c, "cedar-churn")
             ra = (await c.call_tool("compute_retention_cohorts", {"company_id": "cedar-churn"})).structured_content
             assert ra["involuntary_payment_share"] is not None
-            o = await c.call_tool("propose_opportunity", {
-                "run_id": run_id, "lever": "retention", "baseline_metric": "failed_payment_churned_arr",
-                "title": "Dunning", "low": scen("0.3", "0.6"), "base": scen("0.45", "0.75"), "high": scen("0.6", "0.85"),
-                "confidence": "medium", "rationale": "failed payments", "evidence_ids": ra["evidence_ids"]})
+            o = await c.call_tool(
+                "propose_opportunity",
+                {
+                    "run_id": run_id,
+                    "lever": "retention",
+                    "baseline_metric": "failed_payment_churned_arr",
+                    "title": "Dunning",
+                    "low": scen("0.3", "0.6"),
+                    "base": scen("0.45", "0.75"),
+                    "high": scen("0.6", "0.85"),
+                    "confidence": "medium",
+                    "rationale": "failed payments",
+                    "evidence_ids": ra["evidence_ids"],
+                },
+            )
             assert o.structured_content["ebitda_flow_through"] != "1"  # gross-margin flow-through for retention
-            bad = await c.call_tool("propose_opportunity", {
-                "run_id": run_id, "lever": "retention", "baseline_metric": "s_and_m_expense",
-                "title": "Wrong metric", "low": scen("0.1", "0.5"), "base": scen("0.1", "0.5"), "high": scen("0.1", "0.5"),
-                "confidence": "low", "rationale": "x", "evidence_ids": ra["evidence_ids"]})
+            bad = await c.call_tool(
+                "propose_opportunity",
+                {
+                    "run_id": run_id,
+                    "lever": "retention",
+                    "baseline_metric": "s_and_m_expense",
+                    "title": "Wrong metric",
+                    "low": scen("0.1", "0.5"),
+                    "base": scen("0.1", "0.5"),
+                    "high": scen("0.1", "0.5"),
+                    "confidence": "low",
+                    "rationale": "x",
+                    "evidence_ids": ra["evidence_ids"],
+                },
+            )
             assert bad.is_error and "not a valid baseline" in text(bad)
 
 

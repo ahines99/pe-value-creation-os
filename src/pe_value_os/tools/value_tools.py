@@ -114,8 +114,9 @@ def register_value_model(mcp: MCPServer) -> None:
     @governed("record_finding", mutating=True)
     def record_finding(
         run_id: str,
-        finding_type: Literal["observation", "hypothesis", "value_claim", "opportunity", "data_gap",
-                              "suspicious_content"],
+        finding_type: Literal[
+            "observation", "hypothesis", "value_claim", "opportunity", "data_gap", "suspicious_content"
+        ],
         title: str,
         statement: str,
         confidence: Literal["low", "medium", "high"],
@@ -124,10 +125,19 @@ def register_value_model(mcp: MCPServer) -> None:
     ) -> Finding:
         """Persist a finding for a run. Value claims must cite at least one evidence id from this company."""
         rec = _run(run_id)
-        f = Finding(finding_id=str(uuid.uuid4()), run_id=run_id, company_id=rec.company_id,
-                    finding_type=FindingType(finding_type), title=title, statement=statement,
-                    confidence=Confidence(confidence), evidence_ids=evidence_ids, assumptions=assumptions or [],
-                    metadata={"source": "mcp", "actor": security.current_principal().subject})  # type: ignore[union-attr]
+        principal = security.current_principal()
+        f = Finding(
+            finding_id=str(uuid.uuid4()),
+            run_id=run_id,
+            company_id=rec.company_id,
+            finding_type=FindingType(finding_type),
+            title=title,
+            statement=statement,
+            confidence=Confidence(confidence),
+            evidence_ids=evidence_ids,
+            assumptions=assumptions or [],
+            metadata={"source": "mcp", "actor": principal.subject if principal else "unknown"},
+        )
         require_citations(f)
         get_ctx().repo.add_finding(f)
         audit(rec.company_id, "record_finding", "finding_recorded", run_id, count=len(evidence_ids))
@@ -159,17 +169,38 @@ def register_value_model(mcp: MCPServer) -> None:
         data = company_data(rec.company_id)
         derived = derive_baseline(data, Lever(lever), baseline_metric, metric_params or {}, ctx.policy)
         opp = Opportunity(
-            opportunity_id=str(uuid.uuid4()), run_id=run_id, company_id=rec.company_id, lever=Lever(lever),
-            title=title, baseline_metric=baseline_metric, baseline_value=derived.baseline.value,
-            ebitda_flow_through=derived.ebitda_flow_through, low=low, base=base, high=high,
-            annual_run_cost=annual_run_cost, one_time_cost=one_time_cost, confidence=Confidence(confidence),
-            rationale=rationale, assumptions=assumptions or [],
-            evidence_ids=sorted(set(evidence_ids) | set(derived.evidence_ids)), metric_params=metric_params or {},
+            opportunity_id=str(uuid.uuid4()),
+            run_id=run_id,
+            company_id=rec.company_id,
+            lever=Lever(lever),
+            title=title,
+            baseline_metric=baseline_metric,
+            baseline_value=derived.baseline.value,
+            ebitda_flow_through=derived.ebitda_flow_through,
+            low=low,
+            base=base,
+            high=high,
+            annual_run_cost=annual_run_cost,
+            one_time_cost=one_time_cost,
+            confidence=Confidence(confidence),
+            rationale=rationale,
+            assumptions=assumptions or [],
+            evidence_ids=sorted(set(evidence_ids) | set(derived.evidence_ids)),
+            metric_params=metric_params or {},
         )
-        ctx.repo.add_opportunity(opp, proposer=f"mcp:{security.current_principal().subject}",  # type: ignore[union-attr]
-                                 flow_through_rule=derived.flow_through_rule)
-        audit(rec.company_id, "propose_opportunity", "opportunity_proposed", run_id, opportunity_id=opp.opportunity_id,
-              lever=lever)
+        ctx.repo.add_opportunity(
+            opp,
+            proposer=f"mcp:{security.current_principal().subject}",  # type: ignore[union-attr]
+            flow_through_rule=derived.flow_through_rule,
+        )
+        audit(
+            rec.company_id,
+            "propose_opportunity",
+            "opportunity_proposed",
+            run_id,
+            opportunity_id=opp.opportunity_id,
+            lever=lever,
+        )
         return opp
 
     @mcp.tool(name="size_value_case")
@@ -181,8 +212,15 @@ def register_value_model(mcp: MCPServer) -> None:
         opp = ctx.repo.get_opportunity(company_id, opportunity_id)
         vc = _size(opp, ev_multiple)
         ctx.repo.save_value_case(company_id, opp.run_id, vc, ctx.policy.version)
-        audit(company_id, "size_value_case", "value_case_sized", opp.run_id, opportunity_id=opportunity_id,
-              calc_version=vc.calc_version, policy_version=ctx.policy.version)
+        audit(
+            company_id,
+            "size_value_case",
+            "value_case_sized",
+            opp.run_id,
+            opportunity_id=opportunity_id,
+            calc_version=vc.calc_version,
+            policy_version=ctx.policy.version,
+        )
         return vc
 
     @mcp.tool()
@@ -197,8 +235,9 @@ def register_value_model(mcp: MCPServer) -> None:
         """Deterministic priority scores for every sized opportunity in a run. Do not reorder the result."""
         rec = _run(run_id)
         ctx = get_ctx()
-        items = [(o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id))
-                 for o in ctx.repo.list_opportunities(run_id)]
+        items = [
+            (o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id)) for o in ctx.repo.list_opportunities(run_id)
+        ]
         scores = prioritize(items, ctx.policy)
         ctx.repo.save_priorities(run_id, rec.company_id, scores)
         audit(rec.company_id, "prioritize_opportunities", "opportunities_prioritized", run_id, count=len(scores))
@@ -213,16 +252,38 @@ def register_value_model(mcp: MCPServer) -> None:
         ctx = get_ctx()
         scores = ctx.repo.list_priorities(run_id)
         ranked = {s.opportunity_id for s in scores}
-        items = [(o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id))
-                 for o in ctx.repo.list_opportunities(run_id) if o.opportunity_id in ranked]
-        excluded = [{"opportunity_id": o.opportunity_id, "title": o.title,
-                     "reason": f"Base case does not pay back ({vc.annual_ebitda_base})"}
-                    for o, vc in items if vc.annual_ebitda_base <= 0]
-        plan = build_plan(run_id, company_data(rec.company_id), [(o, v) for o, v in items if v.annual_ebitda_base > 0],
-                          scores, ctx.policy, excluded=excluded)
-        ctx.repo.save_plan(PlanRecord(plan_id=plan.plan_id, run_id=run_id, company_id=rec.company_id,
-                                      status="proposed", plan=plan.model_dump(mode="json"),
-                                      created_at=datetime.now(UTC)))
+        items = [
+            (o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id))
+            for o in ctx.repo.list_opportunities(run_id)
+            if o.opportunity_id in ranked
+        ]
+        excluded = [
+            {
+                "opportunity_id": o.opportunity_id,
+                "title": o.title,
+                "reason": f"Base case does not pay back ({vc.annual_ebitda_base})",
+            }
+            for o, vc in items
+            if vc.annual_ebitda_base <= 0
+        ]
+        plan = build_plan(
+            run_id,
+            company_data(rec.company_id),
+            [(o, v) for o, v in items if v.annual_ebitda_base > 0],
+            scores,
+            ctx.policy,
+            excluded=excluded,
+        )
+        ctx.repo.save_plan(
+            PlanRecord(
+                plan_id=plan.plan_id,
+                run_id=run_id,
+                company_id=rec.company_id,
+                status="proposed",
+                plan=plan.model_dump(mode="json"),
+                created_at=datetime.now(UTC),
+            )
+        )
         audit(rec.company_id, "draft_100_day_plan", "plan_drafted", run_id, plan_id=plan.plan_id)
         return plan.model_dump(mode="json")
 
@@ -232,27 +293,41 @@ def register_value_model(mcp: MCPServer) -> None:
         """Plan-vs-actual for the company's approved KPIs (latest observation per KPI)."""
         repo = get_ctx().repo
         latest = {o.kpi_id: o for o in repo.list_kpi_observations(company_id)}
-        return [KpiStatusRow(kpi_id=d.kpi_id, metric=d.metric, description=d.description, direction=d.direction,
-                             baseline=d.baseline, day_100_target=d.day_100_target, run_rate_target=d.run_rate_target,
-                             latest_value=latest[d.kpi_id].value if d.kpi_id in latest else None,
-                             latest_target=latest[d.kpi_id].target if d.kpi_id in latest else None,
-                             status=latest[d.kpi_id].status if d.kpi_id in latest else None,
-                             observed_at=latest[d.kpi_id].observed_at if d.kpi_id in latest else None,
-                             evidence_ids=latest[d.kpi_id].evidence_ids if d.kpi_id in latest else d.evidence_ids)
-                for d in repo.list_kpi_definitions(company_id)]
+        return [
+            KpiStatusRow(
+                kpi_id=d.kpi_id,
+                metric=d.metric,
+                description=d.description,
+                direction=d.direction,
+                baseline=d.baseline,
+                day_100_target=d.day_100_target,
+                run_rate_target=d.run_rate_target,
+                latest_value=latest[d.kpi_id].value if d.kpi_id in latest else None,
+                latest_target=latest[d.kpi_id].target if d.kpi_id in latest else None,
+                status=latest[d.kpi_id].status if d.kpi_id in latest else None,
+                observed_at=latest[d.kpi_id].observed_at if d.kpi_id in latest else None,
+                evidence_ids=latest[d.kpi_id].evidence_ids if d.kpi_id in latest else d.evidence_ids,
+            )
+            for d in repo.list_kpi_definitions(company_id)
+        ]
 
 
 def register_workflow(mcp: MCPServer) -> None:
     @mcp.tool()
     @governed("start_diagnostic_run", mutating=True)
-    def start_diagnostic_run(company_id: str, mode: Literal["automated", "interactive"] = "automated",
-                             idempotency_key: str | None = None) -> RunStatusResult:
+    def start_diagnostic_run(
+        company_id: str, mode: Literal["automated", "interactive"] = "automated", idempotency_key: str | None = None
+    ) -> RunStatusResult:
         """Create a diagnostic run. `automated` queues the full workflow for the worker; `interactive` creates an
         empty run for skill-driven analysis with record_finding / propose_opportunity."""
         ctx = get_ctx()
-        rec, _ = primary.start(ctx, company_id, security.current_principal().subject,  # type: ignore[union-attr]
-                               idempotency_key=idempotency_key,
-                               params={"mode": mode})
+        rec, _ = primary.start(
+            ctx,
+            company_id,
+            security.current_principal().subject,  # type: ignore[union-attr]
+            idempotency_key=idempotency_key,
+            params={"mode": mode},
+        )
         if mode == "interactive" and rec.status == Status.PENDING:
             st = rec.run_state()
             st.status = Status.RUNNING
@@ -283,8 +358,18 @@ def register_workflow(mcp: MCPServer) -> None:
             st.status = Status.AWAITING_APPROVAL
             st.pause_reason = {"reason": "awaiting_approval", "approval_id": req.approval_id, "plan_id": plan.plan_id}
             ctx.repo.save_run_state(st)
-        audit(rec.company_id, "request_approval", "approval_requested", run_id, approval_id=req.approval_id,
-              plan_id=plan.plan_id)
-        return ApprovalRequestResult(approval_id=req.approval_id, run_id=run_id, plan_id=plan.plan_id,
-                                     status="awaiting_approval",
-                                     message="Approval requested. A human must decide through the approval API.")
+        audit(
+            rec.company_id,
+            "request_approval",
+            "approval_requested",
+            run_id,
+            approval_id=req.approval_id,
+            plan_id=plan.plan_id,
+        )
+        return ApprovalRequestResult(
+            approval_id=req.approval_id,
+            run_id=run_id,
+            plan_id=plan.plan_id,
+            status="awaiting_approval",
+            message="Approval requested. A human must decide through the approval API.",
+        )

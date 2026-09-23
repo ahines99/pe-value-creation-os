@@ -70,8 +70,10 @@ class WarehouseAdapter:
 
     def _profile(self, company_id: str) -> tuple[CompanyProfile, bytes, date]:
         if self._exists("pvc_company_profile"):
-            rows = self._query(f"select profile_json, reference_date from {self.schema}.pvc_company_profile "
-                               "where company_id = :c", {"c": company_id})
+            rows = self._query(
+                f"select profile_json, reference_date from {self.schema}.pvc_company_profile where company_id = :c",
+                {"c": company_id},
+            )
             if rows:
                 raw = rows[0]["profile_json"]
                 raw_bytes = (raw if isinstance(raw, str) else json.dumps(raw)).encode()
@@ -84,15 +86,18 @@ class WarehouseAdapter:
 
     def load(self, company_id: str, sink: EvidenceSink | None = None) -> CompanyData:
         profile, raw, ref = self._profile(company_id)
-        pev = make_evidence(company_id, f"warehouse://{self.schema}/pvc_company_profile/{company_id}",
-                            "company_profile", raw, None)
+        pev = make_evidence(
+            company_id, f"warehouse://{self.schema}/pvc_company_profile/{company_id}", "company_profile", raw, None
+        )
         if sink:
             sink.add_evidence(pev)
         data = CompanyData(profile=profile, profile_evidence_id=pev.evidence_id, reference_date=ref)
         freshness: dict[str, datetime] = {}
         if self._exists("pvc_dataset_freshness"):
-            for r in self._query(f"select dataset, as_of from {self.schema}.pvc_dataset_freshness "
-                                 "where company_id = :c", {"c": company_id}):
+            for r in self._query(
+                f"select dataset, as_of from {self.schema}.pvc_dataset_freshness where company_id = :c",
+                {"c": company_id},
+            ):
                 freshness[r["dataset"]] = r["as_of"]
         for kind in self.datasets:
             view = f"pvc_{kind.value}"
@@ -104,8 +109,8 @@ class WarehouseAdapter:
             if as_of is not None and as_of.tzinfo is not None:
                 as_of = as_of.astimezone(UTC).replace(tzinfo=None)
             data.datasets[kind] = dataset_from_records(
-                kind, company_id, _sorted(rows), source_uri=f"warehouse://{self.schema}/{view}", as_of=as_of,
-                sink=sink)
+                kind, company_id, _sorted(rows), source_uri=f"warehouse://{self.schema}/{view}", as_of=as_of, sink=sink
+            )
         return data
 
 

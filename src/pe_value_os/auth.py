@@ -33,8 +33,16 @@ class AuthConfigError(RuntimeError):
 
 
 class JwtTokenVerifier:
-    def __init__(self, issuer: str, audience: str, *, jwks_url: str | None = None, public_key: str | None = None,
-                 algorithms: tuple[str, ...] = ("RS256", "ES256"), leeway_s: int = 30):
+    def __init__(
+        self,
+        issuer: str,
+        audience: str,
+        *,
+        jwks_url: str | None = None,
+        public_key: str | None = None,
+        algorithms: tuple[str, ...] = ("RS256", "ES256"),
+        leeway_s: int = 30,
+    ):
         if not (jwks_url or public_key):
             raise AuthConfigError("Set PVC_AUTH_JWKS_URL or PVC_AUTH_PUBLIC_KEY")
         self.issuer, self.audience, self.algorithms, self.leeway = issuer, audience, list(algorithms), leeway_s
@@ -49,8 +57,13 @@ class JwtTokenVerifier:
         if self.jwks is not None:
             key = self.jwks.get_signing_key_from_jwt(token).key
         claims: dict[str, Any] = jwt.decode(
-            token, key=key, algorithms=self.algorithms, audience=self.audience, issuer=self.issuer,
-            leeway=self.leeway, options={"require": ["exp", "iat", "sub", "iss", "aud"]},
+            token,
+            key=key,
+            algorithms=self.algorithms,
+            audience=self.audience,
+            issuer=self.issuer,
+            leeway=self.leeway,
+            options={"require": ["exp", "iat", "sub", "iss", "aud"]},
         )
         return claims
 
@@ -61,15 +74,19 @@ class JwtTokenVerifier:
             return None
         scopes = claims.get("scope", "")
         return AccessToken(
-            token=token, client_id=str(claims.get("azp") or claims.get("client_id") or claims["sub"]),
-            scopes=scopes.split() if isinstance(scopes, str) else list(scopes), expires_at=int(claims["exp"]),
-            subject=str(claims["sub"]), claims=claims,
+            token=token,
+            client_id=str(claims.get("azp") or claims.get("client_id") or claims["sub"]),
+            scopes=scopes.split() if isinstance(scopes, str) else list(scopes),
+            expires_at=int(claims["exp"]),
+            subject=str(claims["sub"]),
+            claims=claims,
         )
 
 
 def principal_from_claims(claims: dict[str, Any]) -> Principal:
     return Principal(
-        subject=str(claims.get("sub")), companies=frozenset(str(c) for c in claims.get("pvc_companies") or []),
+        subject=str(claims.get("sub")),
+        companies=frozenset(str(c) for c in claims.get("pvc_companies") or []),
         roles=frozenset(str(r) for r in claims.get("pvc_roles") or []),
         principal_type=str(claims.get("pvc_principal_type", "service")),
     )
@@ -84,8 +101,9 @@ def verifier_from_env() -> JwtTokenVerifier | None:
     audience = os.environ.get("PVC_AUTH_AUDIENCE") or os.environ.get("PVC_MCP_RESOURCE_URL")
     if not audience:
         raise AuthConfigError("Set PVC_AUTH_AUDIENCE")
-    return JwtTokenVerifier(issuer, audience, jwks_url=os.environ.get("PVC_AUTH_JWKS_URL"),
-                            public_key=os.environ.get("PVC_AUTH_PUBLIC_KEY"))
+    return JwtTokenVerifier(
+        issuer, audience, jwks_url=os.environ.get("PVC_AUTH_JWKS_URL"), public_key=os.environ.get("PVC_AUTH_PUBLIC_KEY")
+    )
 
 
 def auth_settings_from_env() -> AuthSettings | None:
@@ -93,5 +111,9 @@ def auth_settings_from_env() -> AuthSettings | None:
     if not issuer:
         return None
     scopes = [s.strip() for s in os.environ.get("PVC_AUTH_REQUIRED_SCOPES", "pvc.read").split(",") if s.strip()]
-    return AuthSettings(issuer_url=issuer, resource_server_url=os.environ.get("PVC_MCP_RESOURCE_URL"),
-                        required_scopes=scopes, validate_token_resource=False)
+    return AuthSettings(
+        issuer_url=issuer,
+        resource_server_url=os.environ.get("PVC_MCP_RESOURCE_URL"),
+        required_scopes=scopes,
+        validate_token_resource=False,
+    )

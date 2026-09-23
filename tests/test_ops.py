@@ -29,14 +29,21 @@ CID = "beacon-pricing"
 
 @pytest.fixture
 def approved(tmp_path):
-    ctx = RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                     policy=get_policy())
+    ctx = RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(), policy=get_policy()
+    )
     with security.principal_scope(security.system_principal(CID)):
         rec, _ = primary.start(ctx, CID, "human:t")
         anyio.run(lambda: primary.execute(ctx, rec.run_id, backoff_s=0))
-        approvals.decide(ctx, rec.run_id, security.Principal(subject="human:ap", companies=frozenset({CID}),
-                                                             roles=frozenset({"approver"}), principal_type="human"),
-                         ApprovalDecision.APPROVED, rationale="ok")
+        approvals.decide(
+            ctx,
+            rec.run_id,
+            security.Principal(
+                subject="human:ap", companies=frozenset({CID}), roles=frozenset({"approver"}), principal_type="human"
+            ),
+            ApprovalDecision.APPROVED,
+            rationale="ok",
+        )
         anyio.run(lambda: primary.resume(ctx, rec.run_id, "system:worker", backoff_s=0))
         yield ctx, rec.run_id
 
@@ -80,12 +87,27 @@ def test_access_review_flags(tmp_path):
     now = datetime(2026, 9, 23, tzinfo=UTC)
     grants = [
         {"subject": "model:claude", "principal_type": "model", "roles": ["approver"], "pvc_companies": ["a"]},
-        {"subject": "human:wide", "principal_type": "human", "roles": ["approver"], "pvc_companies": list("abcdefg"),
-         "last_login": (now - timedelta(days=1)).isoformat()},
-        {"subject": "human:stale", "principal_type": "human", "roles": ["analyst"], "pvc_companies": ["a"],
-         "last_login": (now - timedelta(days=200)).isoformat()},
-        {"subject": "human:ok", "principal_type": "human", "roles": ["approver"], "pvc_companies": ["a"],
-         "last_login": now.isoformat()},
+        {
+            "subject": "human:wide",
+            "principal_type": "human",
+            "roles": ["approver"],
+            "pvc_companies": list("abcdefg"),
+            "last_login": (now - timedelta(days=1)).isoformat(),
+        },
+        {
+            "subject": "human:stale",
+            "principal_type": "human",
+            "roles": ["analyst"],
+            "pvc_companies": ["a"],
+            "last_login": (now - timedelta(days=200)).isoformat(),
+        },
+        {
+            "subject": "human:ok",
+            "principal_type": "human",
+            "roles": ["approver"],
+            "pvc_companies": ["a"],
+            "last_login": now.isoformat(),
+        },
     ]
     f = tmp_path / "grants.json"
     f.write_text(json.dumps(grants))
@@ -121,8 +143,9 @@ def test_refresh_is_cadenced_and_evidence_backed(approved):
 
 def test_target_path_interpolation(approved):
     ctx, _ = approved
-    d = ctx.repo.list_kpi_definitions(CID)[0].model_copy(update={
-        "baseline": Decimal("0.20"), "day_100_target": Decimal("0.18"), "run_rate_target": Decimal("0.12")})
+    d = ctx.repo.list_kpi_definitions(CID)[0].model_copy(
+        update={"baseline": Decimal("0.20"), "day_100_target": Decimal("0.18"), "run_rate_target": Decimal("0.12")}
+    )
     s = d.start_date
     assert kpi.target_on(d, s) == Decimal("0.20")
     assert kpi.target_on(d, s + timedelta(days=50)) == Decimal("0.19")
@@ -136,9 +159,17 @@ def test_variance_threshold_and_trend(approved):
     policy = ctx.policy
 
     def obs(v, t, status="on_track"):
-        return KpiObservation(observation_id=f"o{v}", kpi_id=d.kpi_id, company_id=CID, observed_at=datetime.now(UTC),
-                              period_end=None, value=Decimal(v), target=Decimal(t), status=status,
-                              variance=Decimal(0))
+        return KpiObservation(
+            observation_id=f"o{v}",
+            kpi_id=d.kpi_id,
+            company_id=CID,
+            observed_at=datetime.now(UTC),
+            period_end=None,
+            value=Decimal(v),
+            target=Decimal(t),
+            status=status,
+            variance=Decimal(0),
+        )
 
     assert kpi.detect_variance(d, [obs("0.10", "0.10")], policy) == []
     off, var = kpi._off_track(d, Decimal("0.30"), Decimal("0.20"), policy.kpi.off_track_tolerance)
@@ -154,10 +185,37 @@ def test_digest_only_for_off_track_and_delivered_to_outbox(approved, tmp_path):
     ctx, _ = approved
     assert kpi.build_digest(ctx.repo, CID, channel="outbox") is None
     d = ctx.repo.list_kpi_definitions(CID)[0]
-    ctx.repo.add_kpi_observation(KpiObservation(
-        observation_id="x1", kpi_id=d.kpi_id, company_id=CID, observed_at=datetime.now(UTC), period_end=None,
-        value=d.baseline, target=d.run_rate_target, status="off_track", variance=Decimal("-0.1")))
+    ctx.repo.add_kpi_observation(
+        KpiObservation(
+            observation_id="x1",
+            kpi_id=d.kpi_id,
+            company_id=CID,
+            observed_at=datetime.now(UTC),
+            period_end=None,
+            value=d.baseline,
+            target=d.run_rate_target,
+            status="off_track",
+            variance=Decimal("-0.1"),
+        )
+    )
     n = kpi.build_digest(ctx.repo, CID, channel="outbox", base_url="https://pvc.example")
     assert n and "1 KPI(s) off track" in n.subject and "https://pvc.example/companies/beacon-pricing/kpis" in n.body
     OutboxNotifier(tmp_path / "out").deliver(ctx.repo, n)
     assert json.loads(next((tmp_path / "out").glob("*.json")).read_text())["subject"] == n.subject
+
+
+def test_onboarding_check_is_read_only_and_reports_readiness(capsys):
+    from pe_value_os.cli import main
+
+    ok = ops.onboarding_check(FixtureAdapter(), "beacon-pricing", get_policy())
+    assert ok["ready"] and set(ok["sufficient_analyses"]) == {
+        "unit_economics",
+        "pricing",
+        "retention",
+        "ai_opportunity",
+    }
+    assert ok["stale_datasets"] == [] and all(d["age_days"] is not None for d in ok["datasets"])
+    broken = ops.onboarding_check(FixtureAdapter(), "delta-broken", get_policy())
+    assert not broken["ready"] and broken["gaps"]
+    assert main(["onboard-check", "--company", "delta-broken"]) == 2
+    assert json.loads(capsys.readouterr().out)["company_id"] == "delta-broken"

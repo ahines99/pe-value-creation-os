@@ -10,19 +10,35 @@ import re
 from dataclasses import dataclass
 
 PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("override_instructions", re.compile(
-        r"\b(ignore|disregard|forget|override)\b[^.]{0,40}\b(previous|prior|above|all|your|the)\b[^.]{0,30}"
-        r"\b(instructions?|rules?|prompts?|guidelines?|policy|policies)\b", re.I)),
-    ("addressed_to_ai", re.compile(
-        r"\b(note|instructions?|message|directive)s?\b[^.]{0,20}\b(to|for)\b[^.]{0,20}\b(ai|assistant|agent|model|"
-        r"llm|claude|gpt)\b", re.I)),
+    (
+        "override_instructions",
+        re.compile(
+            r"\b(ignore|disregard|forget|override)\b[^.]{0,40}\b(previous|prior|above|all|your|the)\b[^.]{0,30}"
+            r"\b(instructions?|rules?|prompts?|guidelines?|policy|policies)\b",
+            re.I,
+        ),
+    ),
+    (
+        "addressed_to_ai",
+        re.compile(
+            r"\b(note|instructions?|message|directive)s?\b[^.]{0,20}\b(to|for)\b[^.]{0,20}\b(ai|assistant|agent|model|"
+            r"llm|claude|gpt)\b",
+            re.I,
+        ),
+    ),
     ("role_hijack", re.compile(r"\b(you are now|act as|pretend to be|new system prompt|system prompt:)\b", re.I)),
-    ("approval_manipulation", re.compile(
-        r"\b(approve|auto-?approve|sign off)\b[^.]{0,30}\b(plan|automatically|without review)\b", re.I)),
-    ("confidence_manipulation", re.compile(
-        r"\b(mark|set|report)\b[^.]{0,40}\b(high confidence|every opportunity|ebitda uplift)\b", re.I)),
-    ("exfiltration", re.compile(r"\b(send|email|post|upload|exfiltrate)\b[^.]{0,40}\b(to|at)\b[^.]{0,20}(https?://|@)",
-                                re.I)),
+    (
+        "approval_manipulation",
+        re.compile(r"\b(approve|auto-?approve|sign off)\b[^.]{0,30}\b(plan|automatically|without review)\b", re.I),
+    ),
+    (
+        "confidence_manipulation",
+        re.compile(r"\b(mark|set|report)\b[^.]{0,40}\b(high confidence|every opportunity|ebitda uplift)\b", re.I),
+    ),
+    (
+        "exfiltration",
+        re.compile(r"\b(send|email|post|upload|exfiltrate)\b[^.]{0,40}\b(to|at)\b[^.]{0,20}(https?://|@)", re.I),
+    ),
 ]
 
 

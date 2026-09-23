@@ -45,8 +45,14 @@ class StripeBillingAdapter:
     name = "stripe"
     provides = frozenset({DatasetKind.INVOICES, DatasetKind.PRICE_BOOKS, DatasetKind.CONCESSIONS})
 
-    def __init__(self, api_key: str, *, base_url: str = "https://api.stripe.com",
-                 transport: httpx.BaseTransport | None = None, page_size: int = 100):
+    def __init__(
+        self,
+        api_key: str,
+        *,
+        base_url: str = "https://api.stripe.com",
+        transport: httpx.BaseTransport | None = None,
+        page_size: int = 100,
+    ):
         self.api = ApiClient(base_url, {"Authorization": f"Bearer {api_key}"}, transport=transport)
         self.page_size = page_size
         self._customers: list[dict[str, Any]] | None = None
@@ -56,8 +62,7 @@ class StripeBillingAdapter:
         pages: list[Any] = []
         after = None
         while True:
-            q = {k: v for k, v in {"limit": self.page_size, **params, "starting_after": after}.items()
-                 if v is not None}
+            q = {k: v for k, v in {"limit": self.page_size, **params, "starting_after": after}.items() if v is not None}
             page = self.api.get(path, q)
             pages.append(page)
             data = page.get("data", [])
@@ -72,8 +77,10 @@ class StripeBillingAdapter:
         return self._customers
 
     def foreign_entities(self) -> list[ForeignEntity]:
-        return [ForeignEntity("stripe", c["id"], c.get("name"), (c.get("email") or "").split("@")[-1] or None)
-                for c in self.customers()]
+        return [
+            ForeignEntity("stripe", c["id"], c.get("name"), (c.get("email") or "").split("@")[-1] or None)
+            for c in self.customers()
+        ]
 
     def load_datasets(self, company_id: str, sink: EvidenceSink | None) -> dict[DatasetKind, Dataset]:
         prices, p_pages = self._list("/v1/prices")
@@ -83,8 +90,9 @@ class StripeBillingAdapter:
         for inv in invoices:
             lines = list(inv.get("lines", {}).get("data", []))
             if inv.get("lines", {}).get("has_more"):
-                more, extra = self._list(f"/v1/invoices/{inv['id']}/lines",
-                                         starting_after=lines[-1]["id"] if lines else None)
+                more, extra = self._list(
+                    f"/v1/invoices/{inv['id']}/lines", starting_after=lines[-1]["id"] if lines else None
+                )
                 lines += more
                 i_pages += extra
             for ln in lines:
@@ -92,30 +100,71 @@ class StripeBillingAdapter:
                 qty = Decimal(str(ln.get("quantity") or 0))
                 unit = _money(price.get("unit_amount"))
                 disc = _money(sum(int(x["amount"]) for x in ln.get("discount_amounts", [])))
-                rows.append({
-                    "invoice_id": inv["id"], "line_id": ln["id"], "customer_id": inv["customer"],
-                    "invoice_date": _d(inv["created"]).isoformat(), "product": price.get("product"),
-                    "price_book_id": price.get("id"), "quantity": str(qty), "list_price_per_unit": str(unit),
-                    "on_invoice_discount": str(disc), "net_amount": str((qty * unit - disc).quantize(Q)),
-                    "currency": (inv.get("currency") or "").upper(), "deal_size_band": size_band(qty),
-                })
+                rows.append(
+                    {
+                        "invoice_id": inv["id"],
+                        "line_id": ln["id"],
+                        "customer_id": inv["customer"],
+                        "invoice_date": _d(inv["created"]).isoformat(),
+                        "product": price.get("product"),
+                        "price_book_id": price.get("id"),
+                        "quantity": str(qty),
+                        "list_price_per_unit": str(unit),
+                        "on_invoice_discount": str(disc),
+                        "net_amount": str((qty * unit - disc).quantize(Q)),
+                        "currency": (inv.get("currency") or "").upper(),
+                        "deal_size_band": size_band(qty),
+                    }
+                )
         credit_notes, c_pages = self._list("/v1/credit_notes")
-        conc = [{"customer_id": cn["customer"], "concession_date": _d(cn["created"]).isoformat(),
-                 "concession_type": "credit", "amount": str(_money(cn["total"]))}
-                for cn in credit_notes if cn.get("status") != "void"]
-        books = [{"price_book_id": p["id"], "product": p["product"],
-                  "list_price_per_unit": str(_money(p.get("unit_amount"))),
-                  "effective_from": _d(p["created"]).isoformat(), "effective_to": None,
-                  "is_current": bool(p.get("active"))} for p in prices]
+        conc = [
+            {
+                "customer_id": cn["customer"],
+                "concession_date": _d(cn["created"]).isoformat(),
+                "concession_type": "credit",
+                "amount": str(_money(cn["total"])),
+            }
+            for cn in credit_notes
+            if cn.get("status") != "void"
+        ]
+        books = [
+            {
+                "price_book_id": p["id"],
+                "product": p["product"],
+                "list_price_per_unit": str(_money(p.get("unit_amount"))),
+                "effective_from": _d(p["created"]).isoformat(),
+                "effective_to": None,
+                "is_current": bool(p.get("active")),
+            }
+            for p in prices
+        ]
         now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
         return {
-            DatasetKind.INVOICES: dataset_from_records(DatasetKind.INVOICES, company_id, rows,
-                                                       source_uri="stripe://v1/invoices", as_of=now, sink=sink,
-                                                       raw_payload=i_pages),
-            DatasetKind.PRICE_BOOKS: dataset_from_records(DatasetKind.PRICE_BOOKS, company_id, books,
-                                                          source_uri="stripe://v1/prices", as_of=now, sink=sink,
-                                                          raw_payload=p_pages),
-            DatasetKind.CONCESSIONS: dataset_from_records(DatasetKind.CONCESSIONS, company_id, conc,
-                                                          source_uri="stripe://v1/credit_notes", as_of=now, sink=sink,
-                                                          raw_payload=c_pages),
+            DatasetKind.INVOICES: dataset_from_records(
+                DatasetKind.INVOICES,
+                company_id,
+                rows,
+                source_uri="stripe://v1/invoices",
+                as_of=now,
+                sink=sink,
+                raw_payload=i_pages,
+            ),
+            DatasetKind.PRICE_BOOKS: dataset_from_records(
+                DatasetKind.PRICE_BOOKS,
+                company_id,
+                books,
+                source_uri="stripe://v1/prices",
+                as_of=now,
+                sink=sink,
+                raw_payload=p_pages,
+            ),
+            DatasetKind.CONCESSIONS: dataset_from_records(
+                DatasetKind.CONCESSIONS,
+                company_id,
+                conc,
+                source_uri="stripe://v1/credit_notes",
+                as_of=now,
+                sink=sink,
+                raw_payload=c_pages,
+            ),
         }

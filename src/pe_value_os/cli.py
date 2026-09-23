@@ -14,6 +14,7 @@ pvc recompute --run RUN_ID       recompute value cases after a calculation chang
 pvc offboard --company ID --confirm   delete a company's data per retention policy
 pvc access-review                access-review report
 pvc audit-export --company ID    export audit log as JSON lines
+pvc onboard-check --company ID   read-only data readiness report for a new company
 """
 
 from __future__ import annotations
@@ -62,8 +63,15 @@ def cmd_db(args: argparse.Namespace) -> int:
         return main()
     elif args.action == "bootstrap-roles":
         url = os.environ["PVC_ADMIN_DATABASE_URL"]
-        pw = {r: os.environ[v] for r, v in (("pvc_app", "PVC_APP_DB_PASSWORD"), ("pvc_readonly", "PVC_RO_DB_PASSWORD"),
-                                             ("pvc_migrator", "PVC_MIGRATOR_DB_PASSWORD")) if os.environ.get(v)}
+        pw = {
+            r: os.environ[v]
+            for r, v in (
+                ("pvc_app", "PVC_APP_DB_PASSWORD"),
+                ("pvc_readonly", "PVC_RO_DB_PASSWORD"),
+                ("pvc_migrator", "PVC_MIGRATOR_DB_PASSWORD"),
+            )
+            if os.environ.get(v)
+        }
         migrate.bootstrap_roles(url, pw)
     print(f"db {args.action}: ok (revision {migrate.current()})")
     return 0
@@ -90,8 +98,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
     ctx, principal = _ctx_and_principal()
     with principal_scope(principal):
-        anyio.run(lambda: primary.resume(ctx, args.run_id, principal.subject, accept_gaps=args.accept_gaps,
-                                         reason=args.reason))
+        anyio.run(
+            lambda: primary.resume(
+                ctx, args.run_id, principal.subject, accept_gaps=args.accept_gaps, reason=args.reason
+            )
+        )
         _print(primary.status(ctx, args.run_id))
     return 0
 
@@ -191,6 +202,16 @@ def cmd_audit_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_onboard_check(args: argparse.Namespace) -> int:
+    from .app import adapter_from_env
+    from .ops import onboarding_check
+    from .policy import get_policy
+
+    report = onboarding_check(adapter_from_env(), args.company, get_policy())
+    _print(report)
+    return 0 if report["ready"] else 2
+
+
 def cmd_mcp_stdio(args: argparse.Namespace) -> int:
     """Serve the MCP server over stdio for local clients (Claude Code plugin, PVC-076). Dev scope only."""
     from .mcp_server import mcp
@@ -248,8 +269,12 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--suite", default="all", choices=["all", "golden", "adversarial"])
     e.add_argument("--gate", action="store_true", help="exit non-zero when scores fall below thresholds")
     e.add_argument("--report", default="var/eval-report.json")
-    e.add_argument("--proposer", default="rules", choices=["rules", "model"],
-                   help="model requires ANTHROPIC_API_KEY (live evaluation; not used by the CI gate)")
+    e.add_argument(
+        "--proposer",
+        default="rules",
+        choices=["rules", "model"],
+        help="model requires ANTHROPIC_API_KEY (live evaluation; not used by the CI gate)",
+    )
     e.set_defaults(fn=cmd_eval)
 
     rc = sub.add_parser("recompute")
@@ -270,6 +295,10 @@ def build_parser() -> argparse.ArgumentParser:
     ae.add_argument("--company", required=True)
     ae.add_argument("--out", required=True)
     ae.set_defaults(fn=cmd_audit_export)
+
+    oc = sub.add_parser("onboard-check", help="read-only data readiness report for a new company")
+    oc.add_argument("--company", required=True)
+    oc.set_defaults(fn=cmd_onboard_check)
 
     ms = sub.add_parser("mcp-stdio", help="serve MCP over stdio for local clients")
     ms.set_defaults(fn=cmd_mcp_stdio)

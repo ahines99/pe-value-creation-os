@@ -28,9 +28,18 @@ def keys():
 
 def token(key, **over):
     now = datetime.now(UTC)
-    claims = {"iss": ISS, "aud": AUD, "sub": "user-1", "iat": now, "exp": now + timedelta(minutes=5),
-              "scope": "pvc.read", "pvc_companies": ["beacon-pricing"], "pvc_roles": ["analyst"],
-              "pvc_principal_type": "human", **over}
+    claims = {
+        "iss": ISS,
+        "aud": AUD,
+        "sub": "user-1",
+        "iat": now,
+        "exp": now + timedelta(minutes=5),
+        "scope": "pvc.read",
+        "pvc_companies": ["beacon-pricing"],
+        "pvc_roles": ["analyst"],
+        "pvc_principal_type": "human",
+        **over,
+    }
     return jwt.encode(claims, key, algorithm="RS256")
 
 
@@ -40,9 +49,13 @@ def test_verifier_accepts_valid_and_rejects_bad_tokens(keys):
     ok = anyio.run(v.verify_token, token(key))
     assert ok is not None and ok.subject == "user-1" and ok.claims["pvc_companies"] == ["beacon-pricing"]
     other = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    for bad in (token(key, aud="https://other"), token(key, iss="https://evil"),
-                token(key, exp=datetime.now(UTC) - timedelta(minutes=5)), token(other),
-                jwt.encode({"iss": ISS, "aud": AUD, "sub": "x"}, key=None, algorithm="none")):
+    for bad in (
+        token(key, aud="https://other"),
+        token(key, iss="https://evil"),
+        token(key, exp=datetime.now(UTC) - timedelta(minutes=5)),
+        token(other),
+        jwt.encode({"iss": ISS, "aud": AUD, "sub": "x"}, key=None, algorithm="none"),
+    ):
         assert anyio.run(v.verify_token, bad) is None
 
 
@@ -94,11 +107,11 @@ def test_streamable_http_requires_bearer_and_enforces_scope(keys, monkeypatch, t
     monkeypatch.setenv("PVC_MCP_RESOURCE_URL", f"http://127.0.0.1:{port}/mcp")
     monkeypatch.setenv("PVC_EVIDENCE_DIR", str(tmp_path / "ev"))
     monkeypatch.delenv("DATABASE_URL", raising=False)
-    from pe_value_os.mcp_server import build_server
+    from pe_value_os.mcp_server import build_server, create_http_app
     from pe_value_os.tools import _runtime
 
     _runtime.set_ctx(None)
-    app = build_server().streamable_http_app()
+    app = create_http_app(build_server())
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="error"))
     th = threading.Thread(target=server.run, daemon=True)
     th.start()
@@ -108,14 +121,19 @@ def test_streamable_http_requires_bearer_and_enforces_scope(keys, monkeypatch, t
         time.sleep(0.05)
     try:
         url = f"http://127.0.0.1:{port}/mcp"
-        r = httpx.post(url, json={"jsonrpc": "2.0", "id": 1, "method": "ping"},
-                       headers={"Accept": "application/json, text/event-stream"})
+        r = httpx.post(
+            url,
+            json={"jsonrpc": "2.0", "id": 1, "method": "ping"},
+            headers={"Accept": "application/json, text/event-stream"},
+        )
         assert r.status_code == 401 and "Bearer" in r.headers.get("www-authenticate", "")
 
         async def session_calls():
-            async with httpx2.AsyncClient(headers={"Authorization": f"Bearer {token(key)}"}, timeout=30) as http, \
-                    streamable_http_client(url, http_client=http) as (read, write), \
-                    ClientSession(read, write) as s:
+            async with (
+                httpx2.AsyncClient(headers={"Authorization": f"Bearer {token(key)}"}, timeout=30) as http,
+                streamable_http_client(url, http_client=http) as (read, write),
+                ClientSession(read, write) as s,
+            ):
                 await s.initialize()
                 ok = await s.call_tool("get_company_profile", {"company_id": "beacon-pricing"})
                 denied = await s.call_tool("get_company_profile", {"company_id": "cedar-churn"})
@@ -124,6 +142,16 @@ def test_streamable_http_requires_bearer_and_enforces_scope(keys, monkeypatch, t
         ok, denied = anyio.run(session_calls)
         assert ok.is_error is False and ok.structured_content["profile"]["company_id"] == "beacon-pricing"
         assert denied.is_error and "Access denied" in denied.content[0].text
+        rebind = httpx.post(
+            url,
+            json={"jsonrpc": "2.0", "id": 1, "method": "ping"},
+            headers={
+                "Accept": "application/json, text/event-stream",
+                "Host": "evil.example",
+                "Authorization": f"Bearer {token(key)}",
+            },
+        )
+        assert rebind.status_code in (400, 403, 421), rebind.status_code  # DNS-rebinding protection
     finally:
         server.should_exit = True
         th.join(timeout=10)

@@ -24,7 +24,9 @@ class CsvExportAdapter:
         self.root = Path(root)
 
     def list_companies(self) -> list[str]:
-        return sorted(p.name for p in self.root.iterdir() if (p / "manifest.json").exists()) if self.root.exists() else []
+        return (
+            sorted(p.name for p in self.root.iterdir() if (p / "manifest.json").exists()) if self.root.exists() else []
+        )
 
     def _manifest(self, company_id: str) -> dict:  # type: ignore[type-arg]
         path = self.root / company_id / "manifest.json"
@@ -46,16 +48,20 @@ class CsvExportAdapter:
         pev = make_evidence(company_id, f"file://{company_id}/company.json", "company_profile", prof_bytes, None)
         if sink:
             sink.add_evidence(pev)
-        data = CompanyData(profile=profile, profile_evidence_id=pev.evidence_id,
-                           reference_date=self.reference_date(company_id))
+        data = CompanyData(
+            profile=profile, profile_evidence_id=pev.evidence_id, reference_date=self.reference_date(company_id)
+        )
         for name, meta in manifest.get("datasets", {}).items():
             kind = DatasetKind(name)
             path = d / meta["file"]
             if not path.exists():
                 continue  # declared but not delivered: sufficiency reports it as missing
             raw = path.read_bytes()
-            as_of = datetime.fromisoformat(meta["as_of"]) if meta.get("as_of") else \
-                datetime.fromtimestamp(path.stat().st_mtime, UTC)
+            as_of = (
+                datetime.fromisoformat(meta["as_of"])
+                if meta.get("as_of")
+                else datetime.fromtimestamp(path.stat().st_mtime, UTC)
+            )
             uri = f"file://{company_id}/{meta['file']}"
             ev = make_evidence(company_id, uri, f"dataset:{kind.value}", raw, as_of, {"dataset": kind.value})
             if sink:
@@ -64,6 +70,7 @@ class CsvExportAdapter:
             wrong = [r for r in records if r.company_id != company_id]
             if wrong:
                 raise SourceError(f"{meta['file']} contains rows for other companies; refusing to load")
-            data.datasets[kind] = Dataset(kind=kind, records=records, evidence_id=ev.evidence_id, as_of=as_of,
-                                          source_uri=uri, row_errors=errors)
+            data.datasets[kind] = Dataset(
+                kind=kind, records=records, evidence_id=ev.evidence_id, as_of=as_of, source_uri=uri, row_errors=errors
+            )
         return data

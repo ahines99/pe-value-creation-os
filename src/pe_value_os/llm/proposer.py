@@ -65,9 +65,12 @@ Respond with JSON matching the schema."""
 
 
 def _schema(levers: list[Lever], metrics: list[str], evidence: list[str]) -> dict[str, Any]:
-    scen = {"type": "object", "properties": {"improvement_rate": {"type": "number"},
-                                             "realization_rate": {"type": "number"}},
-            "required": ["improvement_rate", "realization_rate"], "additionalProperties": False}
+    scen = {
+        "type": "object",
+        "properties": {"improvement_rate": {"type": "number"}, "realization_rate": {"type": "number"}},
+        "required": ["improvement_rate", "realization_rate"],
+        "additionalProperties": False,
+    }
     prop = {
         "type": "object",
         "properties": {
@@ -75,21 +78,44 @@ def _schema(levers: list[Lever], metrics: list[str], evidence: list[str]) -> dic
             "baseline_metric": {"type": "string", "enum": metrics},
             "segment": {"type": ["string", "null"]},
             "title": {"type": "string"},
-            "low": scen, "base": scen, "high": scen,
+            "low": scen,
+            "base": scen,
+            "high": scen,
             "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
             "rationale": {"type": "string"},
             "evidence_ids": {"type": "array", "items": {"type": "string", "enum": evidence or ["none"]}},
             "assumptions": {"type": "array", "items": {"type": "string"}},
         },
-        "required": ["lever", "baseline_metric", "segment", "title", "low", "base", "high", "confidence",
-                     "rationale", "evidence_ids", "assumptions"],
+        "required": [
+            "lever",
+            "baseline_metric",
+            "segment",
+            "title",
+            "low",
+            "base",
+            "high",
+            "confidence",
+            "rationale",
+            "evidence_ids",
+            "assumptions",
+        ],
         "additionalProperties": False,
     }
-    susp = {"type": "object", "properties": {"document_id": {"type": "string"}, "reason": {"type": "string"}},
-            "required": ["document_id", "reason"], "additionalProperties": False}
-    return {"type": "object", "properties": {"proposals": {"type": "array", "items": prop},
-                                              "suspicious_content": {"type": "array", "items": susp}},
-            "required": ["proposals", "suspicious_content"], "additionalProperties": False}
+    susp = {
+        "type": "object",
+        "properties": {"document_id": {"type": "string"}, "reason": {"type": "string"}},
+        "required": ["document_id", "reason"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {
+            "proposals": {"type": "array", "items": prop},
+            "suspicious_content": {"type": "array", "items": susp},
+        },
+        "required": ["proposals", "suspicious_content"],
+        "additionalProperties": False,
+    }
 
 
 class ModelProposer:
@@ -107,20 +133,24 @@ class ModelProposer:
         levers = BRANCH_LEVERS[ctx.analysis]
         metrics = sorted({m for lv in levers for m in LEVER_METRICS[lv]})
         analysis = jsonable(ctx.result)
-        findings = [{"title": f.title, "statement": f.statement, "type": f.finding_type.value,
-                     "evidence_ids": f.evidence_ids} for f in ctx.findings]
+        findings = [
+            {"title": f.title, "statement": f.statement, "type": f.finding_type.value, "evidence_ids": f.evidence_ids}
+            for f in ctx.findings
+        ]
         evidence = sorted(set(ctx.evidence_ids) | {e for f in ctx.findings for e in f.evidence_ids})
         docs = "\n".join(
-            f"<untrusted_document id=\"{d['document_id']}\" title=\"{d['title']}\">\n{d['text']}\n</untrusted_document>"
-            for d in ctx.documents)
+            f'<untrusted_document id="{d["document_id"]}" title="{d["title"]}">\n{d["text"]}\n</untrusted_document>'
+            for d in ctx.documents
+        )
         user = (
             f"Branch: {ctx.analysis}\nAllowed levers: {[lv.value for lv in levers]}\nAllowed baseline metrics: "
             f"{metrics}\nPolicy screening thresholds: {json.dumps(jsonable(ctx.policy.screening))}\n\n"
             f"Deterministic analysis (tool output):\n{json.dumps(analysis)}\n\nFindings:\n{json.dumps(findings)}\n\n"
             f"Evidence ids you may cite: {evidence}\n\nCompany documents (untrusted data):\n{docs or '(none)'}"
         )
-        out, usage = self.client.complete_json(SYSTEM, user, _schema(levers, metrics, evidence),
-                                               purpose=f"propose:{ctx.analysis}")
+        out, usage = self.client.complete_json(
+            SYSTEM, user, _schema(levers, metrics, evidence), purpose=f"propose:{ctx.analysis}"
+        )
         if not isinstance(out, dict) or "proposals" not in out:
             raise ModelUnavailable("model output missing proposals")
         sources = source_numbers(analysis) + source_numbers(findings) + source_numbers(jsonable(ctx.policy.screening))
@@ -135,16 +165,24 @@ class ModelProposer:
                 accepted.append(self._to_proposal(raw, ctx))
             except (ValidationError, ValueError) as e:
                 rejected.append({"title": str(raw.get("title", ""))[:120], "reason": f"invalid: {e}"[:300]})
-        ctx.report.update({
-            "proposer": self.name, "model": usage.model, "input_tokens": usage.input_tokens,
-            "output_tokens": usage.output_tokens, "cost_usd": usage.cost_usd, "accepted": len(accepted),
-            "rejected": rejected, "suspicious_content": out.get("suspicious_content", []),
-        })
+        ctx.report.update(
+            {
+                "proposer": self.name,
+                "model": usage.model,
+                "input_tokens": usage.input_tokens,
+                "output_tokens": usage.output_tokens,
+                "cost_usd": usage.cost_usd,
+                "accepted": len(accepted),
+                "rejected": rejected,
+                "suspicious_content": out.get("suspicious_content", []),
+            }
+        )
         return accepted
 
     @staticmethod
-    def _check(raw: dict[str, Any], levers: list[Lever], metrics: list[str], evidence: list[str],
-               sources: list[Decimal]) -> str | None:
+    def _check(
+        raw: dict[str, Any], levers: list[Lever], metrics: list[str], evidence: list[str], sources: list[Decimal]
+    ) -> str | None:
         if raw.get("lever") not in {lv.value for lv in levers}:
             return f"lever {raw.get('lever')!r} not allowed for this branch"
         if raw.get("baseline_metric") not in LEVER_METRICS[Lever(raw["lever"])]:
@@ -165,18 +203,30 @@ class ModelProposer:
         cost = ctx.policy.proposal_costs[template] if template else None
 
         def sc(k: str) -> ScenarioInputs:
-            return ScenarioInputs(improvement_rate=Decimal(str(raw[k]["improvement_rate"])),
-                                  realization_rate=Decimal(str(raw[k]["realization_rate"])))
+            return ScenarioInputs(
+                improvement_rate=Decimal(str(raw[k]["improvement_rate"])),
+                realization_rate=Decimal(str(raw[k]["realization_rate"])),
+            )
 
         assumptions = [*raw.get("assumptions", []), "Scenario rates proposed by the model; review before approval"]
         if cost is None:
             assumptions.append("Implementation costs not estimated for this lever and metric")
         return OpportunityProposal(
-            lever=lever, baseline_metric=raw["baseline_metric"], title=raw["title"][:200], low=sc("low"),
-            base=sc("base"), high=sc("high"), confidence=raw["confidence"], rationale=raw["rationale"][:2000],
-            evidence_ids=[e for e in raw["evidence_ids"] if e in set(ctx.evidence_ids) | {
-                x for f in ctx.findings for x in f.evidence_ids}],
-            assumptions=assumptions, annual_run_cost=cost.annual_run if cost else Decimal(0),
+            lever=lever,
+            baseline_metric=raw["baseline_metric"],
+            title=raw["title"][:200],
+            low=sc("low"),
+            base=sc("base"),
+            high=sc("high"),
+            confidence=raw["confidence"],
+            rationale=raw["rationale"][:2000],
+            evidence_ids=[
+                e
+                for e in raw["evidence_ids"]
+                if e in set(ctx.evidence_ids) | {x for f in ctx.findings for x in f.evidence_ids}
+            ],
+            assumptions=assumptions,
+            annual_run_cost=cost.annual_run if cost else Decimal(0),
             one_time_cost=cost.one_time if cost else Decimal(0),
             metric_params={"segment": raw["segment"]} if raw.get("segment") else {},
         )

@@ -84,8 +84,17 @@ def actor() -> str:
 
 
 def audit(company_id: str, tool: str, event_type: str, run_id: str | None = None, **payload: Any) -> None:
-    get_ctx().repo.append_audit(AuditEvent(run_id=run_id, company_id=company_id, step=f"tool:{tool}", actor=actor(),
-                                           event_type=event_type, created_at=datetime.now(UTC), payload=payload))
+    get_ctx().repo.append_audit(
+        AuditEvent(
+            run_id=run_id,
+            company_id=company_id,
+            step=f"tool:{tool}",
+            actor=actor(),
+            event_type=event_type,
+            created_at=datetime.now(UTC),
+            payload=payload,
+        )
+    )
 
 
 def governed(name: str, *, mutating: bool = False) -> Callable[[F], F]:
@@ -110,8 +119,9 @@ def governed(name: str, *, mutating: bool = False) -> Callable[[F], F]:
                 raise ToolError(f"{type(e).__name__}: {e}") from e
             finally:
                 metrics().tool_calls.add(1, {"tool": name, "outcome": outcome, "mutating": str(mutating).lower()})
-                log.info("tool_call", tool_name=name, status=outcome,
-                         duration_ms=round((time.perf_counter() - t0) * 1000, 2))
+                log.info(
+                    "tool_call", tool_name=name, status=outcome, duration_ms=round((time.perf_counter() - t0) * 1000, 2)
+                )
 
         return wrapper  # type: ignore[return-value]
 
@@ -132,6 +142,9 @@ class StrictArguments:
             if allowed is not None:
                 extra = sorted(set(args) - allowed)
                 if extra:
-                    raise MCPError(-32602, f"Tool {tool!r} does not accept arguments {extra}; server-owned "
-                                           "fields such as baseline values are derived from company data")
+                    raise MCPError(
+                        -32602,
+                        f"Tool {tool!r} does not accept arguments {extra}; server-owned "
+                        "fields such as baseline values are derived from company data",
+                    )
         return await call_next(ctx)

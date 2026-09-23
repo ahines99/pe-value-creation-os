@@ -24,14 +24,30 @@ from pe_value_os.workflows.steps import RunContext
 configure_logging(stream=io.StringIO())
 
 TOKENS = {
-    "approver-beacon": {"sub": "human:jo", "pvc_companies": ["beacon-pricing"], "pvc_roles": ["approver"],
-                        "pvc_principal_type": "human"},
-    "analyst-beacon": {"sub": "human:al", "pvc_companies": ["beacon-pricing"], "pvc_roles": ["analyst"],
-                       "pvc_principal_type": "human"},
-    "model-beacon": {"sub": "model:claude", "pvc_companies": ["beacon-pricing"], "pvc_roles": ["approver"],
-                     "pvc_principal_type": "model"},
-    "approver-cedar": {"sub": "human:ce", "pvc_companies": ["cedar-churn"], "pvc_roles": ["approver"],
-                       "pvc_principal_type": "human"},
+    "approver-beacon": {
+        "sub": "human:jo",
+        "pvc_companies": ["beacon-pricing"],
+        "pvc_roles": ["approver"],
+        "pvc_principal_type": "human",
+    },
+    "analyst-beacon": {
+        "sub": "human:al",
+        "pvc_companies": ["beacon-pricing"],
+        "pvc_roles": ["analyst"],
+        "pvc_principal_type": "human",
+    },
+    "model-beacon": {
+        "sub": "model:claude",
+        "pvc_companies": ["beacon-pricing"],
+        "pvc_roles": ["approver"],
+        "pvc_principal_type": "model",
+    },
+    "approver-cedar": {
+        "sub": "human:ce",
+        "pvc_companies": ["cedar-churn"],
+        "pvc_roles": ["approver"],
+        "pvc_principal_type": "human",
+    },
 }
 
 
@@ -43,8 +59,9 @@ def H(tok):
 def env(tmp_path, monkeypatch):
     monkeypatch.setenv("PVC_ENV", "dev")
     monkeypatch.setenv("PVC_DEV_TOKENS", json.dumps(TOKENS))
-    ctx = RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                     policy=get_policy())
+    ctx = RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(), policy=get_policy()
+    )
     api.set_ctx(ctx)
     api.reset_auth()
     with security.principal_scope(security.system_principal("beacon-pricing", "cedar-churn")):
@@ -98,14 +115,20 @@ def test_approve_with_edits_records_diff_and_resumes(env):
     with security.principal_scope(security.system_principal("beacon-pricing")):
         plan = ctx.repo.latest_plan(run_id).plan
     drop = next(i for ws in plan["workstreams"] for i in ws["initiatives"] if i["title"].startswith("Enforce"))
-    r = client.post(f"/runs/{run_id}/approvals", headers=H("approver-beacon"),
-                    json={"decision": "approved", "rationale": "hold uplifts", "remove_initiatives":
-                          [drop["opportunity_id"]]})
+    r = client.post(
+        f"/runs/{run_id}/approvals",
+        headers=H("approver-beacon"),
+        json={"decision": "approved", "rationale": "hold uplifts", "remove_initiatives": [drop["opportunity_id"]]},
+    )
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["decided_by"] == "human:jo" and body["diff"]["removed_titles"] == [drop["title"]]
-    assert client.post(f"/runs/{run_id}/approvals", headers=H("approver-beacon"),
-                       json={"decision": "approved"}).status_code == 422  # already decided
+    assert (
+        client.post(
+            f"/runs/{run_id}/approvals", headers=H("approver-beacon"), json={"decision": "approved"}
+        ).status_code
+        == 422
+    )  # already decided
     st = resume(ctx, run_id)
     assert st.status == Status.COMPLETE
     with security.principal_scope(security.system_principal("beacon-pricing")):
@@ -126,11 +149,16 @@ def test_review_page_and_csrf_form(env):
     assert r.status_code == 200 and "Plan review" in r.text and "Discount governance in mid_market" in r.text
     assert "<script" not in r.text.lower()
     csrf = re.search(r"name='csrf' value='([^']+)'", r.text).group(1)
-    bad = client.post(f"/runs/{run_id}/approvals/form", headers=H("approver-beacon"),
-                      data={"decision": "approved", "csrf": "wrong"})
+    bad = client.post(
+        f"/runs/{run_id}/approvals/form", headers=H("approver-beacon"), data={"decision": "approved", "csrf": "wrong"}
+    )
     assert bad.status_code == 403
-    ok = client.post(f"/runs/{run_id}/approvals/form", headers=H("approver-beacon"),
-                     data={"decision": "rejected", "csrf": csrf, "rationale": "not now"}, follow_redirects=False)
+    ok = client.post(
+        f"/runs/{run_id}/approvals/form",
+        headers=H("approver-beacon"),
+        data={"decision": "rejected", "csrf": csrf, "rationale": "not now"},
+        follow_redirects=False,
+    )
     assert ok.status_code == 303
     assert resume(ctx, run_id).status == Status.REJECTED
     viewer = client.get(f"/runs/{run_id}/review", headers=H("analyst-beacon"))
@@ -142,9 +170,17 @@ def test_review_page_escapes_untrusted_text(env):
     from pe_value_os.domain.models import Finding, FindingType
 
     with security.principal_scope(security.system_principal("beacon-pricing")):
-        ctx.repo.add_finding(Finding(finding_id="99999999-9999-9999-9999-999999999999", run_id=run_id,
-                                     company_id="beacon-pricing", finding_type=FindingType.DATA_GAP,
-                                     title="<script>alert(1)</script>", statement="x", confidence="low"))
+        ctx.repo.add_finding(
+            Finding(
+                finding_id="99999999-9999-9999-9999-999999999999",
+                run_id=run_id,
+                company_id="beacon-pricing",
+                finding_type=FindingType.DATA_GAP,
+                title="<script>alert(1)</script>",
+                statement="x",
+                confidence="low",
+            )
+        )
     r = client.get(f"/runs/{run_id}/review", headers=H("approver-beacon"))
     assert "<script>alert(1)</script>" not in r.text and "&lt;script&gt;" in r.text
 

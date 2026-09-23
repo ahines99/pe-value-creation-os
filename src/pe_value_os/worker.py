@@ -34,8 +34,13 @@ class WorkerReport:
 
 
 class Worker:
-    def __init__(self, ctx: RunContext, companies: frozenset[str], worker_id: str | None = None,
-                 notifier: notify.Notifier | None = None):
+    def __init__(
+        self,
+        ctx: RunContext,
+        companies: frozenset[str],
+        worker_id: str | None = None,
+        notifier: notify.Notifier | None = None,
+    ):
         self.ctx = ctx
         self.companies = companies
         self.worker_id = worker_id or f"{socket.gethostname()}:{os.getpid()}"
@@ -63,8 +68,9 @@ class Worker:
                 except Exception as exc:  # one company's failure must not stop the others
                     log.warning("kpi_refresh_failed", company_id=cid, error_type=type(exc).__name__)
                     continue
-                digest = kpi.build_digest(self.ctx.repo, cid, channel=self.notifier.channel,
-                                          base_url=os.environ.get("PVC_PUBLIC_URL", ""))
+                digest = kpi.build_digest(
+                    self.ctx.repo, cid, channel=self.notifier.channel, base_url=os.environ.get("PVC_PUBLIC_URL", "")
+                )
                 if digest:
                     self.notifier.deliver(self.ctx.repo, digest)
                     sent += 1
@@ -81,11 +87,20 @@ class Worker:
                 continue
             with principal_scope(system_principal(a.company_id, subject="system:escalation")):
                 self.ctx.repo.mark_escalated(a.approval_id)
-                self.ctx.repo.append_audit(AuditEvent(
-                    run_id=a.run_id, company_id=a.company_id, step="human_approval", actor="system:escalation",
-                    event_type="approval_escalated", created_at=now,
-                    payload={"approval_id": a.approval_id,
-                             "escalation_contact": self.ctx.policy.approval.escalation_contact}))
+                self.ctx.repo.append_audit(
+                    AuditEvent(
+                        run_id=a.run_id,
+                        company_id=a.company_id,
+                        step="human_approval",
+                        actor="system:escalation",
+                        event_type="approval_escalated",
+                        created_at=now,
+                        payload={
+                            "approval_id": a.approval_id,
+                            "escalation_contact": self.ctx.policy.approval.escalation_contact,
+                        },
+                    )
+                )
                 self.notifier.escalate(self.ctx.repo, a, self.ctx.policy.approval.escalation_contact)
                 n += 1
         return n

@@ -85,10 +85,18 @@ async def _thread(fn: Callable[..., Any], *args: Any) -> Any:
 def _persist_findings(ctx: RunContext, state: RunState, branch: str, drafts: list[DraftFinding]) -> list[str]:
     ids = []
     for d in drafts:
-        f = Finding(finding_id=stable_id(state.run_id, "finding", branch, d.key), run_id=state.run_id,
-                    company_id=state.company_id, finding_type=d.finding_type, title=d.title, statement=d.statement,
-                    confidence=d.confidence, evidence_ids=d.evidence_ids, assumptions=d.assumptions,
-                    metadata={**d.metadata, "branch": branch})
+        f = Finding(
+            finding_id=stable_id(state.run_id, "finding", branch, d.key),
+            run_id=state.run_id,
+            company_id=state.company_id,
+            finding_type=d.finding_type,
+            title=d.title,
+            statement=d.statement,
+            confidence=d.confidence,
+            evidence_ids=d.evidence_ids,
+            assumptions=d.assumptions,
+            metadata={**d.metadata, "branch": branch},
+        )
         require_citations(f)
         ctx.repo.add_finding(f)
         ids.append(f.finding_id)
@@ -108,24 +116,35 @@ def intake(ctx: RunContext, state: RunState) -> dict[str, Any]:
     for doc in data.records(DatasetKind.DOCUMENTS):
         det = scan(f"{doc.title}\n{doc.text}", others)
         if det.suspicious:
-            drafts.append(DraftFinding(
-                f"suspicious_doc_{doc.document_id}", FindingType.SUSPICIOUS_CONTENT,
-                f"Suspicious instructions in document {doc.document_id}",
-                "Document contains text addressed to an AI system or referencing another portfolio company. It was "
-                "treated as data and not followed. Reasons: " + ", ".join(det.reasons) + ".", Confidence.HIGH,
-                [docs_ds.evidence_id] if docs_ds else [], metadata={"document_id": doc.document_id,
-                                                                    "reasons": list(det.reasons)}))
+            drafts.append(
+                DraftFinding(
+                    f"suspicious_doc_{doc.document_id}",
+                    FindingType.SUSPICIOUS_CONTENT,
+                    f"Suspicious instructions in document {doc.document_id}",
+                    "Document contains text addressed to an AI system or referencing another portfolio company. It was "
+                    "treated as data and not followed. Reasons: " + ", ".join(det.reasons) + ".",
+                    Confidence.HIGH,
+                    [docs_ds.evidence_id] if docs_ds else [],
+                    metadata={"document_id": doc.document_id, "reasons": list(det.reasons)},
+                )
+            )
     churn_ds = data.datasets.get(DatasetKind.CHURN)
     for i, ev in enumerate(data.records(DatasetKind.CHURN)):
         if ev.notes:
             det = scan(ev.notes, others)
             if det.suspicious:
-                drafts.append(DraftFinding(
-                    f"suspicious_churn_note_{i}", FindingType.SUSPICIOUS_CONTENT,
-                    "Suspicious instructions in a CRM churn note",
-                    "A churn note contains text addressed to an AI system. It was treated as data and not followed. "
-                    "Reasons: " + ", ".join(det.reasons) + ".", Confidence.HIGH,
-                    [churn_ds.evidence_id] if churn_ds else [], metadata={"reasons": list(det.reasons)}))
+                drafts.append(
+                    DraftFinding(
+                        f"suspicious_churn_note_{i}",
+                        FindingType.SUSPICIOUS_CONTENT,
+                        "Suspicious instructions in a CRM churn note",
+                        "A churn note contains text addressed to an AI system. It was treated as data and not followed. "
+                        "Reasons: " + ", ".join(det.reasons) + ".",
+                        Confidence.HIGH,
+                        [churn_ds.evidence_id] if churn_ds else [],
+                        metadata={"reasons": list(det.reasons)},
+                    )
+                )
     finding_ids = _persist_findings(ctx, state, "intake", drafts)
     return {
         "profile": data.profile.model_dump(mode="json"),
@@ -141,9 +160,16 @@ def data_sufficiency(ctx: RunContext, state: RunState) -> dict[str, Any]:
     data = ctx.data(state.company_id)
     results = sufficiency.check_all(data, ctx.policy)
     drafts = [
-        DraftFinding(f"gap_{a}", FindingType.DATA_GAP, f"{a} analysis skipped: insufficient data",
-                     "; ".join(g.detail for g in r.gaps if g.blocking), Confidence.HIGH, [])
-        for a, r in results.items() if not r.sufficient
+        DraftFinding(
+            f"gap_{a}",
+            FindingType.DATA_GAP,
+            f"{a} analysis skipped: insufficient data",
+            "; ".join(g.detail for g in r.gaps if g.blocking),
+            Confidence.HIGH,
+            [],
+        )
+        for a, r in results.items()
+        if not r.sufficient
     ]
     _persist_findings(ctx, state, "data_sufficiency", drafts)
     sufficient = [a for a, r in results.items() if r.sufficient]
@@ -154,7 +180,7 @@ def data_sufficiency(ctx: RunContext, state: RunState) -> dict[str, Any]:
         state.pause_reason = {
             "reason": "insufficient_data",
             "detail": f"{len(sufficient)} of {len(results)} analyses have sufficient data; policy requires "
-                      f"{ctx.policy.run.min_sufficient_analyses}",
+            f"{ctx.policy.run.min_sufficient_analyses}",
             "gaps": [{"analysis": a, **g.model_dump()} for a, r in results.items() for g in r.gaps if g.blocking],
         }
     return artifact
@@ -178,11 +204,18 @@ def diagnostic_branch(ctx: RunContext, state: RunState, branch: str) -> dict[str
     result = analyse(data)
     drafts = to_findings(result, ctx.policy)
     finding_ids = _persist_findings(ctx, state, branch, drafts)
-    docs = [{"document_id": d.document_id, "title": d.title, "text": d.text}
-            for d in data.records(DatasetKind.DOCUMENTS)]
-    bctx = BranchContext(analysis=branch, company_id=state.company_id, policy=ctx.policy, result=result,
-                         findings=drafts, evidence_ids=getattr(result, "evidence_ids", None)
-                         or sorted({e for d in drafts for e in d.evidence_ids}), documents=docs)
+    docs = [
+        {"document_id": d.document_id, "title": d.title, "text": d.text} for d in data.records(DatasetKind.DOCUMENTS)
+    ]
+    bctx = BranchContext(
+        analysis=branch,
+        company_id=state.company_id,
+        policy=ctx.policy,
+        result=result,
+        findings=drafts,
+        evidence_ids=getattr(result, "evidence_ids", None) or sorted({e for d in drafts for e in d.evidence_ids}),
+        documents=docs,
+    )
     proposer_name = ctx.proposer.name
     model_unavailable = None
     try:
@@ -217,33 +250,82 @@ def value_modeling(ctx: RunContext, state: RunState) -> dict[str, Any]:
             try:
                 derived = derive_baseline(data, prop.lever, prop.baseline_metric, prop.metric_params, ctx.policy)
             except MetricUnavailable as exc:
-                unsized.append({"opportunity_id": oid, "title": prop.title, "lever": prop.lever.value,
-                                "reason": f"NEEDS_EVIDENCE: {exc}"})
-                _persist_findings(ctx, state, "value_modeling", [DraftFinding(
-                    f"unsized_{oid}", FindingType.DATA_GAP, f"Cannot size: {prop.title}",
-                    f"NEEDS_EVIDENCE: {exc}", Confidence.HIGH, [])])
+                unsized.append(
+                    {
+                        "opportunity_id": oid,
+                        "title": prop.title,
+                        "lever": prop.lever.value,
+                        "reason": f"NEEDS_EVIDENCE: {exc}",
+                    }
+                )
+                _persist_findings(
+                    ctx,
+                    state,
+                    "value_modeling",
+                    [
+                        DraftFinding(
+                            f"unsized_{oid}",
+                            FindingType.DATA_GAP,
+                            f"Cannot size: {prop.title}",
+                            f"NEEDS_EVIDENCE: {exc}",
+                            Confidence.HIGH,
+                            [],
+                        )
+                    ],
+                )
                 continue
             evidence = sorted(set(prop.evidence_ids) | set(derived.evidence_ids))
             opp = Opportunity(
-                opportunity_id=oid, run_id=state.run_id, company_id=state.company_id, lever=prop.lever,
-                title=prop.title, baseline_metric=prop.baseline_metric, baseline_value=derived.baseline.value,
-                ebitda_flow_through=derived.ebitda_flow_through, low=prop.low, base=prop.base, high=prop.high,
-                annual_run_cost=prop.annual_run_cost, one_time_cost=prop.one_time_cost, confidence=prop.confidence,
-                rationale=prop.rationale, assumptions=prop.assumptions, evidence_ids=evidence,
+                opportunity_id=oid,
+                run_id=state.run_id,
+                company_id=state.company_id,
+                lever=prop.lever,
+                title=prop.title,
+                baseline_metric=prop.baseline_metric,
+                baseline_value=derived.baseline.value,
+                ebitda_flow_through=derived.ebitda_flow_through,
+                low=prop.low,
+                base=prop.base,
+                high=prop.high,
+                annual_run_cost=prop.annual_run_cost,
+                one_time_cost=prop.one_time_cost,
+                confidence=prop.confidence,
+                rationale=prop.rationale,
+                assumptions=prop.assumptions,
+                evidence_ids=evidence,
                 metric_params=prop.metric_params,
             )
-            ctx.repo.add_opportunity(opp, proposer=res.get("proposer", "rules"),
-                                     flow_through_rule=derived.flow_through_rule)
+            ctx.repo.add_opportunity(
+                opp, proposer=res.get("proposer", "rules"), flow_through_rule=derived.flow_through_rule
+            )
             vc = size_value_case(opp)
             ctx.repo.save_value_case(state.company_id, state.run_id, vc, ctx.policy.version)
-            _persist_findings(ctx, state, "value_modeling", [DraftFinding(
-                f"opp_{oid}", FindingType.OPPORTUNITY, prop.title,
-                f"{prop.title}: base-case annual run-rate EBITDA {vc.annual_ebitda_base} "
-                f"(low {vc.annual_ebitda_low}, high {vc.annual_ebitda_high}) from {prop.baseline_metric} "
-                f"{derived.baseline.value}.", prop.confidence, evidence,
-                metadata={"opportunity_id": oid, "inputs_hash": vc.inputs_hash})])
-            sized.append({"opportunity_id": oid, "title": prop.title, "lever": prop.lever.value,
-                          "value_case": vc.model_dump(mode="json")})
+            _persist_findings(
+                ctx,
+                state,
+                "value_modeling",
+                [
+                    DraftFinding(
+                        f"opp_{oid}",
+                        FindingType.OPPORTUNITY,
+                        prop.title,
+                        f"{prop.title}: base-case annual run-rate EBITDA {vc.annual_ebitda_base} "
+                        f"(low {vc.annual_ebitda_low}, high {vc.annual_ebitda_high}) from {prop.baseline_metric} "
+                        f"{derived.baseline.value}.",
+                        prop.confidence,
+                        evidence,
+                        metadata={"opportunity_id": oid, "inputs_hash": vc.inputs_hash},
+                    )
+                ],
+            )
+            sized.append(
+                {
+                    "opportunity_id": oid,
+                    "title": prop.title,
+                    "lever": prop.lever.value,
+                    "value_case": vc.model_dump(mode="json"),
+                }
+            )
     return {"sized": sized, "unsized": unsized}
 
 
@@ -272,8 +354,10 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
         seen[k] = o.title
     pricing_arr = [o for o in opps if o.lever.value == "pricing"]
     if len(pricing_arr) > 1:
-        warnings.append("Pricing opportunities act on overlapping ARR and were sized independently; combined "
-                        "effect may be lower than the sum")
+        warnings.append(
+            "Pricing opportunities act on overlapping ARR and were sized independently; combined "
+            "effect may be lower than the sum"
+        )
     for f in ctx.repo.list_findings(state.run_id):
         if f.finding_type in (FindingType.VALUE_CLAIM, FindingType.OPPORTUNITY) and not f.evidence_ids:
             violations.append(f"Finding {f.title}: uncited value claim")
@@ -288,8 +372,11 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
 # --- 6. prioritization ------------------------------------------------------------------------------------------
 def prioritization(ctx: RunContext, state: RunState) -> dict[str, Any]:
     excluded = set(state.params.get("excluded_opportunities", []))
-    items = [(o, ctx.repo.get_value_case(state.company_id, o.opportunity_id))
-             for o in ctx.repo.list_opportunities(state.run_id) if o.opportunity_id not in excluded]
+    items = [
+        (o, ctx.repo.get_value_case(state.company_id, o.opportunity_id))
+        for o in ctx.repo.list_opportunities(state.run_id)
+        if o.opportunity_id not in excluded
+    ]
     scores = prioritize(items, ctx.policy)
     ctx.repo.save_priorities(state.run_id, state.company_id, scores)
     return {"ranking": [s.model_dump(mode="json") for s in scores], "excluded_by_reviewer": sorted(excluded)}
@@ -300,27 +387,56 @@ def roadmap_100_day(ctx: RunContext, state: RunState) -> dict[str, Any]:
     data = ctx.data(state.company_id)
     scores = ctx.repo.list_priorities(state.run_id)
     ranked = {s.opportunity_id for s in scores}
-    candidates = [(o, ctx.repo.get_value_case(state.company_id, o.opportunity_id))
-                  for o in ctx.repo.list_opportunities(state.run_id) if o.opportunity_id in ranked]
+    candidates = [
+        (o, ctx.repo.get_value_case(state.company_id, o.opportunity_id))
+        for o in ctx.repo.list_opportunities(state.run_id)
+        if o.opportunity_id in ranked
+    ]
     items = [(o, vc) for o, vc in candidates if vc.annual_ebitda_base > 0]
     unsized = list(state.artifacts.get("value_modeling", {}).get("unsized", []))
-    unsized += [{"opportunity_id": o.opportunity_id, "title": o.title, "lever": o.lever.value,
-                 "reason": f"Base case does not pay back (annual run-rate EBITDA {vc.annual_ebitda_base})"}
-                for o, vc in candidates if vc.annual_ebitda_base <= 0]
+    unsized += [
+        {
+            "opportunity_id": o.opportunity_id,
+            "title": o.title,
+            "lever": o.lever.value,
+            "reason": f"Base case does not pay back (annual run-rate EBITDA {vc.annual_ebitda_base})",
+        }
+        for o, vc in candidates
+        if vc.annual_ebitda_base <= 0
+    ]
     gaps = [g["detail"] for g in (state.pause_reason or {}).get("gaps", [])]
     suff = state.artifacts.get("data_sufficiency", {}).get("results", {})
     gaps += [g["detail"] for r in suff.values() for g in r.get("gaps", []) if not g.get("blocking")]
-    plan = build_plan(state.run_id, data, items, scores, ctx.policy, excluded=unsized, data_gaps=sorted(set(gaps)),
-                      reviewer_notes=state.params.get("reviewer_notes"))
+    plan = build_plan(
+        state.run_id,
+        data,
+        items,
+        scores,
+        ctx.policy,
+        excluded=unsized,
+        data_gaps=sorted(set(gaps)),
+        reviewer_notes=state.params.get("reviewer_notes"),
+    )
     if ctx.narrator is not None:
         narrative = ctx.narrator(plan, ctx.repo.list_findings(state.run_id))
         if narrative:
             plan = plan.model_copy(update={"narrative": narrative})
-    ctx.repo.save_plan(PlanRecord(plan_id=plan.plan_id, run_id=state.run_id, company_id=state.company_id,
-                                  status="proposed", plan=plan.model_dump(mode="json"), created_at=datetime.now(UTC)))
-    return {"plan_id": plan.plan_id, "workstreams": len(plan.workstreams),
-            "total_run_rate_ebitda_base": str(plan.total_run_rate_ebitda_base),
-            "total_in_year_ebitda_base": str(plan.total_in_year_ebitda_base)}
+    ctx.repo.save_plan(
+        PlanRecord(
+            plan_id=plan.plan_id,
+            run_id=state.run_id,
+            company_id=state.company_id,
+            status="proposed",
+            plan=plan.model_dump(mode="json"),
+            created_at=datetime.now(UTC),
+        )
+    )
+    return {
+        "plan_id": plan.plan_id,
+        "workstreams": len(plan.workstreams),
+        "total_run_rate_ebitda_base": str(plan.total_run_rate_ebitda_base),
+        "total_in_year_ebitda_base": str(plan.total_in_year_ebitda_base),
+    }
 
 
 # --- 8. human approval gate (PVC-061) ---------------------------------------------------------------------------
@@ -343,12 +459,18 @@ def human_approval(ctx: RunContext, state: RunState) -> dict[str, Any]:
     if latest.decision == ApprovalDecision.CHANGES_REQUESTED:
         state.params["reviewer_notes"] = latest.rationale
         state.params["excluded_opportunities"] = sorted(
-            set(state.params.get("excluded_opportunities", [])) | set(latest.edits.get("exclude_opportunities", [])))
+            set(state.params.get("excluded_opportunities", [])) | set(latest.edits.get("exclude_opportunities", []))
+        )
         ctx.repo.update_plan_status(plan.plan_id, "superseded")
         raise Rewind("prioritization", "changes requested by reviewer")
     approved = latest.edits.get("approved_plan") or plan.plan
     ctx.repo.update_plan_status(plan.plan_id, "approved", approved)
-    defs = kpi.activate_plan(ctx.repo, plan, approved, (latest.decided_at or datetime.now(UTC)).date(),
-                             actor=latest.decided_by or "unknown")
-    return {"approval_id": latest.approval_id, "decision": latest.decision.value, "plan_id": plan.plan_id,
-            "kpis_activated": len(defs)}
+    defs = kpi.activate_plan(
+        ctx.repo, plan, approved, (latest.decided_at or datetime.now(UTC)).date(), actor=latest.decided_by or "unknown"
+    )
+    return {
+        "approval_id": latest.approval_id,
+        "decision": latest.decision.value,
+        "plan_id": plan.plan_id,
+        "kpis_activated": len(defs),
+    }

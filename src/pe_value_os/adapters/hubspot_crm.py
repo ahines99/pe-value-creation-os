@@ -22,10 +22,17 @@ from ..domain.source_models import Dataset, DatasetKind
 from .base import EvidenceSink
 from .sources import ApiClient, dataset_from_records
 
-COMPANY_PROPS = ["name", "domain", "pvc_segment", "pvc_size_band", "pvc_acquisition_channel",
-                 "pvc_first_contract_date"]
-DEAL_PROPS = ["dealname", "amount", "createdate", "closedate", "dealstage", "dealtype", "pvc_opportunity_type",
-              "closed_lost_reason"]
+COMPANY_PROPS = ["name", "domain", "pvc_segment", "pvc_size_band", "pvc_acquisition_channel", "pvc_first_contract_date"]
+DEAL_PROPS = [
+    "dealname",
+    "amount",
+    "createdate",
+    "closedate",
+    "dealstage",
+    "dealtype",
+    "pvc_opportunity_type",
+    "closed_lost_reason",
+]
 
 
 def _date(v: str | None) -> str | None:
@@ -41,12 +48,20 @@ class HubSpotCrmAdapter:
     name = "hubspot"
     provides = frozenset({DatasetKind.CUSTOMERS, DatasetKind.CRM_OPPORTUNITIES, DatasetKind.CHURN})
 
-    def __init__(self, token: str, *, base_url: str = "https://api.hubapi.com",
-                 transport: httpx.BaseTransport | None = None, page_size: int = 100):
+    def __init__(
+        self,
+        token: str,
+        *,
+        base_url: str = "https://api.hubapi.com",
+        transport: httpx.BaseTransport | None = None,
+        page_size: int = 100,
+    ):
         self.api = ApiClient(base_url, {"Authorization": f"Bearer {token}"}, transport=transport)
         self.page_size = page_size
 
-    def _list(self, obj: str, props: list[str], associations: str | None = None) -> tuple[list[dict[str, Any]], list[Any]]:
+    def _list(
+        self, obj: str, props: list[str], associations: str | None = None
+    ) -> tuple[list[dict[str, Any]], list[Any]]:
         out: list[dict[str, Any]] = []
         pages: list[Any] = []
         after = None
@@ -66,13 +81,19 @@ class HubSpotCrmAdapter:
     def load_datasets(self, company_id: str, sink: EvidenceSink | None) -> dict[DatasetKind, Dataset]:
         companies, c_pages = self._list("companies", COMPANY_PROPS)
         deals, d_pages = self._list("deals", DEAL_PROPS, associations="companies")
-        customers = [{
-            "customer_id": c["id"], "name": c["properties"].get("name"), "segment": c["properties"].get("pvc_segment"),
-            "size_band": c["properties"].get("pvc_size_band"),
-            "acquisition_channel": c["properties"].get("pvc_acquisition_channel"),
-            "first_contract_date": _date(c["properties"].get("pvc_first_contract_date")),
-            "crm_account_id": c["id"], "domain": c["properties"].get("domain"),
-        } for c in companies]
+        customers = [
+            {
+                "customer_id": c["id"],
+                "name": c["properties"].get("name"),
+                "segment": c["properties"].get("pvc_segment"),
+                "size_band": c["properties"].get("pvc_size_band"),
+                "acquisition_channel": c["properties"].get("pvc_acquisition_channel"),
+                "first_contract_date": _date(c["properties"].get("pvc_first_contract_date")),
+                "crm_account_id": c["id"],
+                "domain": c["properties"].get("domain"),
+            }
+            for c in companies
+        ]
         opps, churn = [], []
         for d in deals:
             p = d["properties"]
@@ -80,23 +101,56 @@ class HubSpotCrmAdapter:
             cust = assoc[0]["id"] if assoc else "prospect"
             stage = {"closedwon": "won", "closedlost": "lost"}.get(p.get("dealstage") or "", "open")
             otype = p.get("pvc_opportunity_type") or {"newbusiness": "new", "existingbusiness": "expansion"}.get(
-                p.get("dealtype") or "", "new")
-            opps.append({"opportunity_id": d["id"], "customer_id": cust, "created_date": _date(p.get("createdate")),
-                         "close_date": _date(p.get("closedate")), "stage": stage, "opportunity_type": otype,
-                         "amount": p.get("amount") or "0"})
+                p.get("dealtype") or "", "new"
+            )
+            opps.append(
+                {
+                    "opportunity_id": d["id"],
+                    "customer_id": cust,
+                    "created_date": _date(p.get("createdate")),
+                    "close_date": _date(p.get("closedate")),
+                    "stage": stage,
+                    "opportunity_type": otype,
+                    "amount": p.get("amount") or "0",
+                }
+            )
             if otype == "renewal" and stage == "lost" and cust != "prospect" and p.get("closedate"):
                 reason = p.get("closed_lost_reason") or None
-                churn.append({"customer_id": cust, "month": _month(p["closedate"]),
-                              "churn_type": "involuntary_payment" if reason == "payment_failed" else "voluntary",
-                              "reason_code": None if reason == "payment_failed" else reason, "notes": None})
+                churn.append(
+                    {
+                        "customer_id": cust,
+                        "month": _month(p["closedate"]),
+                        "churn_type": "involuntary_payment" if reason == "payment_failed" else "voluntary",
+                        "reason_code": None if reason == "payment_failed" else reason,
+                        "notes": None,
+                    }
+                )
         return {
-            DatasetKind.CUSTOMERS: dataset_from_records(DatasetKind.CUSTOMERS, company_id, customers,
-                                                        source_uri="hubspot://crm/v3/companies", as_of=None, sink=sink,
-                                                        raw_payload=c_pages),
-            DatasetKind.CRM_OPPORTUNITIES: dataset_from_records(DatasetKind.CRM_OPPORTUNITIES, company_id, opps,
-                                                                source_uri="hubspot://crm/v3/deals", as_of=None,
-                                                                sink=sink, raw_payload=d_pages),
-            DatasetKind.CHURN: dataset_from_records(DatasetKind.CHURN, company_id, churn,
-                                                    source_uri="hubspot://crm/v3/deals#lost-renewals", as_of=None,
-                                                    sink=sink, raw_payload=d_pages),
+            DatasetKind.CUSTOMERS: dataset_from_records(
+                DatasetKind.CUSTOMERS,
+                company_id,
+                customers,
+                source_uri="hubspot://crm/v3/companies",
+                as_of=None,
+                sink=sink,
+                raw_payload=c_pages,
+            ),
+            DatasetKind.CRM_OPPORTUNITIES: dataset_from_records(
+                DatasetKind.CRM_OPPORTUNITIES,
+                company_id,
+                opps,
+                source_uri="hubspot://crm/v3/deals",
+                as_of=None,
+                sink=sink,
+                raw_payload=d_pages,
+            ),
+            DatasetKind.CHURN: dataset_from_records(
+                DatasetKind.CHURN,
+                company_id,
+                churn,
+                source_uri="hubspot://crm/v3/deals#lost-renewals",
+                as_of=None,
+                sink=sink,
+                raw_payload=d_pages,
+            ),
         }

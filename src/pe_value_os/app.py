@@ -58,15 +58,22 @@ def proposer_from_env() -> Proposer:
     raise ValueError(f"Unknown PVC_PROPOSER {kind!r}")
 
 
-def build_context(repo: Repository | None = None, adapter: SourceAdapter | None = None,
-                  actor: str = "system:workflow") -> RunContext:
+def build_context(
+    repo: Repository | None = None, adapter: SourceAdapter | None = None, actor: str = "system:workflow"
+) -> RunContext:
     narrator = None
     if os.environ.get("PVC_PROPOSER") == "model":
         from .llm.narrator import ModelNarrator
 
         narrator = ModelNarrator.from_env()
-    return RunContext(repo=repo or get_repository(), adapter=adapter or adapter_from_env(), policy=get_policy(),
-                      proposer=proposer_from_env(), narrator=narrator, actor=actor)
+    return RunContext(
+        repo=repo or get_repository(),
+        adapter=adapter or adapter_from_env(),
+        policy=get_policy(),
+        proposer=proposer_from_env(),
+        narrator=narrator,
+        actor=actor,
+    )
 
 
 def companies_from_env(var: str, adapter: SourceAdapter) -> frozenset[str]:
@@ -80,5 +87,9 @@ def companies_from_env(var: str, adapter: SourceAdapter) -> frozenset[str]:
 
 def operator_principal(adapter: SourceAdapter) -> Principal:
     user = os.environ.get("PVC_OPERATOR") or os.environ.get("USERNAME") or os.environ.get("USER") or "operator"
-    return Principal(subject=f"human:{user}", companies=companies_from_env("PVC_OPERATOR_COMPANIES", adapter),
-                     roles=frozenset({"operator"}), principal_type="human")
+    return Principal(
+        subject=f"human:{user}",
+        companies=companies_from_env("PVC_OPERATOR_COMPANIES", adapter),
+        roles=frozenset({"operator"}),
+        principal_type="human",
+    )

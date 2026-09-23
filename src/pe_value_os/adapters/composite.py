@@ -120,8 +120,9 @@ def _build(company_id: str, c: dict[str, Any]) -> CompanySources:
         base=base,
         sources={DatasetKind(k): vendors[v] for k, v in c.get("sources", {}).items()},
         id_systems={DatasetKind(k): v for k, v in c.get("id_systems", {}).items()},
-        resolver=er.Resolver(overrides=c.get("entity_overrides", {}),
-                             accept_name_matches=bool(c.get("accept_name_matches", False))),
+        resolver=er.Resolver(
+            overrides=c.get("entity_overrides", {}), accept_name_matches=bool(c.get("accept_name_matches", False))
+        ),
     )
 
 
@@ -138,7 +139,13 @@ def _vendor(name: str, section: dict[str, Any]) -> Any:
         from .zendesk_support import ZendeskConfig, ZendeskSupportAdapter
 
         return ZendeskSupportAdapter(
-            section["subdomain"], section["email"], _env(section, "token_env"),
-            ZendeskConfig(int(section["category_field_id"]), int(section["handle_minutes_field_id"]),
-                          {int(g) for g in section.get("tier1_group_ids", [])}))
+            section["subdomain"],
+            section["email"],
+            _env(section, "token_env"),
+            ZendeskConfig(
+                int(section["category_field_id"]),
+                int(section["handle_minutes_field_id"]),
+                {int(g) for g in section.get("tier1_group_ids", [])},
+            ),
+        )
     raise SourceError(f"Unknown vendor adapter {name!r}")

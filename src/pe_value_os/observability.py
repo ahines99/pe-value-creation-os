@@ -17,14 +17,61 @@ from collections.abc import Iterator, Mapping, MutableMapping
 from contextlib import contextmanager
 from typing import Any
 
-SAFE_KEYS = frozenset({
-    "event", "level", "timestamp", "logger", "logger_name", "run_id", "company_id", "step", "tool_name", "status", "duration_ms",
-    "event_type", "evidence_ids", "count", "error_type", "attempt", "worker_id", "policy_version", "calc_version",
-    "model", "input_tokens", "output_tokens", "cost_usd", "approval_id", "plan_id", "opportunity_id", "kpi_id",
-    "schema_version", "http_method", "path", "status_code", "decision", "branch", "reason_code", "lever",
-    "analysis", "sufficient", "actor_type", "retries", "timeout_s", "service", "environment", "trace_id",
-    "span_id", "notification_id", "channel", "rows", "gaps", "result", "principal_type", "version",
-})
+SAFE_KEYS = frozenset(
+    {
+        "event",
+        "level",
+        "timestamp",
+        "logger",
+        "logger_name",
+        "run_id",
+        "company_id",
+        "step",
+        "tool_name",
+        "status",
+        "duration_ms",
+        "event_type",
+        "evidence_ids",
+        "count",
+        "error_type",
+        "attempt",
+        "worker_id",
+        "policy_version",
+        "calc_version",
+        "model",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd",
+        "approval_id",
+        "plan_id",
+        "opportunity_id",
+        "kpi_id",
+        "schema_version",
+        "http_method",
+        "path",
+        "status_code",
+        "decision",
+        "branch",
+        "reason_code",
+        "lever",
+        "analysis",
+        "sufficient",
+        "actor_type",
+        "retries",
+        "timeout_s",
+        "service",
+        "environment",
+        "trace_id",
+        "span_id",
+        "notification_id",
+        "channel",
+        "rows",
+        "gaps",
+        "result",
+        "principal_type",
+        "version",
+    }
+)
 
 
 def _hash(value: Any) -> str:
@@ -155,17 +202,22 @@ class Metrics:
         self.http_requests = meter.create_counter("pvc.http.requests", description="HTTP requests by status class")
         self.http_duration = meter.create_histogram("pvc.http.duration", unit="ms", description="HTTP latency")
         self.approval_turnaround = meter.create_histogram(
-            "pvc.approval.turnaround", unit="h", description="Hours from approval request to decision")
+            "pvc.approval.turnaround", unit="h", description="Hours from approval request to decision"
+        )
         self.approval_decisions = meter.create_counter(
-            "pvc.approval.decisions", description="Approval decisions; changed=true when the human edited the plan")
+            "pvc.approval.decisions", description="Approval decisions; changed=true when the human edited the plan"
+        )
         self.adapter_errors = meter.create_counter("pvc.adapter.errors", description="Source adapter failures")
         self.kpi_off_track = meter.create_counter("pvc.kpi.off_track", description="KPI off-track alerts")
         self.runs_stuck = meter.create_gauge(
-            "pvc.runs.stuck", description="Runs in 'running' state longer than the stuck threshold")
+            "pvc.runs.stuck", description="Runs in 'running' state longer than the stuck threshold"
+        )
         self.source_age = meter.create_gauge(
-            "pvc.source.age_days", description="Days between a dataset's as_of and the reference date")
+            "pvc.source.age_days", description="Days between a dataset's as_of and the reference date"
+        )
         self.approvals_pending_oldest = meter.create_gauge(
-            "pvc.approvals.pending_oldest", unit="h", description="Age of the oldest pending approval")
+            "pvc.approvals.pending_oldest", unit="h", description="Age of the oldest pending approval"
+        )
 
 
 _metrics: Metrics | None = None

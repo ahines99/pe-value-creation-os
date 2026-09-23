@@ -610,7 +610,7 @@ def _default_store() -> EvidenceStore:
     if bucket:
         from .evidence_store import S3EvidenceStore
 
-        return S3EvidenceStore(bucket)
+        return S3EvidenceStore(bucket, kms_key_id=os.environ.get("PVC_EVIDENCE_KMS_KEY_ID") or None)
     return FileSystemEvidenceStore(os.environ.get("PVC_EVIDENCE_DIR", "var/evidence"))
 
 

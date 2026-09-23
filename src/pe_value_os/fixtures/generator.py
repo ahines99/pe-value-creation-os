@@ -777,8 +777,9 @@ def generate_company(spec: CompanySpec, out_dir: Path) -> Path:
     if spec.broken:
         overrides = _mutate_broken(files, as_of, spec.company_id)
     for i, (title, text) in enumerate(spec.extra_documents, start=1):
-        files["documents"].append(Document(company_id=spec.company_id, document_id=f"doc-extra-{i}", title=title,
-                                           doc_type="memo", text=text))
+        files["documents"].append(
+            Document(company_id=spec.company_id, document_id=f"doc-extra-{i}", title=title, doc_type="memo", text=text)
+        )
     for kind in spec.stale:
         as_of[kind] = datetime.combine(REFERENCE_DATE - timedelta(days=200), datetime.min.time())
     for kind, column in spec.drop_columns.items():

@@ -1,0 +1,118 @@
+# Architecture
+
+This document is for engineers joining the project and reviewers of its design. It covers the layers, how data moves through a diagnostic run, and where each guarantee is enforced. Decisions are recorded in [docs/adr/](adr/), and data shapes in [data_contracts.md](data_contracts.md).
+
+## Layers
+
+```mermaid
+flowchart TB
+    subgraph clients["Clients"]
+        CC["Claude client + Agent Skills<br/>(skills/*, plugin)"]
+        HUM["Human approver<br/>(browser)"]
+        OPS["Operator<br/>(pvc CLI)"]
+    end
+
+    subgraph edge["Authenticated entry points"]
+        MCP["MCP server<br/>Streamable HTTP / stdio<br/>OAuth bearer, company scope"]
+        API["Approval API + review UI<br/>FastAPI, CSRF, human-only"]
+    end
+
+    subgraph core["Deterministic core (src/pe_value_os/domain)"]
+        SVC["Metrics, retention, pricing,<br/>sufficiency, sizing (Decimal)"]
+        POL["Versioned policy<br/>(policy.toml)"]
+    end
+
+    subgraph orchestration["Workflow"]
+        WF["State machine<br/>checkpoint per step, resume, rewind"]
+        WRK["Worker<br/>run queue, KPI refresh, escalation"]
+        LLM["Model layer (optional)<br/>proposer + narrator, guardrails"]
+    end
+
+    subgraph data["State and sources"]
+        PG[("PostgreSQL<br/>runs, findings, value cases,<br/>plans, approvals, audit, KPIs<br/>row-level security")]
+        EV[("Evidence store<br/>immutable originals<br/>S3 Object Lock + KMS")]
+        SRC["Source adapters<br/>fixtures, CSV, warehouse,<br/>Stripe, HubSpot, Zendesk"]
+    end
+
+    CC -->|tools, resources, prompts| MCP
+    HUM --> API
+    OPS --> WF
+    MCP --> SVC
+    MCP --> WF
+    API -->|approve / reject / request changes| WF
+    WF --> SVC
+    WF --> LLM
+    WRK --> WF
+    SVC --> POL
+    WF --> PG
+    MCP --> PG
+    API --> PG
+    SRC -->|egress allow-list| WF
+    WF --> EV
+```
+
+| Layer | Owns | Does not own |
+|---|---|---|
+| Deterministic core | All arithmetic (Decimal money, rates as fractions), metric definitions, sufficiency rules, value-case sizing (`CALC_VERSION`) | Judgment about which levers matter |
+| Policy | Thresholds, freshness window, cost assumptions, prioritization weights; the version is stamped on every run | Code paths |
+| MCP server | 21 typed tools, resources (`project://policies`, `company://{id}/data-inventory`, `run://{id}/summary`) and the review prompt. Scope is checked on every call. Arguments are strict: unknown fields are rejected. | Approvals: no tool can approve (ADR 0004) |
+| Agent Skills | Domain procedure: diagnostic trees, checklists, output contracts | Numbers: skills call tools for every figure |
+| Workflow | Step order, checkpoints, retries for transient errors only, timeouts, pause states | Business rules, which live in the core |
+| Model layer | Opportunity proposals and plan narrative at judgment steps. Output is JSON-schema constrained and checked by the no-new-numbers guardrail. | Arithmetic and final sizing |
+| Approval API | Human decisions, with diff, rationale and audit | Model access |
+| PostgreSQL | System of record. Company isolation is enforced by row-level security on `pvc.companies`. | Evidence bytes |
+| Evidence store | Immutable source snapshots, content-addressed ids | Derived analysis |
+
+## A diagnostic run
+
+```mermaid
+stateDiagram-v2
+    [*] --> intake
+    intake --> data_sufficiency: snapshot sources as evidence
+    data_sufficiency --> NEEDS_EVIDENCE: fewer than min sufficient analyses
+    data_sufficiency --> diagnostics
+    state diagnostics {
+        unit_economics
+        pricing
+        retention
+        ai_opportunity
+    }
+    diagnostics --> value_modeling: findings + proposals (a failed branch is recorded as a gap)
+    diagnostics --> NEEDS_EVIDENCE: model unavailable and policy says pause
+    value_modeling --> evidence_review: deterministic value cases
+    evidence_review --> prioritization: every claim cites evidence
+    prioritization --> roadmap_100_day
+    roadmap_100_day --> human_approval
+    human_approval --> AWAITING_APPROVAL
+    AWAITING_APPROVAL --> COMPLETE: approved (KPIs activate)
+    AWAITING_APPROVAL --> REJECTED: rejected
+    AWAITING_APPROVAL --> prioritization: changes requested (rewind)
+    NEEDS_EVIDENCE --> data_sufficiency: resume (data fixed, or gaps accepted by a human)
+```
+
+1. **Intake** loads the company's datasets through the configured adapter. Each dataset is stored as an evidence original with a deterministic id (`uuid5`), and its as-of date is recorded for the freshness metrics.
+2. **Data sufficiency** decides which analyses the data supports. With too few, the run pauses at `NEEDS_EVIDENCE` and lists named gaps (dataset, file, row, field). Text that looks like prompt injection becomes a `suspicious_content` finding. It is never followed.
+3. **Diagnostics** run four branches in parallel. A failure in one branch is recorded as a gap and the other branches continue.
+4. **Value modeling** sizes each proposal with the deterministic calculator: low, base and high EBITDA, in-year and run-rate. Model output supplies scenario inputs only. Baselines always come from the server.
+5. **Evidence review** drops any claim without resolvable evidence.
+6. **Prioritization** scores opportunities using the policy weights.
+7. **Roadmap** builds workstreams, initiatives and KPIs for the 100-day plan. The model can write the narrative, but it cannot introduce numbers.
+8. **Human approval** pauses the run. The approval API records the decision. The worker then resumes the run, and on approval activates KPI monitoring.
+
+Every step writes a checkpoint and audit events. `pvc resume` re-runs the paused or failed step and skips completed ones. `--accept-gaps` is a recorded human decision to proceed despite data gaps. When the reviewer requests changes, the run rewinds to prioritization. The `pvc recompute` command re-sizes a run's opportunities with the current calculation version. It keeps the superseded value cases and reports what changed.
+
+## Where each guarantee is enforced
+
+| Guarantee | Enforced by | Tested in |
+|---|---|---|
+| No model arithmetic | Sizing in `domain/services.py`; the no-new-numbers guardrail in `llm/guardrails.py` | `test_sizing`, `test_llm`, eval dimension `calculation_fidelity` |
+| Evidence for every claim | `evidence_review` step; `extra=forbid` proposal contracts | `test_workflow`, eval dimension `evidence_fidelity` |
+| Company isolation | `security.require` on every tool; PostgreSQL RLS with FORCE; scoped evidence paths | `test_auth`, `test_repository_contract` (Postgres), eval dimension `permission_fidelity` |
+| Human-only approval | No approve tool; the API requires a human principal and CSRF on forms | `test_api`, `test_mcp` |
+| Reproducibility | Deterministic ids, versioned policy and calculator, snapshot tests | `test_snapshots`, `test_properties` |
+| Controlled failure | Per-step timeouts, transient-only retries, pause states, fault injection | `test_workflow`, `test_demo`, eval dimension `recovery` |
+| Outbound traffic | Egress allow-list on every HTTP client | `test_adapters`, `test_observability` |
+
+## Deployment
+
+One container image runs every process: MCP server, approval API, worker, and the migrate and bootstrap tasks. It runs on ECS Fargate behind an ALB, with RDS PostgreSQL and an S3 evidence bucket that uses Object Lock and KMS. The Terraform is in [infra/terraform/](../infra/terraform/), and the procedure is in [deployment.md](deployment.md). Logs, traces and metrics go through OpenTelemetry. Dashboards and alert rules are in [ops/observability/](../ops/observability/), and the SLOs are in [slo.md](slo.md).

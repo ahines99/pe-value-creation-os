@@ -26,8 +26,9 @@ configure_logging(stream=io.StringIO())
 def ctx(tmp_path):
     from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore
 
-    return RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                      policy=get_policy())
+    return RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(), policy=get_policy()
+    )
 
 
 def scoped(*companies):
@@ -106,6 +107,7 @@ async def test_crash_then_resume_skips_finished_steps(ctx, monkeypatch):
             if name == "value_modeling" and calls.count("value_modeling") == 1:
                 raise Crash()
             return originals[name](c, s)
+
         return f
 
     for n in originals:
@@ -153,10 +155,12 @@ async def test_one_failed_branch_run_continues(ctx):
 
 async def test_all_branches_failing_fails_the_step(ctx):
     with scoped("acme-healthy"):
-        with faults.inject(branch="pricing", fault=faults.Fault("error", 99)), \
-                faults.inject(branch="retention", fault=faults.Fault("error", 99)), \
-                faults.inject(branch="unit_economics", fault=faults.Fault("error", 99)), \
-                faults.inject(branch="ai_opportunity", fault=faults.Fault("error", 99)):
+        with (
+            faults.inject(branch="pricing", fault=faults.Fault("error", 99)),
+            faults.inject(branch="retention", fault=faults.Fault("error", 99)),
+            faults.inject(branch="unit_economics", fault=faults.Fault("error", 99)),
+            faults.inject(branch="ai_opportunity", fault=faults.Fault("error", 99)),
+        ):
             _, st = await run(ctx, "acme-healthy")
     assert st.status == Status.FAILED and st.current_step == "diagnostics"
 
@@ -250,8 +254,13 @@ async def test_changes_requested_rewinds_and_excludes(ctx):
         rec, _ = await run(ctx, "beacon-pricing")
         first_plan = ctx.repo.latest_plan(rec.run_id)
         drop = next(o for o in ctx.repo.list_opportunities(rec.run_id) if o.baseline_metric == "renewing_arr")
-        approve(ctx, rec.run_id, ApprovalDecision.CHANGES_REQUESTED, "Hold renewal uplifts until Q2",
-                {"exclude_opportunities": [drop.opportunity_id]})
+        approve(
+            ctx,
+            rec.run_id,
+            ApprovalDecision.CHANGES_REQUESTED,
+            "Hold renewal uplifts until Q2",
+            {"exclude_opportunities": [drop.opportunity_id]},
+        )
         st = await primary.resume(ctx, rec.run_id, "human:approver")
         assert st.status == Status.AWAITING_APPROVAL
         second = ctx.repo.latest_plan(rec.run_id)

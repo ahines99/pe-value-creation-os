@@ -107,13 +107,24 @@ class Runner:
     _events: list[str] = field(default_factory=list)
 
     def emit(self, state: RunState, event_type: str, **payload: Any) -> None:
-        self.audit.append_audit(AuditEvent(
-            run_id=state.run_id, company_id=state.company_id, step=state.current_step or "run", actor=self.actor,
-            event_type=event_type, created_at=datetime.now(UTC),
-            payload={**payload, "policy_version": self.policy_version} if self.policy_version else payload,
-        ))
-        log.info(event_type, run_id=state.run_id, company_id=state.company_id, step=state.current_step,
-                 status=state.status.value)
+        self.audit.append_audit(
+            AuditEvent(
+                run_id=state.run_id,
+                company_id=state.company_id,
+                step=state.current_step or "run",
+                actor=self.actor,
+                event_type=event_type,
+                created_at=datetime.now(UTC),
+                payload={**payload, "policy_version": self.policy_version} if self.policy_version else payload,
+            )
+        )
+        log.info(
+            event_type,
+            run_id=state.run_id,
+            company_id=state.company_id,
+            step=state.current_step,
+            status=state.status.value,
+        )
 
     async def _attempt(self, step: Step, state: RunState) -> RunState:
         attempt = 0

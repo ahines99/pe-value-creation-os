@@ -112,9 +112,15 @@ class DecisionIn(BaseModel):
 def _decide(run_id: str, p: security.Principal, body: DecisionIn) -> dict[str, Any]:
     ctx = get_ctx()
     try:
-        rec = approvals.decide(ctx, run_id, p, ApprovalDecision(body.decision), rationale=body.rationale,
-                               remove_initiatives=body.remove_initiatives,
-                               exclude_opportunities=body.exclude_opportunities)
+        rec = approvals.decide(
+            ctx,
+            run_id,
+            p,
+            ApprovalDecision(body.decision),
+            rationale=body.rationale,
+            remove_initiatives=body.remove_initiatives,
+            exclude_opportunities=body.exclude_opportunities,
+        )
     except approvals.NotApprover as e:
         raise HTTPException(403, str(e)) from e
     except (approvals.ApprovalError, Conflict) as e:
@@ -144,8 +150,13 @@ def post_decision(run_id: str, body: DecisionIn, p: Principal) -> dict[str, Any]
 
 @app.post("/runs/{run_id}/approvals/form")
 def post_decision_form(
-    run_id: str, request: Request, p: Principal, decision: Annotated[str, Form()], csrf: Annotated[str, Form()],
-    rationale: Annotated[str, Form()] = "", remove_initiatives: Annotated[list[str] | None, Form()] = None,
+    run_id: str,
+    request: Request,
+    p: Principal,
+    decision: Annotated[str, Form()],
+    csrf: Annotated[str, Form()],
+    rationale: Annotated[str, Form()] = "",
+    remove_initiatives: Annotated[list[str] | None, Form()] = None,
 ) -> Response:
     if not secrets.compare_digest(csrf, request.cookies.get("pvc_csrf", "")):
         raise HTTPException(403, "CSRF check failed")
@@ -153,8 +164,13 @@ def post_decision_form(
         raise HTTPException(422, "Invalid decision")
     with scoped(p):
         _load_run(run_id)
-        _decide(run_id, p, DecisionIn.model_validate({"decision": decision, "rationale": rationale or None,
-                                                      "remove_initiatives": remove_initiatives or []}))
+        _decide(
+            run_id,
+            p,
+            DecisionIn.model_validate(
+                {"decision": decision, "rationale": rationale or None, "remove_initiatives": remove_initiatives or []}
+            ),
+        )
     return RedirectResponse(f"/runs/{run_id}/review", status_code=303)
 
 
@@ -168,8 +184,16 @@ def review(run_id: str, p: Principal) -> HTMLResponse:
         approvals_ = ctx.repo.list_approvals(run_id)
         csrf = secrets.token_urlsafe(24)
         can = p.is_human and ctx.policy.approval.approver_role in p.roles
-        html = views.review_page(run, ctx.repo.latest_plan(run_id), opps, cases, ctx.repo.list_findings(run_id),
-                                 approvals_[-1] if approvals_ else None, csrf, can)
+        html = views.review_page(
+            run,
+            ctx.repo.latest_plan(run_id),
+            opps,
+            cases,
+            ctx.repo.list_findings(run_id),
+            approvals_[-1] if approvals_ else None,
+            csrf,
+            can,
+        )
     resp = HTMLResponse(html)
     resp.set_cookie("pvc_csrf", csrf, httponly=True, samesite="strict", secure=os.environ.get("PVC_ENV") != "dev")
     return resp
@@ -184,9 +208,15 @@ def evidence(evidence_id: str, p: Principal) -> Response:
         except (NotFound, EvidenceNotFound) as e:
             raise HTTPException(404, "Evidence not found") from e
     name = ev.source_uri.rsplit("/", 1)[-1] or "evidence"
-    return Response(content, media_type="text/plain; charset=utf-8",
-                    headers={"Content-Disposition": f'inline; filename="{name}"', "X-Content-Hash": ev.content_hash,
-                             "X-Content-Type-Options": "nosniff"})
+    return Response(
+        content,
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Content-Disposition": f'inline; filename="{name}"',
+            "X-Content-Hash": ev.content_hash,
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @app.get("/companies/{company_id}/kpis", response_class=HTMLResponse)

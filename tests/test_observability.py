@@ -27,16 +27,23 @@ FIX = ROOT / "tests" / "fixtures" / "companies"
 
 
 def _run(tmp_path, cid="beacon-pricing"):
-    ctx = RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(),
-                     policy=get_policy())
+    ctx = RunContext(
+        repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev")), adapter=FixtureAdapter(), policy=get_policy()
+    )
     with security.principal_scope(security.system_principal(cid)):
         rec, _ = primary.start(ctx, cid, "human:t")
         st = anyio.run(lambda: primary.execute(ctx, rec.run_id, backoff_s=0))
         if st.status.value != "awaiting_approval":
             return ctx, rec.run_id
-        approvals.decide(ctx, rec.run_id, security.Principal(subject="human:ap", companies=frozenset({cid}),
-                                                             roles=frozenset({"approver"}), principal_type="human"),
-                         ApprovalDecision.APPROVED, rationale="ok")
+        approvals.decide(
+            ctx,
+            rec.run_id,
+            security.Principal(
+                subject="human:ap", companies=frozenset({cid}), roles=frozenset({"approver"}), principal_type="human"
+            ),
+            ApprovalDecision.APPROVED,
+            rationale="ok",
+        )
         anyio.run(lambda: primary.resume(ctx, rec.run_id, "system:worker", backoff_s=0))
     return ctx, rec.run_id
 
@@ -106,7 +113,11 @@ def test_egress_allow_list(monkeypatch):
     check_url("https://api.anthropic.com/v1/messages")
     check_url("https://hooks.slack.com/services/x")
     check_url("https://login.example-idp.com/.well-known/jwks.json")
-    for bad in ("https://evil.example.com", "http://169.254.169.254/latest/meta-data", "https://api.anthropic.com.evil.io"):
+    for bad in (
+        "https://evil.example.com",
+        "http://169.254.169.254/latest/meta-data",
+        "https://api.anthropic.com.evil.io",
+    ):
         with pytest.raises(EgressDenied):
             check_url(bad)
     sent = []

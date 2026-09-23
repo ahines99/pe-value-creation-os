@@ -66,7 +66,7 @@ def lint(skills_dir: Path = DEFAULT_DIR, tools: set[str] | None = None) -> list[
             problems.append(f"{d.name}: missing description")
         elif len(desc) > 1024:
             problems.append(f"{d.name}: description longer than 1024 characters")
-        body = text[m.end():]
+        body = text[m.end() :]
         for tool in sorted(set(TOOL_RE.findall(body))):
             if tool not in tools and tool not in PLANNED:
                 problems.append(f"{d.name}: references unknown tool {tool!r}")
