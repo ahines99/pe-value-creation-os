@@ -123,6 +123,9 @@ def governed(name: str, *, mutating: bool = False) -> Callable[[F], F]:
                     "tool_call", tool_name=name, status=outcome, duration_ms=round((time.perf_counter() - t0) * 1000, 2)
                 )
 
+        # Python 3.13+ strips docstring indentation at compile time; 3.12 does not. Normalize so tool
+        # descriptions (and the schema snapshot) are identical on every supported version.
+        wrapper.__doc__ = inspect.cleandoc(fn.__doc__) if fn.__doc__ else None
         return wrapper  # type: ignore[return-value]
 
     return deco
