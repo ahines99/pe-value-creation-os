@@ -1,0 +1,58 @@
+{
+  "company_id": "cedar-churn",
+  "reference_date": "2026-09-15",
+  "datasets": {
+    "pnl": {
+      "file": "pnl.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "customers": {
+      "file": "customers.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "arr": {
+      "file": "arr.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "churn": {
+      "file": "churn.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "price_books": {
+      "file": "price_books.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "invoices": {
+      "file": "invoices.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "concessions": {
+      "file": "concessions.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "contracts": {
+      "file": "contracts.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "support": {
+      "file": "support.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "usage": {
+      "file": "usage.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "crm_opportunities": {
+      "file": "crm_opportunities.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "headcount": {
+      "file": "headcount.csv",
+      "as_of": "2026-09-05T00:00:00"
+    },
+    "documents": {
+      "file": "documents.csv",
+      "as_of": "2026-09-05T00:00:00"
+    }
+  }
+}

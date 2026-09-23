@@ -1,0 +1,3 @@
+company_id,document_id,title,doc_type,text
+cedar-churn,doc-mgmt-update,Management update Q2 2026,management_update,"Cedar Field Analytics (fictional) management update. Priorities: grow net new ARR, improve onboarding, and review pricing governance. Figures in this memo are unaudited."
+cedar-churn,doc-cs-review,Customer success review,cs_review,SMB customers receive self-serve onboarding only. Time-to-first-value for SMB averages 10 weeks. Failed card payments are retried once with no dunning sequence.

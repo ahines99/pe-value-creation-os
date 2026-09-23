@@ -1,0 +1,252 @@
+company_id,customer_id,name,segment,size_band,acquisition_channel,first_contract_date,crm_account_id,billing_account_id,domain
+acme-healthy,acm-c0001,Customer 0001 Enterprise Co,enterprise,500+,outbound,2023-08-22,crm-00001,bill-00001,customer0001.example
+acme-healthy,acm-c0002,Customer 0002 Smb Co,smb,1-50,outbound,2023-08-16,crm-00002,bill-00002,customer0002.example
+acme-healthy,acm-c0003,Customer 0003 Smb Co,smb,1-50,outbound,2022-05-22,crm-00003,bill-00003,customer0003.example
+acme-healthy,acm-c0004,Customer 0004 Enterprise Co,enterprise,500+,partner,2024-08-12,crm-00004,bill-00004,customer0004.example
+acme-healthy,acm-c0005,Customer 0005 Smb Co,smb,1-50,partner,2023-03-21,crm-00005,bill-00005,customer0005.example
+acme-healthy,acm-c0006,Customer 0006 Enterprise Co,enterprise,500+,outbound,2024-08-23,crm-00006,bill-00006,customer0006.example
+acme-healthy,acm-c0007,Customer 0007 Mid Market Co,mid_market,51-500,outbound,2023-12-05,crm-00007,bill-00007,customer0007.example
+acme-healthy,acm-c0008,Customer 0008 Smb Co,smb,1-50,outbound,2022-10-03,crm-00008,bill-00008,customer0008.example
+acme-healthy,acm-c0009,Customer 0009 Enterprise Co,enterprise,500+,inbound,2021-11-09,crm-00009,bill-00009,customer0009.example
+acme-healthy,acm-c0010,Customer 0010 Smb Co,smb,1-50,inbound,2022-11-11,crm-00010,bill-00010,customer0010.example
+acme-healthy,acm-c0011,Customer 0011 Smb Co,smb,1-50,outbound,2022-07-07,crm-00011,bill-00011,customer0011.example
+acme-healthy,acm-c0012,Customer 0012 Mid Market Co,mid_market,51-500,partner,2022-09-18,crm-00012,bill-00012,customer0012.example
+acme-healthy,acm-c0013,Customer 0013 Smb Co,smb,1-50,outbound,2022-05-02,crm-00013,bill-00013,customer0013.example
+acme-healthy,acm-c0014,Customer 0014 Mid Market Co,mid_market,51-500,outbound,2024-06-01,crm-00014,bill-00014,customer0014.example
+acme-healthy,acm-c0015,Customer 0015 Mid Market Co,mid_market,51-500,partner,2022-01-20,crm-00015,bill-00015,customer0015.example
+acme-healthy,acm-c0016,Customer 0016 Mid Market Co,mid_market,51-500,inbound,2022-02-12,crm-00016,bill-00016,customer0016.example
+acme-healthy,acm-c0017,Customer 0017 Smb Co,smb,1-50,partner,2023-10-15,crm-00017,bill-00017,customer0017.example
+acme-healthy,acm-c0018,Customer 0018 Smb Co,smb,1-50,partner,2023-06-05,crm-00018,bill-00018,customer0018.example
+acme-healthy,acm-c0019,Customer 0019 Smb Co,smb,1-50,inbound,2024-06-09,crm-00019,bill-00019,customer0019.example
+acme-healthy,acm-c0020,Customer 0020 Smb Co,smb,1-50,partner,2023-01-05,crm-00020,bill-00020,customer0020.example
+acme-healthy,acm-c0021,Customer 0021 Smb Co,smb,1-50,outbound,2023-05-14,crm-00021,bill-00021,customer0021.example
+acme-healthy,acm-c0022,Customer 0022 Smb Co,smb,1-50,outbound,2023-08-02,crm-00022,bill-00022,customer0022.example
+acme-healthy,acm-c0023,Customer 0023 Mid Market Co,mid_market,51-500,outbound,2022-09-28,crm-00023,bill-00023,customer0023.example
+acme-healthy,acm-c0024,Customer 0024 Enterprise Co,enterprise,500+,outbound,2024-06-01,crm-00024,bill-00024,customer0024.example
+acme-healthy,acm-c0025,Customer 0025 Smb Co,smb,1-50,partner,2022-04-28,crm-00025,bill-00025,customer0025.example
+acme-healthy,acm-c0026,Customer 0026 Smb Co,smb,1-50,partner,2021-11-25,crm-00026,bill-00026,customer0026.example
+acme-healthy,acm-c0027,Customer 0027 Smb Co,smb,1-50,outbound,2023-12-24,crm-00027,bill-00027,customer0027.example
+acme-healthy,acm-c0028,Customer 0028 Mid Market Co,mid_market,51-500,partner,2022-10-28,crm-00028,bill-00028,customer0028.example
+acme-healthy,acm-c0029,Customer 0029 Enterprise Co,enterprise,500+,partner,2023-09-04,crm-00029,bill-00029,customer0029.example
+acme-healthy,acm-c0030,Customer 0030 Mid Market Co,mid_market,51-500,partner,2023-05-02,crm-00030,bill-00030,customer0030.example
+acme-healthy,acm-c0031,Customer 0031 Enterprise Co,enterprise,500+,outbound,2022-01-14,crm-00031,bill-00031,customer0031.example
+acme-healthy,acm-c0032,Customer 0032 Smb Co,smb,1-50,outbound,2022-12-24,crm-00032,bill-00032,customer0032.example
+acme-healthy,acm-c0033,Customer 0033 Smb Co,smb,1-50,outbound,2022-11-08,crm-00033,bill-00033,customer0033.example
+acme-healthy,acm-c0034,Customer 0034 Mid Market Co,mid_market,51-500,inbound,2023-11-27,crm-00034,bill-00034,customer0034.example
+acme-healthy,acm-c0035,Customer 0035 Smb Co,smb,1-50,inbound,2024-02-25,crm-00035,bill-00035,customer0035.example
+acme-healthy,acm-c0036,Customer 0036 Mid Market Co,mid_market,51-500,inbound,2022-10-26,crm-00036,bill-00036,customer0036.example
+acme-healthy,acm-c0037,Customer 0037 Smb Co,smb,1-50,inbound,2021-12-23,crm-00037,bill-00037,customer0037.example
+acme-healthy,acm-c0038,Customer 0038 Enterprise Co,enterprise,500+,partner,2023-01-12,crm-00038,bill-00038,customer0038.example
+acme-healthy,acm-c0039,Customer 0039 Smb Co,smb,1-50,inbound,2022-09-26,crm-00039,bill-00039,customer0039.example
+acme-healthy,acm-c0040,Customer 0040 Mid Market Co,mid_market,51-500,inbound,2023-12-23,crm-00040,bill-00040,customer0040.example
+acme-healthy,acm-c0041,Customer 0041 Mid Market Co,mid_market,51-500,inbound,2022-12-14,crm-00041,bill-00041,customer0041.example
+acme-healthy,acm-c0042,Customer 0042 Smb Co,smb,1-50,outbound,2023-08-03,crm-00042,bill-00042,customer0042.example
+acme-healthy,acm-c0043,Customer 0043 Mid Market Co,mid_market,51-500,outbound,2023-05-03,crm-00043,bill-00043,customer0043.example
+acme-healthy,acm-c0044,Customer 0044 Smb Co,smb,1-50,partner,2022-06-25,crm-00044,bill-00044,customer0044.example
+acme-healthy,acm-c0045,Customer 0045 Smb Co,smb,1-50,outbound,2023-10-07,crm-00045,bill-00045,customer0045.example
+acme-healthy,acm-c0046,Customer 0046 Smb Co,smb,1-50,partner,2023-10-02,crm-00046,bill-00046,customer0046.example
+acme-healthy,acm-c0047,Customer 0047 Smb Co,smb,1-50,inbound,2024-05-18,crm-00047,bill-00047,customer0047.example
+acme-healthy,acm-c0048,Customer 0048 Mid Market Co,mid_market,51-500,inbound,2021-11-17,crm-00048,bill-00048,customer0048.example
+acme-healthy,acm-c0049,Customer 0049 Mid Market Co,mid_market,51-500,outbound,2023-10-23,crm-00049,bill-00049,customer0049.example
+acme-healthy,acm-c0050,Customer 0050 Smb Co,smb,1-50,inbound,2024-08-04,crm-00050,bill-00050,customer0050.example
+acme-healthy,acm-c0051,Customer 0051 Smb Co,smb,1-50,inbound,2021-09-25,crm-00051,bill-00051,customer0051.example
+acme-healthy,acm-c0052,Customer 0052 Mid Market Co,mid_market,51-500,inbound,2024-04-03,crm-00052,bill-00052,customer0052.example
+acme-healthy,acm-c0053,Customer 0053 Mid Market Co,mid_market,51-500,partner,2023-02-21,crm-00053,bill-00053,customer0053.example
+acme-healthy,acm-c0054,Customer 0054 Mid Market Co,mid_market,51-500,partner,2023-11-11,crm-00054,bill-00054,customer0054.example
+acme-healthy,acm-c0055,Customer 0055 Mid Market Co,mid_market,51-500,outbound,2023-04-26,crm-00055,bill-00055,customer0055.example
+acme-healthy,acm-c0056,Customer 0056 Enterprise Co,enterprise,500+,outbound,2022-03-14,crm-00056,bill-00056,customer0056.example
+acme-healthy,acm-c0057,Customer 0057 Smb Co,smb,1-50,outbound,2023-06-16,crm-00057,bill-00057,customer0057.example
+acme-healthy,acm-c0058,Customer 0058 Enterprise Co,enterprise,500+,inbound,2022-09-28,crm-00058,bill-00058,customer0058.example
+acme-healthy,acm-c0059,Customer 0059 Enterprise Co,enterprise,500+,partner,2023-02-23,crm-00059,bill-00059,customer0059.example
+acme-healthy,acm-c0060,Customer 0060 Mid Market Co,mid_market,51-500,outbound,2023-04-16,crm-00060,bill-00060,customer0060.example
+acme-healthy,acm-c0061,Customer 0061 Mid Market Co,mid_market,51-500,outbound,2023-03-23,crm-00061,bill-00061,customer0061.example
+acme-healthy,acm-c0062,Customer 0062 Smb Co,smb,1-50,outbound,2021-12-16,crm-00062,bill-00062,customer0062.example
+acme-healthy,acm-c0063,Customer 0063 Mid Market Co,mid_market,51-500,partner,2023-09-10,crm-00063,bill-00063,customer0063.example
+acme-healthy,acm-c0064,Customer 0064 Enterprise Co,enterprise,500+,inbound,2022-02-18,crm-00064,bill-00064,customer0064.example
+acme-healthy,acm-c0065,Customer 0065 Smb Co,smb,1-50,outbound,2022-03-23,crm-00065,bill-00065,customer0065.example
+acme-healthy,acm-c0066,Customer 0066 Smb Co,smb,1-50,outbound,2023-11-16,crm-00066,bill-00066,customer0066.example
+acme-healthy,acm-c0067,Customer 0067 Smb Co,smb,1-50,inbound,2021-11-04,crm-00067,bill-00067,customer0067.example
+acme-healthy,acm-c0068,Customer 0068 Enterprise Co,enterprise,500+,outbound,2023-03-03,crm-00068,bill-00068,customer0068.example
+acme-healthy,acm-c0069,Customer 0069 Mid Market Co,mid_market,51-500,partner,2024-04-20,crm-00069,bill-00069,customer0069.example
+acme-healthy,acm-c0070,Customer 0070 Mid Market Co,mid_market,51-500,partner,2021-12-14,crm-00070,bill-00070,customer0070.example
+acme-healthy,acm-c0071,Customer 0071 Smb Co,smb,1-50,outbound,2023-11-18,crm-00071,bill-00071,customer0071.example
+acme-healthy,acm-c0072,Customer 0072 Enterprise Co,enterprise,500+,partner,2023-08-14,crm-00072,bill-00072,customer0072.example
+acme-healthy,acm-c0073,Customer 0073 Enterprise Co,enterprise,500+,inbound,2022-07-01,crm-00073,bill-00073,customer0073.example
+acme-healthy,acm-c0074,Customer 0074 Mid Market Co,mid_market,51-500,outbound,2023-06-12,crm-00074,bill-00074,customer0074.example
+acme-healthy,acm-c0075,Customer 0075 Smb Co,smb,1-50,inbound,2023-10-12,crm-00075,bill-00075,customer0075.example
+acme-healthy,acm-c0076,Customer 0076 Smb Co,smb,1-50,inbound,2023-09-16,crm-00076,bill-00076,customer0076.example
+acme-healthy,acm-c0077,Customer 0077 Mid Market Co,mid_market,51-500,outbound,2021-11-27,crm-00077,bill-00077,customer0077.example
+acme-healthy,acm-c0078,Customer 0078 Enterprise Co,enterprise,500+,outbound,2022-09-13,crm-00078,bill-00078,customer0078.example
+acme-healthy,acm-c0079,Customer 0079 Smb Co,smb,1-50,outbound,2024-06-28,crm-00079,bill-00079,customer0079.example
+acme-healthy,acm-c0080,Customer 0080 Smb Co,smb,1-50,outbound,2024-01-04,crm-00080,bill-00080,customer0080.example
+acme-healthy,acm-c0081,Customer 0081 Smb Co,smb,1-50,outbound,2024-03-23,crm-00081,bill-00081,customer0081.example
+acme-healthy,acm-c0082,Customer 0082 Smb Co,smb,1-50,partner,2023-05-25,crm-00082,bill-00082,customer0082.example
+acme-healthy,acm-c0083,Customer 0083 Smb Co,smb,1-50,inbound,2022-10-01,crm-00083,bill-00083,customer0083.example
+acme-healthy,acm-c0084,Customer 0084 Smb Co,smb,1-50,partner,2024-03-23,crm-00084,bill-00084,customer0084.example
+acme-healthy,acm-c0085,Customer 0085 Smb Co,smb,1-50,partner,2024-05-08,crm-00085,bill-00085,customer0085.example
+acme-healthy,acm-c0086,Customer 0086 Smb Co,smb,1-50,partner,2024-01-22,crm-00086,bill-00086,customer0086.example
+acme-healthy,acm-c0087,Customer 0087 Enterprise Co,enterprise,500+,partner,2024-07-23,crm-00087,bill-00087,customer0087.example
+acme-healthy,acm-c0088,Customer 0088 Smb Co,smb,1-50,outbound,2022-02-02,crm-00088,bill-00088,customer0088.example
+acme-healthy,acm-c0089,Customer 0089 Mid Market Co,mid_market,51-500,partner,2021-11-15,crm-00089,bill-00089,customer0089.example
+acme-healthy,acm-c0090,Customer 0090 Mid Market Co,mid_market,51-500,partner,2023-05-23,crm-00090,bill-00090,customer0090.example
+acme-healthy,acm-c0091,Customer 0091 Smb Co,smb,1-50,partner,2021-09-27,crm-00091,bill-00091,customer0091.example
+acme-healthy,acm-c0092,Customer 0092 Mid Market Co,mid_market,51-500,inbound,2022-04-01,crm-00092,bill-00092,customer0092.example
+acme-healthy,acm-c0093,Customer 0093 Enterprise Co,enterprise,500+,partner,2021-11-25,crm-00093,bill-00093,customer0093.example
+acme-healthy,acm-c0094,Customer 0094 Smb Co,smb,1-50,partner,2022-07-11,crm-00094,bill-00094,customer0094.example
+acme-healthy,acm-c0095,Customer 0095 Smb Co,smb,1-50,partner,2022-05-22,crm-00095,bill-00095,customer0095.example
+acme-healthy,acm-c0096,Customer 0096 Mid Market Co,mid_market,51-500,inbound,2023-08-11,crm-00096,bill-00096,customer0096.example
+acme-healthy,acm-c0097,Customer 0097 Smb Co,smb,1-50,inbound,2022-11-22,crm-00097,bill-00097,customer0097.example
+acme-healthy,acm-c0098,Customer 0098 Mid Market Co,mid_market,51-500,outbound,2024-05-07,crm-00098,bill-00098,customer0098.example
+acme-healthy,acm-c0099,Customer 0099 Enterprise Co,enterprise,500+,inbound,2023-05-17,crm-00099,bill-00099,customer0099.example
+acme-healthy,acm-c0100,Customer 0100 Mid Market Co,mid_market,51-500,outbound,2021-11-11,crm-00100,bill-00100,customer0100.example
+acme-healthy,acm-c0101,Customer 0101 Enterprise Co,enterprise,500+,partner,2022-10-10,crm-00101,bill-00101,customer0101.example
+acme-healthy,acm-c0102,Customer 0102 Enterprise Co,enterprise,500+,outbound,2022-02-03,crm-00102,bill-00102,customer0102.example
+acme-healthy,acm-c0103,Customer 0103 Smb Co,smb,1-50,inbound,2021-09-01,crm-00103,bill-00103,customer0103.example
+acme-healthy,acm-c0104,Customer 0104 Enterprise Co,enterprise,500+,outbound,2024-06-23,crm-00104,bill-00104,customer0104.example
+acme-healthy,acm-c0105,Customer 0105 Smb Co,smb,1-50,inbound,2022-11-10,crm-00105,bill-00105,customer0105.example
+acme-healthy,acm-c0106,Customer 0106 Smb Co,smb,1-50,partner,2022-08-04,crm-00106,bill-00106,customer0106.example
+acme-healthy,acm-c0107,Customer 0107 Enterprise Co,enterprise,500+,outbound,2023-05-24,crm-00107,bill-00107,customer0107.example
+acme-healthy,acm-c0108,Customer 0108 Enterprise Co,enterprise,500+,outbound,2024-01-20,crm-00108,bill-00108,customer0108.example
+acme-healthy,acm-c0109,Customer 0109 Smb Co,smb,1-50,inbound,2024-08-14,crm-00109,bill-00109,customer0109.example
+acme-healthy,acm-c0110,Customer 0110 Smb Co,smb,1-50,inbound,2022-01-10,crm-00110,bill-00110,customer0110.example
+acme-healthy,acm-c0111,Customer 0111 Smb Co,smb,1-50,partner,2022-09-09,crm-00111,bill-00111,customer0111.example
+acme-healthy,acm-c0112,Customer 0112 Mid Market Co,mid_market,51-500,outbound,2023-06-28,crm-00112,bill-00112,customer0112.example
+acme-healthy,acm-c0113,Customer 0113 Smb Co,smb,1-50,outbound,2024-03-19,crm-00113,bill-00113,customer0113.example
+acme-healthy,acm-c0114,Customer 0114 Smb Co,smb,1-50,outbound,2022-01-02,crm-00114,bill-00114,customer0114.example
+acme-healthy,acm-c0115,Customer 0115 Enterprise Co,enterprise,500+,inbound,2022-09-13,crm-00115,bill-00115,customer0115.example
+acme-healthy,acm-c0116,Customer 0116 Smb Co,smb,1-50,partner,2024-03-19,crm-00116,bill-00116,customer0116.example
+acme-healthy,acm-c0117,Customer 0117 Enterprise Co,enterprise,500+,inbound,2023-05-07,crm-00117,bill-00117,customer0117.example
+acme-healthy,acm-c0118,Customer 0118 Mid Market Co,mid_market,51-500,partner,2022-06-27,crm-00118,bill-00118,customer0118.example
+acme-healthy,acm-c0119,Customer 0119 Mid Market Co,mid_market,51-500,partner,2023-09-24,crm-00119,bill-00119,customer0119.example
+acme-healthy,acm-c0120,Customer 0120 Smb Co,smb,1-50,inbound,2024-08-14,crm-00120,bill-00120,customer0120.example
+acme-healthy,acm-c0121,Customer 0121 Smb Co,smb,1-50,outbound,2023-09-02,crm-00121,bill-00121,customer0121.example
+acme-healthy,acm-c0122,Customer 0122 Enterprise Co,enterprise,500+,partner,2021-10-22,crm-00122,bill-00122,customer0122.example
+acme-healthy,acm-c0123,Customer 0123 Smb Co,smb,1-50,outbound,2022-02-12,crm-00123,bill-00123,customer0123.example
+acme-healthy,acm-c0124,Customer 0124 Smb Co,smb,1-50,outbound,2023-07-12,crm-00124,bill-00124,customer0124.example
+acme-healthy,acm-c0125,Customer 0125 Smb Co,smb,1-50,inbound,2022-08-08,crm-00125,bill-00125,customer0125.example
+acme-healthy,acm-c0126,Customer 0126 Smb Co,smb,1-50,partner,2022-05-16,crm-00126,bill-00126,customer0126.example
+acme-healthy,acm-c0127,Customer 0127 Mid Market Co,mid_market,51-500,partner,2021-09-25,crm-00127,bill-00127,customer0127.example
+acme-healthy,acm-c0128,Customer 0128 Smb Co,smb,1-50,outbound,2022-03-16,crm-00128,bill-00128,customer0128.example
+acme-healthy,acm-c0129,Customer 0129 Smb Co,smb,1-50,outbound,2022-06-18,crm-00129,bill-00129,customer0129.example
+acme-healthy,acm-c0130,Customer 0130 Smb Co,smb,1-50,inbound,2023-07-12,crm-00130,bill-00130,customer0130.example
+acme-healthy,acm-c0131,Customer 0131 Mid Market Co,mid_market,51-500,outbound,2022-04-28,crm-00131,bill-00131,customer0131.example
+acme-healthy,acm-c0132,Customer 0132 Mid Market Co,mid_market,51-500,inbound,2022-07-02,crm-00132,bill-00132,customer0132.example
+acme-healthy,acm-c0133,Customer 0133 Mid Market Co,mid_market,51-500,outbound,2022-06-10,crm-00133,bill-00133,customer0133.example
+acme-healthy,acm-c0134,Customer 0134 Smb Co,smb,1-50,inbound,2022-01-05,crm-00134,bill-00134,customer0134.example
+acme-healthy,acm-c0135,Customer 0135 Smb Co,smb,1-50,outbound,2023-08-27,crm-00135,bill-00135,customer0135.example
+acme-healthy,acm-c0136,Customer 0136 Mid Market Co,mid_market,51-500,inbound,2022-12-11,crm-00136,bill-00136,customer0136.example
+acme-healthy,acm-c0137,Customer 0137 Mid Market Co,mid_market,51-500,inbound,2023-11-08,crm-00137,bill-00137,customer0137.example
+acme-healthy,acm-c0138,Customer 0138 Mid Market Co,mid_market,51-500,outbound,2023-05-13,crm-00138,bill-00138,customer0138.example
+acme-healthy,acm-c0139,Customer 0139 Smb Co,smb,1-50,partner,2022-04-27,crm-00139,bill-00139,customer0139.example
+acme-healthy,acm-c0140,Customer 0140 Smb Co,smb,1-50,outbound,2022-05-28,crm-00140,bill-00140,customer0140.example
+acme-healthy,acm-c0141,Customer 0141 Mid Market Co,mid_market,51-500,outbound,2024-03-02,crm-00141,bill-00141,customer0141.example
+acme-healthy,acm-c0142,Customer 0142 Smb Co,smb,1-50,partner,2024-05-22,crm-00142,bill-00142,customer0142.example
+acme-healthy,acm-c0143,Customer 0143 Mid Market Co,mid_market,51-500,inbound,2022-09-14,crm-00143,bill-00143,customer0143.example
+acme-healthy,acm-c0144,Customer 0144 Smb Co,smb,1-50,outbound,2022-11-14,crm-00144,bill-00144,customer0144.example
+acme-healthy,acm-c0145,Customer 0145 Mid Market Co,mid_market,51-500,outbound,2023-07-02,crm-00145,bill-00145,customer0145.example
+acme-healthy,acm-c0146,Customer 0146 Smb Co,smb,1-50,partner,2022-03-05,crm-00146,bill-00146,customer0146.example
+acme-healthy,acm-c0147,Customer 0147 Mid Market Co,mid_market,51-500,outbound,2021-11-10,crm-00147,bill-00147,customer0147.example
+acme-healthy,acm-c0148,Customer 0148 Mid Market Co,mid_market,51-500,outbound,2023-09-20,crm-00148,bill-00148,customer0148.example
+acme-healthy,acm-c0149,Customer 0149 Enterprise Co,enterprise,500+,partner,2023-03-11,crm-00149,bill-00149,customer0149.example
+acme-healthy,acm-c0150,Customer 0150 Enterprise Co,enterprise,500+,inbound,2023-08-02,crm-00150,bill-00150,customer0150.example
+acme-healthy,acm-c0151,Customer 0151 Mid Market Co,mid_market,51-500,inbound,2024-09-09,crm-00151,bill-00151,customer0151.example
+acme-healthy,acm-c0152,Customer 0152 Enterprise Co,enterprise,500+,partner,2024-09-09,crm-00152,bill-00152,customer0152.example
+acme-healthy,acm-c0153,Customer 0153 Smb Co,smb,1-50,partner,2024-09-19,crm-00153,bill-00153,customer0153.example
+acme-healthy,acm-c0154,Customer 0154 Smb Co,smb,1-50,partner,2024-09-24,crm-00154,bill-00154,customer0154.example
+acme-healthy,acm-c0155,Customer 0155 Smb Co,smb,1-50,outbound,2024-09-24,crm-00155,bill-00155,customer0155.example
+acme-healthy,acm-c0156,Customer 0156 Enterprise Co,enterprise,500+,partner,2024-09-03,crm-00156,bill-00156,customer0156.example
+acme-healthy,acm-c0157,Customer 0157 Smb Co,smb,1-50,partner,2024-10-18,crm-00157,bill-00157,customer0157.example
+acme-healthy,acm-c0158,Customer 0158 Smb Co,smb,1-50,inbound,2024-10-27,crm-00158,bill-00158,customer0158.example
+acme-healthy,acm-c0159,Customer 0159 Enterprise Co,enterprise,500+,inbound,2024-10-13,crm-00159,bill-00159,customer0159.example
+acme-healthy,acm-c0160,Customer 0160 Mid Market Co,mid_market,51-500,inbound,2024-10-27,crm-00160,bill-00160,customer0160.example
+acme-healthy,acm-c0161,Customer 0161 Mid Market Co,mid_market,51-500,inbound,2024-11-21,crm-00161,bill-00161,customer0161.example
+acme-healthy,acm-c0162,Customer 0162 Mid Market Co,mid_market,51-500,partner,2024-11-04,crm-00162,bill-00162,customer0162.example
+acme-healthy,acm-c0163,Customer 0163 Smb Co,smb,1-50,inbound,2024-11-23,crm-00163,bill-00163,customer0163.example
+acme-healthy,acm-c0164,Customer 0164 Mid Market Co,mid_market,51-500,outbound,2024-11-06,crm-00164,bill-00164,customer0164.example
+acme-healthy,acm-c0165,Customer 0165 Smb Co,smb,1-50,partner,2024-11-02,crm-00165,bill-00165,customer0165.example
+acme-healthy,acm-c0166,Customer 0166 Mid Market Co,mid_market,51-500,partner,2024-11-04,crm-00166,bill-00166,customer0166.example
+acme-healthy,acm-c0167,Customer 0167 Smb Co,smb,1-50,partner,2024-12-15,crm-00167,bill-00167,customer0167.example
+acme-healthy,acm-c0168,Customer 0168 Mid Market Co,mid_market,51-500,inbound,2024-12-03,crm-00168,bill-00168,customer0168.example
+acme-healthy,acm-c0169,Customer 0169 Smb Co,smb,1-50,outbound,2024-12-27,crm-00169,bill-00169,customer0169.example
+acme-healthy,acm-c0170,Customer 0170 Mid Market Co,mid_market,51-500,partner,2024-12-22,crm-00170,bill-00170,customer0170.example
+acme-healthy,acm-c0171,Customer 0171 Smb Co,smb,1-50,partner,2024-12-12,crm-00171,bill-00171,customer0171.example
+acme-healthy,acm-c0172,Customer 0172 Mid Market Co,mid_market,51-500,partner,2024-12-07,crm-00172,bill-00172,customer0172.example
+acme-healthy,acm-c0173,Customer 0173 Smb Co,smb,1-50,outbound,2024-12-18,crm-00173,bill-00173,customer0173.example
+acme-healthy,acm-c0174,Customer 0174 Smb Co,smb,1-50,outbound,2025-01-18,crm-00174,bill-00174,customer0174.example
+acme-healthy,acm-c0175,Customer 0175 Smb Co,smb,1-50,inbound,2025-01-28,crm-00175,bill-00175,customer0175.example
+acme-healthy,acm-c0176,Customer 0176 Enterprise Co,enterprise,500+,outbound,2025-01-04,crm-00176,bill-00176,customer0176.example
+acme-healthy,acm-c0177,Customer 0177 Smb Co,smb,1-50,inbound,2025-01-14,crm-00177,bill-00177,customer0177.example
+acme-healthy,acm-c0178,Customer 0178 Smb Co,smb,1-50,outbound,2025-01-03,crm-00178,bill-00178,customer0178.example
+acme-healthy,acm-c0179,Customer 0179 Smb Co,smb,1-50,partner,2025-01-25,crm-00179,bill-00179,customer0179.example
+acme-healthy,acm-c0180,Customer 0180 Mid Market Co,mid_market,51-500,partner,2025-01-05,crm-00180,bill-00180,customer0180.example
+acme-healthy,acm-c0181,Customer 0181 Smb Co,smb,1-50,outbound,2025-02-27,crm-00181,bill-00181,customer0181.example
+acme-healthy,acm-c0182,Customer 0182 Enterprise Co,enterprise,500+,outbound,2025-02-27,crm-00182,bill-00182,customer0182.example
+acme-healthy,acm-c0183,Customer 0183 Smb Co,smb,1-50,inbound,2025-02-09,crm-00183,bill-00183,customer0183.example
+acme-healthy,acm-c0184,Customer 0184 Smb Co,smb,1-50,outbound,2025-02-21,crm-00184,bill-00184,customer0184.example
+acme-healthy,acm-c0185,Customer 0185 Smb Co,smb,1-50,inbound,2025-04-24,crm-00185,bill-00185,customer0185.example
+acme-healthy,acm-c0186,Customer 0186 Mid Market Co,mid_market,51-500,outbound,2025-04-08,crm-00186,bill-00186,customer0186.example
+acme-healthy,acm-c0187,Customer 0187 Smb Co,smb,1-50,partner,2025-04-12,crm-00187,bill-00187,customer0187.example
+acme-healthy,acm-c0188,Customer 0188 Enterprise Co,enterprise,500+,inbound,2025-05-20,crm-00188,bill-00188,customer0188.example
+acme-healthy,acm-c0189,Customer 0189 Enterprise Co,enterprise,500+,partner,2025-05-08,crm-00189,bill-00189,customer0189.example
+acme-healthy,acm-c0190,Customer 0190 Smb Co,smb,1-50,outbound,2025-05-26,crm-00190,bill-00190,customer0190.example
+acme-healthy,acm-c0191,Customer 0191 Smb Co,smb,1-50,partner,2025-05-20,crm-00191,bill-00191,customer0191.example
+acme-healthy,acm-c0192,Customer 0192 Mid Market Co,mid_market,51-500,inbound,2025-05-28,crm-00192,bill-00192,customer0192.example
+acme-healthy,acm-c0193,Customer 0193 Mid Market Co,mid_market,51-500,inbound,2025-07-05,crm-00193,bill-00193,customer0193.example
+acme-healthy,acm-c0194,Customer 0194 Smb Co,smb,1-50,partner,2025-08-10,crm-00194,bill-00194,customer0194.example
+acme-healthy,acm-c0195,Customer 0195 Mid Market Co,mid_market,51-500,outbound,2025-08-23,crm-00195,bill-00195,customer0195.example
+acme-healthy,acm-c0196,Customer 0196 Enterprise Co,enterprise,500+,inbound,2025-08-27,crm-00196,bill-00196,customer0196.example
+acme-healthy,acm-c0197,Customer 0197 Smb Co,smb,1-50,partner,2025-08-21,crm-00197,bill-00197,customer0197.example
+acme-healthy,acm-c0198,Customer 0198 Mid Market Co,mid_market,51-500,partner,2025-08-12,crm-00198,bill-00198,customer0198.example
+acme-healthy,acm-c0199,Customer 0199 Smb Co,smb,1-50,partner,2025-09-09,crm-00199,bill-00199,customer0199.example
+acme-healthy,acm-c0200,Customer 0200 Smb Co,smb,1-50,outbound,2025-09-09,crm-00200,bill-00200,customer0200.example
+acme-healthy,acm-c0201,Customer 0201 Smb Co,smb,1-50,inbound,2025-09-07,crm-00201,bill-00201,customer0201.example
+acme-healthy,acm-c0202,Customer 0202 Mid Market Co,mid_market,51-500,inbound,2025-09-10,crm-00202,bill-00202,customer0202.example
+acme-healthy,acm-c0203,Customer 0203 Smb Co,smb,1-50,inbound,2025-10-03,crm-00203,bill-00203,customer0203.example
+acme-healthy,acm-c0204,Customer 0204 Mid Market Co,mid_market,51-500,outbound,2025-11-06,crm-00204,bill-00204,customer0204.example
+acme-healthy,acm-c0205,Customer 0205 Smb Co,smb,1-50,inbound,2025-11-15,crm-00205,bill-00205,customer0205.example
+acme-healthy,acm-c0206,Customer 0206 Smb Co,smb,1-50,inbound,2025-12-16,crm-00206,bill-00206,customer0206.example
+acme-healthy,acm-c0207,Customer 0207 Smb Co,smb,1-50,outbound,2025-12-16,crm-00207,bill-00207,customer0207.example
+acme-healthy,acm-c0208,Customer 0208 Smb Co,smb,1-50,outbound,2025-12-03,crm-00208,bill-00208,customer0208.example
+acme-healthy,acm-c0209,Customer 0209 Smb Co,smb,1-50,partner,2025-12-13,crm-00209,bill-00209,customer0209.example
+acme-healthy,acm-c0210,Customer 0210 Mid Market Co,mid_market,51-500,outbound,2025-12-08,crm-00210,bill-00210,customer0210.example
+acme-healthy,acm-c0211,Customer 0211 Smb Co,smb,1-50,inbound,2025-12-12,crm-00211,bill-00211,customer0211.example
+acme-healthy,acm-c0212,Customer 0212 Mid Market Co,mid_market,51-500,outbound,2025-12-16,crm-00212,bill-00212,customer0212.example
+acme-healthy,acm-c0213,Customer 0213 Smb Co,smb,1-50,outbound,2026-01-21,crm-00213,bill-00213,customer0213.example
+acme-healthy,acm-c0214,Customer 0214 Mid Market Co,mid_market,51-500,outbound,2026-01-27,crm-00214,bill-00214,customer0214.example
+acme-healthy,acm-c0215,Customer 0215 Mid Market Co,mid_market,51-500,inbound,2026-01-12,crm-00215,bill-00215,customer0215.example
+acme-healthy,acm-c0216,Customer 0216 Smb Co,smb,1-50,outbound,2026-01-10,crm-00216,bill-00216,customer0216.example
+acme-healthy,acm-c0217,Customer 0217 Enterprise Co,enterprise,500+,outbound,2026-01-06,crm-00217,bill-00217,customer0217.example
+acme-healthy,acm-c0218,Customer 0218 Mid Market Co,mid_market,51-500,outbound,2026-01-03,crm-00218,bill-00218,customer0218.example
+acme-healthy,acm-c0219,Customer 0219 Smb Co,smb,1-50,partner,2026-01-28,crm-00219,bill-00219,customer0219.example
+acme-healthy,acm-c0220,Customer 0220 Smb Co,smb,1-50,partner,2026-01-26,crm-00220,bill-00220,customer0220.example
+acme-healthy,acm-c0221,Customer 0221 Smb Co,smb,1-50,partner,2026-02-09,crm-00221,bill-00221,customer0221.example
+acme-healthy,acm-c0222,Customer 0222 Smb Co,smb,1-50,partner,2026-02-26,crm-00222,bill-00222,customer0222.example
+acme-healthy,acm-c0223,Customer 0223 Smb Co,smb,1-50,partner,2026-02-11,crm-00223,bill-00223,customer0223.example
+acme-healthy,acm-c0224,Customer 0224 Enterprise Co,enterprise,500+,partner,2026-02-28,crm-00224,bill-00224,customer0224.example
+acme-healthy,acm-c0225,Customer 0225 Smb Co,smb,1-50,inbound,2026-02-06,crm-00225,bill-00225,customer0225.example
+acme-healthy,acm-c0226,Customer 0226 Enterprise Co,enterprise,500+,inbound,2026-02-01,crm-00226,bill-00226,customer0226.example
+acme-healthy,acm-c0227,Customer 0227 Enterprise Co,enterprise,500+,outbound,2026-03-06,crm-00227,bill-00227,customer0227.example
+acme-healthy,acm-c0228,Customer 0228 Mid Market Co,mid_market,51-500,partner,2026-03-12,crm-00228,bill-00228,customer0228.example
+acme-healthy,acm-c0229,Customer 0229 Smb Co,smb,1-50,inbound,2026-03-07,crm-00229,bill-00229,customer0229.example
+acme-healthy,acm-c0230,Customer 0230 Smb Co,smb,1-50,partner,2026-03-15,crm-00230,bill-00230,customer0230.example
+acme-healthy,acm-c0231,Customer 0231 Mid Market Co,mid_market,51-500,partner,2026-03-03,crm-00231,bill-00231,customer0231.example
+acme-healthy,acm-c0232,Customer 0232 Smb Co,smb,1-50,outbound,2026-03-07,crm-00232,bill-00232,customer0232.example
+acme-healthy,acm-c0233,Customer 0233 Smb Co,smb,1-50,inbound,2026-04-28,crm-00233,bill-00233,customer0233.example
+acme-healthy,acm-c0234,Customer 0234 Smb Co,smb,1-50,partner,2026-04-10,crm-00234,bill-00234,customer0234.example
+acme-healthy,acm-c0235,Customer 0235 Smb Co,smb,1-50,outbound,2026-04-22,crm-00235,bill-00235,customer0235.example
+acme-healthy,acm-c0236,Customer 0236 Enterprise Co,enterprise,500+,inbound,2026-04-01,crm-00236,bill-00236,customer0236.example
+acme-healthy,acm-c0237,Customer 0237 Enterprise Co,enterprise,500+,outbound,2026-05-04,crm-00237,bill-00237,customer0237.example
+acme-healthy,acm-c0238,Customer 0238 Smb Co,smb,1-50,inbound,2026-05-09,crm-00238,bill-00238,customer0238.example
+acme-healthy,acm-c0239,Customer 0239 Smb Co,smb,1-50,outbound,2026-05-17,crm-00239,bill-00239,customer0239.example
+acme-healthy,acm-c0240,Customer 0240 Smb Co,smb,1-50,partner,2026-05-05,crm-00240,bill-00240,customer0240.example
+acme-healthy,acm-c0241,Customer 0241 Mid Market Co,mid_market,51-500,inbound,2026-06-12,crm-00241,bill-00241,customer0241.example
+acme-healthy,acm-c0242,Customer 0242 Enterprise Co,enterprise,500+,inbound,2026-06-12,crm-00242,bill-00242,customer0242.example
+acme-healthy,acm-c0243,Customer 0243 Mid Market Co,mid_market,51-500,inbound,2026-07-04,crm-00243,bill-00243,customer0243.example
+acme-healthy,acm-c0244,Customer 0244 Mid Market Co,mid_market,51-500,inbound,2026-07-27,crm-00244,bill-00244,customer0244.example
+acme-healthy,acm-c0245,Customer 0245 Mid Market Co,mid_market,51-500,partner,2026-07-08,crm-00245,bill-00245,customer0245.example
+acme-healthy,acm-c0246,Customer 0246 Enterprise Co,enterprise,500+,partner,2026-07-02,crm-00246,bill-00246,customer0246.example
+acme-healthy,acm-c0247,Customer 0247 Smb Co,smb,1-50,partner,2026-07-17,crm-00247,bill-00247,customer0247.example
+acme-healthy,acm-c0248,Customer 0248 Smb Co,smb,1-50,inbound,2026-07-05,crm-00248,bill-00248,customer0248.example
+acme-healthy,acm-c0249,Customer 0249 Smb Co,smb,1-50,outbound,2026-07-23,crm-00249,bill-00249,customer0249.example
+acme-healthy,acm-c0250,Customer 0250 Smb Co,smb,1-50,inbound,2026-08-26,crm-00250,bill-00250,customer0250.example
+acme-healthy,acm-c0251,Customer 0251 Smb Co,smb,1-50,inbound,2026-08-18,crm-00251,bill-00251,customer0251.example

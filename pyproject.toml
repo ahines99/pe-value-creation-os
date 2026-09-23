@@ -1,21 +1,84 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pe-value-creation-os"
 version = "0.1.0"
+description = "Evidence-backed value-creation diagnostics, deterministic value cases, and approved 100-day plans for PE portfolio companies."
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "mcp[cli]>=2,<3",
+  "mcp[cli]>=2.2,<3",
   "pydantic>=2.9",
-  "fastapi>=0.115",
-  "uvicorn>=0.30",
-  "sqlalchemy>=2.0",
-  "psycopg[binary]>=3.2",
-  "httpx>=0.27",
-  "structlog>=24.4",
-  "opentelemetry-api>=1.27",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.7", "mypy>=1.12"]
+postgres = ["psycopg[binary]>=3.2", "sqlalchemy>=2.0", "alembic>=1.13"]
+http = ["fastapi>=0.115", "uvicorn>=0.30", "pyjwt[crypto]>=2.9"]
+observability = [
+  "structlog>=24.4",
+  "opentelemetry-api>=1.27",
+  "opentelemetry-sdk>=1.27",
+  "opentelemetry-exporter-otlp-proto-http>=1.27",
+]
+llm = ["anthropic>=0.70"]
+server = ["pe-value-creation-os[postgres,http,observability,llm]"]
+dev = [
+  "pe-value-creation-os[server]",
+  "pytest>=8",
+  "anyio>=4",
+  "hypothesis>=6.100",
+  "httpx>=0.27",
+  "ruff>=0.7",
+  "mypy>=1.12",
+  "pip-audit>=2.7",
+  "pre-commit>=3.7",
+]
+
+[project.scripts]
+pvc = "pe_value_os.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pe_value_os"]
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+  "postgres: needs a PostgreSQL server (set PVC_TEST_DATABASE_URL)",
+]
+filterwarnings = ["ignore::DeprecationWarning:opentelemetry.*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "RUF"]
+ignore = [
+  "S101",   # assert is fine in tests and invariants
+  "S608",   # SQL is built from constant identifiers only; values are always parameters
+  "RUF001", "RUF002", "RUF003",  # typographic characters in docs/strings are intentional
+  "UP047",  # TypeVar generics kept for readability
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S311"]
+"evals/**" = ["S311"]
+"scripts/**" = ["S311", "S603", "S607"]
+"src/pe_value_os/fixtures/**" = ["S311"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+packages = ["pe_value_os"]
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pe_value_os.domain.*"
+strict = true

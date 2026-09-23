@@ -1,0 +1,249 @@
+company_id,customer_id,name,segment,size_band,acquisition_channel,first_contract_date,crm_account_id,billing_account_id,domain
+cedar-churn,ced-c0001,Customer 0001 Smb Co,smb,1-50,outbound,2024-06-19,crm-00001,bill-00001,customer0001.example
+cedar-churn,ced-c0002,Customer 0002 Mid Market Co,mid_market,51-500,outbound,2021-10-05,crm-00002,bill-00002,customer0002.example
+cedar-churn,ced-c0003,Customer 0003 Mid Market Co,mid_market,51-500,inbound,2023-03-06,crm-00003,bill-00003,customer0003.example
+cedar-churn,ced-c0004,Customer 0004 Smb Co,smb,1-50,outbound,2023-04-09,crm-00004,bill-00004,customer0004.example
+cedar-churn,ced-c0005,Customer 0005 Smb Co,smb,1-50,inbound,2022-10-09,crm-00005,bill-00005,customer0005.example
+cedar-churn,ced-c0006,Customer 0006 Smb Co,smb,1-50,partner,2022-01-19,crm-00006,bill-00006,customer0006.example
+cedar-churn,ced-c0007,Customer 0007 Smb Co,smb,1-50,partner,2022-05-21,crm-00007,bill-00007,customer0007.example
+cedar-churn,ced-c0008,Customer 0008 Smb Co,smb,1-50,outbound,2023-04-02,crm-00008,bill-00008,customer0008.example
+cedar-churn,ced-c0009,Customer 0009 Smb Co,smb,1-50,outbound,2024-04-22,crm-00009,bill-00009,customer0009.example
+cedar-churn,ced-c0010,Customer 0010 Mid Market Co,mid_market,51-500,partner,2021-11-15,crm-00010,bill-00010,customer0010.example
+cedar-churn,ced-c0011,Customer 0011 Smb Co,smb,1-50,outbound,2022-01-05,crm-00011,bill-00011,customer0011.example
+cedar-churn,ced-c0012,Customer 0012 Enterprise Co,enterprise,500+,outbound,2023-05-19,crm-00012,bill-00012,customer0012.example
+cedar-churn,ced-c0013,Customer 0013 Smb Co,smb,1-50,outbound,2022-12-01,crm-00013,bill-00013,customer0013.example
+cedar-churn,ced-c0014,Customer 0014 Mid Market Co,mid_market,51-500,partner,2023-08-28,crm-00014,bill-00014,customer0014.example
+cedar-churn,ced-c0015,Customer 0015 Mid Market Co,mid_market,51-500,outbound,2022-02-23,crm-00015,bill-00015,customer0015.example
+cedar-churn,ced-c0016,Customer 0016 Enterprise Co,enterprise,500+,partner,2024-05-13,crm-00016,bill-00016,customer0016.example
+cedar-churn,ced-c0017,Customer 0017 Smb Co,smb,1-50,partner,2023-01-05,crm-00017,bill-00017,customer0017.example
+cedar-churn,ced-c0018,Customer 0018 Smb Co,smb,1-50,partner,2024-02-19,crm-00018,bill-00018,customer0018.example
+cedar-churn,ced-c0019,Customer 0019 Smb Co,smb,1-50,outbound,2022-03-01,crm-00019,bill-00019,customer0019.example
+cedar-churn,ced-c0020,Customer 0020 Smb Co,smb,1-50,partner,2024-07-26,crm-00020,bill-00020,customer0020.example
+cedar-churn,ced-c0021,Customer 0021 Smb Co,smb,1-50,inbound,2024-02-14,crm-00021,bill-00021,customer0021.example
+cedar-churn,ced-c0022,Customer 0022 Smb Co,smb,1-50,outbound,2023-12-24,crm-00022,bill-00022,customer0022.example
+cedar-churn,ced-c0023,Customer 0023 Mid Market Co,mid_market,51-500,partner,2022-09-02,crm-00023,bill-00023,customer0023.example
+cedar-churn,ced-c0024,Customer 0024 Smb Co,smb,1-50,partner,2022-06-28,crm-00024,bill-00024,customer0024.example
+cedar-churn,ced-c0025,Customer 0025 Enterprise Co,enterprise,500+,inbound,2024-02-10,crm-00025,bill-00025,customer0025.example
+cedar-churn,ced-c0026,Customer 0026 Smb Co,smb,1-50,partner,2022-10-17,crm-00026,bill-00026,customer0026.example
+cedar-churn,ced-c0027,Customer 0027 Mid Market Co,mid_market,51-500,outbound,2022-03-28,crm-00027,bill-00027,customer0027.example
+cedar-churn,ced-c0028,Customer 0028 Mid Market Co,mid_market,51-500,outbound,2021-09-11,crm-00028,bill-00028,customer0028.example
+cedar-churn,ced-c0029,Customer 0029 Smb Co,smb,1-50,partner,2024-01-03,crm-00029,bill-00029,customer0029.example
+cedar-churn,ced-c0030,Customer 0030 Smb Co,smb,1-50,partner,2023-07-18,crm-00030,bill-00030,customer0030.example
+cedar-churn,ced-c0031,Customer 0031 Mid Market Co,mid_market,51-500,outbound,2024-07-10,crm-00031,bill-00031,customer0031.example
+cedar-churn,ced-c0032,Customer 0032 Smb Co,smb,1-50,partner,2021-09-19,crm-00032,bill-00032,customer0032.example
+cedar-churn,ced-c0033,Customer 0033 Smb Co,smb,1-50,partner,2021-12-01,crm-00033,bill-00033,customer0033.example
+cedar-churn,ced-c0034,Customer 0034 Mid Market Co,mid_market,51-500,inbound,2024-05-15,crm-00034,bill-00034,customer0034.example
+cedar-churn,ced-c0035,Customer 0035 Smb Co,smb,1-50,inbound,2023-11-19,crm-00035,bill-00035,customer0035.example
+cedar-churn,ced-c0036,Customer 0036 Smb Co,smb,1-50,inbound,2022-03-12,crm-00036,bill-00036,customer0036.example
+cedar-churn,ced-c0037,Customer 0037 Smb Co,smb,1-50,outbound,2023-08-11,crm-00037,bill-00037,customer0037.example
+cedar-churn,ced-c0038,Customer 0038 Smb Co,smb,1-50,inbound,2024-03-01,crm-00038,bill-00038,customer0038.example
+cedar-churn,ced-c0039,Customer 0039 Smb Co,smb,1-50,inbound,2022-10-08,crm-00039,bill-00039,customer0039.example
+cedar-churn,ced-c0040,Customer 0040 Mid Market Co,mid_market,51-500,outbound,2023-08-06,crm-00040,bill-00040,customer0040.example
+cedar-churn,ced-c0041,Customer 0041 Smb Co,smb,1-50,outbound,2022-06-01,crm-00041,bill-00041,customer0041.example
+cedar-churn,ced-c0042,Customer 0042 Smb Co,smb,1-50,outbound,2022-08-26,crm-00042,bill-00042,customer0042.example
+cedar-churn,ced-c0043,Customer 0043 Mid Market Co,mid_market,51-500,inbound,2021-11-25,crm-00043,bill-00043,customer0043.example
+cedar-churn,ced-c0044,Customer 0044 Smb Co,smb,1-50,outbound,2022-02-05,crm-00044,bill-00044,customer0044.example
+cedar-churn,ced-c0045,Customer 0045 Smb Co,smb,1-50,partner,2022-01-11,crm-00045,bill-00045,customer0045.example
+cedar-churn,ced-c0046,Customer 0046 Mid Market Co,mid_market,51-500,inbound,2023-11-22,crm-00046,bill-00046,customer0046.example
+cedar-churn,ced-c0047,Customer 0047 Smb Co,smb,1-50,outbound,2023-04-15,crm-00047,bill-00047,customer0047.example
+cedar-churn,ced-c0048,Customer 0048 Mid Market Co,mid_market,51-500,partner,2024-02-21,crm-00048,bill-00048,customer0048.example
+cedar-churn,ced-c0049,Customer 0049 Smb Co,smb,1-50,inbound,2024-03-03,crm-00049,bill-00049,customer0049.example
+cedar-churn,ced-c0050,Customer 0050 Smb Co,smb,1-50,partner,2023-09-25,crm-00050,bill-00050,customer0050.example
+cedar-churn,ced-c0051,Customer 0051 Smb Co,smb,1-50,inbound,2022-08-06,crm-00051,bill-00051,customer0051.example
+cedar-churn,ced-c0052,Customer 0052 Smb Co,smb,1-50,outbound,2022-06-05,crm-00052,bill-00052,customer0052.example
+cedar-churn,ced-c0053,Customer 0053 Smb Co,smb,1-50,inbound,2024-06-05,crm-00053,bill-00053,customer0053.example
+cedar-churn,ced-c0054,Customer 0054 Enterprise Co,enterprise,500+,outbound,2022-06-25,crm-00054,bill-00054,customer0054.example
+cedar-churn,ced-c0055,Customer 0055 Mid Market Co,mid_market,51-500,outbound,2023-06-03,crm-00055,bill-00055,customer0055.example
+cedar-churn,ced-c0056,Customer 0056 Smb Co,smb,1-50,outbound,2024-04-13,crm-00056,bill-00056,customer0056.example
+cedar-churn,ced-c0057,Customer 0057 Mid Market Co,mid_market,51-500,outbound,2023-07-14,crm-00057,bill-00057,customer0057.example
+cedar-churn,ced-c0058,Customer 0058 Smb Co,smb,1-50,partner,2022-08-17,crm-00058,bill-00058,customer0058.example
+cedar-churn,ced-c0059,Customer 0059 Smb Co,smb,1-50,partner,2023-10-27,crm-00059,bill-00059,customer0059.example
+cedar-churn,ced-c0060,Customer 0060 Smb Co,smb,1-50,inbound,2024-03-06,crm-00060,bill-00060,customer0060.example
+cedar-churn,ced-c0061,Customer 0061 Smb Co,smb,1-50,inbound,2023-06-15,crm-00061,bill-00061,customer0061.example
+cedar-churn,ced-c0062,Customer 0062 Mid Market Co,mid_market,51-500,inbound,2022-06-27,crm-00062,bill-00062,customer0062.example
+cedar-churn,ced-c0063,Customer 0063 Smb Co,smb,1-50,inbound,2021-09-06,crm-00063,bill-00063,customer0063.example
+cedar-churn,ced-c0064,Customer 0064 Enterprise Co,enterprise,500+,inbound,2022-10-04,crm-00064,bill-00064,customer0064.example
+cedar-churn,ced-c0065,Customer 0065 Smb Co,smb,1-50,partner,2022-03-27,crm-00065,bill-00065,customer0065.example
+cedar-churn,ced-c0066,Customer 0066 Smb Co,smb,1-50,partner,2023-06-17,crm-00066,bill-00066,customer0066.example
+cedar-churn,ced-c0067,Customer 0067 Smb Co,smb,1-50,partner,2024-03-11,crm-00067,bill-00067,customer0067.example
+cedar-churn,ced-c0068,Customer 0068 Mid Market Co,mid_market,51-500,outbound,2023-08-10,crm-00068,bill-00068,customer0068.example
+cedar-churn,ced-c0069,Customer 0069 Mid Market Co,mid_market,51-500,partner,2024-01-05,crm-00069,bill-00069,customer0069.example
+cedar-churn,ced-c0070,Customer 0070 Smb Co,smb,1-50,outbound,2024-01-14,crm-00070,bill-00070,customer0070.example
+cedar-churn,ced-c0071,Customer 0071 Smb Co,smb,1-50,outbound,2022-10-18,crm-00071,bill-00071,customer0071.example
+cedar-churn,ced-c0072,Customer 0072 Smb Co,smb,1-50,outbound,2023-10-21,crm-00072,bill-00072,customer0072.example
+cedar-churn,ced-c0073,Customer 0073 Mid Market Co,mid_market,51-500,inbound,2021-11-18,crm-00073,bill-00073,customer0073.example
+cedar-churn,ced-c0074,Customer 0074 Mid Market Co,mid_market,51-500,partner,2023-06-28,crm-00074,bill-00074,customer0074.example
+cedar-churn,ced-c0075,Customer 0075 Smb Co,smb,1-50,inbound,2023-11-18,crm-00075,bill-00075,customer0075.example
+cedar-churn,ced-c0076,Customer 0076 Smb Co,smb,1-50,partner,2024-06-21,crm-00076,bill-00076,customer0076.example
+cedar-churn,ced-c0077,Customer 0077 Smb Co,smb,1-50,partner,2022-01-28,crm-00077,bill-00077,customer0077.example
+cedar-churn,ced-c0078,Customer 0078 Smb Co,smb,1-50,outbound,2024-01-06,crm-00078,bill-00078,customer0078.example
+cedar-churn,ced-c0079,Customer 0079 Smb Co,smb,1-50,partner,2022-07-28,crm-00079,bill-00079,customer0079.example
+cedar-churn,ced-c0080,Customer 0080 Smb Co,smb,1-50,partner,2022-12-16,crm-00080,bill-00080,customer0080.example
+cedar-churn,ced-c0081,Customer 0081 Smb Co,smb,1-50,inbound,2022-09-21,crm-00081,bill-00081,customer0081.example
+cedar-churn,ced-c0082,Customer 0082 Smb Co,smb,1-50,partner,2021-11-17,crm-00082,bill-00082,customer0082.example
+cedar-churn,ced-c0083,Customer 0083 Enterprise Co,enterprise,500+,inbound,2023-06-06,crm-00083,bill-00083,customer0083.example
+cedar-churn,ced-c0084,Customer 0084 Smb Co,smb,1-50,inbound,2023-08-09,crm-00084,bill-00084,customer0084.example
+cedar-churn,ced-c0085,Customer 0085 Smb Co,smb,1-50,inbound,2021-12-15,crm-00085,bill-00085,customer0085.example
+cedar-churn,ced-c0086,Customer 0086 Smb Co,smb,1-50,inbound,2023-04-17,crm-00086,bill-00086,customer0086.example
+cedar-churn,ced-c0087,Customer 0087 Smb Co,smb,1-50,partner,2024-06-02,crm-00087,bill-00087,customer0087.example
+cedar-churn,ced-c0088,Customer 0088 Mid Market Co,mid_market,51-500,outbound,2023-05-14,crm-00088,bill-00088,customer0088.example
+cedar-churn,ced-c0089,Customer 0089 Smb Co,smb,1-50,partner,2022-04-04,crm-00089,bill-00089,customer0089.example
+cedar-churn,ced-c0090,Customer 0090 Mid Market Co,mid_market,51-500,partner,2023-10-24,crm-00090,bill-00090,customer0090.example
+cedar-churn,ced-c0091,Customer 0091 Smb Co,smb,1-50,partner,2024-03-04,crm-00091,bill-00091,customer0091.example
+cedar-churn,ced-c0092,Customer 0092 Smb Co,smb,1-50,partner,2024-05-07,crm-00092,bill-00092,customer0092.example
+cedar-churn,ced-c0093,Customer 0093 Smb Co,smb,1-50,partner,2022-03-18,crm-00093,bill-00093,customer0093.example
+cedar-churn,ced-c0094,Customer 0094 Smb Co,smb,1-50,partner,2023-11-07,crm-00094,bill-00094,customer0094.example
+cedar-churn,ced-c0095,Customer 0095 Smb Co,smb,1-50,partner,2024-05-14,crm-00095,bill-00095,customer0095.example
+cedar-churn,ced-c0096,Customer 0096 Smb Co,smb,1-50,outbound,2022-09-14,crm-00096,bill-00096,customer0096.example
+cedar-churn,ced-c0097,Customer 0097 Smb Co,smb,1-50,outbound,2023-08-20,crm-00097,bill-00097,customer0097.example
+cedar-churn,ced-c0098,Customer 0098 Smb Co,smb,1-50,partner,2023-03-02,crm-00098,bill-00098,customer0098.example
+cedar-churn,ced-c0099,Customer 0099 Smb Co,smb,1-50,partner,2023-07-07,crm-00099,bill-00099,customer0099.example
+cedar-churn,ced-c0100,Customer 0100 Smb Co,smb,1-50,outbound,2024-05-05,crm-00100,bill-00100,customer0100.example
+cedar-churn,ced-c0101,Customer 0101 Smb Co,smb,1-50,partner,2022-05-27,crm-00101,bill-00101,customer0101.example
+cedar-churn,ced-c0102,Customer 0102 Smb Co,smb,1-50,inbound,2023-12-28,crm-00102,bill-00102,customer0102.example
+cedar-churn,ced-c0103,Customer 0103 Smb Co,smb,1-50,outbound,2024-04-18,crm-00103,bill-00103,customer0103.example
+cedar-churn,ced-c0104,Customer 0104 Mid Market Co,mid_market,51-500,outbound,2024-01-16,crm-00104,bill-00104,customer0104.example
+cedar-churn,ced-c0105,Customer 0105 Enterprise Co,enterprise,500+,outbound,2024-08-12,crm-00105,bill-00105,customer0105.example
+cedar-churn,ced-c0106,Customer 0106 Smb Co,smb,1-50,outbound,2023-03-27,crm-00106,bill-00106,customer0106.example
+cedar-churn,ced-c0107,Customer 0107 Mid Market Co,mid_market,51-500,partner,2022-03-05,crm-00107,bill-00107,customer0107.example
+cedar-churn,ced-c0108,Customer 0108 Mid Market Co,mid_market,51-500,outbound,2022-05-04,crm-00108,bill-00108,customer0108.example
+cedar-churn,ced-c0109,Customer 0109 Mid Market Co,mid_market,51-500,inbound,2022-02-20,crm-00109,bill-00109,customer0109.example
+cedar-churn,ced-c0110,Customer 0110 Enterprise Co,enterprise,500+,outbound,2021-12-01,crm-00110,bill-00110,customer0110.example
+cedar-churn,ced-c0111,Customer 0111 Smb Co,smb,1-50,inbound,2023-08-09,crm-00111,bill-00111,customer0111.example
+cedar-churn,ced-c0112,Customer 0112 Enterprise Co,enterprise,500+,partner,2023-04-07,crm-00112,bill-00112,customer0112.example
+cedar-churn,ced-c0113,Customer 0113 Mid Market Co,mid_market,51-500,inbound,2023-07-08,crm-00113,bill-00113,customer0113.example
+cedar-churn,ced-c0114,Customer 0114 Mid Market Co,mid_market,51-500,outbound,2024-05-15,crm-00114,bill-00114,customer0114.example
+cedar-churn,ced-c0115,Customer 0115 Smb Co,smb,1-50,partner,2022-03-03,crm-00115,bill-00115,customer0115.example
+cedar-churn,ced-c0116,Customer 0116 Mid Market Co,mid_market,51-500,outbound,2023-05-21,crm-00116,bill-00116,customer0116.example
+cedar-churn,ced-c0117,Customer 0117 Smb Co,smb,1-50,partner,2023-10-27,crm-00117,bill-00117,customer0117.example
+cedar-churn,ced-c0118,Customer 0118 Smb Co,smb,1-50,outbound,2024-06-26,crm-00118,bill-00118,customer0118.example
+cedar-churn,ced-c0119,Customer 0119 Smb Co,smb,1-50,inbound,2022-04-24,crm-00119,bill-00119,customer0119.example
+cedar-churn,ced-c0120,Customer 0120 Smb Co,smb,1-50,inbound,2023-04-12,crm-00120,bill-00120,customer0120.example
+cedar-churn,ced-c0121,Customer 0121 Mid Market Co,mid_market,51-500,partner,2024-04-02,crm-00121,bill-00121,customer0121.example
+cedar-churn,ced-c0122,Customer 0122 Smb Co,smb,1-50,outbound,2024-07-12,crm-00122,bill-00122,customer0122.example
+cedar-churn,ced-c0123,Customer 0123 Smb Co,smb,1-50,outbound,2024-01-15,crm-00123,bill-00123,customer0123.example
+cedar-churn,ced-c0124,Customer 0124 Smb Co,smb,1-50,outbound,2022-10-07,crm-00124,bill-00124,customer0124.example
+cedar-churn,ced-c0125,Customer 0125 Smb Co,smb,1-50,outbound,2021-10-20,crm-00125,bill-00125,customer0125.example
+cedar-churn,ced-c0126,Customer 0126 Mid Market Co,mid_market,51-500,inbound,2022-05-21,crm-00126,bill-00126,customer0126.example
+cedar-churn,ced-c0127,Customer 0127 Mid Market Co,mid_market,51-500,partner,2023-06-26,crm-00127,bill-00127,customer0127.example
+cedar-churn,ced-c0128,Customer 0128 Smb Co,smb,1-50,inbound,2023-12-23,crm-00128,bill-00128,customer0128.example
+cedar-churn,ced-c0129,Customer 0129 Smb Co,smb,1-50,partner,2021-11-16,crm-00129,bill-00129,customer0129.example
+cedar-churn,ced-c0130,Customer 0130 Smb Co,smb,1-50,outbound,2023-04-04,crm-00130,bill-00130,customer0130.example
+cedar-churn,ced-c0131,Customer 0131 Smb Co,smb,1-50,partner,2022-02-18,crm-00131,bill-00131,customer0131.example
+cedar-churn,ced-c0132,Customer 0132 Mid Market Co,mid_market,51-500,outbound,2021-12-27,crm-00132,bill-00132,customer0132.example
+cedar-churn,ced-c0133,Customer 0133 Smb Co,smb,1-50,partner,2022-04-20,crm-00133,bill-00133,customer0133.example
+cedar-churn,ced-c0134,Customer 0134 Mid Market Co,mid_market,51-500,partner,2024-05-01,crm-00134,bill-00134,customer0134.example
+cedar-churn,ced-c0135,Customer 0135 Mid Market Co,mid_market,51-500,inbound,2022-05-08,crm-00135,bill-00135,customer0135.example
+cedar-churn,ced-c0136,Customer 0136 Smb Co,smb,1-50,partner,2024-01-13,crm-00136,bill-00136,customer0136.example
+cedar-churn,ced-c0137,Customer 0137 Mid Market Co,mid_market,51-500,inbound,2024-05-06,crm-00137,bill-00137,customer0137.example
+cedar-churn,ced-c0138,Customer 0138 Smb Co,smb,1-50,partner,2022-01-17,crm-00138,bill-00138,customer0138.example
+cedar-churn,ced-c0139,Customer 0139 Smb Co,smb,1-50,outbound,2024-02-26,crm-00139,bill-00139,customer0139.example
+cedar-churn,ced-c0140,Customer 0140 Mid Market Co,mid_market,51-500,outbound,2024-01-14,crm-00140,bill-00140,customer0140.example
+cedar-churn,ced-c0141,Customer 0141 Smb Co,smb,1-50,outbound,2022-07-19,crm-00141,bill-00141,customer0141.example
+cedar-churn,ced-c0142,Customer 0142 Smb Co,smb,1-50,partner,2022-09-10,crm-00142,bill-00142,customer0142.example
+cedar-churn,ced-c0143,Customer 0143 Smb Co,smb,1-50,outbound,2021-10-11,crm-00143,bill-00143,customer0143.example
+cedar-churn,ced-c0144,Customer 0144 Mid Market Co,mid_market,51-500,outbound,2023-01-01,crm-00144,bill-00144,customer0144.example
+cedar-churn,ced-c0145,Customer 0145 Smb Co,smb,1-50,inbound,2024-04-19,crm-00145,bill-00145,customer0145.example
+cedar-churn,ced-c0146,Customer 0146 Smb Co,smb,1-50,outbound,2023-01-25,crm-00146,bill-00146,customer0146.example
+cedar-churn,ced-c0147,Customer 0147 Mid Market Co,mid_market,51-500,partner,2022-11-24,crm-00147,bill-00147,customer0147.example
+cedar-churn,ced-c0148,Customer 0148 Smb Co,smb,1-50,outbound,2022-07-03,crm-00148,bill-00148,customer0148.example
+cedar-churn,ced-c0149,Customer 0149 Mid Market Co,mid_market,51-500,inbound,2023-07-15,crm-00149,bill-00149,customer0149.example
+cedar-churn,ced-c0150,Customer 0150 Smb Co,smb,1-50,inbound,2024-02-25,crm-00150,bill-00150,customer0150.example
+cedar-churn,ced-c0151,Customer 0151 Smb Co,smb,1-50,inbound,2024-09-22,crm-00151,bill-00151,customer0151.example
+cedar-churn,ced-c0152,Customer 0152 Smb Co,smb,1-50,outbound,2024-09-21,crm-00152,bill-00152,customer0152.example
+cedar-churn,ced-c0153,Customer 0153 Mid Market Co,mid_market,51-500,inbound,2024-09-27,crm-00153,bill-00153,customer0153.example
+cedar-churn,ced-c0154,Customer 0154 Smb Co,smb,1-50,outbound,2024-09-27,crm-00154,bill-00154,customer0154.example
+cedar-churn,ced-c0155,Customer 0155 Smb Co,smb,1-50,partner,2024-09-13,crm-00155,bill-00155,customer0155.example
+cedar-churn,ced-c0156,Customer 0156 Smb Co,smb,1-50,partner,2024-09-26,crm-00156,bill-00156,customer0156.example
+cedar-churn,ced-c0157,Customer 0157 Smb Co,smb,1-50,inbound,2024-09-02,crm-00157,bill-00157,customer0157.example
+cedar-churn,ced-c0158,Customer 0158 Enterprise Co,enterprise,500+,outbound,2024-10-05,crm-00158,bill-00158,customer0158.example
+cedar-churn,ced-c0159,Customer 0159 Smb Co,smb,1-50,outbound,2024-10-15,crm-00159,bill-00159,customer0159.example
+cedar-churn,ced-c0160,Customer 0160 Smb Co,smb,1-50,inbound,2024-10-24,crm-00160,bill-00160,customer0160.example
+cedar-churn,ced-c0161,Customer 0161 Mid Market Co,mid_market,51-500,outbound,2024-10-19,crm-00161,bill-00161,customer0161.example
+cedar-churn,ced-c0162,Customer 0162 Smb Co,smb,1-50,outbound,2024-11-10,crm-00162,bill-00162,customer0162.example
+cedar-churn,ced-c0163,Customer 0163 Smb Co,smb,1-50,outbound,2024-11-10,crm-00163,bill-00163,customer0163.example
+cedar-churn,ced-c0164,Customer 0164 Smb Co,smb,1-50,outbound,2024-11-21,crm-00164,bill-00164,customer0164.example
+cedar-churn,ced-c0165,Customer 0165 Smb Co,smb,1-50,partner,2024-11-04,crm-00165,bill-00165,customer0165.example
+cedar-churn,ced-c0166,Customer 0166 Smb Co,smb,1-50,outbound,2024-12-25,crm-00166,bill-00166,customer0166.example
+cedar-churn,ced-c0167,Customer 0167 Smb Co,smb,1-50,outbound,2024-12-09,crm-00167,bill-00167,customer0167.example
+cedar-churn,ced-c0168,Customer 0168 Smb Co,smb,1-50,partner,2024-12-03,crm-00168,bill-00168,customer0168.example
+cedar-churn,ced-c0169,Customer 0169 Mid Market Co,mid_market,51-500,outbound,2024-12-13,crm-00169,bill-00169,customer0169.example
+cedar-churn,ced-c0170,Customer 0170 Enterprise Co,enterprise,500+,outbound,2025-01-22,crm-00170,bill-00170,customer0170.example
+cedar-churn,ced-c0171,Customer 0171 Enterprise Co,enterprise,500+,partner,2025-02-15,crm-00171,bill-00171,customer0171.example
+cedar-churn,ced-c0172,Customer 0172 Mid Market Co,mid_market,51-500,outbound,2025-02-18,crm-00172,bill-00172,customer0172.example
+cedar-churn,ced-c0173,Customer 0173 Mid Market Co,mid_market,51-500,partner,2025-03-24,crm-00173,bill-00173,customer0173.example
+cedar-churn,ced-c0174,Customer 0174 Smb Co,smb,1-50,partner,2025-03-14,crm-00174,bill-00174,customer0174.example
+cedar-churn,ced-c0175,Customer 0175 Smb Co,smb,1-50,outbound,2025-03-10,crm-00175,bill-00175,customer0175.example
+cedar-churn,ced-c0176,Customer 0176 Smb Co,smb,1-50,inbound,2025-03-21,crm-00176,bill-00176,customer0176.example
+cedar-churn,ced-c0177,Customer 0177 Smb Co,smb,1-50,inbound,2025-03-17,crm-00177,bill-00177,customer0177.example
+cedar-churn,ced-c0178,Customer 0178 Mid Market Co,mid_market,51-500,outbound,2025-04-24,crm-00178,bill-00178,customer0178.example
+cedar-churn,ced-c0179,Customer 0179 Smb Co,smb,1-50,outbound,2025-04-20,crm-00179,bill-00179,customer0179.example
+cedar-churn,ced-c0180,Customer 0180 Mid Market Co,mid_market,51-500,inbound,2025-04-24,crm-00180,bill-00180,customer0180.example
+cedar-churn,ced-c0181,Customer 0181 Enterprise Co,enterprise,500+,outbound,2025-04-10,crm-00181,bill-00181,customer0181.example
+cedar-churn,ced-c0182,Customer 0182 Smb Co,smb,1-50,outbound,2025-04-26,crm-00182,bill-00182,customer0182.example
+cedar-churn,ced-c0183,Customer 0183 Mid Market Co,mid_market,51-500,partner,2025-04-01,crm-00183,bill-00183,customer0183.example
+cedar-churn,ced-c0184,Customer 0184 Smb Co,smb,1-50,partner,2025-05-23,crm-00184,bill-00184,customer0184.example
+cedar-churn,ced-c0185,Customer 0185 Smb Co,smb,1-50,partner,2025-05-23,crm-00185,bill-00185,customer0185.example
+cedar-churn,ced-c0186,Customer 0186 Smb Co,smb,1-50,partner,2025-06-15,crm-00186,bill-00186,customer0186.example
+cedar-churn,ced-c0187,Customer 0187 Smb Co,smb,1-50,outbound,2025-06-05,crm-00187,bill-00187,customer0187.example
+cedar-churn,ced-c0188,Customer 0188 Smb Co,smb,1-50,partner,2025-06-25,crm-00188,bill-00188,customer0188.example
+cedar-churn,ced-c0189,Customer 0189 Mid Market Co,mid_market,51-500,inbound,2025-06-22,crm-00189,bill-00189,customer0189.example
+cedar-churn,ced-c0190,Customer 0190 Enterprise Co,enterprise,500+,inbound,2025-07-05,crm-00190,bill-00190,customer0190.example
+cedar-churn,ced-c0191,Customer 0191 Smb Co,smb,1-50,outbound,2025-07-22,crm-00191,bill-00191,customer0191.example
+cedar-churn,ced-c0192,Customer 0192 Smb Co,smb,1-50,inbound,2025-07-18,crm-00192,bill-00192,customer0192.example
+cedar-churn,ced-c0193,Customer 0193 Mid Market Co,mid_market,51-500,inbound,2025-08-26,crm-00193,bill-00193,customer0193.example
+cedar-churn,ced-c0194,Customer 0194 Smb Co,smb,1-50,partner,2025-08-07,crm-00194,bill-00194,customer0194.example
+cedar-churn,ced-c0195,Customer 0195 Smb Co,smb,1-50,outbound,2025-08-12,crm-00195,bill-00195,customer0195.example
+cedar-churn,ced-c0196,Customer 0196 Mid Market Co,mid_market,51-500,partner,2025-08-06,crm-00196,bill-00196,customer0196.example
+cedar-churn,ced-c0197,Customer 0197 Smb Co,smb,1-50,partner,2025-08-19,crm-00197,bill-00197,customer0197.example
+cedar-churn,ced-c0198,Customer 0198 Smb Co,smb,1-50,outbound,2025-08-18,crm-00198,bill-00198,customer0198.example
+cedar-churn,ced-c0199,Customer 0199 Smb Co,smb,1-50,partner,2025-09-22,crm-00199,bill-00199,customer0199.example
+cedar-churn,ced-c0200,Customer 0200 Smb Co,smb,1-50,outbound,2025-09-24,crm-00200,bill-00200,customer0200.example
+cedar-churn,ced-c0201,Customer 0201 Mid Market Co,mid_market,51-500,outbound,2025-09-20,crm-00201,bill-00201,customer0201.example
+cedar-churn,ced-c0202,Customer 0202 Mid Market Co,mid_market,51-500,outbound,2025-10-06,crm-00202,bill-00202,customer0202.example
+cedar-churn,ced-c0203,Customer 0203 Mid Market Co,mid_market,51-500,inbound,2025-10-18,crm-00203,bill-00203,customer0203.example
+cedar-churn,ced-c0204,Customer 0204 Enterprise Co,enterprise,500+,inbound,2025-10-20,crm-00204,bill-00204,customer0204.example
+cedar-churn,ced-c0205,Customer 0205 Smb Co,smb,1-50,partner,2025-11-26,crm-00205,bill-00205,customer0205.example
+cedar-churn,ced-c0206,Customer 0206 Smb Co,smb,1-50,partner,2025-11-03,crm-00206,bill-00206,customer0206.example
+cedar-churn,ced-c0207,Customer 0207 Enterprise Co,enterprise,500+,partner,2025-11-27,crm-00207,bill-00207,customer0207.example
+cedar-churn,ced-c0208,Customer 0208 Smb Co,smb,1-50,inbound,2025-11-15,crm-00208,bill-00208,customer0208.example
+cedar-churn,ced-c0209,Customer 0209 Smb Co,smb,1-50,partner,2025-12-08,crm-00209,bill-00209,customer0209.example
+cedar-churn,ced-c0210,Customer 0210 Smb Co,smb,1-50,inbound,2025-12-07,crm-00210,bill-00210,customer0210.example
+cedar-churn,ced-c0211,Customer 0211 Smb Co,smb,1-50,inbound,2025-12-02,crm-00211,bill-00211,customer0211.example
+cedar-churn,ced-c0212,Customer 0212 Mid Market Co,mid_market,51-500,partner,2025-12-08,crm-00212,bill-00212,customer0212.example
+cedar-churn,ced-c0213,Customer 0213 Smb Co,smb,1-50,outbound,2026-01-18,crm-00213,bill-00213,customer0213.example
+cedar-churn,ced-c0214,Customer 0214 Mid Market Co,mid_market,51-500,inbound,2026-01-09,crm-00214,bill-00214,customer0214.example
+cedar-churn,ced-c0215,Customer 0215 Smb Co,smb,1-50,outbound,2026-01-23,crm-00215,bill-00215,customer0215.example
+cedar-churn,ced-c0216,Customer 0216 Mid Market Co,mid_market,51-500,partner,2026-01-14,crm-00216,bill-00216,customer0216.example
+cedar-churn,ced-c0217,Customer 0217 Enterprise Co,enterprise,500+,outbound,2026-01-24,crm-00217,bill-00217,customer0217.example
+cedar-churn,ced-c0218,Customer 0218 Mid Market Co,mid_market,51-500,inbound,2026-01-05,crm-00218,bill-00218,customer0218.example
+cedar-churn,ced-c0219,Customer 0219 Smb Co,smb,1-50,inbound,2026-01-05,crm-00219,bill-00219,customer0219.example
+cedar-churn,ced-c0220,Customer 0220 Smb Co,smb,1-50,partner,2026-02-10,crm-00220,bill-00220,customer0220.example
+cedar-churn,ced-c0221,Customer 0221 Smb Co,smb,1-50,inbound,2026-02-21,crm-00221,bill-00221,customer0221.example
+cedar-churn,ced-c0222,Customer 0222 Enterprise Co,enterprise,500+,partner,2026-02-09,crm-00222,bill-00222,customer0222.example
+cedar-churn,ced-c0223,Customer 0223 Smb Co,smb,1-50,partner,2026-03-26,crm-00223,bill-00223,customer0223.example
+cedar-churn,ced-c0224,Customer 0224 Smb Co,smb,1-50,partner,2026-04-18,crm-00224,bill-00224,customer0224.example
+cedar-churn,ced-c0225,Customer 0225 Smb Co,smb,1-50,outbound,2026-04-21,crm-00225,bill-00225,customer0225.example
+cedar-churn,ced-c0226,Customer 0226 Mid Market Co,mid_market,51-500,partner,2026-04-16,crm-00226,bill-00226,customer0226.example
+cedar-churn,ced-c0227,Customer 0227 Smb Co,smb,1-50,partner,2026-04-10,crm-00227,bill-00227,customer0227.example
+cedar-churn,ced-c0228,Customer 0228 Smb Co,smb,1-50,inbound,2026-04-03,crm-00228,bill-00228,customer0228.example
+cedar-churn,ced-c0229,Customer 0229 Smb Co,smb,1-50,outbound,2026-04-14,crm-00229,bill-00229,customer0229.example
+cedar-churn,ced-c0230,Customer 0230 Mid Market Co,mid_market,51-500,partner,2026-05-11,crm-00230,bill-00230,customer0230.example
+cedar-churn,ced-c0231,Customer 0231 Smb Co,smb,1-50,outbound,2026-05-02,crm-00231,bill-00231,customer0231.example
+cedar-churn,ced-c0232,Customer 0232 Mid Market Co,mid_market,51-500,inbound,2026-05-01,crm-00232,bill-00232,customer0232.example
+cedar-churn,ced-c0233,Customer 0233 Enterprise Co,enterprise,500+,partner,2026-05-21,crm-00233,bill-00233,customer0233.example
+cedar-churn,ced-c0234,Customer 0234 Enterprise Co,enterprise,500+,inbound,2026-05-03,crm-00234,bill-00234,customer0234.example
+cedar-churn,ced-c0235,Customer 0235 Smb Co,smb,1-50,inbound,2026-06-18,crm-00235,bill-00235,customer0235.example
+cedar-churn,ced-c0236,Customer 0236 Smb Co,smb,1-50,outbound,2026-06-18,crm-00236,bill-00236,customer0236.example
+cedar-churn,ced-c0237,Customer 0237 Mid Market Co,mid_market,51-500,inbound,2026-06-09,crm-00237,bill-00237,customer0237.example
+cedar-churn,ced-c0238,Customer 0238 Mid Market Co,mid_market,51-500,inbound,2026-06-08,crm-00238,bill-00238,customer0238.example
+cedar-churn,ced-c0239,Customer 0239 Smb Co,smb,1-50,outbound,2026-06-20,crm-00239,bill-00239,customer0239.example
+cedar-churn,ced-c0240,Customer 0240 Smb Co,smb,1-50,outbound,2026-06-05,crm-00240,bill-00240,customer0240.example
+cedar-churn,ced-c0241,Customer 0241 Smb Co,smb,1-50,inbound,2026-07-03,crm-00241,bill-00241,customer0241.example
+cedar-churn,ced-c0242,Customer 0242 Smb Co,smb,1-50,inbound,2026-07-04,crm-00242,bill-00242,customer0242.example
+cedar-churn,ced-c0243,Customer 0243 Smb Co,smb,1-50,partner,2026-07-03,crm-00243,bill-00243,customer0243.example
+cedar-churn,ced-c0244,Customer 0244 Smb Co,smb,1-50,outbound,2026-07-11,crm-00244,bill-00244,customer0244.example
+cedar-churn,ced-c0245,Customer 0245 Mid Market Co,mid_market,51-500,outbound,2026-07-09,crm-00245,bill-00245,customer0245.example
+cedar-churn,ced-c0246,Customer 0246 Smb Co,smb,1-50,inbound,2026-08-21,crm-00246,bill-00246,customer0246.example
+cedar-churn,ced-c0247,Customer 0247 Smb Co,smb,1-50,inbound,2026-08-21,crm-00247,bill-00247,customer0247.example
+cedar-churn,ced-c0248,Customer 0248 Mid Market Co,mid_market,51-500,inbound,2026-08-19,crm-00248,bill-00248,customer0248.example

@@ -1,0 +1,10 @@
+{
+  "company_id": "delta-broken",
+  "name": "Delta Ledger Tools (fictional)",
+  "business_model": "B2B SaaS, annual seat-based contracts",
+  "vertical": "accounting add-on software",
+  "currency": "USD",
+  "fiscal_year_start_month": 1,
+  "deal_thesis": null,
+  "arr_definition": "Contracted recurring subscription revenue, annualised; excludes services and one-time fees"
+}
