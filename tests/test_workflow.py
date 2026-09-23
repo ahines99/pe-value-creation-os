@@ -125,9 +125,10 @@ async def test_crash_then_resume_skips_finished_steps(ctx, monkeypatch):
 
 
 async def test_idempotency_key_returns_existing_run(ctx):
+    key = "q3-diagnostic"  # gitleaks:allow - an idempotency key, not a credential
     with scoped("acme-healthy"):
-        r1, c1 = primary.start(ctx, "acme-healthy", "human:a", idempotency_key="q3-diagnostic")
-        r2, c2 = primary.start(ctx, "acme-healthy", "human:a", idempotency_key="q3-diagnostic")
+        r1, c1 = primary.start(ctx, "acme-healthy", "human:a", idempotency_key=key)
+        r2, c2 = primary.start(ctx, "acme-healthy", "human:a", idempotency_key=key)
         assert c1 and not c2 and r1.run_id == r2.run_id
 
 
