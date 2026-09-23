@@ -4,8 +4,8 @@
     "name": "Cedar Field Analytics (fictional)",
     "vertical": "agronomy analytics software",
     "seed": 303,
-    "n_customers_start": 150,
-    "new_per_month": 4.0,
+    "n_customers_start": 300,
+    "new_per_month": 8.0,
     "segment_mix": {
       "smb": 0.6,
       "mid_market": 0.3,
@@ -60,19 +60,19 @@
   },
   "ground_truth": {
     "last_month": "2026-08-01",
-    "active_customers_last_month": 151,
-    "arr_last_month": "13543994.70",
-    "legacy_arr_share_last_month": "0.0755",
-    "mean_realized_uplift": 0.0442,
+    "active_customers_last_month": 329,
+    "arr_last_month": "29155455.12",
+    "legacy_arr_share_last_month": "0.0568",
+    "mean_realized_uplift": 0.0457,
     "t12m_churned_arr_by_type": {
-      "involuntary_payment": "298970.05",
-      "voluntary": "1005001.70"
+      "involuntary_payment": "500235.51",
+      "voluntary": "2701532.84"
     },
-    "t12m_involuntary_payment_share": "0.2293",
+    "t12m_involuntary_payment_share": "0.1562",
     "customer_level_grr_proxy_by_segment": {
-      "smb": "0.6381",
-      "mid_market": "0.8435",
-      "enterprise": "0.9510"
+      "smb": "0.6182",
+      "mid_market": "0.8213",
+      "enterprise": "0.9599"
     }
   }
 }

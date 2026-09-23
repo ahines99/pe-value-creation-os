@@ -320,7 +320,7 @@ class InMemoryRepository:
             raise security.ScopeError("Finding company does not match run company")
         self._check_evidence(finding.company_id, finding.evidence_ids + finding.contradicting_evidence_ids)
         with self._lock:
-            self.findings[finding.finding_id] = finding
+            self.findings.setdefault(finding.finding_id, finding)
 
     def _check_evidence(self, company_id: str, ids: list[str]) -> None:
         for eid in ids:
@@ -339,7 +339,7 @@ class InMemoryRepository:
             raise security.ScopeError("Opportunity company does not match run company")
         self._check_evidence(opp.company_id, opp.evidence_ids)
         with self._lock:
-            self.opportunities[opp.opportunity_id] = (opp, proposer)
+            self.opportunities.setdefault(opp.opportunity_id, (opp, proposer))
 
     def get_opportunity(self, company_id: str, opportunity_id: str) -> Opportunity:
         security.require(company_id)

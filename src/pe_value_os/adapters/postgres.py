@@ -281,6 +281,8 @@ class PostgresRepository:
                 raise NotFound(finding.run_id)
             if run["company_id"] != finding.company_id:
                 raise security.ScopeError("Finding company does not match run company")
+            if cur.execute("select 1 from findings where finding_id = %s", (finding.finding_id,)).fetchone():
+                return  # idempotent: deterministic ids make re-runs safe
             cur.execute(
                 """insert into findings (finding_id, run_id, company_id, finding_type, title, statement, confidence,
                      assumptions, metadata) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -351,6 +353,8 @@ class PostgresRepository:
                 raise NotFound(opp.run_id)
             if run["company_id"] != opp.company_id:
                 raise security.ScopeError("Opportunity company does not match run company")
+            if cur.execute("select 1 from opportunities where opportunity_id = %s", (opp.opportunity_id,)).fetchone():
+                return  # idempotent
             cur.execute(
                 """insert into opportunities (opportunity_id, run_id, company_id, lever, title, baseline_metric,
                      baseline_value, ebitda_flow_through, flow_through_rule, scenarios, annual_run_cost, one_time_cost,
