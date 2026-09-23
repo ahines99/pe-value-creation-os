@@ -109,11 +109,12 @@ Every step writes a checkpoint and audit events. `pvc resume` re-runs the paused
 | No model arithmetic | Sizing in `domain/services.py`; the no-new-numbers guardrail in `llm/guardrails.py` | `test_sizing`, `test_llm`, eval dimension `calculation_fidelity` |
 | Evidence for every claim | `evidence_review` step; `extra=forbid` proposal contracts | `test_workflow`, eval dimension `evidence_fidelity` |
 | Company isolation | `security.require` on every tool; PostgreSQL RLS with FORCE; scoped evidence paths | `test_auth`, `test_repository_contract` (Postgres), eval dimension `permission_fidelity` |
-| Human-only approval | No approve tool; the API requires a human principal and CSRF on forms | `test_api`, `test_mcp` |
+| Human-only approval | No approve tool. The API verifies tokens for its own audience and requires a human principal with the approver role, the `pvc.approve` scope and an allowed approval-UI client; CSRF protects forms | `test_api`, `test_mcp` |
+| Least privilege for model clients | MCP tools that change state require `pvc.write`, and only on open interactive runs | `test_auth`, `test_mcp` |
 | Reproducibility | Deterministic ids, versioned policy and calculator, snapshot tests | `test_snapshots`, `test_properties` |
-| Controlled failure | Per-step timeouts, transient-only retries, pause states, fault injection | `test_workflow`, `test_demo`, eval dimension `recovery` |
+| Controlled failure | Per-step timeouts, transient-only retries, pause states, fault injection. A timed-out attempt cannot write after a retry starts (repository guard, state copy) | `test_workflow`, `test_demo`, `test_audit_fixes`, eval dimension `recovery` |
 | Outbound traffic | Egress allow-list on every HTTP client | `test_adapters`, `test_observability` |
 
 ## Deployment
 
-One container image runs every process: MCP server, approval API, worker, and the migrate and bootstrap tasks. It runs on ECS Fargate behind an ALB, with RDS PostgreSQL and an S3 evidence bucket that uses Object Lock and KMS. The Terraform is in [infra/terraform/](../infra/terraform/), and the procedure is in [deployment.md](deployment.md). Logs, traces and metrics go through OpenTelemetry. Dashboards and alert rules are in [ops/observability/](../ops/observability/), and the SLOs are in [slo.md](slo.md).
+One container image runs every process: MCP server, approval API, worker, and the migrate and bootstrap tasks. It runs on ECS Fargate behind an ALB, with RDS PostgreSQL and an S3 evidence bucket that uses Object Lock and KMS. The Terraform is in [infra/terraform/](../infra/terraform/), and the procedure is in [deployment.md](deployment.md). Logs, traces and metrics go through OpenTelemetry: each process installs OTLP export at startup when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Dashboards and alert rules are in [ops/observability/](../ops/observability/), and the SLOs are in [slo.md](slo.md).

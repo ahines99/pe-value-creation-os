@@ -58,9 +58,7 @@ class Session:
         self.calls: list[str] = []
 
     async def tool(self, name: str, **args: Any) -> Any:
-        self.calls.append(
-            f"{name}({', '.join(f'{k}={v!r}' for k, v in args.items() if k not in ('low', 'base', 'high'))})"
-        )
+        self.calls.append(f"{name}({', '.join(f'{k}={v!r}' for k, v in args.items())})")
         r = await self.c.call_tool(name, args)
         if r.is_error:
             raise RuntimeError(f"{name} failed: {r.content[0].text}")

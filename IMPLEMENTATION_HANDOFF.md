@@ -21,7 +21,7 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 
 ## Current state (verified 2026-09-23)
 
-The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 250 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
+The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 334 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. An internal audit (code, security, status) on 2026-09-23 found 4 high security and 3 high correctness issues, plus medium ones; all are fixed, with regression tests in `tests/test_audit_fixes.py`. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
 
 | Area | State |
 |---|---|
@@ -30,18 +30,18 @@ The specification below is implemented in `src/pe_value_os/`. CI is green on Git
 | Workflow engine and primary workflow | Built: checkpoints, resume, rewind, parallel diagnostics, timeouts, transient-only retries, fault injection |
 | MCP server | 21 tools, 3 resources, 1 prompt. OAuth bearer auth, company scope from token claims, strict arguments, DNS-rebinding protection. |
 | Approval API and review UI | Built. Human principals only, CSRF, override diff and rate, expiry escalation. |
-| Model layer | Claude proposer and narrator with JSON-schema output, the no-new-numbers guardrail, delimited untrusted text, and a pause when the model is unavailable. Covered by scripted-model tests. **Not yet run against the live API.** |
+| Model layer | Claude proposer and narrator with JSON-schema output, the no-new-numbers guardrail (digits, words, scale words, multipliers), escaped and delimited untrusted text, and a pause when the model is unavailable. Covered by scripted-model tests. **Not yet run against the live API.** |
 | Evals | 29 golden and 9 adversarial cases, 7 dimensions. The gate passes at 100%. Per-step latency and model cost are reported. |
 | Adapters | Fixture, CSV export, warehouse, Stripe, HubSpot, Zendesk, and composite with entity resolution. Vendor adapters are tested against simulated APIs. None has run against a real portfolio company's systems. |
 | KPI monitoring, worker, notifications | Built |
 | Observability | structlog JSON with allow-list redaction, OpenTelemetry traces and metrics, a Grafana dashboard and Prometheus alerts (promtool-valid) |
 | Ops tooling | `pvc recompute`, `offboard`, `access-review`, `audit-export`, `onboard-check`. Restore drill and load test run locally. |
-| Container, Terraform (AWS), CD | The image builds in CI and passes Trivy (no HIGH or CRITICAL findings). Terraform passes `fmt`, `validate` and `test`. **Nothing applied; CD hasn't run.** |
+| Container, Terraform (AWS), CD | The image builds in CI and passes Trivy (no fixable HIGH or CRITICAL findings). Base images and actions are pinned. Terraform passes `fmt`, `validate` and `test` (5 runs, including the security controls). **Nothing applied; CD hasn't run.** |
 | Sign-offs, pen test, legal, on-call, pilot | Not started. They need named people or a pilot company (ROADMAP "Open decisions"). |
 
 Verification on 2026-09-23 (Python 3.14, `mcp` 2.2.0, PostgreSQL 18):
 
-- `uv sync --extra dev && uv run pytest`: 250 passed with `PVC_TEST_DATABASE_URL` set. From a clean clone without a database: 227 passed, and the 23 PostgreSQL tests are skipped.
+- `uv sync --extra dev && uv run pytest`: 334 passed with `PVC_TEST_DATABASE_URL` set. Without a database, the PostgreSQL tests are skipped.
 - `ruff check`, `ruff format --check`, `mypy` and the skills lint are clean. `pip-audit` finds no known vulnerabilities in the locked runtime dependencies.
 - `pvc eval --suite all --gate` passes. `pvc demo` runs all five scenarios. `python -m pe_value_os.db.migrate_check` round-trips.
 - `pvc run`, `status` and `resume` work against PostgreSQL as the row-level-security-bound `pvc_app` role.
@@ -423,91 +423,62 @@ Results are run-rate annual EBITDA. In-year phasing is a separate calculation (P
 
 ### Project-specific MCP tools
 
+As built, in `src/pe_value_os/tools/value_tools.py`. Every tool is wrapped by `governed` (`tools/_runtime.py`), which:
+- maps domain errors to MCP tool errors;
+- records a metric and a trace span;
+- requires the `pvc.write` scope for tools that change state;
+- normalizes the description.
+
 ```python
-# add to src/pe_value_os/mcp_server.py
-from decimal import Decimal
-from .adapters.repositories import get_repository
-from .domain import services
-from .domain.models import EvidenceRef
-from .domain.project_models import ValueCase
-from .security import scope
-from .observability import audit
-
-@mcp.tool()
+@mcp.tool(name="size_value_case")
+@governed("size_value_case", mutating=True)
 def size_value_case(company_id: str, opportunity_id: str, ev_multiple: Decimal | None = None) -> ValueCase:
-    """Size low/base/high annual run-rate EBITDA impact for a stored opportunity.
-
-    Baseline values and flow-through come from ingested company data, never from the caller.
-    """
-    scope.require(company_id)
-    repo = get_repository()
-    opp = repo.get_opportunity(company_id, opportunity_id)
-    case = services.size_value_case(opp, ev_multiple)
-    repo.save_value_case(company_id, case)
-    audit.emit(company_id=company_id, step="value_modeling", event_type="value_case_sized",
-               payload={"opportunity_id": opportunity_id, "inputs_hash": case.inputs_hash})
-    return case
-
-@mcp.tool()
-def list_evidence(company_id: str, opportunity_id: str) -> list[EvidenceRef]:
-    """List evidence linked to one opportunity."""
-    scope.require(company_id)
-    return get_repository().evidence_for_opportunity(company_id, opportunity_id)
+    """Size low/base/high annual run-rate EBITDA for a stored opportunity. Baseline values and flow-through
+    come from company data, never from the caller. Quote results exactly; do not adjust them."""
+    ctx = get_ctx()
+    opp = ctx.repo.get_opportunity(company_id, opportunity_id)   # scope-checked; other companies' ids -> NotFound
+    _open_interactive_run(opp.run_id)                             # only open interactive runs can change
+    vc = _size(opp, ev_multiple)                                  # domain.services.size_value_case
+    ctx.repo.save_value_case(company_id, opp.run_id, vc, ctx.policy.version)
+    audit(company_id, "size_value_case", "value_case_sized", opp.run_id,
+          opportunity_id=opportunity_id, calc_version=vc.calc_version, policy_version=ctx.policy.version)
+    return vc
 ```
 
-`scope.require` raises if the calling principal may not access `company_id`. In v0.1 the allowed set comes from the `PVC_ALLOWED_COMPANIES` environment variable. In production it comes from OAuth token claims (PVC-091/092). `get_repository()` returns the in-memory repository in tests and the Postgres repository when `DATABASE_URL` is set.
+`security.require(company_id)` raises if the calling principal may not access `company_id`, and every repository method calls it. The principal comes from the OAuth token's `pvc_companies`, `pvc_roles` and `pvc_principal_type` claims. Only in dev does it come from `PVC_ALLOWED_COMPANIES`. PostgreSQL row-level security applies the same scope inside the database. `get_repository()` returns the in-memory repository when `DATABASE_URL` is unset (tests, demo) and the PostgreSQL repository otherwise.
 
-## Repository skeleton
+## Repository layout
 
-Target layout. Items marked ✅ exist today. Everything else is planned in [ROADMAP.md](ROADMAP.md).
+As built (the full map is in [README.md](README.md#repository-map)):
 
 ```text
 pe-value-creation-os/
-├── pyproject.toml                 ✅ (needs PVC-002/003/004 fixes)
-├── uv.lock
-├── README.md                      ✅
-├── IMPLEMENTATION_HANDOFF.md      ✅
-├── ROADMAP.md                     ✅
-├── .env.example
-├── docker-compose.yml
-├── migrations/                    # Alembic
-├── src/pe_value_os/               # currently src/ with no package name (PVC-003)
-│   ├── mcp_server.py              ✅ (partial)
-│   ├── security.py                # scope checks
-│   ├── observability.py           # structlog, OTel, audit emitter
-│   ├── domain/
-│   │   ├── models.py              ✅ (partial)
-│   │   ├── project_models.py
-│   │   ├── services.py
-│   │   ├── metrics.py             # SaaS, retention, pricing calculations
-│   │   └── policies.py
-│   ├── adapters/
-│   │   ├── repositories.py        # interface + in-memory + Postgres
-│   │   ├── fixtures.py            # fixture-backed source systems
-│   │   └── external.py
-│   ├── workflows/
-│   │   ├── base.py
-│   │   ├── steps.py
-│   │   └── primary.py
-│   └── api/
-│       └── approvals.py           # human-only approval endpoint (FastAPI)
-├── skills/                        ✅ six skills
-├── tests/
-│   ├── test_mcp.py                ✅ (partial)
-│   ├── test_services.py
-│   ├── test_workflow.py
-│   ├── test_policies.py
-│   └── fixtures/
-├── evals/
-│   └── golden/
-└── docs/
-    ├── architecture.md
-    ├── data_contracts.md
-    ├── threat_model.md
-    └── runbooks/
+├── pyproject.toml, uv.lock          uv project; extras postgres, http, observability, llm, aws, server, dev
+├── Dockerfile, docker-compose.yml   one image for every process; local stack
+├── .env.example                     every runtime setting
+├── src/pe_value_os/
+│   ├── domain/                      contracts, calculators (metrics, retention, pricing, sufficiency, sizing), baselines
+│   ├── policy/                      versioned policy.toml and its loader
+│   ├── adapters/                    fixture, CSV, warehouse, Stripe, HubSpot, Zendesk, composite; repositories; evidence store
+│   ├── db/                          roles.sql, Alembic migrations (raw SQL), migration check
+│   ├── workflows/                   runner (checkpoints, guard, retries), steps, rule-based proposals, planning
+│   ├── llm/                         Claude client, proposer, narrator, no-new-numbers guardrail
+│   ├── tools/                       MCP tools by capability boundary; governed runtime
+│   ├── api/                         approval API and review UI (FastAPI)
+│   ├── evals/                       evaluation harness
+│   ├── mcp_server.py, worker.py, cli.py, approvals.py, kpi.py, ops.py, auth.py, security.py, observability.py
+├── skills/                          six Agent Skills with generated worked examples
+├── tests/                           unit, contract, MCP, API, workflow, PostgreSQL, audit regression tests; fixtures
+├── evals/                           golden.json, adversarial.json, thresholds.toml
+├── infra/                           Terraform module and environments, deploy and smoke scripts, container helpers
+├── ops/observability/               Grafana dashboard, Prometheus alerts, OpenTelemetry collector
+├── scripts/                         worked-example generator, dashboard builder, restore drill, load tests
+└── docs/                            architecture, ADRs, data contracts, threat model, SLOs, runbooks, deployment, pilot
 ```
 
 ## Package skeleton
+
+> The skeleton sections from here to *Testing skeleton* are the revision-2 design sketches that guided the implementation. Where they differ from the code (`pyproject.toml`, `src/pe_value_os/`), the code is authoritative.
 
 Corrections from revision 1: a build system and package path (fixes the `pytest` import failure), a single async test plugin, and heavy dependencies moved to extras until they are used.
 
@@ -795,7 +766,7 @@ Never log secrets or raw sensitive payloads. Store hashes/IDs where possible.
 - Use service accounts with least privilege.
 - Treat all retrieved text as untrusted data, never as executable instructions.
 - Keep credentials outside Skills and prompts.
-- Enforce tenant/company scope server-side (`scope.require` in every tool, plus Postgres row-level security), not in natural language.
+- Enforce tenant/company scope server-side (`security.require` in every tool and repository call, plus Postgres row-level security), not in natural language.
 - Use read-only data access for discovery/analysis by default.
 - Approval decisions come only through the authenticated human approval API. No MCP tool can approve.
 - For uploaded documents, retain immutable originals and derived text separately.
@@ -852,6 +823,14 @@ Do not broaden scope until the first vertical slice is demonstrably correct, aud
 ## Changes in this revision
 
 Revision 3 (2026-09-23):
+
+- **Audit fixes:**
+  - Approval tokens now have their own audience, `pvc.approve` scope and client allow-list.
+  - Tools that change state require `pvc.write`, and only work on open interactive runs.
+  - Timed-out step attempts can no longer write.
+  - The guardrail, metric edge cases, pricing, stale-data and currency checks, and double counting are fixed.
+  - Passwords are sent as SCRAM verifiers, telemetry is exported, offboarding deletes evidence first, and the CD role no longer has its excess privileges.
+  - See the threat model's *audit* rows.
 
 - **Current state** now describes the built system and how it was verified.
 - **Tool catalog** lists the 21 built tools. `get_churn_summary`, `draft_100_day_plan` and `start_diagnostic_run` were added during implementation.

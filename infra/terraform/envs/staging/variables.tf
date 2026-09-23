@@ -178,3 +178,21 @@ variable "alarm_topic_arn" {
   type    = string
   default = null
 }
+
+variable "model_provider_host" {
+  description = "Model provider API host on the egress allow-list. Empty disables model egress (rules proposer only)."
+  type        = string
+  default     = "api.anthropic.com"
+}
+
+variable "max_request_body_bytes" {
+  description = "WAF blocks requests declaring a Content-Length of this many bytes or more (a power of ten)."
+  type        = number
+  default     = 1000000
+}
+
+variable "db_role_password_version" {
+  description = "Bump to rotate the pvc_app / pvc_readonly / pvc_migrator passwords, then re-run the bootstrap task."
+  type        = number
+  default     = 1
+}

@@ -23,8 +23,12 @@ The demo runs in process, with no database or API key. It shows:
 
 ## Develop
 
+Commands that start services or read company data run in production mode unless `PVC_ENV=dev` is set, and then
+refuse to start without an identity provider. For local work, export it once:
+
 ```bash
-uv run pytest -q                              # unit, contract, MCP, API and workflow tests
+export PVC_ENV=dev                            # PowerShell: $env:PVC_ENV = "dev"
+uv run pytest -q                              # unit, contract, MCP, API, workflow and regression tests
 uv run pvc eval --suite all --gate            # 29 golden + 9 adversarial cases, gated at 100%
 uv run ruff check . && uv run ruff format --check . && uv run mypy
 uv run python -m pe_value_os.skills_lint     # skills reference only tools that exist
@@ -32,14 +36,19 @@ uv run python -m pe_value_os.skills_lint     # skills reference only tools that 
 
 PostgreSQL tests (row-level security, repository contract, migrations, warehouse adapter) run when `PVC_TEST_DATABASE_URL` points at a PostgreSQL 18 server (the version CI and docker compose use) where the test user can create databases. Otherwise they are skipped. `docker compose up db` starts one.
 
-Run the services locally:
+Run the services locally (with `PVC_ENV=dev` exported as above):
 
 ```bash
 docker compose up                                    # PostgreSQL, migrations, MCP server, approval API, worker
-uv run uvicorn pe_value_os.mcp_server:app --port 8000   # MCP over Streamable HTTP (dev auth)
-uv run uvicorn pe_value_os.api.app:app --port 8080      # approval API and review UI
+uv run uvicorn pe_value_os.mcp_server:app --port 8000   # MCP over Streamable HTTP (dev principal: PVC_ALLOWED_COMPANIES)
+uv run uvicorn pe_value_os.api.app:app --port 8080      # approval API and review UI (dev tokens: PVC_DEV_TOKENS)
 uv run pvc mcp-stdio                                 # MCP over stdio, used by the Claude Code plugin (.mcp.json)
 ```
+
+In dev, the approval API accepts the opaque tokens defined in `PVC_DEV_TOKENS`; `.env.example` shows an approver
+token. Outside dev, every service verifies OAuth tokens from the identity provider: MCP clients need `pvc.read`
+(and `pvc.write` for tools that change state), and approval decisions need `pvc.approve` on a token issued to the
+approval UI client for the API's own audience. `.env.example` lists every setting.
 
 Operator commands: `pvc run`, `resume`, `status`, `worker`, `kpi`, `recompute`, `offboard`, `access-review`, `audit-export`. Run `uv run pvc --help` for details.
 
@@ -72,18 +81,19 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 - The LLM is not the system of record. Runs, evidence, findings and approvals live in PostgreSQL, and every step is checkpointed and audited.
 - Every value claim must resolve to stored, immutable evidence, or the run pauses with `NEEDS_EVIDENCE`.
 - Company scope is enforced twice: by the token's company claims on every tool call, and by row-level security in the database.
-- Material actions stop at a human approval gate. No model-callable tool can approve.
+- Material actions stop at a human approval gate. No model-callable tool can approve, and approval decisions need a token issued to the approval UI with its own audience and `pvc.approve` scope, so an MCP client's token cannot be replayed to approve.
 - Failures are controlled. A broken branch becomes a recorded gap, a failed step can be resumed, and an unavailable model pauses the run instead of guessing.
 
 ## Status
 
 | Area | State |
 |---|---|
-| Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Built and tested locally |
-| CI (GitHub Actions) | Green: lint, types, 250 tests on Python 3.12, 3.13 and 3.14 with PostgreSQL, eval gate, pip-audit, gitleaks, and an image build with a Trivy scan |
-| Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test`, actionlint). Not applied. |
+| Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Built and tested. An independent audit (code, security, status) found 4 high security, 3 high correctness and several medium issues; all are fixed with regression tests (`tests/test_audit_fixes.py`). |
+| CI (GitHub Actions) | Green: lint, types, 334 tests on Python 3.12, 3.13 and 3.14 with PostgreSQL, eval gate, pip-audit, gitleaks, and an image build with a Trivy scan. Actions and base images are pinned; Dependabot proposes updates. |
+| Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test` with 5 security test runs, actionlint). Not applied. |
 | Live-model evaluation | Harness is ready. It needs an API key to run (`pvc eval --proposer model`). |
-| Sign-offs and operations | Pending named people: domain expert (skills), threat-model review, external pen test, legal, on-call rotation |
+| Sign-offs and operations | Pending named people: domain expert (skills, policy values, eval value bands), threat-model review, external pen test, legal, on-call rotation |
+| Merge protection | Blocked: branch protection and deployment approvals need GitHub Pro on a private repository |
 | Pilot and GA | Pending a pilot portfolio company. See [docs/pilot/](docs/pilot/). |
 
 [ROADMAP.md](ROADMAP.md) has the per-ticket status.

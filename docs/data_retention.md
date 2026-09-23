@@ -15,9 +15,16 @@
 ## Offboarding procedure
 1. The operating partner confirms the end of the engagement in writing (ticket id).
 2. An operator scoped to that company runs `pvc audit-export --company <id> --out <file>` and hands the export to compliance.
-3. The operator runs `pvc offboard --company <id> --confirm`. The command writes `company_offboarding_started`, deletes database rows (all company-scoped tables) and every evidence object version, then writes `company_offboarded` with counts.
+3. The operator runs the offboarding. It writes `company_offboarding_started`, then deletes every evidence object version first and the database rows (all company-scoped tables) second, then writes `company_offboarded` with counts. If a step fails, it writes `company_offboarding_failed` and stops. Deletion is idempotent, so fix the cause and run it again.
+   - **Deployed environments:** run the operator-only `offboard` task, whose role alone may delete evidence versions under Object Lock. The CD role cannot run it:
+     ```bash
+     aws ecs run-task --cluster pvc-<env> --task-definition pvc-<env>-offboard --launch-type FARGATE        --network-configuration "awsvpcConfiguration={subnets=[<app subnet ids>],securityGroups=[<pvc-<env>-offboard sg>],assignPublicIp=DISABLED}"        --overrides '{"containerOverrides":[{"name":"app","command":["pvc","offboard","--company","<id>","--confirm"],"environment":[{"name":"PVC_OPERATOR","value":"<your name>"},{"name":"PVC_OPERATOR_COMPANIES","value":"<id>"}]}]}'
+     ```
+     Check the task's log in `/ecs/pvc-<env>/offboard` for the counts.
+   - **Local:** `PVC_OPERATOR_COMPANIES=<id> pvc offboard --company <id> --confirm`.
 4. Remove the company from `PVC_WORKER_COMPANIES` and from identity-provider claims.
+5. Record the offboarding (company, date, ticket) where the operations team keeps them. A database restore to an earlier point brings the company back, and this list is how it gets offboarded again (see [runbooks/database-restore.md](runbooks/database-restore.md)).
 
-Verified by `tests/test_ops.py::test_offboarding_deletes_data_but_retains_audit` (in-memory) and `tests/test_repository_contract.py::test_kpis_notifications_and_deletion` (in-memory and PostgreSQL).
+Verified by `tests/test_ops.py::test_offboarding_deletes_data_but_retains_audit` (in-memory), `tests/test_repository_contract.py::test_kpis_notifications_and_deletion` (in-memory and PostgreSQL), and `tests/test_audit_fixes.py::test_offboarding_deletes_evidence_first_and_audits_failures` (ordering and failure audit).
 
 Object Lock in governance mode lets the deletion role bypass retention with `BypassGovernanceRetention`. Compliance mode would block offboarding deletion and must not be used for this bucket.

@@ -15,18 +15,18 @@ Track status by checking boxes here, or import the tickets into an issue tracker
 
 ## Status
 
-As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 250 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet.
+As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 334 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet. An internal audit (code, security and status reviews) found 4 high-severity security, 3 high-severity correctness and several medium issues, and showed that some tickets had been marked Done too early. All findings are fixed with regression tests; the statuses below reflect the audit.
 
 | Status | Tickets | Meaning |
 |---|---|---|
-| Done | 85 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
-| Built, not yet run in its target environment | 10 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
-| Blocked on a person, decision, or pilot company | 16 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
+| Done | 83 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
+| Built, not yet run in its target environment | 11 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
+| Blocked on a person, decision, or pilot company | 17 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
 
 | Release gate | State |
 |---|---|
 | R0.1 Vertical slice | All exit criteria verified locally. Four R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro), PVC-030 (`docker compose` run), and PVC-070 (interactive skill session). |
-| R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, and pilot data. |
+| R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, a live-model eval (API key), and pilot data. |
 | R1.0 Production | Needs the pilot, go decision, pen test, production drill, on-call rotation, and a second onboarded company. |
 
 Each ticket below has a **Status** line. Checked boxes are criteria met now. Unchecked boxes say in the status line what is missing.
@@ -92,10 +92,10 @@ Start data-access conversations with the pilot portco (inputs to PVC-111/113) du
 ### PVC-001: Initialize version control
 `P0 · S · R0.1 · deps: —`
 
-**Status: Blocked on a person, decision, or pilot company.** Private remote created (github.com/ahines99/pe-value-creation-os) and pushed. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Blocked on a person, decision, or pilot company.** Private remote created (github.com/ahines99/pe-value-creation-os) and pushed; work is in PR #1. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
-The project isn't a git repository.
-- [ ] `git init`, a Python `.gitignore` (venv, caches, `.env`), and an initial commit of the current scaffold.
+At the start the project was not a git repository.
+- [x] `git init`, a Python `.gitignore` (venv, caches, `.env`), and an initial commit of the current scaffold.
 - [ ] Remote repository created, with branch protection on `main`.
 
 ### PVC-002: Fix test configuration
@@ -216,7 +216,7 @@ Implement `services.size_value_case` as in the handoff.
 ### PVC-023: Price waterfall service
 `P0 · M · R0.1 · deps: PVC-012`
 
-**Status: Done.**
+**Status: Done.** Audit fix: the renewal realization ratio compared every renewal with only the contracted ones (5.5 instead of 1.0 in a test case). It now compares matched renewals, and free prior periods no longer divide by zero.
 
 List → invoice → pocket price, with leakage by layer and discount dispersion by segment.
 - [x] Planted leakage in the *Pricing leak* fixture is recovered exactly.
@@ -225,7 +225,7 @@ List → invoice → pocket price, with leakage by layer and discount dispersion
 ### PVC-024: Data-sufficiency checker
 `P0 · M · R0.1 · deps: PVC-012`
 
-**Status: Done.**
+**Status: Done.** Audit fix: staleness was judged only from the extract date. A fresh extract of old months now raises a `stale_series` gap, and rows in another currency raise `currency_mismatch`.
 
 For each analysis (`unit_economics`, `pricing`, `retention`, `ai_opportunity`), check required fields, minimum history, and freshness.
 - [x] Returns SUFFICIENT/INSUFFICIENT with a machine-readable gap list.
@@ -260,7 +260,7 @@ Server-side lookup that turns `(company_id, lever, baseline_metric)` into `basel
 ### PVC-021: SaaS metrics service
 `P0 · L · R0.5 · deps: PVC-012`
 
-**Status: Done.**
+**Status: Done.** Audit fix: zero S&M spend crashed the metrics (and with them any run using gross-margin flow-through); non-positive margins, a partial current quarter and an empty ledger gave wrong values. All now return None with a note. See `tests/test_audit_fixes.py`.
 
 ARR bridge, GRR, NRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40, and subscription gross margin, using the definitions in the `saas-unit-economics` skill.
 - [x] Each metric reports its variant and period. Periods are aligned or it raises an error.
@@ -387,7 +387,7 @@ A fault-injecting adapter wrapper that can time out, raise, or return malformed 
 ### PVC-044: Timeouts and retries
 `P1 · M · R0.5 · deps: PVC-041`
 
-**Status: Done.**
+**Status: Done.** Audit fix: a timed-out attempt's thread kept running beside its retry and could write after the run failed. Each attempt now works on a state copy behind a repository guard, and plan ids are deterministic.
 
 - [x] Per-step timeouts (`anyio.fail_after`) and bounded retries with backoff, for adapter errors marked transient only.
 - [x] Retries are audited. Non-transient errors are not retried.
@@ -452,7 +452,7 @@ Turn `project://policies` into a structured policy config: freshness window, scr
 ### PVC-056: MCP integration tests
 `P0 · M · R0.1 · deps: PVC-051 to PVC-055`
 
-**Status: Done.**
+**Status: Done.** Audit follow-up: every run- and company-scoped tool now has an out-of-scope test, and every tool an invalid-argument test (`tests/test_mcp.py`).
 
 - [x] Every tool has in-process `Client` tests for success, invalid arguments, and an out-of-scope `company_id`.
 - [x] Five golden end-to-end tests drive the vertical slice through MCP.
@@ -485,7 +485,7 @@ Turn `project://policies` into a structured policy config: freshness window, scr
 ### PVC-060: Approval API
 `P0 · M · R0.1 · deps: PVC-031`
 
-**Status: Done.**
+**Status: Done.** Audit fix: the API accepted MCP-client tokens. It now verifies its own audience (`PVC_API_AUDIENCE`) and requires `pvc.approve` on an allowed approval-UI client.
 
 A FastAPI endpoint, `POST /runs/{run_id}/approvals`, served separately from the MCP surface.
 - [x] Requires an authenticated human principal (a local dev token in R0.1; OAuth in R0.5).
@@ -526,7 +526,7 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-070: Diagnostic skill validated end to end
 `P0 · M · R0.1 · deps: PVC-056`
 
-**Status: Blocked on a person, decision, or pilot company.** Worked example generated from the Beacon run. A stdio MCP client test drives the tools the skill names. Still to do: an interactive session in Claude Code by a team member, checked against the output contract.
+**Status: Blocked on a person, decision, or pilot company.** Worked examples are generated from the Beacon run and now show the scenario rates. Steps the tools could not perform (marking items `NEEDS_EVIDENCE`, a `contradicts` relation) are rewritten into supported ones. Still to do: an interactive session in Claude Code by a team member, checked against the output contract.
 
 - [x] `pe-value-creation-diagnostic` has a worked example in `references/` from the *Pricing leak* fixture run.
 - [ ] A manual session in an MCP client, using the skill, produces output that meets its output contract.
@@ -550,11 +550,11 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-072: Model reasoning at judgment steps
 `P0 · L · R0.5 · deps: PVC-043, PVC-080`
 
-**Status: Done.** ADRs 0005 and 0006. The no-new-numbers check is enforced by the guardrail and exercised with a scripted model in the adversarial suite. A live-model eval (`pvc eval --proposer model`) needs `ANTHROPIC_API_KEY` and hasn't been run.
+**Status: Blocked on a person, decision, or pilot company.** ADRs 0005 and 0006 exist. The no-new-numbers guardrail is enforced and hardened (words, scale words, multipliers, signs), but it has only been exercised with a scripted model. The criterion needs a live-model eval (`pvc eval --proposer model`), which needs an `ANTHROPIC_API_KEY` from the project owner.
 
 Replace the rule-based opportunity proposals, and add evidence synthesis and plan narrative, using Claude through the Anthropic SDK with structured outputs validated by Pydantic.
 - [x] One ADR per model-dependent decision explains why a rule isn't enough and names its eval.
-- [x] Model outputs never contain numbers that aren't copied from tool results (checked in eval).
+- [ ] Model outputs never contain numbers that aren't copied from tool results (checked in eval).
 
 ### PVC-073: Prompt-injection defences
 `P0 · M · R0.5 · deps: PVC-072`
@@ -590,7 +590,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-081: Golden dataset
 `P0 · L · R0.5 · deps: PVC-080`
 
-**Status: Done.**
+**Status: Done.** Audit follow-up: 25 of 29 golden cases now carry value ranges (base-case EBITDA per opportunity and plan total). They are regression bands around reviewed results (see `value_ranges_basis` in `evals/golden.json`), for the domain expert to confirm under PVC-071.
 
 - [x] At least 25 cases across the four levers and three fixture companies, each with expected findings, opportunities, and value ranges.
 
@@ -604,7 +604,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-083: CI evaluation gate
 `P1 · M · R0.5 · deps: PVC-081, PVC-082`
 
-**Status: Blocked on a person, decision, or pilot company.** The eval gate runs green in CI against `evals/thresholds.toml`, and `nightly-evals.yml` runs the full suite nightly. Blocking merges on it needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Blocked on a person, decision, or pilot company.** The eval gate runs green in CI against `evals/thresholds.toml`. `nightly-evals.yml` has never run: scheduled workflows run from the default branch, so it starts once PR #1 merges. Blocking merges on the gate needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
 - [ ] Merges are blocked when scores drop below thresholds recorded in the repo. The full suite runs nightly.
 
@@ -656,7 +656,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-096: Dependency and container scanning
 `P1 · S · R0.5 · deps: PVC-130`
 
-**Status: Done.** `pip-audit` and a Trivy scan of the built image (HIGH and CRITICAL fail the build) both run green in CI.
+**Status: Done.** `pip-audit` and a Trivy scan of the built image run green in CI. HIGH/CRITICAL findings with a fix fail the build; unfixed ones are listed by a non-blocking step, because rebuilding cannot fix them. The project owner should confirm this reading of the criterion. Actions are pinned by SHA and base images by digest, with Dependabot updates.
 
 - [x] `pip-audit` and a container scan run in CI. High and critical findings fail the build.
 
@@ -686,21 +686,21 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-101: Tracing
 `P1 · M · R0.5 · deps: PVC-100`
 
-**Status: Done.**
+**Status: Done.** Audit fix: the providers were only configured in tests, so nothing was exported. The MCP server, API and worker now install OTLP export at startup when `OTEL_EXPORTER_OTLP_ENDPOINT` is set (tested).
 
 - [x] OpenTelemetry spans for run → step → tool → model call, exported over OTLP. Traces link to audit events by `run_id`.
 
 ### PVC-102: Metrics
 `P1 · M · R1.0 · deps: PVC-101`
 
-**Status: Done.**
+**Status: Done.** Audit fix: see PVC-101; the metrics are now exported. Scope denials from every surface are counted in `pvc.access.denied`.
 
 - [x] Metrics for run outcomes, step latency, tool error rate, model tokens and cost, approval turnaround, and human-override rate.
 
 ### PVC-103: Dashboards and alerts
 `P1 · M · R1.0 · deps: PVC-102, PVC-140`
 
-**Status: Built, not yet run in its target environment.** Grafana dashboard (13 panels) and 9 Prometheus alert rules (promtool-valid). Routing to on-call and 2 weeks live need staging and PVC-148.
+**Status: Built, not yet run in its target environment.** Grafana dashboard (13 panels) and 9 Prometheus alert rules (promtool-valid). They can now fire, because export is wired (PVC-101). The probing alert covers denials from every surface and id lookups. Routing to on-call and 2 weeks live need staging and PVC-148.
 
 - [ ] SLO dashboards, plus alerts on SLO burn, stuck runs, adapter failures, and eval regressions, routed to on-call.
 
@@ -709,10 +709,10 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-110: Adapter contract and conformance suite
 `P0 · M · R0.5 · deps: PVC-035`
 
-**Status: Done.** ADR 0008 chooses warehouse-first. It is to be confirmed once the pilot company is chosen.
+**Status: Blocked on a person, decision, or pilot company.** Every adapter implements one interface and passes the conformance suite. ADR 0008 chooses warehouse-first, but the criterion asks for the decision for the pilot company, which has not been chosen.
 
 - [x] Every adapter implements one interface and must pass a shared conformance suite using recorded responses.
-- [x] ADR: a warehouse-first path (read from the portco's warehouse or dbt models) versus per-system APIs, decided for the pilot portco.
+- [ ] ADR: a warehouse-first path (read from the portco's warehouse or dbt models) versus per-system APIs, decided for the pilot portco.
 
 ### PVC-111: Financials adapter
 `P0 · L · R0.5 · deps: PVC-110`
@@ -826,14 +826,14 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-132: Managed Postgres
 `P0 · M · R0.5 · deps: PVC-131`
 
-**Status: Built, not yet run in its target environment.** RDS with KMS encryption, PITR, automated backups and forced TLS (`verify-full`). Roles are created by the bootstrap task. Not applied.
+**Status: Built, not yet run in its target environment.** RDS with KMS encryption, PITR, automated backups and forced TLS (`verify-full`). Roles come from the bootstrap task, which sends SCRAM verifiers so no password reaches the DDL log. Not applied.
 
 - [ ] Encryption at rest, point-in-time recovery, automated backups, and least-privilege roles (application, migration, read-only).
 
 ### PVC-133: Continuous delivery
 `P0 · M · R0.5 · deps: PVC-131, PVC-096`
 
-**Status: Built, not yet run in its target environment.** `cd.yml` builds, scans, migrates, deploys and smoke-tests; production needs a manual approval. It needs AWS credentials and has never run.
+**Status: Built, not yet run in its target environment.** `cd.yml` builds, scans, migrates, deploys and smoke-tests; production needs a manual approval. It deploys only from `main`. The deploy role can run only `migrate`, not `bootstrap` or `offboard`. It needs AWS credentials and has never run.
 
 - [ ] Pipeline: build, scan, migrate, deploy, and smoke test. Staging deploys automatically; production needs a manual approval.
 
@@ -847,7 +847,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-135: Ingress and TLS
 `P0 · S · R0.5 · deps: PVC-131`
 
-**Status: Built, not yet run in its target environment.** ALB with a TLS 1.3 policy, HTTP to HTTPS redirect, WAF rate limiting and body-size limits in Terraform. Not applied.
+**Status: Built, not yet run in its target environment.** ALB with a TLS 1.3 policy, HTTP to HTTPS redirect, WAF rate limiting and body-size limits. Access logs go to a dedicated bucket. OIDC sign-in is available for the review UI. Forwarded headers are trusted only from the VPC. Not applied.
 
 - [ ] TLS everywhere, rate limiting, and request size limits on the MCP and approval endpoints.
 
@@ -891,21 +891,21 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-142: Backup restore drill
 `P0 · S · R1.0 · deps: PVC-132`
 
-**Status: Blocked on a person, decision, or pilot company.** RPO and RTO are set in `docs/slo.md`. A local drill (dump, restore to a fresh instance, timed) passed and is in `docs/runbooks/restore-drill-log.md`. The drill on managed RDS needs PVC-132 applied.
+**Status: Built, not yet run in its target environment.** RPO and RTO are set in `docs/slo.md`. A local drill passed (`docs/runbooks/restore-drill-log.md`). The restore runbook now matches the infrastructure: explicit restore flags, identifier swap, state re-import, re-offboarding. The drill on RDS needs the environment applied (PVC-132).
 
 - [ ] RPO and RTO targets are set. A restore to a fresh instance is performed and timed, and the results are recorded.
 
 ### PVC-143: Load test
 `P1 · M · R1.0 · deps: PVC-134`
 
-**Status: Done.** Run locally: 40 runs on 4 workers, p95 2.17 s, no double claims (`docs/load_test.md`). Repeat on staging hardware.
+**Status: Done.** Both halves run against PostgreSQL on developer hardware (`docs/load_test.md`). Runs: 4 workers, 40 runs, no double claims. MCP sessions: 20 concurrent Streamable HTTP sessions, 600 calls, 0 errors, p95 752 ms. The MCP test found an evidence-store race, now fixed. Repeat on staging hardware.
 
 - [x] Target concurrency (runs and MCP sessions) is sustained within SLOs. Bottlenecks are documented.
 
 ### PVC-144: Data retention and deletion
 `P0 · M · R1.0 · deps: PVC-032`
 
-**Status: Done.**
+**Status: Done.** Audit fix: offboarding now deletes evidence before database rows and records failures. It runs as an operator-only `offboard` task whose role alone may delete evidence versions under Object Lock (`docs/data_retention.md`). Not yet run in AWS.
 
 - [x] A retention policy per data class. Portco offboarding deletes that company's data and evidence, verified by a test, while audit records are kept as the policy requires.
 

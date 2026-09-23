@@ -7,8 +7,8 @@ description: Turn prioritized, deterministically sized value-creation opportunit
 Convert a sized opportunity list into a plan management can run and the monitoring job can track. The plan adds sequencing, ownership, and measurement. It never adds value that the value cases didn't size.
 
 # Preconditions
-- The run has sized value cases from `size_value_case` and a ranking from `prioritize_opportunities`. If not, stop and say so.
-- Include only opportunities that are not `NEEDS_EVIDENCE`. List the excluded ones in an appendix with the data needed.
+- The run has sized value cases from `size_value_case` and a ranking from `prioritize_opportunities`. If not, stop and say so; `draft_100_day_plan` refuses to run without a ranking.
+- The plan contains only ranked opportunities with a positive base case: `prioritize_opportunities` ranks only sized opportunities, and `draft_100_day_plan` excludes the rest. List everything left out (unsized opportunities, `data_gap` findings, non-positive base cases) in an appendix with the data needed.
 
 # Rules
 - Keep the priority order from `prioritize_opportunities`. Sequencing may differ from priority because of dependencies; explain every difference.
@@ -49,7 +49,7 @@ Convert a sized opportunity list into a plan management can run and the monitori
 4. **Dependencies and critical path.**
 5. **Risks and mitigations.**
 6. **Decisions requiring approval.**
-7. **Appendix:** excluded `NEEDS_EVIDENCE` opportunities.
+7. **Appendix:** excluded opportunities (unsized, evidence gaps, or no positive base case), with the data needed.
 
 # References
 - `references/worked-example.md`: the draft plan produced for the fictional Beacon fixture.

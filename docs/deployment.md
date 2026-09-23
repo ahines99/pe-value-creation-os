@@ -2,12 +2,11 @@
 
 This document covers M13 (PVC-130 to PVC-136), the network half of PVC-094 (egress allow-list) and the container scan in PVC-096.
 
-> **Status: not yet applied.** The Terraform, the image and the CD pipeline are written and validated offline. No AWS account was connected when they were written, so:
+> **Status: not yet applied.** The Terraform and the CD pipeline are written and validated offline, and the image builds and passes the Trivy scan in CI. No AWS account has been connected, so:
 > - nothing has been provisioned (`terraform plan`/`apply` has not run against AWS);
-> - the image has not been built (no Docker on the authoring machine; CI's `container-scan` job and CD's `build` job are the first real builds);
 > - the CD workflow has not run.
 >
-> Offline checks that passed: `terraform fmt -check -recursive`; `terraform init -backend=false` and `terraform validate` in both environment roots; the mocked-provider module tests (`infra/terraform/modules/pvc/tests`); `actionlint` with shellcheck on every workflow; `shellcheck` on `infra/scripts/*.sh`.
+> Offline checks that passed: `terraform fmt -check -recursive`; `terraform init -backend=false` and `terraform validate` in both environment roots; the mocked-provider module tests (`infra/terraform/modules/pvc/tests`, 5 runs including the security controls); `actionlint` with shellcheck on every workflow; `shellcheck` on `infra/scripts/*.sh`.
 > Treat the first staging apply as the real test, and update this note once it has run.
 
 ## Layout
@@ -19,10 +18,10 @@ This document covers M13 (PVC-130 to PVC-136), the network half of PVC-094 (egre
 | `infra/docker/` | Files baked into the image: `healthcheck.py` (container health check) and `bootstrap_db.py` (role bootstrap task). |
 | `infra/terraform/modules/pvc/` | One environment: `network.tf`, `database.tf`, `storage.tf`, `compute.tf`, `ingress.tf`, `iam.tf`, `observability.tf`, `main.tf` (KMS keys), `variables.tf`, `outputs.tf`, `tests/`. |
 | `infra/terraform/envs/{staging,production}/` | Environment roots. Each has its own AWS account, its own state backend, and `*.example` files for backend and variables. |
-| `infra/scripts/deploy.sh` | Push, one-off tasks (migrate, bootstrap), deploy and rollback. Used by CD and by operators. |
+| `infra/scripts/deploy.sh` | Push, one-off tasks, deploy and rollback. CD uses it for `migrate` and deploys; operators also use it for `bootstrap`, with their own credentials. |
 | `infra/scripts/smoke.sh` | Post-deploy smoke test. |
 | `.github/workflows/cd.yml` | Build, scan, push, migrate, deploy and smoke test. Staging deploys automatically; production waits for approval. |
-| `.github/workflows/ci.yml` (`container-scan` job) | Builds the image on every PR and fails on HIGH/CRITICAL vulnerabilities that have a fix. |
+| `.github/workflows/ci.yml` (`container-scan` job) | Builds the image on every PR, fails on HIGH/CRITICAL vulnerabilities that have a fix, and lists unfixed ones without failing. |
 
 ## Architecture (per environment, per AWS account)
 
@@ -34,7 +33,7 @@ Internet ──443──▶ WAFv2 (rate limit, size limit, AWS managed rules)
      host mcp.* ──▶ mcp service  :8000 ─┐
      host approvals.* ─▶ api service :8080 ─┤  ECS Fargate, private app subnets
                          worker service ────┤  (no ingress)
-                         migrate / bootstrap┘  (one-off tasks)
+                  migrate / bootstrap / offboard┘  (one-off tasks)
                                             │
              ┌──────────────────────────────┼──────────────────────────────┐
              ▼                              ▼                              ▼
@@ -75,13 +74,16 @@ The containers read `.env.example`. To change settings, copy it to `.env` (git-i
 1. **AWS account** for each environment, and an administrator identity to run Terraform.
 2. **State bucket.** Create an S3 bucket in the same account, with versioning, default encryption and public access blocked. Put its name in `backend.hcl` (copy `backend.hcl.example`). Locking uses S3 conditional writes (`use_lockfile`), so no DynamoDB table is needed.
 3. **ACM certificate** in the deployment region, covering both hostnames (for example `mcp.staging.example.com` and `approvals.staging.example.com`), issued and validated.
-4. **Identity provider.** Register the MCP resource and the approval UI with the fund's IdP. You need the issuer URL, the JWKS URL, the audience (defaults to `https://<mcp_hostname>/mcp`) and the scopes. The tokens must carry `pvc_companies`, `pvc_roles` and `pvc_principal_type` (see `src/pe_value_os/auth.py`).
-5. **GitHub environments** `staging` and `production`. Give `production` required reviewers, and allow deployments only from `main`.
+4. **Identity provider.** Register two resources and their clients with the fund's IdP (see `src/pe_value_os/auth.py`):
+   - **MCP:** audience `https://<mcp_hostname>/mcp` (or `auth_audience`). Scopes `pvc.read` for access and `pvc.write` for tools that change state.
+   - **Approval API:** its own audience, `api_audience` (default `https://<api_hostname>`). An approval UI client whose id goes in `api_client_ids`, with scope `pvc.approve` for approvers only. If you use the ALB sign-in for the review pages (`api_browser_oidc`), that client's access token must be issued for the API audience.
+   - Every token carries `pvc_companies`, `pvc_roles` and `pvc_principal_type`. Only humans get `pvc_principal_type: "human"`.
+5. **GitHub environments** `staging` and `production`. Give `production` required reviewers, and allow deployments only from `main`. On a private repository this needs GitHub Pro, Team or Enterprise. Without it, the environments carry no protection rules, and the deploy role's trust is the only gate. CD also refuses to deploy anything but `main`.
 6. **Tools**: Terraform 1.11 or later (validated with 1.16.4), AWS CLI v2, `jq`, and Docker for the first image push.
 
 ## First-time bootstrap order
 
-Run these steps in `infra/terraform/envs/<env>/` with credentials for that environment's account. Order matters: the database roles must exist before migrations, and migrations must run before the services start.
+Run steps 1 to 3 and 7 in `infra/terraform/envs/<env>/`, and steps 4 to 6 and 8 from the repository root. All of them need administrator credentials for that environment's account. Order matters: the database roles must exist before migrations, and migrations must run before the services start.
 
 1. **Terraform apply, no tasks yet.**
    ```bash
@@ -102,7 +104,7 @@ Run these steps in `infra/terraform/envs/<env>/` with credentials for that envir
    docker build -t pvc:first .
    IMAGE=$(infra/scripts/deploy.sh push pvc:first)
    ```
-5. **Bootstrap roles** (as the RDS master user). This creates `pvc_migrator`, `pvc_app` and `pvc_readonly`, sets their passwords from Secrets Manager, and lets `pvc_migrator` create objects in `public`:
+5. **Bootstrap roles** (as the RDS master user, with your administrator credentials: the CD role cannot run this task). This creates `pvc_migrator`, `pvc_app` and `pvc_readonly`, sets their passwords from Secrets Manager (sent to PostgreSQL as SCRAM verifiers, so no plaintext reaches the database log), and lets `pvc_migrator` create objects in `public`:
    ```bash
    infra/scripts/deploy.sh run-task bootstrap "$IMAGE"
    ```
@@ -131,13 +133,13 @@ Run these steps in `infra/terraform/envs/<env>/` with credentials for that envir
      - HTTP redirects to HTTPS.
 3. **deploy-production** (GitHub environment `production`, which requires approval): the same steps, with the same image artifact, against the production account.
 
-There are no static AWS keys anywhere. The deploy role trusts only `repo:<owner>/<repo>:environment:<env>`. It may push to its own ECR repository, register task definitions, update the three services, run the `migrate` and `bootstrap` task families on its cluster, and pass the task roles to ECS.
+There are no static AWS keys anywhere. The deploy role trusts only `repo:<owner>/<repo>:environment:<env>`. It may push to its own ECR repository, register task definitions, update the three services, run the `migrate` task family on its cluster, and pass the service and migrate roles to ECS. It cannot run or pass the roles of `bootstrap` (RDS master secret) or `offboard` (evidence deletion); those are operator actions. Both deploy jobs run only for `main`.
 
-The workflow does not wait for `ci`. Make `ci` a required status check on `main` so that only green commits reach CD.
+The workflow does not wait for `ci`. Make `ci` a required status check on `main` (branch protection, which needs GitHub Pro on a private repository) so that only green commits reach CD.
 
 ### Container scanning (PVC-096)
 
-Two Trivy scans run: `ci.yml` → `container-scan` on every PR and push, and CD `build` before any push. Both fail on HIGH/CRITICAL findings that have a fix available. Unfixed OS findings are shown in the report but do not fail the build, because rebuilding cannot remediate them; review them as part of dependency upkeep. The Trivy action is pinned to a commit SHA, not a tag (supply-chain hardening). ECR also scans on push.
+Two Trivy scans run: `ci.yml` → `container-scan` on every PR and push, and CD `build` before any push. Both fail on HIGH/CRITICAL findings that have a fix available. Unfixed findings do not fail the build, because rebuilding cannot remediate them. A second, non-blocking Trivy step lists them on every CI run; review them as part of dependency upkeep. Every action is pinned to a commit SHA and the base images to digests; Dependabot (`.github/dependabot.yml`) proposes weekly updates. ECR also scans on push.
 
 ## Secrets
 
@@ -146,7 +148,7 @@ Two Trivy scans run: `ci.yml` → `container-scan` on every PR and push, and CD 
 | RDS-managed master secret (`rds!db-...`) | RDS | `bootstrap` only (`PGPASSWORD`) | RDS rotates it. `bootstrap` reads the current value at run time. |
 | `pvc-<env>/db/pvc_app-password` | Terraform (write-only) | `mcp`, `api`, `worker` (`PGPASSWORD`); `bootstrap` | Bump `db_role_password_version`, run `terraform apply`, then `deploy.sh run-task bootstrap <image>`, then `deploy.sh deploy <image>` to restart the tasks. |
 | `pvc-<env>/db/pvc_migrator-password` | Terraform (write-only) | `migrate`; `bootstrap` | Same procedure as `pvc_app`. |
-| `pvc-<env>/db/pvc_readonly-password` | Terraform (write-only) | `bootstrap` (reporting users read it directly) | Same procedure as `pvc_app`. |
+| `pvc-<env>/db/pvc_readonly-password` | Terraform (write-only) | `bootstrap` | Same procedure as `pvc_app`. Not for people: row-level security binds the application, not a direct database user, who could widen their own scope. Serve reporting through the API or `pvc audit-export`. |
 | `pvc-<env>/app/anthropic-api-key` | Operator | `mcp`, `api`, `worker` when `proposer = "model"` | `put-secret-value`, then redeploy. |
 | `pvc-<env>/app/notify-webhook-url` | Operator | `worker` when `notify_webhook_enabled` | `put-secret-value`, then redeploy. |
 
@@ -212,7 +214,7 @@ AWS APIs the platform needs (ECR, S3, CloudWatch Logs, Secrets Manager) go throu
   infra/scripts/deploy.sh rollback api arn:aws:ecs:...:task-definition/pvc-production-api:41
   ```
   Repeat for `mcp` and `worker`. This is safe because migrations are written expand-then-contract: a release must keep working against the schema of the release after it.
-- **Schema rollback.** Use `pvc db downgrade` as a deliberate operator action (run it as a one-off task with a `migrate` override command), and only when the downgrade does not drop data that is still needed.
+- **Schema rollback.** Use `pvc db downgrade --revision <target>` as a deliberate operator action (run it as a one-off task with a `migrate` override command), and only when the downgrade does not drop data that is still needed. The command refuses to run without `--revision`; `--revision base` drops the whole schema.
 - **Data recovery.** Use RDS point-in-time restore to a new instance within the retention window. The restore drill is PVC-142; the database restore runbook is in `docs/runbooks/`.
 - **Infrastructure.** Revert the Terraform change and run `terraform apply`. The database, bucket, ALB and firewall are protected from deletion in production. A plan that wants to replace them needs explicit review.
 
@@ -220,7 +222,11 @@ AWS APIs the platform needs (ECR, S3, CloudWatch Logs, Secrets Manager) go throu
 
 - **Configuration drift between Terraform and CD.** Terraform owns the task-definition content. CD owns which revision is running (`ignore_changes = [task_definition]` on the services). `deploy.sh` copies the latest registered revision and changes only the image, so configuration applied by Terraform takes effect on the next deploy.
 - **Cost drivers:** Network Firewall endpoints and NAT gateways (one each per AZ), the Multi-AZ database in production, and interface endpoints. Staging uses 2 AZs to reduce cost.
-- **Performance Insights** is on, with 7-day retention and the data KMS key. Statement logging covers DDL only, because query text may contain portfolio-company data.
+- **Performance Insights** is on, with 7-day retention and the data KMS key. Statement logging covers DDL only, because query text may contain portfolio-company data. `ALTER ROLE ... PASSWORD` is DDL, which is why the bootstrap task sends SCRAM verifiers, never plaintext passwords.
+- **Load balancer access logs** go to `<prefix>-alb-logs-<account>` (SSE-S3, which is the only encryption ALB log delivery supports) and expire after `log_retention_days`.
+- **Review UI sign-in.** With `api_browser_oidc` set, the ALB signs users in for the review, form, evidence and KPI pages and forwards the IdP access token in `x-amzn-oidc-accesstoken`. The API verifies that token like a bearer token. JSON API clients send `Authorization: Bearer` and do not go through the ALB sign-in.
+- **Alarms.** Production requires `alarm_topic_arn`, the SNS topic that pages on-call; staging may leave it empty.
+- **Offboarding** runs as the operator-only `offboard` task, whose role alone may delete evidence versions under Object Lock. See `docs/data_retention.md`.
 
 ## Application gaps found during infrastructure review (resolved)
 

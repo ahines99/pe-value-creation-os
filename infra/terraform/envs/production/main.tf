@@ -63,11 +63,14 @@ module "pvc" {
   api_browser_oidc     = var.api_browser_oidc
 
   # Ingress
-  mcp_hostname        = var.mcp_hostname
-  api_hostname        = var.api_hostname
-  acm_certificate_arn = var.acm_certificate_arn
-  ingress_cidrs       = var.ingress_cidrs
-  waf_rate_limit      = var.waf_rate_limit
+  mcp_hostname             = var.mcp_hostname
+  api_hostname             = var.api_hostname
+  acm_certificate_arn      = var.acm_certificate_arn
+  ingress_cidrs            = var.ingress_cidrs
+  waf_rate_limit           = var.waf_rate_limit
+  max_request_body_bytes   = var.max_request_body_bytes
+  model_provider_host      = var.model_provider_host
+  db_role_password_version = var.db_role_password_version
 
   # Database: Multi-AZ standby, maximum PITR window, deletion protection on the database, ALB, firewall
   # and secrets.

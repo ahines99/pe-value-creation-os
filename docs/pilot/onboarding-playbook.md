@@ -2,6 +2,16 @@
 
 For the engineer and the operating-team member onboarding a portfolio company. Work through the steps in order. Each step ends with a check you can verify. Record the date and the person against each step in the onboarding record at the bottom.
 
+The commands below run from the repository root with operator settings exported once per shell. In a deployed environment, run the same `pvc` commands as one-off ECS tasks with these settings as environment overrides.
+
+```bash
+export PVC_ENV=staging                          # or prod; dev only for rehearsals on fixtures
+export PVC_SOURCE_ADAPTER=composite
+export PVC_SOURCES_CONFIG=/path/to/sources.toml # step 2
+export DATABASE_URL=postgresql://pvc_app@<host>/pvc?sslmode=verify-full  # PGPASSWORD from Secrets Manager
+export PVC_OPERATOR=<your name> PVC_OPERATOR_COMPANIES=<id>
+```
+
 ## 1. Data-access agreement
 
 - [ ] Agreement signed by the portfolio company. It covers purpose (value-creation diagnostics), datasets, read-only access, retention period, deletion on exit, and the model provider as a subprocessor ([model_data_handling.md](../model_data_handling.md)).
@@ -18,13 +28,14 @@ Warehouse-first (ADR 0008). Use vendor APIs only for datasets the warehouse lack
 2. For warehouse sources, create the `pvc_<dataset>` views in the company's schema, following the column contracts in `data_contracts.md`.
 3. Issue read-only credentials. Store them in Secrets Manager. The configuration holds only the environment-variable names.
 4. Add the company to the `PVC_SOURCES_CONFIG` file ([sources.example.toml](../sources.example.toml)), including `id_systems` for customer-keyed datasets. Leave `accept_name_matches = false` unless the operating team accepts name-only matches.
-5. Add every vendor API host to `PVC_EGRESS_ALLOWLIST`.
+5. Allow every vendor API host for outbound traffic. In a deployed environment, add it to `data_source_hosts` in `infra/terraform/envs/<env>/terraform.tfvars` and apply. That one list drives both the network firewall and the in-process check. Locally, set `PVC_EGRESS_ALLOWLIST`.
 
-**Check:** `PVC_SOURCE_ADAPTER=composite uv run pvc onboard-check --company <id>` loads every expected dataset, with `row_errors` at 0 or explained.
+**Check:** `uv run pvc onboard-check --company <id>` (with the settings above) loads every expected dataset, with `row_errors` at 0 or explained.
 
 ## 3. Sufficiency baseline
 
 ```bash
+mkdir -p onboarding
 uv run pvc onboard-check --company <id> > onboarding/<id>-baseline.json
 ```
 
@@ -32,17 +43,17 @@ The command is read-only. It stores nothing and starts no run. It exits 0 when a
 
 - `sufficient_analyses`: which of unit economics, pricing, retention and AI opportunity can run.
 - `gaps`: each has a code, a dataset and a detail. Decide for each one: fix at the source, accept (runs will need `pvc resume --accept-gaps`, which is recorded), or leave that analysis out of scope.
-- `stale_datasets`: anything older than the policy freshness window.
+- `stale_datasets`: extracts older than the policy freshness window. The `gaps` also flag `stale_series`, where the extract is fresh but its latest data month is old, and `currency_mismatch`, where rows are not in the company's currency. Amounts are never converted.
 - `entity_resolution`: duplicates merged, and unresolved or name-only matches waiting for review.
 
 **Check:** the command exits 0, and every remaining gap has a decision in the onboarding record.
 
 ## 4. Approvers and access
 
-- [ ] In the identity provider, grant `pvc_companies: ["<id>"]` to the deal team and operating partner. Grant `pvc_roles: ["approver"]` only to the named approvers, all with `pvc_principal_type: "human"`.
-- [ ] Analysts get `pvc_roles: ["analyst"]` and the same company scope.
+- [ ] In the identity provider, grant `pvc_companies: ["<id>"]` to the deal team and operating partner. Grant `pvc_roles: ["approver"]` and the `pvc.approve` scope (on the approval UI client) only to the named approvers, all with `pvc_principal_type: "human"`.
+- [ ] Analysts get `pvc_roles: ["analyst"]`, the same company scope, `pvc.read`, and `pvc.write` only if they run interactive diagnostics through an MCP client.
 - [ ] Escalation contact confirmed in policy (`approval.escalation_contact`), and `approval.expiry_hours` agreed.
-- [ ] Add the company to `PVC_WORKER_COMPANIES` so the worker picks up its runs and KPI refreshes.
+- [ ] Add the company to `worker_companies` in the environment's `terraform.tfvars` (`PVC_WORKER_COMPANIES` locally) so the worker picks up its runs and KPI refreshes.
 - [ ] Run `uv run pvc access-review --grants <export.json>` and confirm that only the intended people can see the company.
 
 **Check:** an approver can open `/runs/<run_id>/review` for this company and gets 404 for any other company's runs (out-of-scope records are reported as not found, so their existence is not revealed).
