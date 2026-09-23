@@ -2,7 +2,7 @@
 
 ## Implementation-agent handoff
 
-> **Revision 2 (2026-09-23).** This revision records what is actually built, fixes design gaps found in review, and moves milestone planning to [ROADMAP.md](ROADMAP.md). See [Changes in this revision](#changes-in-this-revision) at the end.
+> **Revision 3 (2026-09-23).** The system described here is now built and verified locally; see [Current state](#current-state-verified-2026-09-23). Revision 2 fixed the design gaps found in review and moved milestone planning to [ROADMAP.md](ROADMAP.md), which carries the per-ticket status. See [Changes in this revision](#changes-in-this-revision) at the end.
 
 ### Mission
 Turn portfolio-company operating data into evidence-backed value-creation initiatives, deterministic economic cases, 100-day plans, and KPI monitoring.
@@ -21,24 +21,30 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 
 ## Current state (verified 2026-09-23)
 
-The repository is a starter scaffold. Roughly 5% of this spec is implemented.
+The specification below is implemented in `src/pe_value_os/` and verified on this machine. It has not yet run in GitHub Actions or on AWS, because no remote repository or cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
 
-| Area | State | Notes |
-|---|---|---|
-| `pyproject.toml` | Present | Matches the *original* skeleton. Needs the fixes in [Package skeleton](#package-skeleton) (ticket PVC-002/003/004). |
-| `src/domain/models.py` | Partial | `Confidence`, `EvidenceRef`, `Finding` only. `AuditEvent` missing. Fields don't match the SQL schema yet. |
-| `src/mcp_server.py` | Partial | `healthcheck` tool and `project://policies` resource only. No domain tools, no `review_run` prompt. |
-| `tests/test_mcp.py` | Partial | One healthcheck test; does not assert the returned status. |
-| `skills/*/SKILL.md` | Present | Six skills, rewritten in revision 2 with domain procedure. They reference MCP tools that are **planned, not built** (see [Tool catalog](#mcp-tool-catalog)). |
-| `project_models.py`, `services.py`, `policies.py`, `workflows/base.py`, `workflows/primary.py`, adapters, fixtures, migrations, docker-compose, docs/ | Missing | See ROADMAP milestones M1–M4. |
-| Version control | Missing | Not a git repository yet (PVC-001). |
+| Area | State |
+|---|---|
+| Contracts, fixtures, deterministic core (sizing, metrics, retention, pricing, sufficiency, prioritization, baselines) | Built. Golden, property-based and snapshot tests. |
+| PostgreSQL schema, repository, RLS, append-only audit, evidence store (filesystem and S3) | Built. The contract suite runs against both the in-memory and PostgreSQL 18 implementations. |
+| Workflow engine and primary workflow | Built: checkpoints, resume, rewind, parallel diagnostics, timeouts, transient-only retries, fault injection |
+| MCP server | 21 tools, 3 resources, 1 prompt. OAuth bearer auth, company scope from token claims, strict arguments, DNS-rebinding protection. |
+| Approval API and review UI | Built. Human principals only, CSRF, override diff and rate, expiry escalation. |
+| Model layer | Claude proposer and narrator with JSON-schema output, the no-new-numbers guardrail, delimited untrusted text, and a pause when the model is unavailable. Covered by scripted-model tests. **Not yet run against the live API.** |
+| Evals | 29 golden and 9 adversarial cases, 7 dimensions. The gate passes at 100%. Per-step latency and model cost are reported. |
+| Adapters | Fixture, CSV export, warehouse, Stripe, HubSpot, Zendesk, and composite with entity resolution. Vendor adapters are tested against simulated APIs. None has run against a real portfolio company's systems. |
+| KPI monitoring, worker, notifications | Built |
+| Observability | structlog JSON with allow-list redaction, OpenTelemetry traces and metrics, a Grafana dashboard and Prometheus alerts (promtool-valid) |
+| Ops tooling | `pvc recompute`, `offboard`, `access-review`, `audit-export`, `onboard-check`. Restore drill and load test run locally. |
+| Container, Terraform (AWS), CD | Written. Terraform passes `fmt`, `validate` and `test`. Workflows pass actionlint. **Image not yet built. Nothing applied.** |
+| Sign-offs, pen test, legal, on-call, pilot | Not started. They need named people or a pilot company (ROADMAP "Open decisions"). |
 
-Verified behaviour of the scaffold on Python 3.14.5 with `mcp` 2.2.0 (latest on PyPI; `mcp>=2,<3` resolves):
+Verification on 2026-09-23 (Python 3.14, `mcp` 2.2.0, PostgreSQL 18):
 
-- `python -m pytest` → 1 passed.
-- `pytest` (console entry point) → **fails** with `ModuleNotFoundError: No module named 'src.mcp_server'`, because the repo root is not on `sys.path` and `pyproject.toml` has no build system or `pythonpath` setting.
-- The MCP v2 APIs used here (`mcp.server.MCPServer`, `mcp.Client`, `@mcp.tool`, `@mcp.resource`, `@mcp.prompt`, `CallToolResult.structured_content`) all work as written.
-- Tests use `@pytest.mark.anyio` while `pyproject.toml` configures `pytest-asyncio` auto mode. Both plugins load. Standardize on anyio (it ships with `mcp`) and drop `pytest-asyncio`.
+- `uv sync --extra dev && uv run pytest`: 250 passed with `PVC_TEST_DATABASE_URL` set. From a clean clone without a database: 227 passed, and the 23 PostgreSQL tests are skipped.
+- `ruff check`, `ruff format --check`, `mypy` and the skills lint are clean. `pip-audit` finds no known vulnerabilities in the locked runtime dependencies.
+- `pvc eval --suite all --gate` passes. `pvc demo` runs all five scenarios. `python -m pe_value_os.db.migrate_check` round-trips.
+- `pvc run`, `status` and `resume` work against PostgreSQL as the row-level-security-bound `pvc_app` role.
 
 ## Reference architecture
 
@@ -103,27 +109,30 @@ Every tool that touches company data takes `company_id` and enforces scope serve
 | Tool | Module | Purpose | Status |
 |---|---|---|---|
 | `healthcheck()` | core | Service health | built |
-| `get_company_profile(company_id)` | portco_financials | Business model, scale, fiscal calendar | PVC-051 |
-| `check_data_sufficiency(company_id, analysis)` | value_model | SUFFICIENT/INSUFFICIENT plus a gap list per analysis | PVC-051 |
-| `get_financials(company_id, period_start, period_end)` | portco_financials | Monthly P&L lines | PVC-057 |
-| `get_usage_metrics(company_id, period)` | product_analytics | Active accounts, feature adoption | PVC-057 |
-| `get_support_metrics(company_id, period)` | support | Volumes, categories, handle time, CSAT | PVC-057 |
-| `compute_saas_metrics(company_id, period)` | value_model | ARR bridge, NRR, GRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 | PVC-058 |
-| `compute_retention_cohorts(company_id, cohort_grain)` | value_model | Logo and dollar retention by cohort | PVC-058 |
-| `price_waterfall(company_id, period, segment=None)` | pricing | List → invoice → pocket price and leakage | PVC-052 |
-| `get_benchmarks(metric, peer_set)` | benchmark | Anonymized peer distribution | PVC-116 |
-| `record_finding(run_id, finding)` | value_model | Persist a finding; rejects uncited value claims | PVC-053 |
-| `propose_opportunity(run_id, ...)` | value_model | Model proposes scenario rates and evidence; server fills in baseline and flow-through | PVC-053 |
-| `size_value_case(company_id, opportunity_id, ev_multiple=None)` | value_model | Deterministic low/base/high EBITDA sizing | PVC-053 |
-| `list_evidence(company_id, opportunity_id)` | value_model | Evidence linked to an opportunity | PVC-053 |
-| `prioritize_opportunities(run_id)` | value_model | Deterministic priority scores | PVC-053 |
-| `get_kpi_status(company_id)` | value_model | Plan-vs-actual for approved KPIs | PVC-121 |
-| `get_run_status(run_id)` | workflow | Current step, status, gaps | PVC-054 |
-| `request_approval(run_id, artifact_id)` | workflow | Pause the run for human review | PVC-054 |
+| `get_company_profile(company_id)` | portco_financials | Business model, scale, fiscal calendar | built |
+| `get_financials(company_id, period_start, period_end)` | portco_financials | Monthly P&L lines | built |
+| `get_churn_summary(company_id, period)` | crm | Trailing-12-month churned logos by churn type, voluntary reason codes, renewal win/loss counts | built |
+| `get_usage_metrics(company_id, period)` | product_analytics | Active accounts, feature adoption | built |
+| `get_support_metrics(company_id, period)` | support | Volumes, categories, handle time, CSAT | built |
+| `price_waterfall(company_id, period, segment=None)` | pricing | List → invoice → pocket price and leakage | built |
+| `get_benchmarks(metric, peer_set)` | benchmark | Anonymized peer distribution (at least 5 peers; never portco-level values) | built on a synthetic peer set; real data source is open (PVC-116) |
+| `check_data_sufficiency(company_id, analysis)` | value_model | SUFFICIENT/INSUFFICIENT plus a gap list per analysis | built |
+| `compute_saas_metrics(company_id, period)` | value_model | ARR bridge, NRR, GRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 | built |
+| `compute_retention_cohorts(company_id, cohort_grain)` | value_model | Logo and dollar retention by cohort | built |
+| `record_finding(run_id, finding_type, title, statement, confidence, evidence_ids, ...)` | value_model | Persist a finding; rejects uncited value claims | built |
+| `propose_opportunity(run_id, lever, baseline_metric, ...)` | value_model | Model proposes scenario rates and evidence; server fills in baseline and flow-through | built |
+| `size_value_case(company_id, opportunity_id, ev_multiple=None)` | value_model | Deterministic low/base/high EBITDA sizing | built |
+| `list_evidence(company_id, opportunity_id)` | value_model | Evidence linked to an opportunity | built |
+| `prioritize_opportunities(run_id)` | value_model | Deterministic priority scores | built |
+| `draft_100_day_plan(run_id)` | value_model | Workstreams, initiatives and KPIs from prioritized value cases | built |
+| `get_kpi_status(company_id)` | value_model | Plan-vs-actual for approved KPIs | built |
+| `start_diagnostic_run(company_id, mode, idempotency_key)` | workflow | Start an interactive or automated run (idempotent) | built |
+| `get_run_status(run_id)` | workflow | Current step, status, gaps | built |
+| `request_approval(run_id)` | workflow | Pause the run for human review | built |
 
 There is deliberately **no** `approve` tool. Approval decisions come only through the authenticated human approval API (PVC-060).
 
-Resources: `project://policies` (built), `company://{company_id}/data-inventory`, `run://{run_id}/summary`. Prompts: `review_run(run_id)`.
+Resources (all built): `project://policies`, `company://{company_id}/data-inventory`, `run://{run_id}/summary`. Prompt (built): `review_run(run_id)`.
 
 ### Agent Skills
 - `pe-value-creation-diagnostic`: orchestrating procedure for a full diagnostic run.
@@ -803,22 +812,25 @@ Milestones, tickets, and release gates live in [ROADMAP.md](ROADMAP.md). Summary
 | R1.0 Production | All P0/P1, M12, M14, M15 | Monitored, secured, recoverable service across multiple portcos |
 
 ## Acceptance checklist (R0.1)
-- [ ] `intake` has a deterministic artifact, audit event, and failure path.
-- [ ] `data_sufficiency` has a deterministic artifact, audit event, and failure path.
-- [ ] `diagnostics` runs branches in parallel and survives a single-branch failure.
-- [ ] `value_modeling` has a deterministic artifact, audit event, and failure path.
-- [ ] `evidence_review` pauses the run with `NEEDS_EVIDENCE` on an uncited value claim.
-- [ ] `prioritization` has a deterministic artifact, audit event, and failure path.
-- [ ] `roadmap_100_day` has a deterministic artifact, audit event, and failure path.
-- [ ] `human_approval` pauses the run, and it resumes only after a human decision through the approval API.
-- [ ] `kpi_monitoring` job starts from an approved plan (R1.0, PVC-120/121).
-- [ ] Every material recommendation includes supporting evidence or explicitly says evidence is insufficient.
-- [ ] All irreversible actions are disabled or human-approved.
-- [ ] MCP tools have typed schemas and integration tests.
-- [ ] At least one Skill is dynamically useful and not just duplicate prompt text.
-- [ ] All arithmetic/financial/statistical calculations have deterministic tests.
-- [ ] The demo can survive one injected tool failure.
-- [ ] `pytest` passes from a clean checkout with no manual path setup.
+
+All items are verified by tests (`tests/test_workflow.py`, `tests/test_mcp.py`, `tests/test_api.py`, `tests/test_demo.py`) and by the eval gate.
+
+- [x] `intake` has a deterministic artifact, audit event, and failure path.
+- [x] `data_sufficiency` has a deterministic artifact, audit event, and failure path.
+- [x] `diagnostics` runs branches in parallel and survives a single-branch failure.
+- [x] `value_modeling` has a deterministic artifact, audit event, and failure path.
+- [x] `evidence_review` pauses the run with `NEEDS_EVIDENCE` on an uncited value claim.
+- [x] `prioritization` has a deterministic artifact, audit event, and failure path.
+- [x] `roadmap_100_day` has a deterministic artifact, audit event, and failure path.
+- [x] `human_approval` pauses the run, and it resumes only after a human decision through the approval API.
+- [x] `kpi_monitoring` job starts from an approved plan (R1.0, PVC-120/121).
+- [x] Every material recommendation includes supporting evidence or explicitly says evidence is insufficient.
+- [x] All irreversible actions are disabled or human-approved.
+- [x] MCP tools have typed schemas and integration tests.
+- [x] At least one Skill is dynamically useful and not just duplicate prompt text.
+- [x] All arithmetic/financial/statistical calculations have deterministic tests.
+- [x] The demo can survive one injected tool failure.
+- [x] `pytest` passes from a clean checkout with no manual path setup.
 
 ## First implementation-agent tasks
 
@@ -838,6 +850,14 @@ These map to the R0.1 tickets in [ROADMAP.md](ROADMAP.md).
 Do not broaden scope until the first vertical slice is demonstrably correct, auditable, and restartable. Prefer boring deterministic code over agent autonomy. Every time a model is introduced, document why a deterministic rule is insufficient and define an evaluation for that model-dependent decision.
 
 ## Changes in this revision
+
+Revision 3 (2026-09-23):
+
+- **Current state** now describes the built system and how it was verified.
+- **Tool catalog** lists the 21 built tools. `get_churn_summary`, `draft_100_day_plan` and `start_diagnostic_run` were added during implementation.
+- **R0.1 acceptance checklist** checked.
+
+Revision 2:
 
 - **Added** a verified "Current state" section, including the `pytest` import failure and its cause.
 - **Confirmed** that the MCP SDK v2 APIs used in the skeleton work on `mcp` 2.2.0.

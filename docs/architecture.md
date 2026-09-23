@@ -80,7 +80,8 @@ stateDiagram-v2
     diagnostics --> value_modeling: findings + proposals (a failed branch is recorded as a gap)
     diagnostics --> NEEDS_EVIDENCE: model unavailable and policy says pause
     value_modeling --> evidence_review: deterministic value cases
-    evidence_review --> prioritization: every claim cites evidence
+    evidence_review --> prioritization: every claim cites fresh evidence
+    evidence_review --> NEEDS_EVIDENCE: uncited, missing or stale evidence
     prioritization --> roadmap_100_day
     roadmap_100_day --> human_approval
     human_approval --> AWAITING_APPROVAL
@@ -94,7 +95,7 @@ stateDiagram-v2
 2. **Data sufficiency** decides which analyses the data supports. With too few, the run pauses at `NEEDS_EVIDENCE` and lists named gaps (dataset, file, row, field). Text that looks like prompt injection becomes a `suspicious_content` finding. It is never followed.
 3. **Diagnostics** run four branches in parallel. A failure in one branch is recorded as a gap and the other branches continue.
 4. **Value modeling** sizes each proposal with the deterministic calculator: low, base and high EBITDA, in-year and run-rate. Model output supplies scenario inputs only. Baselines always come from the server.
-5. **Evidence review** drops any claim without resolvable evidence.
+5. **Evidence review** checks that every opportunity and value claim cites evidence that exists and is within the freshness window. It also checks that no two opportunities size the same baseline. Any violation pauses the run at `NEEDS_EVIDENCE`. A human can fix the data or accept the gaps (`pvc resume --accept-gaps`), and that decision is recorded.
 6. **Prioritization** scores opportunities using the policy weights.
 7. **Roadmap** builds workstreams, initiatives and KPIs for the 100-day plan. The model can write the narrative, but it cannot introduce numbers.
 8. **Human approval** pauses the run. The approval API records the decision. The worker then resumes the run, and on approval activates KPI monitoring.
