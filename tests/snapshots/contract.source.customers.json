@@ -1,0 +1,82 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "acquisition_channel": {
+      "title": "Acquisition Channel",
+      "type": "string"
+    },
+    "billing_account_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Billing Account Id"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "crm_account_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Crm Account Id"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "domain": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Domain"
+    },
+    "first_contract_date": {
+      "format": "date",
+      "title": "First Contract Date",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "segment": {
+      "title": "Segment",
+      "type": "string"
+    },
+    "size_band": {
+      "title": "Size Band",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "customer_id",
+    "name",
+    "segment",
+    "size_band",
+    "acquisition_channel",
+    "first_contract_date"
+  ],
+  "title": "Customer",
+  "type": "object"
+}

@@ -36,7 +36,7 @@ def redact(fields: Mapping[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for k, v in fields.items():
         if k in SAFE_KEYS:
-            out[k] = v if isinstance(v, str | int | bool | type(None) | list | tuple) else str(v)
+            out[k] = v if isinstance(v, str | int | float | bool | type(None) | list | tuple) else str(v)
         else:
             out[k] = _hash(v)
     return out

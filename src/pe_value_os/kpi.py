@@ -13,6 +13,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from itertools import pairwise
 from typing import Any
 
 from .adapters.base import SourceAdapter
@@ -117,7 +118,7 @@ def refresh_company(repo: Repository, adapter: SourceAdapter, company_id: str, p
         repo.add_kpi_observation(obs)
         out.append(obs)
         _audit(repo, company_id, "kpi_observed", actor, d.run_id, kpi_id=d.kpi_id, status=obs.status)
-        for alert in detect_variance(d, history + [obs], policy):
+        for alert in detect_variance(d, [*history, obs], policy):
             repo.add_kpi_alert(alert)
             metrics().kpi_off_track.add(1, {"rule": alert.rule})
             _audit(repo, company_id, "kpi_alert", actor, d.run_id, kpi_id=d.kpi_id, reason_code=alert.rule)
@@ -138,7 +139,7 @@ def detect_variance(d: KpiDefinition, history: list[KpiObservation], policy: Pol
     n = policy.kpi.trend_decline_periods
     if len(history) > n:
         window = [o.value for o in history[-(n + 1):]]
-        pairs = list(zip(window, window[1:], strict=False))
+        pairs = list(pairwise(window))
         worse = all((b < a) if d.direction == "increase" else (b > a) for a, b in pairs)
         if worse:
             alerts.append(KpiAlert(alert_id=str(uuid.uuid4()), kpi_id=d.kpi_id, company_id=d.company_id,
@@ -159,7 +160,7 @@ def build_digest(repo: Repository, company_id: str, *, channel: str, base_url: s
     lines = [f"- {d.description}: {o.value} vs target {o.target} (as of {o.period_end})" for d, o in off]
     link = f"{base_url.rstrip('/')}/companies/{company_id}/kpis" if base_url else f"/companies/{company_id}/kpis"
     n = Notification(notification_id=str(uuid.uuid4()), company_id=company_id, channel=channel,
-                     subject=f"{len(off)} KPI(s) off track", body="\n".join(lines + ["", f"Details: {link}"]),
+                     subject=f"{len(off)} KPI(s) off track", body="\n".join([*lines, "", f"Details: {link}"]),
                      created_at=datetime.now(UTC))
     repo.add_notification(n)
     return n

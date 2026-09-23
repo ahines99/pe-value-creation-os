@@ -1,0 +1,3313 @@
+{
+  "check_data_sufficiency": {
+    "description": "SUFFICIENT or INSUFFICIENT for one analysis, with a machine-readable gap list. Never approximate data\nfor an INSUFFICIENT analysis.",
+    "input": {
+      "properties": {
+        "analysis": {
+          "enum": [
+            "unit_economics",
+            "pricing",
+            "retention",
+            "ai_opportunity"
+          ],
+          "title": "Analysis",
+          "type": "string"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id",
+        "analysis"
+      ],
+      "title": "check_data_sufficiencyArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Gap": {
+          "properties": {
+            "blocking": {
+              "title": "Blocking",
+              "type": "boolean"
+            },
+            "code": {
+              "title": "Code",
+              "type": "string"
+            },
+            "dataset": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dataset"
+            },
+            "detail": {
+              "title": "Detail",
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "dataset",
+            "detail",
+            "blocking"
+          ],
+          "title": "Gap",
+          "type": "object"
+        },
+        "SufficiencyStatus": {
+          "enum": [
+            "SUFFICIENT",
+            "INSUFFICIENT"
+          ],
+          "title": "SufficiencyStatus",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "analysis": {
+          "title": "Analysis",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "gaps": {
+          "items": {
+            "$ref": "#/$defs/Gap"
+          },
+          "title": "Gaps",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/SufficiencyStatus"
+        }
+      },
+      "required": [
+        "analysis",
+        "status"
+      ],
+      "title": "SufficiencyResult",
+      "type": "object"
+    }
+  },
+  "compute_retention_cohorts": {
+    "description": "Logo and dollar retention by quarterly cohort, segment decomposition, churn by type, early-life churn,\nreason codes and leading indicators (usage, support).",
+    "input": {
+      "properties": {
+        "cohort_grain": {
+          "const": "quarter",
+          "default": "quarter",
+          "title": "Cohort Grain",
+          "type": "string"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "compute_retention_cohortsArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "CohortCurve": {
+          "properties": {
+            "cohort": {
+              "title": "Cohort",
+              "type": "string"
+            },
+            "dollar_retention": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "title": "Dollar Retention",
+              "type": "object"
+            },
+            "logo_retention": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "title": "Logo Retention",
+              "type": "object"
+            },
+            "starting_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Starting Arr"
+            },
+            "starting_logos": {
+              "title": "Starting Logos",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "cohort",
+            "starting_logos",
+            "starting_arr",
+            "logo_retention",
+            "dollar_retention"
+          ],
+          "title": "CohortCurve",
+          "type": "object"
+        },
+        "LeadingIndicator": {
+          "properties": {
+            "churned_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Churned Value"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Evidence Ids",
+              "type": "array"
+            },
+            "lead_months": {
+              "title": "Lead Months",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "retained_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Retained Value"
+            },
+            "signal": {
+              "title": "Signal",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "churned_value",
+            "retained_value",
+            "lead_months",
+            "signal",
+            "evidence_ids"
+          ],
+          "title": "LeadingIndicator",
+          "type": "object"
+        },
+        "SegmentRetention": {
+          "properties": {
+            "churned_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Churned Arr"
+            },
+            "contracted_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Contracted Arr"
+            },
+            "dimension": {
+              "title": "Dimension",
+              "type": "string"
+            },
+            "grr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grr"
+            },
+            "logos_churned": {
+              "title": "Logos Churned",
+              "type": "integer"
+            },
+            "logos_opening": {
+              "title": "Logos Opening",
+              "type": "integer"
+            },
+            "nrr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nrr"
+            },
+            "opening_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Opening Arr"
+            },
+            "value": {
+              "title": "Value",
+              "type": "string"
+            }
+          },
+          "required": [
+            "dimension",
+            "value",
+            "opening_arr",
+            "grr",
+            "nrr",
+            "churned_arr",
+            "contracted_arr",
+            "logos_opening",
+            "logos_churned"
+          ],
+          "title": "SegmentRetention",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "calc_version": {
+          "default": "retention/1",
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "churned_arr_by_type": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Churned Arr By Type",
+          "type": "object"
+        },
+        "cohorts": {
+          "items": {
+            "$ref": "#/$defs/CohortCurve"
+          },
+          "title": "Cohorts",
+          "type": "array"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "contracted_arr": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Contracted Arr"
+        },
+        "early_life_churn_overrepresentation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Early Life Churn Overrepresentation"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "grr": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Grr"
+        },
+        "involuntary_payment_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Involuntary Payment Share"
+        },
+        "leading_indicators": {
+          "items": {
+            "$ref": "#/$defs/LeadingIndicator"
+          },
+          "title": "Leading Indicators",
+          "type": "array"
+        },
+        "logo_retention": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Logo Retention"
+        },
+        "nrr": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nrr"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        },
+        "period_start": {
+          "format": "date",
+          "title": "Period Start",
+          "type": "string"
+        },
+        "reason_codes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Reason Codes",
+          "type": "object"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/SegmentRetention"
+          },
+          "title": "Segments",
+          "type": "array"
+        }
+      },
+      "required": [
+        "company_id",
+        "period_start",
+        "period_end",
+        "grr",
+        "nrr",
+        "logo_retention",
+        "churned_arr_by_type",
+        "involuntary_payment_share",
+        "contracted_arr",
+        "segments",
+        "cohorts",
+        "early_life_churn_overrepresentation",
+        "reason_codes",
+        "leading_indicators"
+      ],
+      "title": "RetentionAnalysis",
+      "type": "object"
+    }
+  },
+  "compute_saas_metrics": {
+    "description": "ARR bridge, GRR, NRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 and gross margin for\nthe 12 months ending `period` ('YYYY-MM'). Each metric reports its variant, period and evidence.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "compute_saas_metrics_toolArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "MetricValue": {
+          "properties": {
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Evidence Ids",
+              "type": "array"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Note"
+            },
+            "period_end": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Period End"
+            },
+            "period_start": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Period Start"
+            },
+            "unit": {
+              "title": "Unit",
+              "type": "string"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Value"
+            },
+            "variant": {
+              "title": "Variant",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "value",
+            "unit",
+            "variant"
+          ],
+          "title": "MetricValue",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "calc_version": {
+          "default": "saas-metrics/1",
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MetricValue"
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id",
+        "period_end",
+        "metrics"
+      ],
+      "title": "SaasMetrics",
+      "type": "object"
+    }
+  },
+  "draft_100_day_plan": {
+    "description": "Build the 100-day plan from the run's prioritized, positively sized opportunities. Returns the draft\nplan; submit it with request_approval.",
+    "input": {
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "draft_100_day_planArguments",
+      "type": "object"
+    },
+    "output": {
+      "additionalProperties": true,
+      "title": "draft_100_day_planDictOutput",
+      "type": "object"
+    }
+  },
+  "get_benchmarks": {
+    "description": "Peer quartiles (p25/p50/p75) and peer count for a metric. Never returns any single company's value.\nCheck `synthetic` and `licence` before citing.",
+    "input": {
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "peer_set": {
+          "title": "Peer Set",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "peer_set"
+      ],
+      "title": "get_benchmarksArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "dataset_sha256": {
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "licence": {
+          "title": "Licence",
+          "type": "string"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "p25": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "P25"
+        },
+        "p50": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "P50"
+        },
+        "p75": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "P75"
+        },
+        "peer_set": {
+          "title": "Peer Set",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "synthetic": {
+          "title": "Synthetic",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "metric",
+        "peer_set",
+        "n",
+        "p25",
+        "p50",
+        "p75",
+        "source",
+        "licence",
+        "as_of",
+        "dataset_sha256",
+        "synthetic"
+      ],
+      "title": "BenchmarkDistribution",
+      "type": "object"
+    }
+  },
+  "get_churn_summary": {
+    "description": "Trailing-12-month churned logos by churn type, voluntary reason codes, and renewal win/loss counts.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_churn_summaryArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "churned_logos_by_type": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Churned Logos By Type",
+          "type": "object"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "note": {
+          "default": "Reason codes are sales-entered and low-trust on their own; free-text notes are not returned.",
+          "title": "Note",
+          "type": "string"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        },
+        "period_start": {
+          "format": "date",
+          "title": "Period Start",
+          "type": "string"
+        },
+        "renewal_opportunities": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Renewal Opportunities",
+          "type": "object"
+        },
+        "voluntary_reason_codes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Voluntary Reason Codes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "company_id",
+        "period_start",
+        "period_end",
+        "churned_logos_by_type",
+        "voluntary_reason_codes",
+        "renewal_opportunities",
+        "evidence_ids"
+      ],
+      "title": "ChurnSummaryResult",
+      "type": "object"
+    }
+  },
+  "get_company_profile": {
+    "description": "Business model, scale, fiscal calendar and data inventory for one portfolio company.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_company_profileArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "CompanyProfile": {
+          "properties": {
+            "arr_definition": {
+              "default": "Contracted recurring subscription revenue, annualised; excludes services and one-time fees",
+              "title": "Arr Definition",
+              "type": "string"
+            },
+            "business_model": {
+              "title": "Business Model",
+              "type": "string"
+            },
+            "company_id": {
+              "title": "Company Id",
+              "type": "string"
+            },
+            "currency": {
+              "pattern": "^[A-Z]{3}$",
+              "title": "Currency",
+              "type": "string"
+            },
+            "deal_thesis": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Deal Thesis"
+            },
+            "fiscal_year_start_month": {
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Fiscal Year Start Month",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "vertical": {
+              "title": "Vertical",
+              "type": "string"
+            }
+          },
+          "required": [
+            "company_id",
+            "name",
+            "business_model",
+            "vertical",
+            "currency",
+            "fiscal_year_start_month"
+          ],
+          "title": "CompanyProfile",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "data_inventory": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Data Inventory",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "profile": {
+          "$ref": "#/$defs/CompanyProfile"
+        },
+        "reference_date": {
+          "format": "date",
+          "title": "Reference Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile",
+        "reference_date",
+        "data_inventory",
+        "evidence_ids"
+      ],
+      "title": "CompanyProfileResult",
+      "type": "object"
+    }
+  },
+  "get_financials": {
+    "description": "Monthly P&L lines by account between two months ('YYYY-MM', inclusive). Amounts are in the company\ncurrency. Missing months are listed, never filled in.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period_end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period End"
+        },
+        "period_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period Start"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_financialsArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "FinancialMonth": {
+          "properties": {
+            "accounts": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "title": "Accounts",
+              "type": "object"
+            },
+            "month": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            }
+          },
+          "required": [
+            "month",
+            "accounts"
+          ],
+          "title": "FinancialMonth",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_months": {
+          "items": {
+            "format": "date",
+            "type": "string"
+          },
+          "title": "Missing Months",
+          "type": "array"
+        },
+        "months": {
+          "items": {
+            "$ref": "#/$defs/FinancialMonth"
+          },
+          "title": "Months",
+          "type": "array"
+        }
+      },
+      "required": [
+        "company_id",
+        "currency",
+        "months",
+        "missing_months",
+        "evidence_ids"
+      ],
+      "title": "FinancialsResult",
+      "type": "object"
+    }
+  },
+  "get_kpi_status": {
+    "description": "Plan-vs-actual for the company's approved KPIs (latest observation per KPI).",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_kpi_statusArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "KpiStatusRow": {
+          "properties": {
+            "baseline": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Baseline"
+            },
+            "day_100_target": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Day 100 Target"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "direction": {
+              "title": "Direction",
+              "type": "string"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Evidence Ids",
+              "type": "array"
+            },
+            "kpi_id": {
+              "title": "Kpi Id",
+              "type": "string"
+            },
+            "latest_target": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Target"
+            },
+            "latest_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Latest Value"
+            },
+            "metric": {
+              "title": "Metric",
+              "type": "string"
+            },
+            "observed_at": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Observed At"
+            },
+            "run_rate_target": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Run Rate Target"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          "required": [
+            "kpi_id",
+            "metric",
+            "description",
+            "direction",
+            "baseline",
+            "day_100_target",
+            "run_rate_target",
+            "latest_value",
+            "latest_target",
+            "status",
+            "observed_at",
+            "evidence_ids"
+          ],
+          "title": "KpiStatusRow",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/KpiStatusRow"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "get_kpi_statusOutput",
+      "type": "object"
+    }
+  },
+  "get_run_status": {
+    "description": "Current step, status, pause reason and errors for a run.",
+    "input": {
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "get_run_statusArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "completed_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Completed Steps",
+          "type": "array"
+        },
+        "current_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Current Step"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "pause_reason": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pause Reason"
+        },
+        "paused": {
+          "title": "Paused",
+          "type": "boolean"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "company_id",
+        "status",
+        "current_step",
+        "completed_steps",
+        "pause_reason",
+        "errors",
+        "paused"
+      ],
+      "title": "RunStatusResult",
+      "type": "object"
+    }
+  },
+  "get_support_metrics": {
+    "description": "Trailing-12-month ticket volumes by category and tier, handle time, CSAT, and tickets per customer.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_support_metricsArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "avg_csat": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Csat"
+        },
+        "avg_handle_minutes_by_tier": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Avg Handle Minutes By Tier",
+          "type": "object"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        },
+        "period_start": {
+          "format": "date",
+          "title": "Period Start",
+          "type": "string"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "type": "integer"
+        },
+        "tickets_by_category": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Tickets By Category",
+          "type": "object"
+        },
+        "tickets_by_tier": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Tickets By Tier",
+          "type": "object"
+        },
+        "tickets_per_customer_month": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tickets Per Customer Month"
+        }
+      },
+      "required": [
+        "company_id",
+        "period_start",
+        "period_end",
+        "tickets",
+        "tickets_by_category",
+        "tickets_by_tier",
+        "avg_handle_minutes_by_tier",
+        "avg_csat",
+        "tickets_per_customer_month",
+        "evidence_ids"
+      ],
+      "title": "SupportResult",
+      "type": "object"
+    }
+  },
+  "get_usage_metrics": {
+    "description": "Core seat utilisation by segment and advanced-feature adoption for one month ('YYYY-MM').",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_usage_metricsArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "active_customers": {
+          "title": "Active Customers",
+          "type": "integer"
+        },
+        "advanced_feature_adoption": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Share of pro customers with any advanced usage",
+          "title": "Advanced Feature Adoption"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "core_utilisation_by_segment": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Core Utilisation By Segment",
+          "type": "object"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "month": {
+          "format": "date",
+          "title": "Month",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id",
+        "month",
+        "active_customers",
+        "core_utilisation_by_segment",
+        "advanced_feature_adoption",
+        "evidence_ids"
+      ],
+      "title": "UsageResult",
+      "type": "object"
+    }
+  },
+  "healthcheck": {
+    "description": "Return service health.",
+    "input": {
+      "properties": {},
+      "title": "healthcheckArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "version"
+      ],
+      "title": "Health",
+      "type": "object"
+    }
+  },
+  "list_evidence": {
+    "description": "Evidence linked to one opportunity (source, as-of date, content hash).",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "opportunity_id": {
+          "title": "Opportunity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id",
+        "opportunity_id"
+      ],
+      "title": "list_evidenceArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "EvidenceRef": {
+          "properties": {
+            "as_of": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "As Of"
+            },
+            "company_id": {
+              "title": "Company Id",
+              "type": "string"
+            },
+            "content_hash": {
+              "title": "Content Hash",
+              "type": "string"
+            },
+            "evidence_id": {
+              "title": "Evidence Id",
+              "type": "string"
+            },
+            "metadata": {
+              "additionalProperties": true,
+              "title": "Metadata",
+              "type": "object"
+            },
+            "retrieved_at": {
+              "format": "date-time",
+              "title": "Retrieved At",
+              "type": "string"
+            },
+            "run_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Run Id"
+            },
+            "source_type": {
+              "title": "Source Type",
+              "type": "string"
+            },
+            "source_uri": {
+              "title": "Source Uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "evidence_id",
+            "company_id",
+            "source_uri",
+            "source_type",
+            "retrieved_at",
+            "content_hash"
+          ],
+          "title": "EvidenceRef",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "list_evidenceOutput",
+      "type": "object"
+    }
+  },
+  "price_waterfall": {
+    "description": "List -> invoice -> pocket price waterfall for the 12 months ending `period` ('YYYY-MM'), with discount\ndispersion, quarter-end discounting, renewal-uplift realization, legacy price books and contract\nconstraints. Optionally limited to one segment.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segment"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "price_waterfall_toolArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "ContractConstraints": {
+          "properties": {
+            "active_contracts": {
+              "title": "Active Contracts",
+              "type": "integer"
+            },
+            "available": {
+              "title": "Available",
+              "type": "boolean"
+            },
+            "capped_share": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Capped Share"
+            },
+            "cpi_linked_share": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Cpi Linked Share"
+            },
+            "max_notice_days": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Notice Days"
+            },
+            "mfn_share": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Mfn Share"
+            },
+            "min_notice_days": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Notice Days"
+            },
+            "termination_for_convenience_share": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Termination For Convenience Share"
+            }
+          },
+          "required": [
+            "available",
+            "active_contracts"
+          ],
+          "title": "ContractConstraints",
+          "type": "object"
+        },
+        "Dispersion": {
+          "properties": {
+            "comparable_groups": {
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Comparable Groups",
+              "type": "array"
+            },
+            "discount_cv": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Discount Cv"
+            },
+            "discount_sd": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Discount Sd"
+            },
+            "discount_size_correlation": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Discount Size Correlation"
+            },
+            "lines": {
+              "title": "Lines",
+              "type": "integer"
+            },
+            "mean_discount_rate": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mean Discount Rate"
+            },
+            "segment": {
+              "title": "Segment",
+              "type": "string"
+            }
+          },
+          "required": [
+            "segment",
+            "lines",
+            "mean_discount_rate",
+            "discount_sd",
+            "discount_cv",
+            "discount_size_correlation",
+            "comparable_groups"
+          ],
+          "title": "Dispersion",
+          "type": "object"
+        },
+        "LegacyPriceBooks": {
+          "properties": {
+            "legacy_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Legacy Arr"
+            },
+            "legacy_arr_share": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Legacy Arr Share"
+            },
+            "total_arr": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Total Arr"
+            },
+            "uplift_to_current_list": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Uplift To Current List"
+            }
+          },
+          "required": [
+            "legacy_arr",
+            "total_arr",
+            "legacy_arr_share",
+            "uplift_to_current_list"
+          ],
+          "title": "LegacyPriceBooks",
+          "type": "object"
+        },
+        "RenewalRealization": {
+          "properties": {
+            "mean_contracted_uplift": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mean Contracted Uplift"
+            },
+            "mean_realized_uplift": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mean Realized Uplift"
+            },
+            "realization_ratio": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Realization Ratio"
+            },
+            "renewals": {
+              "title": "Renewals",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "renewals",
+            "mean_contracted_uplift",
+            "mean_realized_uplift",
+            "realization_ratio"
+          ],
+          "title": "RenewalRealization",
+          "type": "object"
+        },
+        "WaterfallLayer": {
+          "properties": {
+            "invoice_revenue": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Invoice Revenue"
+            },
+            "list_revenue": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "List Revenue"
+            },
+            "off_invoice_concessions": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Off Invoice Concessions"
+            },
+            "off_invoice_leakage_rate": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Off Invoice Leakage Rate"
+            },
+            "on_invoice_discount": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "On Invoice Discount"
+            },
+            "on_invoice_leakage_rate": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "On Invoice Leakage Rate"
+            },
+            "pocket_price_realization": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pocket Price Realization"
+            },
+            "pocket_revenue": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Pocket Revenue"
+            }
+          },
+          "required": [
+            "list_revenue",
+            "on_invoice_discount",
+            "invoice_revenue",
+            "off_invoice_concessions",
+            "pocket_revenue",
+            "on_invoice_leakage_rate",
+            "off_invoice_leakage_rate",
+            "pocket_price_realization"
+          ],
+          "title": "WaterfallLayer",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "by_segment": {
+          "additionalProperties": {
+            "$ref": "#/$defs/WaterfallLayer"
+          },
+          "title": "By Segment",
+          "type": "object"
+        },
+        "calc_version": {
+          "default": "price-waterfall/1",
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "contract_constraints": {
+          "$ref": "#/$defs/ContractConstraints"
+        },
+        "dispersion": {
+          "items": {
+            "$ref": "#/$defs/Dispersion"
+          },
+          "title": "Dispersion",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "legacy": {
+          "$ref": "#/$defs/LegacyPriceBooks"
+        },
+        "new_deals_analysed": {
+          "default": 0,
+          "title": "New Deals Analysed",
+          "type": "integer"
+        },
+        "other_new_deal_discount": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Other New Deal Discount"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        },
+        "period_start": {
+          "format": "date",
+          "title": "Period Start",
+          "type": "string"
+        },
+        "quarter_end_discount_gap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quarter End Discount Gap"
+        },
+        "quarter_end_new_deal_discount": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quarter End New Deal Discount"
+        },
+        "renewal_realization": {
+          "$ref": "#/$defs/RenewalRealization"
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Segment"
+        },
+        "total": {
+          "$ref": "#/$defs/WaterfallLayer"
+        }
+      },
+      "required": [
+        "company_id",
+        "period_start",
+        "period_end",
+        "segment",
+        "total",
+        "by_segment",
+        "dispersion",
+        "quarter_end_new_deal_discount",
+        "other_new_deal_discount",
+        "quarter_end_discount_gap",
+        "renewal_realization",
+        "legacy",
+        "contract_constraints"
+      ],
+      "title": "PriceWaterfall",
+      "type": "object"
+    }
+  },
+  "prioritize_opportunities": {
+    "description": "Deterministic priority scores for every sized opportunity in a run. Do not reorder the result.",
+    "input": {
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "prioritize_opportunitiesArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "PriorityScore": {
+          "properties": {
+            "components": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "title": "Components",
+              "type": "object"
+            },
+            "in_year_ebitda_base": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "In Year Ebitda Base"
+            },
+            "opportunity_id": {
+              "title": "Opportunity Id",
+              "type": "string"
+            },
+            "rank": {
+              "title": "Rank",
+              "type": "integer"
+            },
+            "run_rate_ebitda_base": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Run Rate Ebitda Base"
+            },
+            "score": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "title": "Score"
+            },
+            "start_month": {
+              "title": "Start Month",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "opportunity_id",
+            "rank",
+            "score",
+            "components",
+            "run_rate_ebitda_base",
+            "in_year_ebitda_base",
+            "start_month"
+          ],
+          "title": "PriorityScore",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/PriorityScore"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "prioritize_opportunitiesOutput",
+      "type": "object"
+    }
+  },
+  "propose_opportunity": {
+    "description": "Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the\nserver fills in the baseline value and EBITDA flow-through from company data. Returns the stored\nopportunity; call size_value_case next.",
+    "input": {
+      "$defs": {
+        "ScenarioInputs": {
+          "properties": {
+            "improvement_rate": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "description": "Fraction of baseline improved, 0.05 = 5%",
+              "title": "Improvement Rate"
+            },
+            "realization_rate": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "description": "Fraction of the improvement actually captured",
+              "title": "Realization Rate"
+            }
+          },
+          "required": [
+            "improvement_rate",
+            "realization_rate"
+          ],
+          "title": "ScenarioInputs",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "annual_run_cost": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "0",
+          "title": "Annual Run Cost"
+        },
+        "assumptions": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assumptions"
+        },
+        "base": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "baseline_metric": {
+          "title": "Baseline Metric",
+          "type": "string"
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "high": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "lever": {
+          "enum": [
+            "pricing",
+            "retention",
+            "sales_efficiency",
+            "gross_margin",
+            "ai_automation"
+          ],
+          "title": "Lever",
+          "type": "string"
+        },
+        "low": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "metric_params": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Params"
+        },
+        "one_time_cost": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "0",
+          "title": "One Time Cost"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "lever",
+        "baseline_metric",
+        "title",
+        "low",
+        "base",
+        "high",
+        "confidence",
+        "rationale",
+        "evidence_ids"
+      ],
+      "title": "propose_opportunityArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "Lever": {
+          "enum": [
+            "pricing",
+            "retention",
+            "sales_efficiency",
+            "gross_margin",
+            "ai_automation"
+          ],
+          "title": "Lever",
+          "type": "string"
+        },
+        "ScenarioInputs": {
+          "properties": {
+            "improvement_rate": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "description": "Fraction of baseline improved, 0.05 = 5%",
+              "title": "Improvement Rate"
+            },
+            "realization_rate": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "description": "Fraction of the improvement actually captured",
+              "title": "Realization Rate"
+            }
+          },
+          "required": [
+            "improvement_rate",
+            "realization_rate"
+          ],
+          "title": "ScenarioInputs",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "annual_run_cost": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "0",
+          "title": "Annual Run Cost"
+        },
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "base": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "baseline_metric": {
+          "title": "Baseline Metric",
+          "type": "string"
+        },
+        "baseline_value": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Baseline Value"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "ebitda_flow_through": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "maximum": 1.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Ebitda Flow Through"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "high": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "lever": {
+          "$ref": "#/$defs/Lever"
+        },
+        "low": {
+          "$ref": "#/$defs/ScenarioInputs"
+        },
+        "metric_params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Metric Params",
+          "type": "object"
+        },
+        "one_time_cost": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "0",
+          "title": "One Time Cost"
+        },
+        "opportunity_id": {
+          "title": "Opportunity Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "opportunity_id",
+        "run_id",
+        "company_id",
+        "lever",
+        "title",
+        "baseline_metric",
+        "baseline_value",
+        "ebitda_flow_through",
+        "low",
+        "base",
+        "high",
+        "confidence",
+        "rationale",
+        "evidence_ids"
+      ],
+      "title": "Opportunity",
+      "type": "object"
+    }
+  },
+  "record_finding": {
+    "description": "Persist a finding for a run. Value claims must cite at least one evidence id from this company.",
+    "input": {
+      "properties": {
+        "assumptions": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assumptions"
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "finding_type": {
+          "enum": [
+            "observation",
+            "hypothesis",
+            "value_claim",
+            "opportunity",
+            "data_gap",
+            "suspicious_content"
+          ],
+          "title": "Finding Type",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "finding_type",
+        "title",
+        "statement",
+        "confidence",
+        "evidence_ids"
+      ],
+      "title": "record_findingArguments",
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "FindingType": {
+          "enum": [
+            "value_claim",
+            "opportunity",
+            "observation",
+            "hypothesis",
+            "data_gap",
+            "suspicious_content"
+          ],
+          "title": "FindingType",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "contradicting_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicting Evidence Ids",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "finding_type": {
+          "$ref": "#/$defs/FindingType"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "run_id",
+        "company_id",
+        "finding_type",
+        "title",
+        "statement",
+        "confidence"
+      ],
+      "title": "Finding",
+      "type": "object"
+    }
+  },
+  "request_approval": {
+    "description": "Submit the run's latest plan for human approval and pause the run. A human decides through the approval\nAPI; no tool can approve.",
+    "input": {
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "request_approvalArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "approval_id": {
+          "title": "Approval Id",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approval_id",
+        "run_id",
+        "plan_id",
+        "status",
+        "message"
+      ],
+      "title": "ApprovalRequestResult",
+      "type": "object"
+    }
+  },
+  "size_value_case": {
+    "description": "Size low/base/high annual run-rate EBITDA for a stored opportunity. Baseline values and flow-through\ncome from company data, never from the caller. Quote results exactly; do not adjust them.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "ev_multiple": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ev Multiple"
+        },
+        "opportunity_id": {
+          "title": "Opportunity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id",
+        "opportunity_id"
+      ],
+      "title": "size_value_caseArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "annual_ebitda_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Annual Ebitda Base"
+        },
+        "annual_ebitda_high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Annual Ebitda High"
+        },
+        "annual_ebitda_low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Annual Ebitda Low"
+        },
+        "calc_version": {
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "ev_impact_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ev Impact Base"
+        },
+        "ev_multiple": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ev Multiple"
+        },
+        "inputs_hash": {
+          "title": "Inputs Hash",
+          "type": "string"
+        },
+        "one_time_cost": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "One Time Cost"
+        },
+        "opportunity_id": {
+          "title": "Opportunity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "opportunity_id",
+        "annual_ebitda_low",
+        "annual_ebitda_base",
+        "annual_ebitda_high",
+        "one_time_cost",
+        "calc_version",
+        "inputs_hash"
+      ],
+      "title": "ValueCase",
+      "type": "object"
+    }
+  },
+  "start_diagnostic_run": {
+    "description": "Create a diagnostic run. `automated` queues the full workflow for the worker; `interactive` creates an\nempty run for skill-driven analysis with record_finding / propose_opportunity.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idempotency Key"
+        },
+        "mode": {
+          "default": "automated",
+          "enum": [
+            "automated",
+            "interactive"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "start_diagnostic_runArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        },
+        "completed_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Completed Steps",
+          "type": "array"
+        },
+        "current_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Current Step"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "pause_reason": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pause Reason"
+        },
+        "paused": {
+          "title": "Paused",
+          "type": "boolean"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "company_id",
+        "status",
+        "current_step",
+        "completed_steps",
+        "pause_reason",
+        "errors",
+        "paused"
+      ],
+      "title": "RunStatusResult",
+      "type": "object"
+    }
+  }
+}

@@ -134,6 +134,7 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
     spec = REGISTRY[rule.metric]
     return PlanKpi(
         kpi_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"kpi:{o.opportunity_id}:{rule.metric}")),
+        opportunity_id=o.opportunity_id,
         metric=rule.metric, description=rule.description + (f" ({params['segment']})" if params else ""),
         baseline=base.value, day_100_target=q_ratio(base.value + (target - base.value) * frac),
         run_rate_target=target, direction=spec.direction, cadence_days=policy.kpi.default_cadence_days,

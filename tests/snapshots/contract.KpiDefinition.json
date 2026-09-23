@@ -1,0 +1,125 @@
+{
+  "properties": {
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    },
+    "baseline": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Baseline"
+    },
+    "cadence_days": {
+      "exclusiveMinimum": 0,
+      "title": "Cadence Days",
+      "type": "integer"
+    },
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "day_100_target": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Day 100 Target"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "direction": {
+      "pattern": "^(increase|decrease)$",
+      "title": "Direction",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "kpi_id": {
+      "title": "Kpi Id",
+      "type": "string"
+    },
+    "metric": {
+      "title": "Metric",
+      "type": "string"
+    },
+    "metric_params": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Metric Params",
+      "type": "object"
+    },
+    "plan_id": {
+      "title": "Plan Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "run_rate_target": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Run Rate Target"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "start_date": {
+      "format": "date",
+      "title": "Start Date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kpi_id",
+    "company_id",
+    "plan_id",
+    "run_id",
+    "metric",
+    "description",
+    "baseline",
+    "day_100_target",
+    "run_rate_target",
+    "direction",
+    "cadence_days",
+    "source",
+    "start_date",
+    "created_at"
+  ],
+  "title": "KpiDefinition",
+  "type": "object"
+}

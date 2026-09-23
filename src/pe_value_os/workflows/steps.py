@@ -206,7 +206,7 @@ def value_modeling(ctx: RunContext, state: RunState) -> dict[str, Any]:
     data = ctx.data(state.company_id)
     branches = state.artifacts.get("diagnostics", {}).get("results", {})
     sized, unsized = [], []
-    for branch, res in sorted(branches.items()):
+    for _branch, res in sorted(branches.items()):
         for raw in res.get("proposals", []):
             prop = OpportunityProposal.model_validate(raw)
             key = f"{prop.lever.value}:{prop.baseline_metric}:{sorted(prop.metric_params.items())}:{prop.title}"

@@ -1,0 +1,108 @@
+{
+  "properties": {
+    "annual_ebitda_base": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Annual Ebitda Base"
+    },
+    "annual_ebitda_high": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Annual Ebitda High"
+    },
+    "annual_ebitda_low": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Annual Ebitda Low"
+    },
+    "calc_version": {
+      "title": "Calc Version",
+      "type": "string"
+    },
+    "ev_impact_base": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ev Impact Base"
+    },
+    "ev_multiple": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ev Multiple"
+    },
+    "inputs_hash": {
+      "title": "Inputs Hash",
+      "type": "string"
+    },
+    "one_time_cost": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "One Time Cost"
+    },
+    "opportunity_id": {
+      "title": "Opportunity Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "opportunity_id",
+    "annual_ebitda_low",
+    "annual_ebitda_base",
+    "annual_ebitda_high",
+    "one_time_cost",
+    "calc_version",
+    "inputs_hash"
+  ],
+  "title": "ValueCase",
+  "type": "object"
+}

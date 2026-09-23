@@ -1,0 +1,70 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "amount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Amount"
+    },
+    "close_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Close Date"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "created_date": {
+      "format": "date",
+      "title": "Created Date",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "opportunity_id": {
+      "title": "Opportunity Id",
+      "type": "string"
+    },
+    "opportunity_type": {
+      "pattern": "^(new|expansion|renewal)$",
+      "title": "Opportunity Type",
+      "type": "string"
+    },
+    "stage": {
+      "pattern": "^(won|lost|open)$",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "opportunity_id",
+    "customer_id",
+    "created_date",
+    "stage",
+    "opportunity_type",
+    "amount"
+  ],
+  "title": "CrmOpportunity",
+  "type": "object"
+}

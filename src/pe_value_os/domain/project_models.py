@@ -118,6 +118,7 @@ class InitiativeClass(StrEnum):
 
 class PlanKpi(BaseModel):
     kpi_id: str
+    opportunity_id: str | None = None
     metric: str
     description: str
     baseline: Decimal

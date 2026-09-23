@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "ConcessionType": {
+      "enum": [
+        "credit",
+        "free_months",
+        "extended_terms",
+        "rebate",
+        "uncharged_services"
+      ],
+      "title": "ConcessionType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "amount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Amount"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "concession_date": {
+      "format": "date",
+      "title": "Concession Date",
+      "type": "string"
+    },
+    "concession_type": {
+      "$ref": "#/$defs/ConcessionType"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "customer_id",
+    "concession_date",
+    "concession_type",
+    "amount"
+  ],
+  "title": "Concession",
+  "type": "object"
+}

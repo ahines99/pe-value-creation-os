@@ -1,0 +1,91 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "contract_id": {
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "contracted_uplift_rate": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Contracted Uplift Rate"
+    },
+    "cpi_linked": {
+      "default": false,
+      "title": "Cpi Linked",
+      "type": "boolean"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "end_date": {
+      "format": "date",
+      "title": "End Date",
+      "type": "string"
+    },
+    "mfn_clause": {
+      "default": false,
+      "title": "Mfn Clause",
+      "type": "boolean"
+    },
+    "notice_days": {
+      "minimum": 0,
+      "title": "Notice Days",
+      "type": "integer"
+    },
+    "price_cap_rate": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Price Cap Rate"
+    },
+    "start_date": {
+      "format": "date",
+      "title": "Start Date",
+      "type": "string"
+    },
+    "termination_for_convenience": {
+      "default": false,
+      "title": "Termination For Convenience",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "company_id",
+    "contract_id",
+    "customer_id",
+    "start_date",
+    "end_date",
+    "contracted_uplift_rate",
+    "notice_days"
+  ],
+  "title": "ContractTerm",
+  "type": "object"
+}

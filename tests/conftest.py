@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import os
 import uuid
+
+# Tests run in dev mode: the MCP server and approval API refuse to start without auth outside dev.
+os.environ.setdefault("PVC_ENV", "dev")
 from urllib.parse import urlsplit, urlunsplit
 
 import pytest

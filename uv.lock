@@ -1442,6 +1442,7 @@ dev = [
     { name = "psycopg-pool" },
     { name = "pyjwt", extra = ["crypto"] },
     { name = "pytest" },
+    { name = "python-multipart" },
     { name = "ruff" },
     { name = "sqlalchemy" },
     { name = "structlog" },
@@ -1450,6 +1451,7 @@ dev = [
 http = [
     { name = "fastapi" },
     { name = "pyjwt", extra = ["crypto"] },
+    { name = "python-multipart" },
     { name = "uvicorn" },
 ]
 llm = [
@@ -1477,6 +1479,7 @@ server = [
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg-pool" },
     { name = "pyjwt", extra = ["crypto"] },
+    { name = "python-multipart" },
     { name = "sqlalchemy" },
     { name = "structlog" },
     { name = "uvicorn" },
@@ -1504,6 +1507,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.9" },
     { name = "pyjwt", extras = ["crypto"], marker = "extra == 'http'", specifier = ">=2.9" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
+    { name = "python-multipart", marker = "extra == 'http'", specifier = ">=0.0.9" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "sqlalchemy", marker = "extra == 'postgres'", specifier = ">=2.0" },
     { name = "structlog", marker = "extra == 'observability'", specifier = ">=24.4" },

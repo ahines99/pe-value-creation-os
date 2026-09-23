@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "PnLAccount": {
+      "enum": [
+        "revenue_subscription",
+        "revenue_services",
+        "cogs_hosting",
+        "cogs_third_party",
+        "cogs_support",
+        "cogs_services",
+        "sales_marketing",
+        "research_development",
+        "general_admin"
+      ],
+      "title": "PnLAccount",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "account": {
+      "$ref": "#/$defs/PnLAccount"
+    },
+    "amount": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Amount"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "currency": {
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "month": {
+      "format": "date",
+      "title": "Month",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "month",
+    "account",
+    "amount",
+    "currency"
+  ],
+  "title": "PnLLine",
+  "type": "object"
+}
