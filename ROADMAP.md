@@ -15,17 +15,17 @@ Track status by checking boxes here, or import the tickets into an issue tracker
 
 ## Status
 
-As of 2026-09-23. Verified on a developer machine: Python 3.14, PostgreSQL 18, 250 tests passing, eval gate at 100%. Nothing has run in GitHub Actions or AWS yet.
+As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 250 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet.
 
 | Status | Tickets | Meaning |
 |---|---|---|
-| Done | 84 | Every acceptance criterion is met and was verified by running it. The CI workflows that will re-check it are written but haven't run on GitHub yet. |
-| Built, not yet run in its target environment | 13 | The code or configuration is complete and statically validated. It still has to run on GitHub (needs the remote), Docker, or AWS. |
-| Blocked on a person, decision, or pilot company | 14 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
+| Done | 85 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
+| Built, not yet run in its target environment | 10 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
+| Blocked on a person, decision, or pilot company | 16 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
 
 | Release gate | State |
 |---|---|
-| R0.1 Vertical slice | All exit criteria verified locally. Four R0.1 tickets are still open: PVC-001 (remote), PVC-006 (first GitHub CI run), PVC-030 (`docker compose` run), and PVC-070 (interactive skill session). |
+| R0.1 Vertical slice | All exit criteria verified locally. Four R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro), PVC-030 (`docker compose` run), and PVC-070 (interactive skill session). |
 | R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, and pilot data. |
 | R1.0 Production | Needs the pilot, go decision, pen test, production drill, on-call rotation, and a second onboarded company. |
 
@@ -47,7 +47,7 @@ Exit criteria:
 All four diagnostic levers, real data adapters for one portco, model reasoning at judgment steps, authentication and tenant isolation, an eval gate in CI, and a staging deployment. This is "MVP complete" as defined in the handoff.
 
 Exit criteria:
-- [ ] Golden dataset (≥25 cases) and adversarial suite pass their thresholds in CI. *(Passes locally; CI hasn't run yet.)*
+- [x] Golden dataset (≥25 cases) and adversarial suite pass their thresholds in CI.
 - [x] Cross-company access attempts fail closed in tests at both the tool layer and the database layer.
 - [ ] Staging is deployed from CI with migrations, and passes smoke tests.
 - [ ] Threat model reviewed; model-provider data handling approved.
@@ -92,10 +92,10 @@ Start data-access conversations with the pilot portco (inputs to PVC-111/113) du
 ### PVC-001: Initialize version control
 `P0 · S · R0.1 · deps: —`
 
-**Status: Blocked on a person, decision, or pilot company.** Local repository and commits exist. Creating the remote and branch protection is waiting on the project owner's go-ahead.
+**Status: Blocked on a person, decision, or pilot company.** Private remote created (github.com/ahines99/pe-value-creation-os) and pushed. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
 The project isn't a git repository.
-- [x] `git init`, a Python `.gitignore` (venv, caches, `.env`), and an initial commit of the current scaffold.
+- [ ] `git init`, a Python `.gitignore` (venv, caches, `.env`), and an initial commit of the current scaffold.
 - [ ] Remote repository created, with branch protection on `main`.
 
 ### PVC-002: Fix test configuration
@@ -137,9 +137,9 @@ Move `src/*` into `src/pe_value_os/` and add a hatchling build system, following
 ### PVC-006: Continuous integration
 `P0 · S · R0.1 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** `.github/workflows/ci.yml` passes actionlint, and every command in it passes locally. It first runs on GitHub after the remote exists (PVC-001). Required checks are set with branch protection.
+**Status: Blocked on a person, decision, or pilot company.** CI runs lint, types and tests on Python 3.12, 3.13 and 3.14 with a PostgreSQL service, and is green on PR #1 (250 tests on each version). Requiring it for merges needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
-- [ ] A GitHub Actions workflow runs lint, types, and tests on Python 3.12, 3.13, and 3.14.
+- [x] A GitHub Actions workflow runs lint, types, and tests on Python 3.12, 3.13, and 3.14.
 - [ ] CI is required for merges to `main`.
 
 ### PVC-007: Architecture decision records
@@ -287,10 +287,10 @@ Logo and dollar retention by cohort, split into voluntary and involuntary churn.
 ### PVC-030: Postgres and migrations
 `P0 · M · R0.1 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** Alembic creates every table, and `migrate_check` round-trips on PostgreSQL 18 locally. The CI job is defined but hasn't run yet. `docker compose up db` hasn't been run because this machine has no Docker.
+**Status: Built, not yet run in its target environment.** Alembic creates every table. The upgrade/downgrade round trip runs green in CI against a PostgreSQL 18 service. `docker compose up db` hasn't been run because this machine has no Docker.
 
 - [ ] `docker compose up db` starts Postgres. The Alembic migration creates every table in the handoff's data model.
-- [ ] Upgrade and downgrade are tested in CI against a Postgres service container.
+- [x] Upgrade and downgrade are tested in CI against a Postgres service container.
 
 ### PVC-031: Repository layer
 `P0 · L · R0.1 · deps: PVC-010, PVC-011, PVC-030`
@@ -604,7 +604,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-083: CI evaluation gate
 `P1 · M · R0.5 · deps: PVC-081, PVC-082`
 
-**Status: Built, not yet run in its target environment.** Thresholds are in `evals/thresholds.toml`, the gate job is in CI, and `nightly-evals.yml` exists. Merge blocking needs branch protection (PVC-001).
+**Status: Blocked on a person, decision, or pilot company.** The eval gate runs green in CI against `evals/thresholds.toml`, and `nightly-evals.yml` runs the full suite nightly. Blocking merges on it needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
 - [ ] Merges are blocked when scores drop below thresholds recorded in the repo. The full suite runs nightly.
 
@@ -656,9 +656,9 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-096: Dependency and container scanning
 `P1 · S · R0.5 · deps: PVC-130`
 
-**Status: Built, not yet run in its target environment.** `pip-audit` passes locally with no known vulnerabilities. The container build and Trivy scan job is defined but the image hasn't been built yet.
+**Status: Done.** `pip-audit` and a Trivy scan of the built image (HIGH and CRITICAL fail the build) both run green in CI.
 
-- [ ] `pip-audit` and a container scan run in CI. High and critical findings fail the build.
+- [x] `pip-audit` and a container scan run in CI. High and critical findings fail the build.
 
 ### PVC-094: Egress controls
 `P1 · S · R1.0 · deps: PVC-136`
@@ -812,7 +812,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-130: Container images
 `P0 · S · R0.5 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** Multi-stage Dockerfile with a non-root user (uid 10001) and a compose file for the full stack. Neither has been built or run, because this machine has no Docker. The CI container-scan job builds the image.
+**Status: Built, not yet run in its target environment.** The multi-stage image (non-root, uid 10001) builds in CI and passes the Trivy scan. `docker compose up` for the full local stack hasn't been run because this machine has no Docker.
 
 - [ ] A multi-stage Dockerfile with a non-root user. `docker compose up` runs db, MCP server, approval API, and worker locally.
 

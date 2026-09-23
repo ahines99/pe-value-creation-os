@@ -2,7 +2,7 @@
 
 Turns portfolio-company operating data into evidence-backed value-creation initiatives, deterministically sized EBITDA cases, a human-approved 100-day plan, and ongoing KPI monitoring.
 
-**Status: feature-complete and verified locally; not yet deployed.** Everything in [ROADMAP.md](ROADMAP.md) that can be built and tested without cloud access or outside reviewers is done. The remaining tickets need an AWS account, named people (a domain expert, a security reviewer, legal, an on-call rotation), or a pilot portfolio company. See [Status](#status).
+**Status: feature-complete, CI green; not yet deployed.** Everything in [ROADMAP.md](ROADMAP.md) that can be built and tested without cloud access or outside reviewers is done. The remaining tickets need an AWS account, named people (a domain expert, a security reviewer, legal, an on-call rotation), or a pilot portfolio company. See [Status](#status).
 
 ## Try it
 
@@ -80,7 +80,8 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | Area | State |
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Built and tested locally |
-| Container image, Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test`, actionlint). Not yet built in CI or applied. |
+| CI (GitHub Actions) | Green: lint, types, 250 tests on Python 3.12, 3.13 and 3.14 with PostgreSQL, eval gate, pip-audit, gitleaks, and an image build with a Trivy scan |
+| Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test`, actionlint). Not applied. |
 | Live-model evaluation | Harness is ready. It needs an API key to run (`pvc eval --proposer model`). |
 | Sign-offs and operations | Pending named people: domain expert (skills), threat-model review, external pen test, legal, on-call rotation |
 | Pilot and GA | Pending a pilot portfolio company. See [docs/pilot/](docs/pilot/). |

@@ -21,7 +21,7 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 
 ## Current state (verified 2026-09-23)
 
-The specification below is implemented in `src/pe_value_os/` and verified on this machine. It has not yet run in GitHub Actions or on AWS, because no remote repository or cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
+The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 250 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
 
 | Area | State |
 |---|---|
@@ -36,7 +36,7 @@ The specification below is implemented in `src/pe_value_os/` and verified on thi
 | KPI monitoring, worker, notifications | Built |
 | Observability | structlog JSON with allow-list redaction, OpenTelemetry traces and metrics, a Grafana dashboard and Prometheus alerts (promtool-valid) |
 | Ops tooling | `pvc recompute`, `offboard`, `access-review`, `audit-export`, `onboard-check`. Restore drill and load test run locally. |
-| Container, Terraform (AWS), CD | Written. Terraform passes `fmt`, `validate` and `test`. Workflows pass actionlint. **Image not yet built. Nothing applied.** |
+| Container, Terraform (AWS), CD | The image builds in CI and passes Trivy (no HIGH or CRITICAL findings). Terraform passes `fmt`, `validate` and `test`. **Nothing applied; CD hasn't run.** |
 | Sign-offs, pen test, legal, on-call, pilot | Not started. They need named people or a pilot company (ROADMAP "Open decisions"). |
 
 Verification on 2026-09-23 (Python 3.14, `mcp` 2.2.0, PostgreSQL 18):
