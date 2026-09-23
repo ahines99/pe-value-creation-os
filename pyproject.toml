@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-postgres = ["psycopg[binary]>=3.2", "sqlalchemy>=2.0", "alembic>=1.13"]
+postgres = ["psycopg[binary]>=3.2", "psycopg-pool>=3.2", "sqlalchemy>=2.0", "alembic>=1.13"]
 http = ["fastapi>=0.115", "uvicorn>=0.30", "pyjwt[crypto]>=2.9"]
 observability = [
   "structlog>=24.4",
@@ -63,6 +63,7 @@ ignore = [
   "S608",   # SQL is built from constant identifiers only; values are always parameters
   "RUF001", "RUF002", "RUF003",  # typographic characters in docs/strings are intentional
   "UP047",  # TypeVar generics kept for readability
+  "E501",   # the formatter enforces line length; long SQL and message strings are allowed
 ]
 
 [tool.ruff.lint.per-file-ignores]
