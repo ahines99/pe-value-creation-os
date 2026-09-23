@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import csv
 import io
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
@@ -288,7 +288,7 @@ def parse_csv(record_type: type[R], text: str, source: str, *, strict: bool = Fa
     return parse_rows(record_type, csv.DictReader(io.StringIO(text)), source, strict=strict)
 
 
-def to_csv(records: list[BaseModel]) -> str:
+def to_csv(records: Sequence[BaseModel]) -> str:
     if not records:
         return ""
     fields = list(type(records[0]).model_fields)

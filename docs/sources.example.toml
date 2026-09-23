@@ -1,0 +1,41 @@
+# Example PVC_SOURCES_CONFIG for PVC_SOURCE_ADAPTER=composite (ADR 0008). Credentials are environment variable
+# NAMES, resolved at runtime from the secret manager; never put secret values in this file.
+
+[companies.acme-portco]
+base = "warehouse"                       # or "csv" with csv_root = "/data/exports"
+accept_name_matches = false              # name-only entity matches go to the review queue
+
+[companies.acme-portco.warehouse]
+url_env = "PVC_WAREHOUSE_URL_ACME"       # e.g. snowflake://... or postgresql+psycopg://...
+schema = "pvc"
+
+[companies.acme-portco.sources]          # datasets taken from vendor APIs instead of the base
+invoices = "stripe"
+price_books = "stripe"
+concessions = "stripe"
+customers = "hubspot"
+crm_opportunities = "hubspot"
+churn = "hubspot"
+support = "zendesk"
+
+[companies.acme-portco.id_systems]       # id space of customer-keyed datasets that come from the base
+arr = "stripe"
+usage = "stripe"
+contracts = "stripe"
+
+[companies.acme-portco.stripe]
+api_key_env = "STRIPE_READONLY_KEY_ACME"
+
+[companies.acme-portco.hubspot]
+token_env = "HUBSPOT_PAT_ACME"
+
+[companies.acme-portco.zendesk]
+subdomain = "acme"
+email = "pvc-reader@acme.example"
+token_env = "ZENDESK_TOKEN_ACME"
+category_field_id = 360000000001
+handle_minutes_field_id = 360000000002
+tier1_group_ids = [360000000010]
+
+[companies.acme-portco.entity_overrides]  # set by a human reviewer from the review queue
+"stripe:cus_ABC123" = "5012345678"

@@ -16,7 +16,7 @@ from typing import Any
 
 import anyio
 
-from .. import kpi
+from .. import freshness, kpi
 from ..adapters.base import SourceAdapter
 from ..adapters.repositories import Repository
 from ..content_safety import scan
@@ -99,6 +99,7 @@ def _persist_findings(ctx: RunContext, state: RunState, branch: str, drafts: lis
 def intake(ctx: RunContext, state: RunState) -> dict[str, Any]:
     data = ctx.reload(state.company_id)
     ctx.repo.upsert_company(data.profile)
+    freshness.record(data, ctx.policy.freshness.max_age_days)
     if state.reference_date is None:
         state.reference_date = data.reference_date
     others = set(ctx.adapter.list_companies()) - {state.company_id}

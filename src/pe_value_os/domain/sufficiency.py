@@ -157,6 +157,11 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                         f"(entity resolution needed), e.g. {dups[0]}",
                     )
                 )
+            er = data.entity_resolution or {}
+            if er.get("review_queue") or er.get("unresolved_rows"):
+                gaps.append(Gap(code="unresolved_entities", dataset=name, blocking=False,
+                                detail=f"{er.get('review_queue', 0)} identifiers await review; unresolved rows "
+                                       f"{er.get('unresolved_rows', {})} are reported under segment 'unknown'"))
     status = SufficiencyStatus.INSUFFICIENT if any(g.blocking for g in gaps) else SufficiencyStatus.SUFFICIENT
     return SufficiencyResult(analysis=analysis, status=status, gaps=gaps, evidence_ids=evidence)
 

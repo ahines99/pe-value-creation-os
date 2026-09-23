@@ -1,0 +1,36 @@
+# OpenTelemetry Collector (PVC-101/102): receives OTLP/HTTP from the services, exports traces to the tracing
+# backend and exposes metrics for Prometheus scraping. Services set OTEL_EXPORTER_OTLP_ENDPOINT to this collector.
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+  attributes/drop_sensitive:
+    # Defence in depth: application redaction already hashes unknown fields (pe_value_os.observability).
+    actions:
+      - key: http.request.header.authorization
+        action: delete
+      - key: enduser.id
+        action: hash
+
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:9464
+    resource_to_telemetry_conversion:
+      enabled: true
+  otlphttp/traces:
+    endpoint: ${env:TRACES_BACKEND_ENDPOINT}
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [attributes/drop_sensitive, batch]
+      exporters: [otlphttp/traces]

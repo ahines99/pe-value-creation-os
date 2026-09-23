@@ -22,13 +22,14 @@ from ..adapters.evidence_store import EvidenceNotFound
 from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..domain.runs import ApprovalDecision
-from ..observability import get_logger
+from ..observability import RequestMetricsMiddleware, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
 from . import views
 
 log = get_logger(__name__)
 app = FastAPI(title="PE Value Creation OS - approvals", version=__version__, docs_url=None, redoc_url=None)
+app.add_middleware(RequestMetricsMiddleware, service="api")
 
 _ctx: RunContext | None = None
 _verifier: JwtTokenVerifier | bool | None = False

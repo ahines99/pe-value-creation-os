@@ -16,7 +16,7 @@ from typing import Any, Protocol
 
 import anyio
 
-from ..adapters.base import TransientSourceError
+from ..adapters.base import SourceError, TransientSourceError
 from ..domain.models import AuditEvent
 from ..domain.runs import PAUSED, RunState, Status
 from ..observability import get_logger, metrics, span, timed
@@ -154,6 +154,8 @@ class Runner:
                         i = 0
                         continue
                     except Exception as exc:
+                        if isinstance(exc, SourceError | TimeoutError):
+                            metrics().adapter_errors.add(1, {"step": step.name, "error_type": type(exc).__name__})
                         state.errors.append(f"{step.name}: {type(exc).__name__}: {exc}")
                         state.status = Status.FAILED
                         self.store.save_run_state(state)

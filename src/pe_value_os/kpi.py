@@ -16,6 +16,7 @@ from decimal import Decimal
 from itertools import pairwise
 from typing import Any
 
+from . import freshness
 from .adapters.base import SourceAdapter
 from .adapters.repositories import Repository
 from .domain.baselines import REGISTRY, MetricUnavailable, compute_metric
@@ -99,6 +100,7 @@ def refresh_company(repo: Repository, adapter: SourceAdapter, company_id: str, p
     if not defs:
         return []
     data = adapter.load(company_id, sink=repo)
+    freshness.record(data, policy.freshness.max_age_days)
     out: list[KpiObservation] = []
     for d in defs:
         history = repo.list_kpi_observations(company_id, d.kpi_id)

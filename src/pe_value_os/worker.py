@@ -15,7 +15,8 @@ import anyio
 
 from . import kpi, notify
 from .domain.models import AuditEvent
-from .observability import get_logger
+from .domain.runs import Status
+from .observability import get_logger, metrics
 from .security import principal_scope, system_principal
 from .workflows import primary
 from .workflows.steps import RunContext
@@ -29,6 +30,7 @@ class WorkerReport:
     kpi_observations: int = 0
     digests_sent: int = 0
     approvals_escalated: int = 0
+    stuck_runs: int = 0
 
 
 class Worker:
@@ -88,11 +90,24 @@ class Worker:
                 n += 1
         return n
 
+    def record_health(self, now: datetime | None = None, stuck_after: timedelta = timedelta(minutes=30)) -> int:
+        """Gauges for alerting (PVC-103): stuck runs and the oldest pending approval."""
+        now = now or datetime.now(UTC)
+        with principal_scope(system_principal(*self.companies, subject="system:health")):
+            running = self.ctx.repo.list_runs(status=Status.RUNNING)
+            pending = self.ctx.repo.pending_approvals()
+        stuck = sum(1 for r in running if r.params.get("mode") != "interactive" and now - r.updated_at > stuck_after)
+        metrics().runs_stuck.set(stuck)
+        oldest = max(((now - a.requested_at).total_seconds() / 3600 for a in pending), default=0.0)
+        metrics().approvals_pending_oldest.set(round(oldest, 2))
+        return stuck
+
     async def tick(self, now: datetime | None = None) -> WorkerReport:
         r = WorkerReport()
         r.runs_executed = await self.run_queue()
         r.kpi_observations, r.digests_sent = self.refresh_kpis(now)
         r.approvals_escalated = self.escalate_approvals(now)
+        r.stuck_runs = self.record_health(now)
         log.info("worker_tick", worker_id=self.worker_id, count=r.runs_executed)
         return r
 

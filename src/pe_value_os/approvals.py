@@ -98,7 +98,7 @@ def decide(ctx: RunContext, run_id: str, principal: security.Principal, decision
                  "plan_id": plan.plan_id, "policy_version": ctx.policy.version}))
     hours = ((rec.decided_at or datetime.now(UTC)) - rec.requested_at).total_seconds() / 3600
     metrics().approval_turnaround.record(hours, {"decision": decision.value})
-    metrics().approval_decisions.add(1, {"decision": decision.value, "changed": changed})
+    metrics().approval_decisions.add(1, {"decision": decision.value, "changed": str(changed).lower()})
     if run.params.get("mode") == "interactive":
         _finalize_interactive(ctx, run.run_state(), rec, plan.plan_id)
     else:

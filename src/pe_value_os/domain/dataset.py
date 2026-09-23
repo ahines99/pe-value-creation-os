@@ -15,6 +15,7 @@ class CompanyData:
     profile_evidence_id: str
     reference_date: date
     datasets: dict[DatasetKind, Dataset] = field(default_factory=dict)
+    entity_resolution: dict[str, Any] | None = None  # report from CompositeAdapter (PVC-117)
 
     @property
     def company_id(self) -> str:

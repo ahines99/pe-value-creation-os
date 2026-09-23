@@ -109,7 +109,7 @@ def governed(name: str, *, mutating: bool = False) -> Callable[[F], F]:
                 outcome = "rejected"
                 raise ToolError(f"{type(e).__name__}: {e}") from e
             finally:
-                metrics().tool_calls.add(1, {"tool": name, "outcome": outcome, "mutating": mutating})
+                metrics().tool_calls.add(1, {"tool": name, "outcome": outcome, "mutating": str(mutating).lower()})
                 log.info("tool_call", tool_name=name, status=outcome,
                          duration_ms=round((time.perf_counter() - t0) * 1000, 2))
 

@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from . import __version__, security
 from .auth import auth_settings_from_env, verifier_from_env
+from .observability import RequestMetricsMiddleware
 from .policy import get_policy
 from .tools._runtime import StrictArguments, company_data, get_ctx, governed
 from .tools.benchmark import register_benchmark
@@ -107,4 +108,4 @@ def build_server() -> MCPServer:
 
 
 mcp = build_server()
-app = mcp.streamable_http_app()
+app = RequestMetricsMiddleware(mcp.streamable_http_app(), service="mcp")

@@ -18,7 +18,7 @@ from contextlib import contextmanager
 from typing import Any
 
 SAFE_KEYS = frozenset({
-    "event", "level", "timestamp", "logger", "run_id", "company_id", "step", "tool_name", "status", "duration_ms",
+    "event", "level", "timestamp", "logger", "logger_name", "run_id", "company_id", "step", "tool_name", "status", "duration_ms",
     "event_type", "evidence_ids", "count", "error_type", "attempt", "worker_id", "policy_version", "calc_version",
     "model", "input_tokens", "output_tokens", "cost_usd", "approval_id", "plan_id", "opportunity_id", "kpi_id",
     "schema_version", "http_method", "path", "status_code", "decision", "branch", "reason_code", "lever",
@@ -76,7 +76,8 @@ def get_logger(name: str = "pe_value_os") -> Any:
         return _StdlibLogger(logging.getLogger(name))
     if not _configured:
         configure_logging()
-    return structlog.get_logger().bind(logger=name)
+    # Initial values keep the proxy lazy, so later configure_logging() calls (tests, CLI) take effect.
+    return structlog.get_logger(logger_name=name)
 
 
 class _StdlibLogger:  # pragma: no cover - fallback only
@@ -150,13 +151,21 @@ class Metrics:
         self.step_duration = meter.create_histogram("pvc.step.duration", unit="ms", description="Step latency")
         self.tool_calls = meter.create_counter("pvc.tool.calls", description="MCP tool calls by outcome")
         self.model_tokens = meter.create_counter("pvc.model.tokens", description="Model tokens by direction")
-        self.model_cost = meter.create_counter("pvc.model.cost_usd", unit="USD", description="Estimated model cost")
+        self.model_cost = meter.create_counter("pvc.model.cost_usd", description="Estimated model cost in USD")
+        self.http_requests = meter.create_counter("pvc.http.requests", description="HTTP requests by status class")
+        self.http_duration = meter.create_histogram("pvc.http.duration", unit="ms", description="HTTP latency")
         self.approval_turnaround = meter.create_histogram(
             "pvc.approval.turnaround", unit="h", description="Hours from approval request to decision")
         self.approval_decisions = meter.create_counter(
             "pvc.approval.decisions", description="Approval decisions; changed=true when the human edited the plan")
         self.adapter_errors = meter.create_counter("pvc.adapter.errors", description="Source adapter failures")
         self.kpi_off_track = meter.create_counter("pvc.kpi.off_track", description="KPI off-track alerts")
+        self.runs_stuck = meter.create_gauge(
+            "pvc.runs.stuck", description="Runs in 'running' state longer than the stuck threshold")
+        self.source_age = meter.create_gauge(
+            "pvc.source.age_days", description="Days between a dataset's as_of and the reference date")
+        self.approvals_pending_oldest = meter.create_gauge(
+            "pvc.approvals.pending_oldest", unit="h", description="Age of the oldest pending approval")
 
 
 _metrics: Metrics | None = None
@@ -186,6 +195,32 @@ def configure_metrics(reader: Any = None, service_name: str = "pe-value-os") -> 
     otel_metrics.set_meter_provider(provider)
     _metrics = Metrics(provider.get_meter("pe_value_os"))
     return provider
+
+
+class RequestMetricsMiddleware:
+    """ASGI middleware: request count by status class and latency, for the availability SLO (PVC-140)."""
+
+    def __init__(self, app: Any, service: str):
+        self.app, self.service = app, service
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+        status = {"code": 500}
+        t0 = time.perf_counter()
+
+        async def send_wrapper(message: Any) -> None:
+            if message.get("type") == "http.response.start":
+                status["code"] = int(message.get("status", 500))
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_wrapper)
+        finally:
+            attrs = {"service": self.service, "status_class": f"{status['code'] // 100}xx"}
+            metrics().http_requests.add(1, attrs)
+            metrics().http_duration.record((time.perf_counter() - t0) * 1000, attrs)
 
 
 @contextmanager
