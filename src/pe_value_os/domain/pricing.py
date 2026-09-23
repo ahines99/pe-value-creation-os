@@ -199,7 +199,8 @@ def price_waterfall(data: CompanyData, period_end: date | None = None, segment: 
     contract_by_cust: dict[str, list[ContractTerm]] = defaultdict(list)
     for ct in contracts:
         contract_by_cust[ct.customer_id].append(ct)
-    realized: list[float] = []
+    realized: list[float] = []  # every renewal, for the mean realized uplift
+    matched_realized: list[float] = []  # renewals that also have a contracted uplift, for the realization ratio
     contracted: list[float] = []
     for cid, lines in by_cust.items():
         if segment and seg_of(cid) != segment:
@@ -210,10 +211,13 @@ def price_waterfall(data: CompanyData, period_end: date | None = None, segment: 
                 continue
             if (cur.invoice_date - prev.invoice_date).days < 330 or cur.product != prev.product:
                 continue
+            if not prev.quantity or not cur.quantity or prev.net_amount <= 0:
+                continue  # free or zero-quantity periods (pilots, credits) have no unit price to compare
             prev_unit = prev.net_amount / prev.quantity
             if prev_unit >= prev.list_price_per_unit:
                 continue  # already at list; uplift is not available
-            realized.append(float(cur.net_amount / cur.quantity / prev_unit - 1))
+            change = float(cur.net_amount / cur.quantity / prev_unit - 1)
+            realized.append(change)
             terms = [ct for ct in contract_by_cust.get(cid, []) if ct.start_date <= prev.invoice_date <= ct.end_date]
             if terms:
                 t = terms[-1]
@@ -221,9 +225,12 @@ def price_waterfall(data: CompanyData, period_end: date | None = None, segment: 
                 if t.price_cap_rate is not None:
                     up = min(up, t.price_cap_rate)
                 contracted.append(float(up))
+                matched_realized.append(change)
     mean_real = dec(mean(realized)) if realized else None
     mean_contr = dec(mean(contracted)) if contracted else None
-    ratio = q_ratio(mean_real / mean_contr) if mean_real is not None and mean_contr else None
+    # Compare like with like: realized and contracted uplift over the same renewals.
+    matched_real = dec(mean(matched_realized)) if matched_realized else None
+    ratio = q_ratio(matched_real / mean_contr) if matched_real is not None and mean_contr else None
 
     # Legacy price books (ARR at period end)
     arr_rows = [r for r in data.records(DatasetKind.ARR) if r.month == end]

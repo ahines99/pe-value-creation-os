@@ -23,7 +23,7 @@ from pydantic import ValidationError
 
 from .. import security
 from ..adapters.repositories import Conflict, NotFound
-from ..domain.baselines import MetricUnavailable
+from ..domain.calc import MetricUnavailable
 from ..domain.dataset import CompanyData
 from ..domain.models import AuditEvent
 from ..domain.policies import PolicyViolation
@@ -106,6 +106,12 @@ def governed(name: str, *, mutating: bool = False) -> Callable[[F], F]:
             outcome = "ok"
             t0 = time.perf_counter()
             try:
+                if mutating:
+                    principal = security.current_principal()
+                    if principal is not None and not principal.has_scope(security.WRITE_SCOPE):
+                        raise security.deny(
+                            f"{name} changes state and requires the {security.WRITE_SCOPE!r} scope", "missing_scope"
+                        )
                 with span(f"tool:{name}", tool_name=name):
                     return fn(*args, **kwargs)
             except security.ScopeError as e:

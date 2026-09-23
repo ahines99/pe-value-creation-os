@@ -19,8 +19,8 @@ from typing import Any
 from . import freshness
 from .adapters.base import SourceAdapter
 from .adapters.repositories import Repository
-from .domain.baselines import REGISTRY, MetricUnavailable, compute_metric
-from .domain.calc import q_ratio
+from .domain.baselines import REGISTRY, compute_metric
+from .domain.calc import MetricUnavailable, add_months, q_ratio
 from .domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from .domain.models import AuditEvent
 from .domain.runs import PlanRecord
@@ -140,7 +140,11 @@ def refresh_company(
         except MetricUnavailable as exc:
             _audit(repo, company_id, "kpi_unavailable", actor, d.run_id, kpi_id=d.kpi_id, reason_code=str(exc)[:80])
             continue
-        target = q_ratio(target_on(d, now.date()))
+        # Compare like with like: the target for the end of the month the data covers, not for today (sources lag).
+        as_of = now.date()
+        if value.period_end is not None:
+            as_of = min(as_of, add_months(value.period_end, 1) - timedelta(days=1))
+        target = q_ratio(target_on(d, as_of))
         off, variance = _off_track(d, value.value, target, policy.kpi.off_track_tolerance)
         obs = KpiObservation(
             observation_id=str(uuid.uuid4()),
@@ -165,13 +169,15 @@ def refresh_company(
 
 
 def detect_variance(d: KpiDefinition, history: list[KpiObservation], policy: PolicyConfig) -> list[KpiAlert]:
-    """Alerts for the latest observation. Threshold: off-track now. Trend: N consecutive wrong-way moves."""
+    """Alerts for the latest observation. Threshold: the KPI has just gone off track (a KPI that stays off track is
+    reported in every digest but alerts once). Trend: N consecutive wrong-way moves."""
     if not history:
         return []
     last = history[-1]
     alerts: list[KpiAlert] = []
     now = datetime.now(UTC)
-    if last.status == "off_track":
+    newly_off = last.status == "off_track" and (len(history) < 2 or history[-2].status != "off_track")
+    if newly_off:
         alerts.append(
             KpiAlert(
                 alert_id=str(uuid.uuid4()),

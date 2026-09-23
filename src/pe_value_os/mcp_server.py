@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from . import __version__, security
 from .auth import auth_settings_from_env, verifier_from_env
-from .observability import RequestMetricsMiddleware
+from .observability import RequestMetricsMiddleware, configure_telemetry
 from .policy import get_policy
 from .tools._runtime import StrictArguments, company_data, get_ctx, governed
 from .tools.benchmark import register_benchmark
@@ -158,5 +158,6 @@ def create_http_app(server: MCPServer | None = None) -> Any:
     )
 
 
+configure_telemetry("pvc-mcp")
 mcp = build_server()
 app = create_http_app(mcp)

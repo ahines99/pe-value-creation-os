@@ -11,7 +11,10 @@
 # services ignore task_definition drift; Terraform-side config changes ride along on the next deploy.
 
 locals {
+  # Adapter settings first, core settings last: a core key can never be overridden (see also the variable's
+  # validation).
   app_environment = merge(
+    var.source_adapter_env,
     {
       PVC_ENV                     = local.pvc_env
       PVC_LOG_LEVEL               = var.log_level
@@ -31,8 +34,9 @@ locals {
       PVC_PUBLIC_URL              = local.public_api_url
       OTEL_EXPORTER_OTLP_ENDPOINT = var.otel_exporter_otlp_endpoint
       PVC_POLICY_PATH             = var.policy_path
+      PVC_API_AUDIENCE            = local.api_audience
+      PVC_API_CLIENT_IDS          = join(",", var.api_client_ids)
     },
-    var.source_adapter_env,
   )
 
   app_secrets = merge(
@@ -40,7 +44,8 @@ locals {
     var.proposer == "model" ? { ANTHROPIC_API_KEY = aws_secretsmanager_secret.app["anthropic-api-key"].arn } : {},
   )
 
-  uvicorn_flags = ["--host", "0.0.0.0", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-server-header"]
+  # Trust X-Forwarded-* only from inside the VPC (the ALB), so client IPs in logs cannot be spoofed.
+  uvicorn_flags = ["--host", "0.0.0.0", "--proxy-headers", "--forwarded-allow-ips", var.vpc_cidr, "--no-server-header"]
 
   workloads = {
     mcp = {
@@ -77,6 +82,15 @@ locals {
       })
       secrets  = tomap({ PGPASSWORD = aws_secretsmanager_secret.db_role["migrator"].arn })
       evidence = false
+    }
+    # Operator-run offboarding (PVC-144): `aws ecs run-task` with command and PVC_OPERATOR* overrides; see
+    # docs/runbooks and docs/data_retention.md. Its own task role may delete evidence versions under governance.
+    offboard = {
+      port        = null
+      command     = tolist(["pvc", "offboard", "--help"])
+      environment = tomap(local.app_environment)
+      secrets     = tomap({ PGPASSWORD = aws_secretsmanager_secret.db_role["app"].arn })
+      evidence    = false
     }
     bootstrap = {
       port    = null
@@ -176,7 +190,7 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.task_sizes[each.key].cpu
   memory                   = var.task_sizes[each.key].memory
   execution_role_arn       = aws_iam_role.execution[each.key].arn
-  task_role_arn            = try(aws_iam_role.task[each.key].arn, null)
+  task_role_arn            = each.key == "offboard" ? aws_iam_role.offboard.arn : try(aws_iam_role.task[each.key].arn, null)
 
   runtime_platform {
     operating_system_family = "LINUX"

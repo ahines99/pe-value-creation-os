@@ -7,13 +7,14 @@ base-case effective rate by the functions below, so every target is reproducible
 
 from __future__ import annotations
 
+import json
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 
-from ..domain.baselines import REGISTRY, MetricUnavailable, compute_metric
-from ..domain.calc import q_money, q_ratio
+from ..domain.baselines import REGISTRY, compute_metric
+from ..domain.calc import MetricUnavailable, q_money, q_ratio
 from ..domain.dataset import CompanyData
 from ..domain.project_models import (
     Initiative,
@@ -252,8 +253,20 @@ def build_plan(
     total_iy = sum(
         (rank[o.opportunity_id].in_year_ebitda_base for o, _ in items if o.opportunity_id in rank), Decimal(0)
     )
+    # Deterministic id: rebuilding the same plan (for example a retried step) overwrites it instead of adding a
+    # duplicate; a plan built from different inputs (reviewer edits, recomputed value cases) gets a new id.
+    plan_key = json.dumps(
+        {
+            "items": sorted((o.opportunity_id, vc.inputs_hash) for o, vc in items),
+            "excluded": excluded or [],
+            "notes": reviewer_notes,
+            "policy": policy.version,
+        },
+        sort_keys=True,
+        default=str,
+    )
     return Plan(
-        plan_id=str(uuid.uuid4()),
+        plan_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"pvc:plan:{run_id}:{plan_key}")),
         run_id=run_id,
         company_id=data.company_id,
         workstreams=workstreams,

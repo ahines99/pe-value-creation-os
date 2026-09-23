@@ -105,7 +105,7 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
     pnl_note = f"P&L missing months: {', '.join(x.isoformat() for x in missing_pnl)}" if missing_pnl else None
     sub_rev = sum_accounts(pnl, t12, PnLAccount.REVENUE_SUBSCRIPTION)
     sub_cogs = sum_accounts(pnl, t12, *SUB_COGS)
-    gm = q_ratio((sub_rev - sub_cogs) / sub_rev) if sub_rev and not missing_pnl else None
+    gm = q_ratio((sub_rev - sub_cogs) / sub_rev) if sub_rev > 0 and not missing_pnl else None
     put("subscription_gross_margin", gm, "ratio", "t12m_hosting_thirdparty_support_cogs", ev_pnl, note=pnl_note)
 
     # CAC payback: prior-quarter S&M / (net new ARR in quarter x GM) x 12
@@ -114,11 +114,11 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
     sm_prior_q = sum_accounts(pnl, pq, PnLAccount.SALES_MARKETING)
     net_new_q = ledger.total(q_last) - ledger.total(add_months(q_first, -1))
     q_gm = _gm(pnl, month_range(q_first, q_last))
-    if net_new_q > 0 and q_gm and all(x in pnl_months for x in pq):
+    if net_new_q > 0 and q_gm is not None and q_gm > 0 and all(x in pnl_months for x in pq):
         payback: Decimal | None = q_ratio(sm_prior_q / (net_new_q * q_gm) * 12)
         note = None
     else:
-        payback, note = None, "Net new ARR in quarter was not positive or P&L incomplete; payback undefined"
+        payback, note = None, "Net new ARR or gross margin not positive, or P&L incomplete; payback undefined"
     put(
         "cac_payback_months",
         payback,
@@ -138,7 +138,16 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
         and ledger.arr(c, year_ago) == 0
     )
     sm_t12 = sum_accounts(pnl, t12, PnLAccount.SALES_MARKETING)
-    if customers_end and new_logos and grr is not None and grr < 1 and gm and not missing_pnl:
+    if (
+        customers_end
+        and new_logos
+        and grr is not None
+        and grr < 1
+        and gm is not None
+        and gm > 0
+        and sm_t12 > 0
+        and not missing_pnl
+    ):
         arpa = ledger.total(end) / customers_end
         ltv = arpa * gm / (1 - grr)
         cac = sm_t12 / new_logos
@@ -156,13 +165,14 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
             "ratio",
             "arpa_x_gm_over_annual_dollar_churn__t12m_sm_per_new_logo",
             ev_both,
-            note="Insufficient inputs (no churn, no new logos, or incomplete P&L)",
+            note="Insufficient inputs (no churn, no new logos, no S&M spend, non-positive margin, or incomplete P&L)",
         )
 
     # Magic number: (rev_q - rev_{q-1}) x 4 / S&M_{q-1}
     rev_q = sum_accounts(pnl, month_range(q_first, q_last), *REVENUE)
     rev_pq = sum_accounts(pnl, pq, *REVENUE)
-    magic = q_ratio((rev_q - rev_pq) * 4 / sm_prior_q) if sm_prior_q and all(x in pnl_months for x in pq) else None
+    both_quarters = all(x in pnl_months for x in [*pq, *month_range(q_first, q_last)])
+    magic = q_ratio((rev_q - rev_pq) * 4 / sm_prior_q) if sm_prior_q > 0 and both_quarters else None
     put("magic_number", magic, "ratio", "total_revenue_qoq_x4_over_prior_quarter_sm", ev_pnl, start=q_first)
 
     # Burn multiple: net burn / net new ARR (T12M), burn proxied by negative EBITDA
@@ -184,10 +194,10 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
     # Rule of 40: revenue growth + EBITDA margin
     rev_t12 = sum_accounts(pnl, t12, *REVENUE)
     rev_prior = sum_accounts(pnl, prior12, *REVENUE)
-    margin = ebitda_t12 / rev_t12 if rev_t12 else None
-    if all(x in pnl_months for x in prior12) and rev_prior and margin is not None and not missing_pnl:
+    margin = ebitda_t12 / rev_t12 if rev_t12 > 0 else None
+    if all(x in pnl_months for x in prior12) and rev_prior > 0 and margin is not None and not missing_pnl:
         growth, variant = rev_t12 / rev_prior - 1, "t12m_revenue_growth_plus_ebitda_margin"
-    elif margin is not None and ledger.total(year_ago) and not missing_pnl:
+    elif margin is not None and ledger.total(year_ago) > 0 and not missing_pnl:
         growth, variant = ledger.total(end) / ledger.total(year_ago) - 1, "arr_yoy_growth_plus_ebitda_margin"
     else:
         growth, variant = None, "unavailable"
@@ -215,6 +225,6 @@ def compute_saas_metrics(data: CompanyData, period_end: date | None = None) -> S
 
 def _gm(pnl: dict[date, dict[PnLAccount, Decimal]], months: list[date]) -> Decimal | None:
     rev = sum_accounts(pnl, months, PnLAccount.REVENUE_SUBSCRIPTION)
-    if not rev or any(mm not in pnl for mm in months):
+    if rev <= 0 or any(mm not in pnl for mm in months):
         return None
     return (rev - sum_accounts(pnl, months, *SUB_COGS)) / rev

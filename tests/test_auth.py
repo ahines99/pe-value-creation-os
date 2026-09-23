@@ -128,20 +128,26 @@ def test_streamable_http_requires_bearer_and_enforces_scope(keys, monkeypatch, t
         )
         assert r.status_code == 401 and "Bearer" in r.headers.get("www-authenticate", "")
 
-        async def session_calls():
+        async def session_calls(tok):
             async with (
-                httpx2.AsyncClient(headers={"Authorization": f"Bearer {token(key)}"}, timeout=30) as http,
+                httpx2.AsyncClient(headers={"Authorization": f"Bearer {tok}"}, timeout=30) as http,
                 streamable_http_client(url, http_client=http) as (read, write),
                 ClientSession(read, write) as s,
             ):
                 await s.initialize()
                 ok = await s.call_tool("get_company_profile", {"company_id": "beacon-pricing"})
                 denied = await s.call_tool("get_company_profile", {"company_id": "cedar-churn"})
-                return ok, denied
+                start = await s.call_tool(
+                    "start_diagnostic_run", {"company_id": "beacon-pricing", "mode": "interactive"}
+                )
+                return ok, denied, start
 
-        ok, denied = anyio.run(session_calls)
+        ok, denied, start = anyio.run(session_calls, token(key))
         assert ok.is_error is False and ok.structured_content["profile"]["company_id"] == "beacon-pricing"
         assert denied.is_error and "Access denied" in denied.content[0].text
+        assert start.is_error and "pvc.write" in start.content[0].text  # read-only token cannot change state
+        _, _, start = anyio.run(session_calls, token(key, scope="pvc.read pvc.write"))
+        assert start.is_error is False and start.structured_content["status"] == "running"
         rebind = httpx.post(
             url,
             json={"jsonrpc": "2.0", "id": 1, "method": "ping"},

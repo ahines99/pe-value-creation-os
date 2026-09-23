@@ -8,6 +8,7 @@ may remove initiatives when approving; the diff between the proposed and approve
 from __future__ import annotations
 
 import copy
+import os
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
@@ -34,6 +35,14 @@ def _require_approver(principal: security.Principal, company_id: str, approver_r
         raise NotApprover(f"Principal lacks the {approver_role!r} role")
     if company_id not in principal.companies:
         raise NotApprover("Principal may not access this company")
+    if principal.scopes is not None:  # issued by the identity provider (bearer token or dev token)
+        if not principal.has_scope(security.APPROVE_SCOPE):
+            raise NotApprover(f"Token lacks the {security.APPROVE_SCOPE!r} scope")
+        allowed = {c.strip() for c in os.environ.get("PVC_API_CLIENT_IDS", "").split(",") if c.strip()}
+        if not allowed and os.environ.get("PVC_ENV", "prod") != "dev":
+            raise NotApprover("PVC_API_CLIENT_IDS is not configured; approval decisions are disabled")
+        if allowed and principal.client_id not in allowed:
+            raise NotApprover("Approval decisions must come from the approval UI client")
 
 
 def apply_edits(plan: dict[str, Any], remove_initiatives: list[str]) -> tuple[dict[str, Any], dict[str, Any]]:

@@ -107,6 +107,7 @@ variables {
   github_environment          = "staging"
   data_source_hosts           = ["warehouse.example.com", ".snowflakecomputing.com"]
   otel_exporter_otlp_endpoint = "https://otlp.example.net:443/v1"
+  api_client_ids              = ["approval-ui"]
 }
 
 run "staging_defaults" {
@@ -294,4 +295,87 @@ run "rejects_non_power_of_ten_body_limit" {
   }
 
   expect_failures = [var.max_request_body_bytes]
+}
+
+# Controls added after the security audit.
+run "security_controls" {
+  command = apply
+
+  # Distinct ARNs for the roles CD must never pass (the shared mock gives every role the same ARN).
+  override_resource {
+    target = aws_iam_role.execution["bootstrap"]
+    values = { arn = "arn:aws:iam::111111111111:role/pvc-staging-bootstrap-execution" }
+  }
+  override_resource {
+    target = aws_iam_role.execution["offboard"]
+    values = { arn = "arn:aws:iam::111111111111:role/pvc-staging-offboard-execution" }
+  }
+  override_resource {
+    target = aws_iam_role.offboard
+    values = { arn = "arn:aws:iam::111111111111:role/pvc-staging-offboard-task" }
+  }
+
+  assert {
+    condition = length(setintersection(
+      toset(flatten([for s in data.aws_iam_policy_document.deploy.statement : s.resources if s.sid == "PassTaskRoles"])),
+      toset([
+        "arn:aws:iam::111111111111:role/pvc-staging-bootstrap-execution",
+        "arn:aws:iam::111111111111:role/pvc-staging-offboard-execution",
+        "arn:aws:iam::111111111111:role/pvc-staging-offboard-task",
+      ]),
+    )) == 0
+    error_message = "CD must not be able to pass the bootstrap or offboard roles."
+  }
+
+  assert {
+    condition = alltrue([
+      for s in data.aws_iam_policy_document.deploy.statement : s.sid != "EcsRunOneOffTasks" || alltrue([
+        for r in s.resources : endswith(r, "-migrate:*")
+      ])
+    ])
+    error_message = "CD may run only the migrate task (not bootstrap or offboard)."
+  }
+
+  assert {
+    condition     = contains([for s in data.aws_iam_policy_document.offboard.statement : s.sid], "DeleteEvidenceVersions")
+    error_message = "The offboard task role must be able to delete evidence versions."
+  }
+
+  assert {
+    condition = alltrue([
+      for s in data.aws_iam_policy_document.task_evidence.statement : !contains(s.actions, "s3:BypassGovernanceRetention")
+    ])
+    error_message = "Service task roles must not bypass Object Lock."
+  }
+
+  assert {
+    condition     = !contains(jsondecode(aws_ecs_task_definition.this["api"].container_definitions)[0].command, "*")
+    error_message = "Forwarded headers must be trusted only from the VPC, not from any address."
+  }
+
+  assert {
+    condition = contains(
+      [for e in jsondecode(aws_ecs_task_definition.this["api"].container_definitions)[0].environment : "${e.name}=${e.value}"],
+      "PVC_API_AUDIENCE=https://approvals.staging.example.com",
+      ) && contains(
+      [for e in jsondecode(aws_ecs_task_definition.this["api"].container_definitions)[0].environment : "${e.name}=${e.value}"],
+      "PVC_API_CLIENT_IDS=approval-ui",
+    )
+    error_message = "The API must get its own audience and the approval UI client allow-list."
+  }
+
+  assert {
+    condition     = aws_lb.this.access_logs[0].enabled
+    error_message = "ALB access logs must be enabled."
+  }
+}
+
+run "rejects_core_settings_in_source_adapter_env" {
+  command = plan
+
+  variables {
+    source_adapter_env = { PVC_ENV = "dev" }
+  }
+
+  expect_failures = [var.source_adapter_env]
 }

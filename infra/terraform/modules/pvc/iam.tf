@@ -3,8 +3,11 @@
 #   execution role (per workload)  pull the image, write its own log group, read only its own secrets
 #   task role (mcp, api, worker)   read/write evidence under evidence/ with the data key; no delete, no
 #                                  governance bypass (offboarding is an operator action, PVC-144)
+#   offboard task role             list and delete evidence versions (with governance bypass); operator-run only
 #   migrate, bootstrap             no task role: they only talk to PostgreSQL
-#   deploy role                    assumable only from this repository's GitHub environment
+#   deploy role                    assumable only from this repository's GitHub environment; runs migrations and
+#                                  deploys the services. It cannot run or pass the roles of bootstrap (RDS master
+#                                  secret) or offboard (evidence deletion): those are operator actions.
 
 data "aws_iam_policy_document" "ecs_execution_assume" {
   statement {
@@ -151,6 +154,40 @@ resource "aws_iam_role_policy" "task_evidence" {
   policy   = data.aws_iam_policy_document.task_evidence.json
 }
 
+# ---- Offboarding task role (PVC-144) ----------------------------------------------------------------------
+resource "aws_iam_role" "offboard" {
+  name               = "${local.prefix}-offboard-task"
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_assume.json
+  tags               = local.tags
+}
+
+data "aws_iam_policy_document" "offboard" {
+  statement {
+    sid       = "ListEvidenceVersions"
+    actions   = ["s3:ListBucketVersions", "s3:ListBucket"]
+    resources = [aws_s3_bucket.evidence.arn]
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values   = ["${local.evidence_prefix}/*"]
+    }
+  }
+
+  # Deleting a company's evidence removes every version, which Object Lock (governance mode) only allows with
+  # the bypass permission. Only this role has it, and only under the evidence prefix.
+  statement {
+    sid       = "DeleteEvidenceVersions"
+    actions   = ["s3:DeleteObject", "s3:DeleteObjectVersion", "s3:BypassGovernanceRetention"]
+    resources = ["${aws_s3_bucket.evidence.arn}/${local.evidence_prefix}/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "offboard" {
+  name   = "offboard"
+  role   = aws_iam_role.offboard.id
+  policy = data.aws_iam_policy_document.offboard.json
+}
+
 # ---- GitHub Actions OIDC deploy role ----------------------------------------------------------------------
 resource "aws_iam_openid_connect_provider" "github" {
   count          = var.create_github_oidc_provider ? 1 : 0
@@ -161,6 +198,8 @@ resource "aws_iam_openid_connect_provider" "github" {
 
 locals {
   github_oidc_provider_arn = var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : var.github_oidc_provider_arn
+  # What CD deploys and runs. bootstrap (RDS master secret) and offboard (evidence deletion) are excluded.
+  cd_workloads = toset(["mcp", "api", "worker", "migrate"])
 }
 
 data "aws_iam_policy_document" "deploy_assume" {
@@ -239,11 +278,9 @@ data "aws_iam_policy_document" "deploy" {
   }
 
   statement {
-    sid     = "EcsRunOneOffTasks"
-    actions = ["ecs:RunTask"]
-    resources = [
-      for k in ["migrate", "bootstrap"] : "arn:${local.partition}:ecs:${local.region}:${local.account_id}:task-definition/${local.prefix}-${k}:*"
-    ]
+    sid       = "EcsRunOneOffTasks"
+    actions   = ["ecs:RunTask"]
+    resources = ["arn:${local.partition}:ecs:${local.region}:${local.account_id}:task-definition/${local.prefix}-migrate:*"]
     condition {
       test     = "ArnEquals"
       variable = "ecs:cluster"
@@ -270,9 +307,12 @@ data "aws_iam_policy_document" "deploy" {
   }
 
   statement {
-    sid       = "PassTaskRoles"
-    actions   = ["iam:PassRole"]
-    resources = concat(values(aws_iam_role.execution)[*].arn, values(aws_iam_role.task)[*].arn)
+    sid     = "PassTaskRoles"
+    actions = ["iam:PassRole"]
+    resources = concat(
+      [for k, r in aws_iam_role.execution : r.arn if contains(local.cd_workloads, k)],
+      values(aws_iam_role.task)[*].arn,
+    )
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
@@ -283,7 +323,7 @@ data "aws_iam_policy_document" "deploy" {
   statement {
     sid       = "ReadOneOffTaskLogs"
     actions   = ["logs:GetLogEvents", "logs:FilterLogEvents"]
-    resources = [for k in ["migrate", "bootstrap"] : "${aws_cloudwatch_log_group.workload[k].arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.workload["migrate"].arn}:*"]
   }
 }
 

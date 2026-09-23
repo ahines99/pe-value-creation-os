@@ -5,10 +5,16 @@
 - A step may raise `Rewind(to_step)` to re-open that step and everything after it (changes requested).
 - Each step has a timeout and a bounded retry budget for transient errors only (timeouts and
   `TransientSourceError`); everything else fails the run immediately.
+- Every attempt works on its own copy of the run state, and step code runs against a repository guard
+  (`AttemptGuard`). When an attempt times out, its worker thread cannot be killed, so the guard is tripped:
+  any further repository write from the abandoned thread raises `AttemptAbandoned`, and its state changes are
+  discarded. A retry therefore never runs alongside a live earlier attempt that can still change the run.
 """
 
 from __future__ import annotations
 
+import copy
+import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -31,6 +37,72 @@ class Rewind(Exception):
         super().__init__(reason)
         self.to_step = to_step
         self.reason = reason
+        self.state: RunState | None = None  # the attempt's working state (e.g. reviewer notes), set by the runner
+
+
+class AttemptAbandoned(RuntimeError):
+    """A write from a step attempt that already timed out or was cancelled."""
+
+
+# Repository methods that change state. Reads pass through unguarded.
+_WRITE_PREFIXES = (
+    "add_",
+    "save_",
+    "upsert_",
+    "create_",
+    "append_",
+    "record_",
+    "update_",
+    "delete_",
+    "set_",
+    "put_",
+    "claim_",
+    "release_",
+    "activate_",
+    "supersede_",
+    "mark_",
+    "offboard_",
+)
+
+
+class AttemptGuard:
+    """Wraps a repository for one step attempt; after `trip()`, writes raise AttemptAbandoned."""
+
+    def __init__(self, repo: Any):
+        self._repo = repo
+        self._tripped = threading.Event()
+
+    def trip(self) -> None:
+        self._tripped.set()
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._repo, name)
+        if not (callable(attr) and name.startswith(_WRITE_PREFIXES)):
+            return attr
+
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            if self._tripped.is_set():
+                raise AttemptAbandoned(f"{name} after the step attempt was abandoned")
+            return attr(*args, **kwargs)
+
+        return guarded
+
+
+async def run_guarded_in_thread(ctx: Any, fn: Callable[..., Any], *args: Any) -> Any:
+    """Run a blocking step function in a worker thread with a per-attempt repository guard.
+
+    `ctx` is a RunContext; the thread gets a shallow copy whose repo is guarded. If this coroutine is cancelled
+    (timeout), the thread is abandoned and the guard tripped, so the thread can no longer write.
+    """
+    import dataclasses
+    from functools import partial
+
+    guard = AttemptGuard(ctx.repo)
+    actx = dataclasses.replace(ctx, repo=guard)
+    try:
+        return await anyio.to_thread.run_sync(partial(fn, actx, *args), abandon_on_cancel=True)
+    finally:
+        guard.trip()
 
 
 class Step(Protocol):
@@ -130,9 +202,13 @@ class Runner:
         attempt = 0
         while True:
             attempt += 1
+            work = copy.deepcopy(state)  # an abandoned attempt can only change its own copy
             try:
                 with anyio.fail_after(step.timeout_s):
-                    return await step.execute(state)
+                    return await step.execute(work)
+            except Rewind as rw:
+                rw.state = work
+                raise
             except TRANSIENT as exc:
                 if attempt > step.retries:
                     raise
@@ -158,6 +234,14 @@ class Runner:
                     try:
                         state = await self._attempt(step, state)
                     except Rewind as rw:
+                        if rw.state is not None:
+                            state = rw.state
+                        if rw.to_step not in names:
+                            state.errors.append(f"{step.name}: rewind to unknown step {rw.to_step!r}")
+                            state.status = Status.FAILED
+                            self.store.save_run_state(state)
+                            self.emit(state, "step_failed", error_type="Rewind")
+                            return state
                         idx = names.index(rw.to_step)
                         state.completed_steps = [s for s in state.completed_steps if s not in names[idx:]]
                         self.emit(state, "run_rewound", to_step=rw.to_step, reason_code="changes_requested")

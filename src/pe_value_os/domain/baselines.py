@@ -19,6 +19,7 @@ from .calc import (
     SUB_COGS,
     ZERO,
     ArrLedger,
+    MetricUnavailable,
     add_months,
     month_range,
     pnl_by_month,
@@ -32,10 +33,6 @@ from .pricing import price_waterfall
 from .project_models import Lever
 from .retention import analyse_retention
 from .source_models import ChurnType, ContractTerm, DatasetKind, PnLAccount
-
-
-class MetricUnavailable(ValueError):
-    """The metric cannot be computed from the available data."""
 
 
 class BaselineValue(BaseModel):

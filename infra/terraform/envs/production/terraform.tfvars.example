@@ -16,3 +16,12 @@ data_source_hosts = []
 
 # First apply only: no image exists yet, so start with zero tasks (docs/deployment.md, bootstrap step 1).
 desired_counts = { mcp = 0, api = 0, worker = 0 }
+
+# Approval API: its own token audience and the approval UI client(s) allowed to decide.
+api_client_ids = ["approval-ui-client-id"]
+# api_audience   = "https://approvals.example.com"
+# api_browser_oidc = { issuer = "...", authorization_endpoint = "...", token_endpoint = "...",
+#                      user_info_endpoint = "...", client_id = "...", client_secret = "..." }
+
+# Required: SNS topic that pages on-call.
+alarm_topic_arn = "arn:aws:sns:us-east-1:222222222222:pvc-oncall"

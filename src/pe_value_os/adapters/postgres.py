@@ -261,6 +261,7 @@ class PostgresRepository:
                      select run_id from workflow_runs
                      where (status = 'pending'
                             or (resume_requested_at is not null and status not in ('complete', 'rejected')))
+                       and coalesce(params->>'mode', 'automated') <> 'interactive'
                        and (locked_by is null or locked_at < now() - interval '15 minutes')
                      order by created_at for update skip locked limit %s)
                    returning *""",
@@ -268,9 +269,37 @@ class PostgresRepository:
             ).fetchall()
         return [self._run(r) for r in rows]
 
-    def release_run(self, run_id: str) -> None:
+    def acquire_run(self, run_id: str, worker_id: str) -> bool:
+        """Take the run lock for a direct execution (CLI). Fails if another live holder has it."""
+        self.get_run(run_id)
         with self._tx() as cur:
-            cur.execute("update workflow_runs set locked_by = null, locked_at = null where run_id = %s", (run_id,))
+            row = cur.execute(
+                """update workflow_runs set locked_by = %s, locked_at = now()
+                   where run_id = %s
+                     and (locked_by is null or locked_by = %s or locked_at < now() - interval '15 minutes')
+                   returning run_id""",
+                (worker_id, run_id, worker_id),
+            ).fetchone()
+        return row is not None
+
+    def renew_lease(self, run_id: str, worker_id: str) -> bool:
+        """Heartbeat: extend the lease. False means the lock was lost to another worker."""
+        with self._tx() as cur:
+            row = cur.execute(
+                "update workflow_runs set locked_at = now() where run_id = %s and locked_by = %s returning run_id",
+                (run_id, worker_id),
+            ).fetchone()
+        return row is not None
+
+    def release_run(self, run_id: str, worker_id: str | None = None) -> None:
+        with self._tx() as cur:
+            if worker_id is None:
+                cur.execute("update workflow_runs set locked_by = null, locked_at = null where run_id = %s", (run_id,))
+            else:
+                cur.execute(
+                    "update workflow_runs set locked_by = null, locked_at = null where run_id = %s and locked_by = %s",
+                    (run_id, worker_id),
+                )
 
     # findings ----------------------------------------------------------------------------------------------
     def add_finding(self, finding: Finding) -> None:
@@ -860,7 +889,9 @@ class PostgresRepository:
     # deletion ----------------------------------------------------------------------------------------------
     def delete_company_data(self, company_id: str) -> dict[str, int]:
         security.require(company_id)
-        counts: dict[str, int] = {}
+        # Evidence objects first: if object storage fails, the database is untouched and offboarding can be re-run
+        # (both deletions are idempotent). The reverse order could leave orphaned evidence with no record of it.
+        counts: dict[str, int] = {"evidence_objects": self.evidence_store.delete_company(company_id)}
         with self._tx() as cur:
             for table in (
                 "kpi_alerts",
@@ -880,5 +911,4 @@ class PostgresRepository:
             counts["evidence"] = cur.execute("delete from evidence where company_id = %s", (company_id,)).rowcount
             counts["runs"] = cur.execute("delete from workflow_runs where company_id = %s", (company_id,)).rowcount
             cur.execute("delete from companies where company_id = %s", (company_id,))
-        counts["evidence_objects"] = self.evidence_store.delete_company(company_id)
         return counts

@@ -50,6 +50,107 @@ resource "aws_lb" "this" {
   enable_deletion_protection = var.deletion_protection
   idle_timeout               = var.alb_idle_timeout
   tags                       = local.tags
+
+  # Request logs for incident response (docs/runbooks/data-exposure.md).
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.id
+    prefix  = "alb"
+    enabled = true
+  }
+
+  depends_on = [aws_s3_bucket_policy.alb_logs]
+}
+
+# ---- ALB access logs --------------------------------------------------------------------------------------
+# ALB log delivery supports SSE-S3 only (not SSE-KMS). Logs hold request metadata (paths, client IPs), never
+# bodies or tokens; they expire after var.log_retention_days.
+data "aws_elb_service_account" "this" {}
+
+resource "aws_s3_bucket" "alb_logs" {
+  bucket        = "${local.prefix}-alb-logs-${local.account_id}"
+  force_destroy = !var.deletion_protection
+  tags          = local.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "alb_logs" {
+  bucket                  = aws_s3_bucket.alb_logs.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "alb_logs" {
+  bucket = aws_s3_bucket.alb_logs.id
+  rule {
+    id     = "expire"
+    status = "Enabled"
+    filter {}
+    expiration {
+      days = var.log_retention_days
+    }
+  }
+}
+
+data "aws_iam_policy_document" "alb_logs" {
+  statement {
+    sid       = "AlbLogDelivery"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.alb_logs.arn}/alb/AWSLogs/${local.account_id}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_elb_service_account.this.arn]
+    }
+  }
+  statement {
+    sid       = "AlbLogDeliveryService"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.alb_logs.arn}/alb/AWSLogs/${local.account_id}/*"]
+    principals {
+      type        = "Service"
+      identifiers = ["logdelivery.elasticloadbalancing.amazonaws.com"]
+    }
+  }
+  statement {
+    sid     = "DenyInsecureTransport"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.alb_logs.arn,
+      "${aws_s3_bucket.alb_logs.arn}/*",
+    ]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "alb_logs" {
+  bucket     = aws_s3_bucket.alb_logs.id
+  policy     = data.aws_iam_policy_document.alb_logs.json
+  depends_on = [aws_s3_bucket_public_access_block.alb_logs]
 }
 
 resource "aws_lb_target_group" "this" {
@@ -125,6 +226,49 @@ resource "aws_lb_listener_rule" "host" {
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.key].arn
+  }
+
+  tags = local.tags
+}
+
+# Browser pages of the approval UI: the ALB signs the user in with the identity provider (OIDC) and forwards
+# the IdP access token in x-amzn-oidc-accesstoken, which the API verifies like a bearer token. JSON API calls
+# with a bearer token use the plain host rule above. Higher priority (lower number) than the host rule.
+resource "aws_lb_listener_rule" "api_browser" {
+  count        = var.api_browser_oidc == null ? 0 : 1
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 15
+
+  condition {
+    host_header {
+      values = [var.api_hostname]
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/runs/*/review", "/runs/*/approvals/form", "/evidence/*", "/companies/*"]
+    }
+  }
+
+  action {
+    type = "authenticate-oidc"
+    authenticate_oidc {
+      issuer                     = var.api_browser_oidc.issuer
+      authorization_endpoint     = var.api_browser_oidc.authorization_endpoint
+      token_endpoint             = var.api_browser_oidc.token_endpoint
+      user_info_endpoint         = var.api_browser_oidc.user_info_endpoint
+      client_id                  = var.api_browser_oidc.client_id
+      client_secret              = var.api_browser_oidc.client_secret
+      scope                      = var.api_browser_oidc.scope
+      session_timeout            = 28800
+      on_unauthenticated_request = "authenticate"
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this["api"].arn
   }
 
   tags = local.tags

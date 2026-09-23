@@ -13,6 +13,13 @@ Configuration (environment):
 - PVC_AUTH_JWKS_URL          JWKS endpoint, or PVC_AUTH_PUBLIC_KEY (PEM) for a static key
 - PVC_MCP_RESOURCE_URL       this server's public URL (advertised as protected-resource metadata)
 - PVC_AUTH_REQUIRED_SCOPES   comma-separated scopes required for MCP access (default: pvc.read)
+- PVC_API_AUDIENCE           expected `aud` for the approval API (required outside dev). It must differ from the
+                             MCP audience, so a token issued to an MCP client cannot be replayed against the API.
+- PVC_API_CLIENT_IDS         comma-separated OAuth client ids (`azp`) allowed to record approval decisions,
+                             i.e. the approval UI's client. Required outside dev.
+
+Scopes: `pvc.read` for MCP access, `pvc.write` for MCP tools that change state, `pvc.approve` for approval
+decisions (see `security.WRITE_SCOPE` / `security.APPROVE_SCOPE`).
 """
 
 from __future__ import annotations
@@ -72,15 +79,19 @@ class JwtTokenVerifier:
             claims = self.decode(token)
         except jwt.PyJWTError:
             return None
-        scopes = claims.get("scope", "")
         return AccessToken(
             token=token,
             client_id=str(claims.get("azp") or claims.get("client_id") or claims["sub"]),
-            scopes=scopes.split() if isinstance(scopes, str) else list(scopes),
+            scopes=sorted(_scopes(claims)),
             expires_at=int(claims["exp"]),
             subject=str(claims["sub"]),
             claims=claims,
         )
+
+
+def _scopes(claims: dict[str, Any]) -> frozenset[str]:
+    raw = claims.get("scope", claims.get("scp", ""))
+    return frozenset(raw.split() if isinstance(raw, str) else (str(s) for s in raw))
 
 
 def principal_from_claims(claims: dict[str, Any]) -> Principal:
@@ -89,16 +100,27 @@ def principal_from_claims(claims: dict[str, Any]) -> Principal:
         companies=frozenset(str(c) for c in claims.get("pvc_companies") or []),
         roles=frozenset(str(r) for r in claims.get("pvc_roles") or []),
         principal_type=str(claims.get("pvc_principal_type", "service")),
+        scopes=_scopes(claims),
+        client_id=str(claims.get("azp") or claims.get("client_id") or "") or None,
     )
 
 
-def verifier_from_env() -> JwtTokenVerifier | None:
+def verifier_from_env(*, for_api: bool = False) -> JwtTokenVerifier | None:
+    """Token verifier for the MCP endpoint, or (for_api=True) for the approval API with its own audience."""
     issuer = os.environ.get("PVC_AUTH_ISSUER")
     if not issuer:
         if os.environ.get("PVC_ENV", "prod") != "dev":
             raise AuthConfigError("PVC_AUTH_ISSUER is required outside dev (PVC_ENV=dev disables auth)")
         return None
-    audience = os.environ.get("PVC_AUTH_AUDIENCE") or os.environ.get("PVC_MCP_RESOURCE_URL")
+    mcp_audience = os.environ.get("PVC_AUTH_AUDIENCE") or os.environ.get("PVC_MCP_RESOURCE_URL")
+    if for_api:
+        audience = os.environ.get("PVC_API_AUDIENCE")
+        if not audience:
+            raise AuthConfigError("Set PVC_API_AUDIENCE for the approval API")
+        if audience == mcp_audience:
+            raise AuthConfigError("PVC_API_AUDIENCE must differ from the MCP audience")
+    else:
+        audience = mcp_audience
     if not audience:
         raise AuthConfigError("Set PVC_AUTH_AUDIENCE")
     return JwtTokenVerifier(

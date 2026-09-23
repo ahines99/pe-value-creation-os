@@ -18,6 +18,7 @@ locals {
 
   mcp_resource_url = "https://${var.mcp_hostname}/mcp"
   public_api_url   = "https://${var.api_hostname}"
+  api_audience     = coalesce(var.api_audience, local.public_api_url)
 
   # ---- Egress allow-list (PVC-094): single source for Network Firewall and the in-process check ----------
   idp_hosts = distinct([

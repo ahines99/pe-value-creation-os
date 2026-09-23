@@ -20,16 +20,35 @@ class ScopeError(PermissionError):
     """The caller may not access this company."""
 
 
+def deny(message: str, reason: str = "company_scope") -> ScopeError:
+    """A ScopeError, counted in `pvc.access.denied` so probing is visible whatever surface it hits."""
+    from .observability import metrics
+
+    metrics().access_denied.add(1, {"reason": reason})
+    return ScopeError(message)
+
+
 @dataclass(frozen=True)
 class Principal:
     subject: str
     companies: frozenset[str]
     roles: frozenset[str] = field(default_factory=frozenset)
     principal_type: str = "service"  # human | service | model
+    # OAuth scopes and client for token-based principals; None for system, test and dev principals, which are
+    # not issued by the identity provider and are not scope-bound.
+    scopes: frozenset[str] | None = None
+    client_id: str | None = None
 
     @property
     def is_human(self) -> bool:
         return self.principal_type == "human"
+
+    def has_scope(self, scope: str) -> bool:
+        return self.scopes is None or scope in self.scopes
+
+
+WRITE_SCOPE = "pvc.write"  # required by MCP tools that change state
+APPROVE_SCOPE = "pvc.approve"  # required by approval decisions in the approval API
 
 
 _current: contextvars.ContextVar[Principal | None] = contextvars.ContextVar("pvc_principal", default=None)
@@ -64,6 +83,8 @@ def _from_mcp_token() -> Principal | None:
         companies=frozenset(str(c) for c in companies),
         roles=frozenset(str(r) for r in roles),
         principal_type=str(claims.get("pvc_principal_type", "service")),
+        scopes=frozenset(token.scopes or []),
+        client_id=token.client_id,
     )
 
 
@@ -87,7 +108,7 @@ def allowed_companies() -> frozenset[str]:
 def require(company_id: str) -> Principal:
     p = current_principal()
     if p is None:
-        raise ScopeError("No authenticated principal")
+        raise deny("No authenticated principal", "unauthenticated")
     if company_id not in p.companies:
-        raise ScopeError(f"Principal {p.subject!r} may not access company {company_id!r}")
+        raise deny(f"Principal {p.subject!r} may not access company {company_id!r}")
     return p

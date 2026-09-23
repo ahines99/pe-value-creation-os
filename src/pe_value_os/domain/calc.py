@@ -18,6 +18,10 @@ MONEY_Q = Decimal("0.01")
 ZERO = Decimal(0)
 
 
+class MetricUnavailable(ValueError):
+    """The metric cannot be computed from the available data."""
+
+
 def q_ratio(x: Decimal) -> Decimal:
     return x.quantize(RATIO_Q, rounding=ROUND_HALF_UP)
 
@@ -87,6 +91,8 @@ class ArrLedger:
 
     @property
     def last_month(self) -> date:
+        if not self.months:
+            raise MetricUnavailable("No ARR data")
         return self.months[-1]
 
     def arr(self, customer_id: str, m: date) -> Decimal:

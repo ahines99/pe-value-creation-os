@@ -208,6 +208,9 @@ class Metrics:
             "pvc.approval.decisions", description="Approval decisions; changed=true when the human edited the plan"
         )
         self.adapter_errors = meter.create_counter("pvc.adapter.errors", description="Source adapter failures")
+        self.access_denied = meter.create_counter(
+            "pvc.access.denied", description="Company-scope and permission denials, from every surface"
+        )
         self.kpi_off_track = meter.create_counter("pvc.kpi.off_track", description="KPI off-track alerts")
         self.runs_stuck = meter.create_gauge(
             "pvc.runs.stuck", description="Runs in 'running' state longer than the stuck threshold"
@@ -247,6 +250,23 @@ def configure_metrics(reader: Any = None, service_name: str = "pe-value-os") -> 
     otel_metrics.set_meter_provider(provider)
     _metrics = Metrics(provider.get_meter("pe_value_os"))
     return provider
+
+
+_telemetry_configured = False
+
+
+def configure_telemetry(service_name: str) -> bool:
+    """Process startup hook for the MCP server, approval API and worker: install OTLP trace and metric export
+    when OTEL_EXPORTER_OTLP_ENDPOINT is set. Without it, instruments stay no-ops. Idempotent; returns True when
+    export was configured by this call. OTEL_SERVICE_NAME overrides the service name."""
+    global _telemetry_configured
+    if _telemetry_configured or not os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT"):
+        return False
+    name = os.environ.get("OTEL_SERVICE_NAME") or service_name
+    configure_tracing(service_name=name)
+    configure_metrics(service_name=name)
+    _telemetry_configured = True
+    return True
 
 
 class RequestMetricsMiddleware:

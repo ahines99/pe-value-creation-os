@@ -15,6 +15,7 @@ from mcp.server import MCPServer
 from pydantic import BaseModel
 
 from .. import security
+from ..adapters.repositories import NotFound
 from ..domain import sufficiency
 from ..domain.baselines import derive_baseline
 from ..domain.metrics import SaasMetrics, compute_saas_metrics
@@ -36,6 +37,19 @@ from .source_tools import parse_period
 def _run(run_id: str) -> Any:
     rec = get_ctx().repo.get_run(run_id)
     security.require(rec.company_id)
+    return rec
+
+
+def _open_interactive_run(run_id: str) -> Any:
+    """The run a skill-driven tool may change: interactive, and not yet submitted or decided."""
+    rec = _run(run_id)
+    if rec.params.get("mode") != "interactive":
+        raise ValueError(
+            f"Run {run_id} is an automated run; the workflow produces its findings, opportunities and plan. "
+            "Start an interactive run with start_diagnostic_run(mode='interactive') to work step by step."
+        )
+    if rec.status in (Status.AWAITING_APPROVAL, Status.COMPLETE, Status.REJECTED):
+        raise ValueError(f"Run {run_id} is {rec.status.value} and can no longer be changed; start a new run.")
     return rec
 
 
@@ -123,8 +137,9 @@ def register_value_model(mcp: MCPServer) -> None:
         evidence_ids: list[str],
         assumptions: list[str] | None = None,
     ) -> Finding:
-        """Persist a finding for a run. Value claims must cite at least one evidence id from this company."""
-        rec = _run(run_id)
+        """Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this
+        company."""
+        rec = _open_interactive_run(run_id)
         principal = security.current_principal()
         f = Finding(
             finding_id=str(uuid.uuid4()),
@@ -163,8 +178,8 @@ def register_value_model(mcp: MCPServer) -> None:
     ) -> Opportunity:
         """Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the
         server fills in the baseline value and EBITDA flow-through from company data. Returns the stored
-        opportunity; call size_value_case next."""
-        rec = _run(run_id)
+        opportunity; call size_value_case next. Only for open interactive runs."""
+        rec = _open_interactive_run(run_id)
         ctx = get_ctx()
         data = company_data(rec.company_id)
         derived = derive_baseline(data, Lever(lever), baseline_metric, metric_params or {}, ctx.policy)
@@ -210,6 +225,7 @@ def register_value_model(mcp: MCPServer) -> None:
         come from company data, never from the caller. Quote results exactly; do not adjust them."""
         ctx = get_ctx()
         opp = ctx.repo.get_opportunity(company_id, opportunity_id)
+        _open_interactive_run(opp.run_id)
         vc = _size(opp, ev_multiple)
         ctx.repo.save_value_case(company_id, opp.run_id, vc, ctx.policy.version)
         audit(
@@ -232,12 +248,16 @@ def register_value_model(mcp: MCPServer) -> None:
     @mcp.tool()
     @governed("prioritize_opportunities", mutating=True)
     def prioritize_opportunities(run_id: str) -> list[PriorityScore]:
-        """Deterministic priority scores for every sized opportunity in a run. Do not reorder the result."""
-        rec = _run(run_id)
+        """Deterministic priority scores for every sized opportunity in an open interactive run. Opportunities not yet
+        sized with size_value_case are left out. Do not reorder the result."""
+        rec = _open_interactive_run(run_id)
         ctx = get_ctx()
-        items = [
-            (o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id)) for o in ctx.repo.list_opportunities(run_id)
-        ]
+        items = []
+        for o in ctx.repo.list_opportunities(run_id):
+            try:
+                items.append((o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id)))
+            except NotFound:
+                continue  # not sized yet
         scores = prioritize(items, ctx.policy)
         ctx.repo.save_priorities(run_id, rec.company_id, scores)
         audit(rec.company_id, "prioritize_opportunities", "opportunities_prioritized", run_id, count=len(scores))
@@ -247,10 +267,12 @@ def register_value_model(mcp: MCPServer) -> None:
     @governed("draft_100_day_plan", mutating=True)
     def draft_100_day_plan(run_id: str) -> dict[str, Any]:
         """Build the 100-day plan from the run's prioritized, positively sized opportunities. Returns the draft
-        plan; submit it with request_approval."""
-        rec = _run(run_id)
+        plan; submit it with request_approval. Requires prioritize_opportunities first."""
+        rec = _open_interactive_run(run_id)
         ctx = get_ctx()
         scores = ctx.repo.list_priorities(run_id)
+        if not scores:
+            raise ValueError("No prioritized opportunities. Run size_value_case and prioritize_opportunities first.")
         ranked = {s.opportunity_id for s in scores}
         items = [
             (o, ctx.repo.get_value_case(rec.company_id, o.opportunity_id))
@@ -345,9 +367,9 @@ def register_workflow(mcp: MCPServer) -> None:
     @mcp.tool()
     @governed("request_approval", mutating=True)
     def request_approval(run_id: str) -> ApprovalRequestResult:
-        """Submit the run's latest plan for human approval and pause the run. A human decides through the approval
-        API; no tool can approve."""
-        rec = _run(run_id)
+        """Submit an open interactive run's latest plan for human approval and pause the run. A human decides through
+        the approval API; no tool can approve. Automated runs request approval themselves."""
+        rec = _open_interactive_run(run_id)
         ctx = get_ctx()
         plan = ctx.repo.latest_plan(run_id)
         if plan is None:

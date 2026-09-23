@@ -23,6 +23,8 @@ from .workflows.steps import RunContext
 
 log = get_logger(__name__)
 
+HEARTBEAT_S = 120.0  # lease renewal interval; the claim lease is 15 minutes
+
 
 @dataclass
 class WorkerReport:
@@ -53,11 +55,22 @@ class Worker:
         for rec in claimed:
             with principal_scope(system_principal(rec.company_id, subject=f"system:worker:{self.worker_id}")):
                 try:
-                    await primary.execute(self.ctx, rec.run_id)
+                    async with anyio.create_task_group() as tg:
+                        tg.start_soon(self._heartbeat, rec.run_id)
+                        await primary.execute(self.ctx, rec.run_id)
+                        tg.cancel_scope.cancel()
                     n += 1
                 finally:
-                    self.ctx.repo.release_run(rec.run_id)
+                    self.ctx.repo.release_run(rec.run_id, self.worker_id)
         return n
+
+    async def _heartbeat(self, run_id: str) -> None:
+        """Keep the run's lease (15 minutes) alive while a long step runs, so no other worker takes it over."""
+        while True:
+            await anyio.sleep(HEARTBEAT_S)
+            if not self.ctx.repo.renew_lease(run_id, self.worker_id):
+                log.error("run_lease_lost", run_id=run_id, worker_id=self.worker_id)
+                return
 
     def refresh_kpis(self, now: datetime | None = None) -> tuple[int, int]:
         obs = sent = 0

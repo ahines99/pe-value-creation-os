@@ -9,15 +9,12 @@ KPI monitoring runs afterwards as a scheduled job (pe_value_os.kpi), not as a st
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
-from functools import partial
 from typing import Any
-
-import anyio
 
 from ..domain.models import AuditEvent
 from ..domain.runs import TERMINAL, RunRecord, RunState, Status
 from . import steps as S
-from .base import FunctionalStep, ParallelStep, Runner, Step
+from .base import FunctionalStep, ParallelStep, Runner, Step, run_guarded_in_thread
 
 STEP_ORDER = [
     "intake",
@@ -34,14 +31,14 @@ DIAGNOSTIC_BRANCHES = ["unit_economics", "pricing", "retention", "ai_opportunity
 
 def _fn(ctx: S.RunContext, fn: Any) -> Any:
     async def run(state: RunState) -> Any:
-        return await anyio.to_thread.run_sync(partial(fn, ctx, state), abandon_on_cancel=True)
+        return await run_guarded_in_thread(ctx, fn, state)
 
     return run
 
 
 def _branch(ctx: S.RunContext, name: str) -> Any:
     async def run(state: RunState) -> Any:
-        return await anyio.to_thread.run_sync(partial(S.diagnostic_branch, ctx, state, name), abandon_on_cancel=True)
+        return await run_guarded_in_thread(ctx, S.diagnostic_branch, state, name)
 
     return run
 

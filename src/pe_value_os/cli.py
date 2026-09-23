@@ -22,7 +22,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import socket
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -56,7 +59,13 @@ def cmd_db(args: argparse.Namespace) -> int:
     if args.action == "upgrade":
         migrate.upgrade()
     elif args.action == "downgrade":
-        migrate.downgrade(revision=args.revision or "base")
+        if not args.revision:
+            print(
+                "Refusing to downgrade without --revision (use --revision base to drop the whole schema)",
+                file=sys.stderr,
+            )
+            return 2
+        migrate.downgrade(revision=args.revision)
     elif args.action == "check":
         from .db.migrate_check import main
 
@@ -89,9 +98,22 @@ def cmd_run(args: argparse.Namespace) -> int:
         if args.no_execute:
             _print({"run_id": rec.run_id, "created": created, "status": rec.status.value})
             return 0
-        anyio.run(primary.execute, ctx, rec.run_id)
+        with _run_lock(ctx, rec.run_id):
+            anyio.run(primary.execute, ctx, rec.run_id)
         _print(primary.status(ctx, rec.run_id))
     return 0
+
+
+@contextmanager
+def _run_lock(ctx: Any, run_id: str) -> Iterator[None]:
+    """Hold the same run lock the worker uses, so a CLI execution never overlaps a worker's."""
+    holder = f"cli:{socket.gethostname()}:{os.getpid()}"
+    if not ctx.repo.acquire_run(run_id, holder):
+        raise SystemExit(f"Run {run_id} is being executed by another worker; try again later or check `pvc status`.")
+    try:
+        yield
+    finally:
+        ctx.repo.release_run(run_id, holder)
 
 
 def cmd_resume(args: argparse.Namespace) -> int:
@@ -99,7 +121,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
     from .workflows import primary
 
     ctx, principal = _ctx_and_principal()
-    with principal_scope(principal):
+    with principal_scope(principal), _run_lock(ctx, args.run_id):
         anyio.run(
             lambda: primary.resume(
                 ctx, args.run_id, principal.subject, accept_gaps=args.accept_gaps, reason=args.reason
@@ -121,8 +143,10 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 def cmd_worker(args: argparse.Namespace) -> int:
     from .app import adapter_from_env, build_context, companies_from_env
+    from .observability import configure_telemetry
     from .worker import Worker
 
+    configure_telemetry("pvc-worker")
     adapter = adapter_from_env()
     w = Worker(build_context(adapter=adapter), companies_from_env("PVC_WORKER_COMPANIES", adapter))
     if args.once:

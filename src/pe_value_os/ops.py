@@ -72,7 +72,12 @@ def recompute_run(ctx: RunContext, run_id: str, actor: str, *, reason: str) -> d
 def offboard_company(ctx: RunContext, company_id: str, actor: str) -> dict[str, Any]:
     """Delete a company's data and evidence per docs/data_retention.md. Audit events are retained."""
     _audit(ctx, company_id, "company_offboarding_started", actor)
-    counts = ctx.repo.delete_company_data(company_id)
+    try:
+        counts = ctx.repo.delete_company_data(company_id)
+    except Exception as exc:
+        # Deletion is idempotent: fix the cause (e.g. storage permissions) and re-run `pvc offboard`.
+        _audit(ctx, company_id, "company_offboarding_failed", actor, error_type=type(exc).__name__)
+        raise
     _audit(ctx, company_id, "company_offboarded", actor, deleted=counts)
     return {"company_id": company_id, "deleted": counts, "audit_retained": True}
 

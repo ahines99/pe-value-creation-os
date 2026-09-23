@@ -62,6 +62,32 @@ variable "auth_required_scopes" {
   default = "pvc.read"
 }
 
+variable "api_audience" {
+  description = "Token audience for the approval API; must differ from the MCP audience. Null uses https://<api_hostname>."
+  type        = string
+  default     = null
+}
+
+variable "api_client_ids" {
+  description = "OAuth client ids of the approval UI, allowed to record approval decisions."
+  type        = list(string)
+}
+
+variable "api_browser_oidc" {
+  description = "ALB OIDC sign-in for the review UI pages (see the module variable). Null disables browser sign-in."
+  type = object({
+    issuer                 = string
+    authorization_endpoint = string
+    token_endpoint         = string
+    user_info_endpoint     = string
+    client_id              = string
+    client_secret          = string
+    scope                  = optional(string, "openid pvc.read pvc.approve")
+  })
+  default   = null
+  sensitive = true
+}
+
 variable "mcp_hostname" {
   type = string
 }
@@ -149,6 +175,11 @@ variable "otel_exporter_otlp_endpoint" {
 }
 
 variable "alarm_topic_arn" {
-  type    = string
-  default = null
+  description = "SNS topic that pages on-call. Required in production: alarms without actions notify nobody."
+  type        = string
+
+  validation {
+    condition     = can(regex("^arn:aws[a-z-]*:sns:", var.alarm_topic_arn))
+    error_message = "alarm_topic_arn must be an SNS topic ARN."
+  }
 }

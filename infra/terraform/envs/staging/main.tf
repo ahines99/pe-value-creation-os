@@ -57,6 +57,9 @@ module "pvc" {
   auth_jwks_url        = var.auth_jwks_url
   auth_audience        = var.auth_audience
   auth_required_scopes = var.auth_required_scopes
+  api_audience         = var.api_audience
+  api_client_ids       = var.api_client_ids
+  api_browser_oidc     = var.api_browser_oidc
 
   # Ingress
   mcp_hostname        = var.mcp_hostname

@@ -116,22 +116,35 @@ class S3EvidenceStore:
         digest = hashlib.sha256(content).hexdigest()
         try:
             head = self.client.head_object(Bucket=self.bucket, Key=key)
+        except self._client_error() as exc:
+            if not self._is_missing(exc):
+                raise  # access denied, throttling, KMS errors: never treat as "absent" and overwrite
+        else:
             if head.get("Metadata", {}).get("sha256") != digest:
                 raise ImmutableEvidenceError(f"Evidence {evidence_id} already stored with different content")
             return key
-        except self._not_found():
-            pass
         self.client.put_object(Bucket=self.bucket, Key=key, Body=content, Metadata={"sha256": digest}, **self._sse)
         return key
 
-    def _not_found(self) -> type[Exception]:
+    def _client_error(self) -> type[Exception]:
         exc = getattr(getattr(self.client, "exceptions", None), "ClientError", None)
         return exc if isinstance(exc, type) else KeyError
+
+    @staticmethod
+    def _is_missing(exc: Exception) -> bool:
+        """True only for 'object does not exist' (HTTP 404); other client errors must propagate."""
+        response = getattr(exc, "response", None)
+        if not isinstance(response, dict):
+            return isinstance(exc, KeyError)  # test doubles raise KeyError for a missing key
+        code = str(response.get("Error", {}).get("Code", ""))
+        return code in {"404", "NoSuchKey", "NotFound"}
 
     def get_original(self, company_id: str, evidence_id: str) -> bytes:
         try:
             obj = self.client.get_object(Bucket=self.bucket, Key=self._key(company_id, evidence_id, "original"))
-        except self._not_found() as e:
+        except self._client_error() as e:
+            if not self._is_missing(e):
+                raise
             raise EvidenceNotFound(evidence_id) from e
         body: bytes = obj["Body"].read()
         return body
@@ -144,7 +157,9 @@ class S3EvidenceStore:
     def get_derived(self, company_id: str, evidence_id: str) -> str | None:
         try:
             obj = self.client.get_object(Bucket=self.bucket, Key=self._key(company_id, evidence_id, "derived.txt"))
-        except self._not_found():
+        except self._client_error() as e:
+            if not self._is_missing(e):
+                raise
             return None
         data: bytes = obj["Body"].read()
         return data.decode("utf-8")

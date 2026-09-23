@@ -49,7 +49,11 @@ groups:
           summary: "Runs pausing while no model tokens are consumed (possible model outage)"
           runbook: docs/runbooks/model-outage.md
       - alert: PvcScopeDenialsSpike
-        expr: sum(increase(pvc_tool_calls_total{outcome="denied"}[15m])) > 20
+        # Scope denials from every surface (tools, resources, approval API), plus tool lookups of ids the caller
+        # cannot see: row-level security reports another company's run or opportunity id as "not found".
+        expr: >-
+          (sum(increase(pvc_access_denied_total[15m])) or vector(0))
+          + (sum(increase(pvc_tool_calls_total{outcome="not_found"}[15m])) or vector(0)) > 20
         labels: {severity: page}
         annotations:
           summary: "Spike in cross-company access denials (possible probing)"

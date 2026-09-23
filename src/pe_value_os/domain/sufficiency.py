@@ -16,7 +16,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from ..policy import PolicyConfig
-from .calc import month_of, month_range
+from .calc import add_months, month_of, month_range
 from .dataset import CompanyData
 from .source_models import Customer, DatasetKind
 
@@ -24,6 +24,9 @@ ANALYSES = ("unit_economics", "pricing", "retention", "ai_opportunity")
 ROW_ERROR_RATE_MAX = 0.02
 
 MONTHLY_SERIES = {DatasetKind.PNL, DatasetKind.ARR, DatasetKind.HEADCOUNT}
+# Datasets expected to have data every month. A fresh extract whose latest month is old is still stale.
+# Sparse event data (churn, concessions, CRM opportunities) can legitimately be quiet for weeks.
+CONTINUOUS = MONTHLY_SERIES | {DatasetKind.INVOICES, DatasetKind.USAGE, DatasetKind.SUPPORT}
 
 
 class SufficiencyStatus(StrEnum):
@@ -114,6 +117,18 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                 )
             )
         months = _months_of(kind, ds.records)
+        if kind in CONTINUOUS and months:
+            lag = (data.reference_date - add_months(months[-1], 1)).days  # days since the latest month ended
+            if lag > policy.freshness.max_age_days:
+                gaps.append(
+                    Gap(
+                        code="stale_series",
+                        dataset=name,
+                        blocking=required,
+                        detail=f"'{name}' latest data month is {months[-1].isoformat()}, which ended {lag} days before "
+                        f"the reference date (limit {policy.freshness.max_age_days})",
+                    )
+                )
         span = len(month_range(months[0], months[-1])) if months else 0
         if span < rule.min_months and kind not in {
             DatasetKind.CUSTOMERS,
@@ -140,6 +155,18 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                         detail=f"'{name}' is missing months: {', '.join(m.isoformat() for m in missing)}",
                     )
                 )
+        foreign = sorted({c for r in ds.records if (c := getattr(r, "currency", None)) and c != data.profile.currency})
+        if foreign:
+            n_foreign = sum(getattr(r, "currency", None) in foreign for r in ds.records)
+            gaps.append(
+                Gap(
+                    code="currency_mismatch",
+                    dataset=name,
+                    blocking=required,
+                    detail=f"'{name}' has {n_foreign} rows in {', '.join(foreign)}; company currency is "
+                    f"{data.profile.currency}. Amounts are never converted or summed across currencies.",
+                )
+            )
         n_err = len(ds.row_errors)
         if n_err:
             rate = n_err / (n_err + len(ds.records))

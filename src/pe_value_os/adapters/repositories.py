@@ -69,7 +69,9 @@ class Repository(Protocol):
     def list_runs(self, company_id: str | None = None, status: Status | None = None) -> list[RunRecord]: ...
     def request_resume(self, run_id: str) -> None: ...
     def claim_runnable(self, worker_id: str, limit: int = 5) -> list[RunRecord]: ...
-    def release_run(self, run_id: str) -> None: ...
+    def acquire_run(self, run_id: str, worker_id: str) -> bool: ...
+    def renew_lease(self, run_id: str, worker_id: str) -> bool: ...
+    def release_run(self, run_id: str, worker_id: str | None = None) -> None: ...
 
     # findings, opportunities, value cases, priorities
     def add_finding(self, finding: Finding) -> None: ...
@@ -298,8 +300,8 @@ class InMemoryRepository:
             for r in sorted(self.runs.values(), key=lambda r: r.created_at):
                 if len(out) >= limit:
                     break
-                if not _visible(r.company_id) or r.run_id in self.locks:
-                    continue
+                if not _visible(r.company_id) or r.run_id in self.locks or r.params.get("mode") == "interactive":
+                    continue  # interactive runs are driven by the client and finalized on approval
                 if r.status == Status.PENDING or (
                     r.resume_requested_at is not None and r.status not in (Status.COMPLETE, Status.REJECTED)
                 ):
@@ -308,9 +310,23 @@ class InMemoryRepository:
                     out.append(self.runs[r.run_id])
             return out
 
-    def release_run(self, run_id: str) -> None:
+    def acquire_run(self, run_id: str, worker_id: str) -> bool:
+        self.get_run(run_id)
         with self._lock:
-            self.locks.pop(run_id, None)
+            holder = self.locks.get(run_id)
+            if holder not in (None, worker_id):
+                return False
+            self.locks[run_id] = worker_id
+            return True
+
+    def renew_lease(self, run_id: str, worker_id: str) -> bool:
+        with self._lock:
+            return self.locks.get(run_id) == worker_id
+
+    def release_run(self, run_id: str, worker_id: str | None = None) -> None:
+        with self._lock:
+            if worker_id is None or self.locks.get(run_id) == worker_id:
+                self.locks.pop(run_id, None)
 
     # findings / opportunities --------------------------------------------------------------------------------
     def add_finding(self, finding: Finding) -> None:
@@ -551,6 +567,7 @@ class InMemoryRepository:
     # deletion ----------------------------------------------------------------------------------------------
     def delete_company_data(self, company_id: str) -> dict[str, int]:
         security.require(company_id)
+        evidence_objects = self.evidence_store.delete_company(company_id)  # first, as in the PostgreSQL repository
         with self._lock:
             run_ids = {r for r, rec in self.runs.items() if rec.company_id == company_id}
             counts = {
@@ -576,7 +593,7 @@ class InMemoryRepository:
             self.kpi_alerts = [a for a in self.kpi_alerts if a.company_id != company_id]
             self.notifications = [n for n in self.notifications if n.company_id != company_id]
             self.companies.pop(company_id, None)
-            counts["evidence_objects"] = self.evidence_store.delete_company(company_id)
+            counts["evidence_objects"] = evidence_objects
             return counts
 
 

@@ -29,6 +29,7 @@ TOKENS = {
         "pvc_companies": ["beacon-pricing"],
         "pvc_roles": ["approver"],
         "pvc_principal_type": "human",
+        "scope": "pvc.read pvc.approve",
     },
     "analyst-beacon": {
         "sub": "human:al",
@@ -41,12 +42,21 @@ TOKENS = {
         "pvc_companies": ["beacon-pricing"],
         "pvc_roles": ["approver"],
         "pvc_principal_type": "model",
+        "scope": "pvc.read pvc.approve",
+    },
+    "approver-mcp-token": {  # right person and role, but a token without the approve scope (e.g. issued to MCP)
+        "sub": "human:jo",
+        "pvc_companies": ["beacon-pricing"],
+        "pvc_roles": ["approver"],
+        "pvc_principal_type": "human",
+        "scope": "pvc.read pvc.write",
     },
     "approver-cedar": {
         "sub": "human:ce",
         "pvc_companies": ["cedar-churn"],
         "pvc_roles": ["approver"],
         "pvc_principal_type": "human",
+        "scope": "pvc.read pvc.approve",
     },
 }
 
@@ -205,3 +215,55 @@ def test_kpi_page(env):
     r = client.get("/companies/beacon-pricing/kpis", headers=H("approver-beacon"))
     assert r.status_code == 200 and "Average new-deal discount" in r.text and "on_track" in r.text
     assert client.get("/companies/beacon-pricing/kpis", headers=H("approver-cedar")).status_code == 404
+
+
+def test_approval_needs_approve_scope_and_allowed_client(env, monkeypatch):
+    ctx, run_id, client = env
+    r = client.post(f"/runs/{run_id}/approvals", headers=H("approver-mcp-token"), json={"decision": "approved"})
+    assert r.status_code == 403 and "pvc.approve" in r.text
+    monkeypatch.setenv("PVC_API_CLIENT_IDS", "approval-ui")
+    r = client.post(f"/runs/{run_id}/approvals", headers=H("approver-beacon"), json={"decision": "approved"})
+    assert r.status_code == 403 and "approval UI client" in r.text  # dev token has no azp
+    assert all(a.decision is None for a in _approvals(ctx, run_id))
+
+
+def test_api_rejects_tokens_minted_for_the_mcp_audience(monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    import jwt
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    from pe_value_os.auth import AuthConfigError, verifier_from_env
+
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    pub = key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+    monkeypatch.setenv("PVC_ENV", "staging")
+    monkeypatch.setenv("PVC_AUTH_ISSUER", "https://idp.example.test")
+    monkeypatch.setenv("PVC_AUTH_AUDIENCE", "https://mcp.example.test/mcp")
+    monkeypatch.setenv("PVC_AUTH_PUBLIC_KEY", pub.decode())
+    monkeypatch.delenv("PVC_API_AUDIENCE", raising=False)
+    with pytest.raises(AuthConfigError):
+        verifier_from_env(for_api=True)  # fails closed without a separate API audience
+    monkeypatch.setenv("PVC_API_AUDIENCE", "https://mcp.example.test/mcp")
+    with pytest.raises(AuthConfigError):
+        verifier_from_env(for_api=True)  # and refuses to share the MCP audience
+    monkeypatch.setenv("PVC_API_AUDIENCE", "https://approvals.example.test")
+    now = datetime.now(UTC)
+    claims = {
+        "iss": "https://idp.example.test",
+        "sub": "human:jo",
+        "iat": now,
+        "exp": now + timedelta(minutes=5),
+        "scope": "pvc.read pvc.approve",
+        "pvc_principal_type": "human",
+        "pvc_roles": ["approver"],
+    }
+    mcp_token = jwt.encode({**claims, "aud": "https://mcp.example.test/mcp"}, key, algorithm="RS256")
+    api_token = jwt.encode(
+        {**claims, "aud": "https://approvals.example.test", "azp": "approval-ui"}, key, algorithm="RS256"
+    )
+    v = verifier_from_env(for_api=True)
+    with pytest.raises(jwt.InvalidAudienceError):
+        v.decode(mcp_token)
+    assert v.decode(api_token)["azp"] == "approval-ui"

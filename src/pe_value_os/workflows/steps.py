@@ -11,18 +11,15 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from functools import partial
 from typing import Any
-
-import anyio
 
 from .. import freshness, kpi
 from ..adapters.base import SourceAdapter
 from ..adapters.repositories import Repository
 from ..content_safety import scan
 from ..domain import ai_ops, sufficiency
-from ..domain.baselines import MetricUnavailable, derive_baseline
-from ..domain.calc import jsonable
+from ..domain.baselines import derive_baseline
+from ..domain.calc import MetricUnavailable, jsonable
 from ..domain.dataset import CompanyData
 from ..domain.metrics import compute_saas_metrics
 from ..domain.models import Confidence, Finding, FindingType
@@ -76,10 +73,6 @@ class RunContext:
     def reload(self, company_id: str) -> CompanyData:
         self._data.pop(company_id, None)
         return self.data(company_id)
-
-
-async def _thread(fn: Callable[..., Any], *args: Any) -> Any:
-    return await anyio.to_thread.run_sync(partial(fn, *args), abandon_on_cancel=True)
 
 
 def _persist_findings(ctx: RunContext, state: RunState, branch: str, drafts: list[DraftFinding]) -> list[str]:
@@ -249,7 +242,7 @@ def value_modeling(ctx: RunContext, state: RunState) -> dict[str, Any]:
             oid = stable_id(state.run_id, "opportunity", key)
             try:
                 derived = derive_baseline(data, prop.lever, prop.baseline_metric, prop.metric_params, ctx.policy)
-            except MetricUnavailable as exc:
+            except (MetricUnavailable, ArithmeticError) as exc:  # a data edge case unsizes one proposal, not the run
                 unsized.append(
                     {
                         "opportunity_id": oid,
@@ -335,6 +328,15 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
     ref = state.reference_date or ctx.data(state.company_id).reference_date
     violations: list[str] = []
     warnings: list[str] = []
+    # Datasets whose latest data month is too old (sufficiency gap `stale_series`), by evidence id.
+    data = ctx.data(state.company_id)
+    suff = state.artifacts.get("data_sufficiency", {}).get("results", {})
+    stale_series = {
+        ds.evidence_id: g["detail"]
+        for res in suff.values()
+        for g in res.get("gaps", [])
+        if g.get("code") == "stale_series" and (ds := data.datasets.get(DatasetKind(g["dataset"]))) is not None
+    }
     for o in opps:
         if not o.evidence_ids:
             violations.append(f"{o.title}: no evidence")
@@ -346,12 +348,13 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
         for e in found.values():
             if e.as_of and (ref - e.as_of.date()).days > ctx.policy.freshness.max_age_days:
                 violations.append(f"{o.title}: evidence {e.source_uri} is stale (as_of {e.as_of.date()})")
-    seen: dict[tuple[str, str], str] = {}
-    for o in opps:
-        k = (o.baseline_metric, str(sorted(o.metric_params.items())))
-        if k in seen:
-            violations.append(f"{o.title}: double counts {seen[k]} (same baseline {o.baseline_metric})")
-        seen[k] = o.title
+            elif e.evidence_id in stale_series:
+                violations.append(f"{o.title}: {stale_series[e.evidence_id]}")
+    for i, a in enumerate(opps):
+        for b in opps[:i]:
+            overlap = baseline_overlap(a.baseline_metric, a.metric_params, b.baseline_metric, b.metric_params)
+            if overlap:
+                violations.append(f"{a.title}: double counts {b.title} ({overlap})")
     pricing_arr = [o for o in opps if o.lever.value == "pricing"]
     if len(pricing_arr) > 1:
         warnings.append(
@@ -367,6 +370,26 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
         state.status = Status.NEEDS_EVIDENCE
         state.pause_reason = {"reason": "evidence_review", "violations": violations}
     return {"opportunities_checked": len(opps), "violations": violations, "warnings": warnings}
+
+
+# Cost baselines that contain other cost baselines: sizing both would count the contained cost twice.
+BASELINE_CONTAINS: dict[str, frozenset[str]] = {
+    "subscription_cogs": frozenset({"hosting_cost", "support_cost_tier1"}),
+}
+
+
+def baseline_overlap(m1: str, p1: dict[str, str], m2: str, p2: dict[str, str]) -> str | None:
+    """Why two opportunity baselines overlap, or None. Different segments of one metric are disjoint."""
+    if m1 == m2:
+        if p1 == p2:
+            return f"same baseline {m1}"
+        if not p1 or not p2:
+            return f"{m1} for a segment is part of the unscoped {m1}"
+        return None
+    for outer, inner in ((m1, m2), (m2, m1)):
+        if inner in BASELINE_CONTAINS.get(outer, frozenset()):
+            return f"{inner} is part of {outer}"
+    return None
 
 
 # --- 6. prioritization ------------------------------------------------------------------------------------------

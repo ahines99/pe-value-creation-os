@@ -54,12 +54,40 @@ def current(url: str | None = None) -> str | None:
         engine.dispose()
 
 
+def scram_sha256_verifier(password: str, *, salt: bytes | None = None, iterations: int = 4096) -> str:
+    """PostgreSQL SCRAM-SHA-256 verifier for a password (RFC 5802/7677), computed client-side.
+
+    `ALTER ROLE ... PASSWORD '<verifier>'` stores it as-is, so the plaintext never reaches the server and never
+    appears in server logs (RDS logs DDL statements, including ALTER ROLE, under log_statement=ddl).
+    """
+    import base64
+    import hashlib
+    import hmac
+    import os
+    import unicodedata
+
+    salt = salt or os.urandom(16)
+    salted = hashlib.pbkdf2_hmac("sha256", unicodedata.normalize("NFKC", password).encode(), salt, iterations)
+    client_key = hmac.new(salted, b"Client Key", hashlib.sha256).digest()
+    stored_key = hashlib.sha256(client_key).digest()
+    server_key = hmac.new(salted, b"Server Key", hashlib.sha256).digest()
+
+    def b64(b: bytes) -> str:
+        return base64.b64encode(b).decode()
+
+    return f"SCRAM-SHA-256${iterations}:{b64(salt)}${b64(stored_key)}:{b64(server_key)}"
+
+
 def bootstrap_roles(admin_url: str, passwords: dict[str, str] | None = None) -> None:
-    """Create the three roles if missing and (optionally) set their passwords."""
+    """Create the three roles if missing and (optionally) set their passwords, sent as SCRAM verifiers."""
     import psycopg
     from psycopg import sql
 
     with psycopg.connect(admin_url, autocommit=True) as conn:
         conn.execute(ROLES_SQL.read_text(encoding="utf-8"))
         for role, pw in (passwords or {}).items():
-            conn.execute(sql.SQL("alter role {} with password {}").format(sql.Identifier(role), sql.Literal(pw)))
+            conn.execute(
+                sql.SQL("alter role {} with password {}").format(
+                    sql.Identifier(role), sql.Literal(scram_sha256_verifier(pw))
+                )
+            )

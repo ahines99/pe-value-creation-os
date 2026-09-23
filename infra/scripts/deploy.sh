@@ -3,7 +3,8 @@
 #
 #   deploy.sh push <local-image>          push a locally loaded image to ECR (idempotent) and print its
 #                                         digest-pinned URI
-#   deploy.sh run-task <workload> <image> run a one-off task (migrate | bootstrap) with <image>, wait for it,
+#   deploy.sh run-task <workload> <image> run a one-off task (migrate; bootstrap and offboard need operator
+#                                         credentials: the CD role cannot run them) with <image>, wait for it,
 #                                         print its log and fail unless it exits 0
 #   deploy.sh deploy <image>              run migrations, then roll mcp, api and worker to <image> and wait
 #                                         until every service is stable on the new revision

@@ -107,6 +107,42 @@ variable "auth_required_scopes" {
   default     = "pvc.read"
 }
 
+variable "api_audience" {
+  description = "Token audience for the approval API (PVC_API_AUDIENCE). Must differ from the MCP audience so MCP-client tokens cannot be replayed against it. Null uses the public API URL."
+  type        = string
+  default     = null
+}
+
+variable "api_client_ids" {
+  description = "OAuth client ids (azp) allowed to record approval decisions, i.e. the approval UI's client (PVC_API_CLIENT_IDS)."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.api_client_ids) > 0
+    error_message = "Set at least one approval UI client id; approval decisions are disabled without it."
+  }
+}
+
+variable "api_browser_oidc" {
+  description = <<-EOT
+    ALB OIDC authentication for the browser review UI (/runs/*/review, forms, evidence, KPI pages). The ALB signs
+    the user in and forwards the identity provider's access token in x-amzn-oidc-accesstoken, which the API verifies
+    like a bearer token (audience api_audience, scope pvc.approve for decisions). Null leaves the pages reachable
+    only with a bearer token. client_secret is stored in Terraform state; protect the state bucket accordingly.
+  EOT
+  type = object({
+    issuer                 = string
+    authorization_endpoint = string
+    token_endpoint         = string
+    user_info_endpoint     = string
+    client_id              = string
+    client_secret          = string
+    scope                  = optional(string, "openid pvc.read pvc.approve")
+  })
+  default   = null
+  sensitive = true
+}
+
 # ---- Ingress (PVC-135) ------------------------------------------------------------------------------------
 variable "mcp_hostname" {
   description = "Public DNS name of the MCP endpoint, e.g. mcp.staging.example.com. Must be covered by the ACM certificate."
@@ -297,6 +333,7 @@ variable "task_sizes" {
     worker    = { cpu = 1024, memory = 2048 }
     migrate   = { cpu = 256, memory = 512 }
     bootstrap = { cpu = 256, memory = 512 }
+    offboard  = { cpu = 256, memory = 512 }
   }
 }
 
@@ -336,9 +373,22 @@ variable "source_adapter" {
 }
 
 variable "source_adapter_env" {
-  description = "Extra plain (non-secret) environment for the source adapter, e.g. PVC_CSV_ROOT."
+  description = "Extra plain (non-secret) environment for the source adapter, e.g. PVC_CSV_ROOT or PVC_SOURCES_CONFIG."
   type        = map(string)
   default     = {}
+
+  # These settings belong to the module; letting an adapter override them could, for example, set PVC_ENV=dev and
+  # disable authentication. Core settings are also merged last, so they win regardless.
+  validation {
+    condition = length(setintersection(keys(var.source_adapter_env), [
+      "PVC_ENV", "DATABASE_URL", "PVC_EVIDENCE_BUCKET", "PVC_EVIDENCE_KMS_KEY_ID", "PVC_AUTH_ISSUER",
+      "PVC_AUTH_AUDIENCE", "PVC_AUTH_JWKS_URL", "PVC_AUTH_PUBLIC_KEY", "PVC_MCP_RESOURCE_URL", "PVC_MCP_ALLOWED_HOSTS",
+      "PVC_AUTH_REQUIRED_SCOPES", "PVC_API_AUDIENCE", "PVC_API_CLIENT_IDS", "PVC_EGRESS_ALLOWLIST", "PVC_DEV_TOKENS",
+      "PVC_ALLOWED_COMPANIES", "PVC_WORKER_COMPANIES", "PVC_PROPOSER", "PVC_MODEL", "PVC_POLICY_PATH",
+      "OTEL_EXPORTER_OTLP_ENDPOINT", "PGPASSWORD", "ANTHROPIC_API_KEY",
+    ])) == 0
+    error_message = "source_adapter_env may not set core settings such as PVC_ENV, auth, database or egress variables."
+  }
 }
 
 variable "worker_companies" {

@@ -1,7 +1,10 @@
 """Approval API and review UI (PVC-060, PVC-062, PVC-063, PVC-124). Separate from the MCP surface.
 
-Authentication: `Authorization: Bearer <jwt>` (or a `pvc_token` cookie set by the identity-aware proxy in front
-of this service). In dev only, PVC_DEV_TOKENS maps opaque tokens to claims for local demos.
+Authentication: an access token from the identity provider, verified for signature, issuer, expiry and the API's
+own audience (PVC_API_AUDIENCE). It arrives as `Authorization: Bearer <jwt>` (API clients) or, for the browser
+pages, in `x-amzn-oidc-accesstoken`, which the load balancer sets after its OIDC sign-in. Either way the token is
+fully verified here, so a forged header carries no weight. In dev only, PVC_DEV_TOKENS maps opaque tokens to
+claims for local demos.
 """
 
 from __future__ import annotations
@@ -22,14 +25,34 @@ from ..adapters.evidence_store import EvidenceNotFound
 from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..domain.runs import ApprovalDecision
-from ..observability import RequestMetricsMiddleware, get_logger
+from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
 from . import views
 
 log = get_logger(__name__)
+configure_telemetry("pvc-api")
 app = FastAPI(title="PE Value Creation OS - approvals", version=__version__, docs_url=None, redoc_url=None)
 app.add_middleware(RequestMetricsMiddleware, service="api")
+
+SECURITY_HEADERS = {
+    # Server-rendered pages with one inline <style> block and no scripts.
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; "
+    "frame-ancestors 'none'; base-uri 'none'",
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Cache-Control": "no-store",  # plans, value cases and evidence must not sit in shared or browser caches
+}
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next: Any) -> Response:
+    response: Response = await call_next(request)
+    for k, v in SECURITY_HEADERS.items():
+        response.headers.setdefault(k, v)
+    return response
+
 
 _ctx: RunContext | None = None
 _verifier: JwtTokenVerifier | bool | None = False
@@ -52,7 +75,7 @@ def get_ctx() -> RunContext:
 def _get_verifier() -> JwtTokenVerifier | None:
     global _verifier
     if _verifier is False:
-        _verifier = verifier_from_env()
+        _verifier = verifier_from_env(for_api=True)
     return _verifier  # type: ignore[return-value]
 
 
@@ -70,7 +93,9 @@ def _dev_tokens() -> dict[str, dict[str, Any]]:
 
 def current_principal(request: Request) -> security.Principal:
     auth = request.headers.get("authorization", "")
-    token = auth[7:].strip() if auth.lower().startswith("bearer ") else request.cookies.get("pvc_token", "")
+    token = (
+        auth[7:].strip() if auth.lower().startswith("bearer ") else request.headers.get("x-amzn-oidc-accesstoken", "")
+    )
     if not token:
         raise HTTPException(401, "Missing bearer token", headers={"WWW-Authenticate": "Bearer"})
     dev = _dev_tokens()

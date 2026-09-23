@@ -100,6 +100,7 @@ def run_demo(verbose: bool = True, report_path: Path | None = None) -> int:
                 "sub": "human:demo-approver",
                 "pvc_companies": ["beacon-pricing"],
                 "pvc_roles": ["approver"],
+                "scope": "pvc.read pvc.approve",
                 "pvc_principal_type": "human",
             }
         }

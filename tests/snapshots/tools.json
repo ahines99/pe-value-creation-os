@@ -682,7 +682,7 @@
     }
   },
   "draft_100_day_plan": {
-    "description": "Build the 100-day plan from the run's prioritized, positively sized opportunities. Returns the draft\nplan; submit it with request_approval.",
+    "description": "Build the 100-day plan from the run's prioritized, positively sized opportunities. Returns the draft\nplan; submit it with request_approval. Requires prioritize_opportunities first.",
     "input": {
       "properties": {
         "run_id": {
@@ -2366,7 +2366,7 @@
     }
   },
   "prioritize_opportunities": {
-    "description": "Deterministic priority scores for every sized opportunity in a run. Do not reorder the result.",
+    "description": "Deterministic priority scores for every sized opportunity in an open interactive run. Opportunities not yet\nsized with size_value_case are left out. Do not reorder the result.",
     "input": {
       "properties": {
         "run_id": {
@@ -2478,7 +2478,7 @@
     }
   },
   "propose_opportunity": {
-    "description": "Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the\nserver fills in the baseline value and EBITDA flow-through from company data. Returns the stored\nopportunity; call size_value_case next.",
+    "description": "Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the\nserver fills in the baseline value and EBITDA flow-through from company data. Returns the stored\nopportunity; call size_value_case next. Only for open interactive runs.",
     "input": {
       "$defs": {
         "ScenarioInputs": {
@@ -2849,7 +2849,7 @@
     }
   },
   "record_finding": {
-    "description": "Persist a finding for a run. Value claims must cite at least one evidence id from this company.",
+    "description": "Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this\ncompany.",
     "input": {
       "properties": {
         "assumptions": {
@@ -3011,7 +3011,7 @@
     }
   },
   "request_approval": {
-    "description": "Submit the run's latest plan for human approval and pause the run. A human decides through the approval\nAPI; no tool can approve.",
+    "description": "Submit an open interactive run's latest plan for human approval and pause the run. A human decides through\nthe approval API; no tool can approve. Automated runs request approval themselves.",
     "input": {
       "properties": {
         "run_id": {

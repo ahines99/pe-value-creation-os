@@ -260,3 +260,55 @@ def test_transport_errors_become_unavailable():
     client, _ = fake_client(exc=err)
     with pytest.raises(ModelUnavailable, match="APIConnectionError"):
         AnthropicJsonClient(client=client).complete_json("s", "u", {}, purpose="t")
+
+
+GUARD_SOURCES = [
+    __import__("decimal").Decimal(x) for x in ("1234567.89", "0.8712", "3.5", "1.2", "-250000", "3.2", "0.25")
+]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "two million dollars",  # spelled out
+        "$3.5 million uplift",  # scale word must not reduce to 3.5 (a months value)
+        "$1.2bn",  # scale suffix must not reduce to 1.2 (an NRR value)
+        "$2,050 per customer",  # currency is never a year
+        "-1,234,567.89",  # explicit sign must match
+        "triple EBITDA",
+        "10x revenue",
+        "doubling ARR",
+        "fourfold",
+        "twenty percent",
+        "half a million",
+        "50 bps",
+        "$9.9M",
+    ],
+)
+def test_guardrail_flags_invented_quantities(text):
+    from pe_value_os.llm.guardrails import unsupported_numbers
+
+    assert unsupported_numbers(text, GUARD_SOURCES), text
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "avoid double counting",
+        "in 2026 the team",
+        "three workstreams over 90 days",
+        "87.1% of customers",
+        "$1.2M loss",  # 1,234,567.89 rounded
+        "a loss of $250k",  # unsigned text citing a negative source
+        "-$250k",
+        "25 percent",
+        "twenty-five percent",
+        "3.2x LTV/CAC",
+        "CAC payback of 3.5 months",
+        "two hundred fifty thousand",
+    ],
+)
+def test_guardrail_allows_cited_quantities(text):
+    from pe_value_os.llm.guardrails import unsupported_numbers
+
+    assert unsupported_numbers(text, GUARD_SOURCES) == [], text
