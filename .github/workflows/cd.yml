@@ -29,7 +29,7 @@ jobs:
     outputs:
       image-id: ${{ steps.build.outputs.image-id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Build image
         id: build
@@ -57,7 +57,7 @@ jobs:
       - name: Save image
         run: docker save "pvc:${GITHUB_SHA}" | gzip > pvc-image.tar.gz
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: pvc-image
           path: pvc-image.tar.gz
@@ -68,6 +68,8 @@ jobs:
   deploy-staging:
     name: Deploy staging
     needs: build
+    # workflow_dispatch can run from any branch; only main is ever deployed.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: staging
@@ -84,9 +86,9 @@ jobs:
       API_URL: ${{ vars.API_URL }}
       EXPECTED_IMAGE_ID: ${{ needs.build.outputs.image-id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pvc-image
 
@@ -126,6 +128,7 @@ jobs:
   deploy-production:
     name: Deploy production
     needs: [build, deploy-staging]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # Required reviewers are configured on the `production` environment; this job waits for approval.
     environment:
@@ -143,9 +146,9 @@ jobs:
       API_URL: ${{ vars.API_URL }}
       EXPECTED_IMAGE_ID: ${{ needs.build.outputs.image-id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pvc-image
 

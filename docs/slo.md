@@ -6,9 +6,10 @@ Measured from application metrics exported through the OpenTelemetry Collector (
 |---|---|---|---|---|
 | Availability | 99.5% of MCP and approval-API requests return non-5xx | 30 days rolling | `pvc_http_requests_total` by `status_class` | `PvcAvailabilityFastBurn` (page, 14.4x burn over 5m and 1h), `PvcAvailabilitySlowBurn` (ticket, 3x over 6h) |
 | Step latency | p95 below 5 s for every automated workflow step (excludes `human_approval`) | 30 minutes | `pvc_step_duration_milliseconds` | `PvcStepLatencySlo` (ticket) |
+| MCP tool latency | p95 below 2 s per tool call at 20 concurrent sessions | 30 minutes | `pvc_http_duration_milliseconds{service="mcp"}` | Load test gate (`scripts/mcp_load_test.py`); dashboard panel |
 | Run completion | No run stuck in `running` for more than 30 minutes | continuous | `pvc_runs_stuck` (worker gauge) | `PvcStuckRuns` (page) |
 | Approval responsiveness | No approval pending beyond the policy expiry (120 h placeholder) | continuous | `pvc_approvals_pending_oldest_hours` | `PvcApprovalOverdue` (ticket); worker also escalates to the policy contact |
-| Evaluation quality | Deterministic eval gate at 100% on golden and adversarial suites | every merge and nightly | `pvc eval --gate` | CI failure blocks merge; nightly failure notifies the repository owners |
+| Evaluation quality | Deterministic eval gate at 100% on golden and adversarial suites | every merge and nightly | `pvc eval --gate` | CI marks the PR failed. It blocks the merge only once branch protection is enabled (needs GitHub Pro or a public repository). The nightly workflow runs from `main`, so it starts after PR #1 merges. |
 
 Error budget: 0.5% of requests per 30 days (about 3.6 hours of full outage). When more than half the budget is spent in a window, feature releases pause in favour of reliability work until burn returns under 1x.
 

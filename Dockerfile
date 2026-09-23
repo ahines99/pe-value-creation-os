@@ -10,13 +10,12 @@
 #
 # Build: docker build -t pvc .
 
-ARG PYTHON_VERSION=3.12
-ARG UV_VERSION=0.12.18
-
-FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+# Base images are pinned by digest (multi-arch index) so a rebuild cannot silently pick up a different image.
+# Dependabot (.github/dependabot.yml) proposes digest updates; the runtime stage also applies OS security updates.
+FROM ghcr.io/astral-sh/uv:0.12.18@sha256:3adc3706091ce7c2fe595e669628caedd6d951551b92b258b7e7dbe06d9440bc AS uv
 
 # ---- build stage: resolve and install runtime dependencies from uv.lock ----------------------------------
-FROM python:${PYTHON_VERSION}-slim-trixie AS build
+FROM python:3.12-slim-trixie@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9 AS build
 
 COPY --from=uv /uv /usr/local/bin/uv
 
@@ -41,7 +40,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --extra server --no-dev --no-editable
 
 # ---- runtime stage ----------------------------------------------------------------------------------------
-FROM python:${PYTHON_VERSION}-slim-trixie AS runtime
+FROM python:3.12-slim-trixie@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9 AS runtime
 
 LABEL org.opencontainers.image.title="pe-value-creation-os" \
       org.opencontainers.image.description="PE Value Creation OS: MCP server, approval API, worker" \

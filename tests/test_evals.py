@@ -32,3 +32,19 @@ def test_gate_detects_regressions():
     fails = harness.gate(scores, th)
     assert "golden.case_pass_rate = 0.9 < 1.0" in fails and any("p95_run_ms" in f for f in fails)
     assert harness.gate({"golden": {"case_pass_rate": 1.0, "p95_run_ms": 1}}, th) == []
+
+
+def test_value_ranges_fail_when_sizing_drifts():
+    obs = {
+        "opportunities": [{"lever": "pricing", "metric": "legacy_price_book_arr", "params": {}, "base_ebitda": 120.0}],
+        "plan_total_base": 120.0,
+    }
+    ok = harness._check(
+        {"value_ranges": {"legacy_price_book_arr": [100, 150]}, "plan_total_range": [100, 150]}, obs, None, None
+    )
+    drift = harness._check(
+        {"value_ranges": {"legacy_price_book_arr": [0, 50]}, "plan_total_range": [0, 50]}, obs, None, None
+    )
+    assert all(c["ok"] for c in ok) and not any(c["ok"] for c in drift)
+    golden = [c for c in harness.load_suite("golden") if "value_ranges" in c["expect"]]
+    assert len(golden) >= 25  # PVC-081: cases carry expected value ranges

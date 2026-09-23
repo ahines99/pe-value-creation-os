@@ -18,8 +18,8 @@ jobs:
     env:
       PVC_ENV: dev
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -48,8 +48,8 @@ jobs:
     env:
       PVC_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pvc_test
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --frozen --extra dev
@@ -63,17 +63,17 @@ jobs:
       contents: read
       pull-requests: read   # gitleaks-action lists the PR's commits to scan
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Dependency audit
         run: uv export --frozen --no-hashes --extra server --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -83,14 +83,14 @@ jobs:
     env:
       PVC_ENV: dev
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Deterministic eval gate
         run: uv run pvc eval --suite all --gate --report var/eval-report.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: eval-report
@@ -100,7 +100,7 @@ jobs:
     # PVC-096: build the production image and fail on HIGH/CRITICAL vulnerabilities that have a fix.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Build image
         run: docker build --pull --tag "pvc:ci-${GITHUB_SHA}" .
       - name: Scan image (Trivy)
@@ -114,3 +114,18 @@ jobs:
           exit-code: "1"
           format: table
           version: v0.70.0
+      # Unfixed HIGH/CRITICAL findings cannot be patched yet (no upstream fix), so they do not fail the build,
+      # but they are listed on every run so they stay visible until a fix ships.
+      - name: Report unfixed vulnerabilities (non-blocking)
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: pvc:ci-${{ github.sha }}
+          scan-type: image
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          exit-code: "0"
+          format: table
+          version: v0.70.0
+          skip-setup-trivy: true

@@ -10,6 +10,8 @@ from __future__ import annotations
 import hashlib
 import os
 import stat
+import time
+import uuid
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -48,18 +50,33 @@ class FileSystemEvidenceStore:
         return self.root / _safe(company_id) / _safe(evidence_id)
 
     def put_original(self, company_id: str, evidence_id: str, content: bytes) -> str:
+        """Store an original once. Safe under concurrent writers: each writes a private temp file and publishes it
+        with an atomic create-if-absent hard link, so exactly one writer wins and the others only verify."""
         d = self._dir(company_id, evidence_id)
         path = d / "original"
+        rel = str(path.relative_to(self.root).as_posix())
         if path.exists():
-            if hashlib.sha256(path.read_bytes()).digest() != hashlib.sha256(content).digest():
-                raise ImmutableEvidenceError(f"Evidence {evidence_id} already stored with different content")
-            return str(path.relative_to(self.root).as_posix())
+            self._verify_same(path, content, evidence_id)
+            return rel
         d.mkdir(parents=True, exist_ok=True)
-        tmp = d / "original.tmp"
+        tmp = d / f"original.{uuid.uuid4().hex}.tmp"
         tmp.write_bytes(content)
-        os.replace(tmp, path)
+        try:
+            os.link(tmp, path)  # fails if another writer published first; never overwrites
+        except FileExistsError:
+            tmp.unlink(missing_ok=True)
+            self._verify_same(path, content, evidence_id)
+            return rel
+        # The temp name is a second link to the same file: drop it before making the file read-only (Windows
+        # will not delete a read-only file).
+        tmp.unlink(missing_ok=True)
         path.chmod(stat.S_IREAD | stat.S_IRGRP)
-        return str(path.relative_to(self.root).as_posix())
+        return rel
+
+    @staticmethod
+    def _verify_same(path: Path, content: bytes, evidence_id: str) -> None:
+        if hashlib.sha256(path.read_bytes()).digest() != hashlib.sha256(content).digest():
+            raise ImmutableEvidenceError(f"Evidence {evidence_id} already stored with different content")
 
     def get_original(self, company_id: str, evidence_id: str) -> bytes:
         path = self._dir(company_id, evidence_id) / "original"
@@ -71,7 +88,17 @@ class FileSystemEvidenceStore:
         d = self._dir(company_id, evidence_id)
         d.mkdir(parents=True, exist_ok=True)
         path = d / "derived.txt"
-        path.write_text(text, encoding="utf-8")
+        tmp = d / f"derived.{uuid.uuid4().hex}.tmp"
+        tmp.write_text(text, encoding="utf-8")
+        for attempt in range(5):  # Windows refuses to replace a file another thread has open; retry briefly
+            try:
+                os.replace(tmp, path)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    tmp.unlink(missing_ok=True)
+                    raise
+                time.sleep(0.02 * (attempt + 1))
         return str(path.relative_to(self.root).as_posix())
 
     def get_derived(self, company_id: str, evidence_id: str) -> str | None:

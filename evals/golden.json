@@ -2,87 +2,1001 @@
   "suite": "golden",
   "description": "Representative cases across the four levers, three planted company archetypes plus seeded variants, uncertainty, recovery and approval flows (PVC-081). Expectations come from planted generator parameters, not from system output.",
   "cases": [
-    {"id": "G01", "description": "Beacon fixture: all three planted pricing leaks", "company": {"fixture": "beacon-pricing"},
-     "expect": {"status": "awaiting_approval", "levers_include": ["pricing"],
-                "metrics_include": ["discounted_arr", "renewing_arr", "legacy_price_book_arr"],
-                "segment_for": {"discounted_arr": "mid_market"}, "legacy_value_matches_ground_truth": true}},
-    {"id": "G02", "description": "Pricing-leak archetype, seed variant", "company": {"base": "beacon-pricing", "seed": 212},
-     "expect": {"status": "awaiting_approval", "metrics_include": ["discounted_arr", "renewing_arr", "legacy_price_book_arr"],
-                "segment_for": {"discounted_arr": "mid_market"}, "legacy_value_matches_ground_truth": true}},
-    {"id": "G03", "description": "Pricing-leak archetype, seed variant", "company": {"base": "beacon-pricing", "seed": 222},
-     "expect": {"status": "awaiting_approval", "metrics_include": ["discounted_arr", "renewing_arr", "legacy_price_book_arr"],
-                "segment_for": {"discounted_arr": "mid_market"}}},
-    {"id": "G04", "description": "Legacy price books only", "company": {"base": "beacon-pricing", "seed": 232, "overrides": {
-        "discount_mean": {"smb": 0.08, "mid_market": 0.12, "enterprise": 0.18}, "discount_sd": {"smb": 0.03, "mid_market": 0.03, "enterprise": 0.04},
-        "quarter_end_discount_bump": 0.0, "realized_uplift": 0.045, "concession_prob": 0.05, "legacy_share": 0.30}},
-     "expect": {"metrics_include": ["legacy_price_book_arr"], "metrics_exclude": ["discounted_arr", "renewing_arr"]}},
-    {"id": "G05", "description": "Waived renewal uplifts only", "company": {"base": "beacon-pricing", "seed": 242, "overrides": {
-        "discount_mean": {"smb": 0.08, "mid_market": 0.12, "enterprise": 0.18}, "discount_sd": {"smb": 0.03, "mid_market": 0.03, "enterprise": 0.04},
-        "quarter_end_discount_bump": 0.0, "realized_uplift": 0.005, "concession_prob": 0.05, "legacy_share": 0.05}},
-     "expect": {"metrics_include": ["renewing_arr"], "metrics_exclude": ["discounted_arr", "legacy_price_book_arr"]}},
-    {"id": "G06", "description": "Mid-market discount dispersion only", "company": {"base": "beacon-pricing", "seed": 252, "overrides": {
-        "discount_mean": {"smb": 0.08, "mid_market": 0.22, "enterprise": 0.18}, "discount_sd": {"smb": 0.03, "mid_market": 0.15, "enterprise": 0.04},
-        "quarter_end_discount_bump": 0.0, "realized_uplift": 0.045, "concession_prob": 0.05, "legacy_share": 0.05}},
-     "expect": {"metrics_include": ["discounted_arr"], "segment_for": {"discounted_arr": "mid_market"},
-                "metrics_exclude": ["renewing_arr", "legacy_price_book_arr"]}},
-    {"id": "G07", "description": "Cedar fixture: voluntary and failed-payment churn", "company": {"fixture": "cedar-churn"},
-     "expect": {"status": "awaiting_approval", "levers_include": ["retention"],
-                "metrics_include": ["addressable_churned_arr", "failed_payment_churned_arr"]}},
-    {"id": "G08", "description": "Churn archetype, seed variant", "company": {"base": "cedar-churn", "seed": 313},
-     "expect": {"levers_include": ["retention"], "metrics_include": ["addressable_churned_arr"]}},
-    {"id": "G09", "description": "Churn archetype, seed variant", "company": {"base": "cedar-churn", "seed": 323},
-     "expect": {"levers_include": ["retention"], "metrics_include": ["addressable_churned_arr"]}},
-    {"id": "G10", "description": "Voluntary churn without payment failures", "company": {"base": "cedar-churn", "seed": 333,
-        "overrides": {"involuntary_monthly_hazard": 0.0}},
-     "expect": {"metrics_include": ["addressable_churned_arr"], "metrics_exclude": ["failed_payment_churned_arr"]}},
-    {"id": "G11", "description": "Heavy failed-payment churn", "company": {"base": "cedar-churn", "seed": 343,
-        "overrides": {"involuntary_monthly_hazard": 0.012}},
-     "expect": {"metrics_include": ["failed_payment_churned_arr"]}},
-    {"id": "G12", "description": "Churn archetype, third seed", "company": {"base": "cedar-churn", "seed": 353},
-     "expect": {"levers_include": ["retention"]}},
-    {"id": "G13", "description": "Acme fixture: healthy, no pricing or retention levers", "company": {"fixture": "acme-healthy"},
-     "expect": {"status": "awaiting_approval", "levers_exclude": ["pricing", "retention", "sales_efficiency", "gross_margin"]}},
-    {"id": "G14", "description": "Healthy archetype, seed variant", "company": {"base": "acme-healthy", "seed": 111},
-     "expect": {"levers_exclude": ["pricing", "retention", "gross_margin"]}},
-    {"id": "G15", "description": "Healthy archetype, seed variant", "company": {"base": "acme-healthy", "seed": 121},
-     "expect": {"levers_exclude": ["pricing", "retention", "gross_margin"]}},
-    {"id": "G16", "description": "Healthy archetype, seed variant", "company": {"base": "acme-healthy", "seed": 131},
-     "expect": {"levers_exclude": ["pricing", "retention", "gross_margin"]}},
-    {"id": "G17", "description": "Inefficient go-to-market spend", "company": {"base": "acme-healthy", "seed": 141,
-        "overrides": {"sm_programs_monthly": 450000}},
-     "expect": {"metrics_include": ["s_and_m_expense"]}},
-    {"id": "G18", "description": "High hosting cost", "company": {"base": "acme-healthy", "seed": 151,
-        "overrides": {"hosting_cogs_rate": 0.24}},
-     "expect": {"metrics_include": ["hosting_cost"]}},
-    {"id": "G19", "description": "Both unit-economics problems", "company": {"base": "acme-healthy", "seed": 161,
-        "overrides": {"sm_programs_monthly": 450000, "hosting_cogs_rate": 0.24}},
-     "expect": {"metrics_include": ["s_and_m_expense", "hosting_cost"]}},
-    {"id": "G20", "description": "Inefficient go-to-market spend, seed variant", "company": {"base": "acme-healthy", "seed": 171,
-        "overrides": {"sm_programs_monthly": 450000}},
-     "expect": {"metrics_include": ["s_and_m_expense"]}},
-    {"id": "G21", "description": "Heavy tier-1 support load", "company": {"base": "acme-healthy", "seed": 181,
-        "overrides": {"customers_per_tier1_fte": 8}},
-     "expect": {"metrics_include": ["support_cost_tier1"]}},
-    {"id": "G22", "description": "Light tier-1 support load: no automation case", "company": {"base": "acme-healthy", "seed": 191,
-        "overrides": {"customers_per_tier1_fte": 150}},
-     "expect": {"metrics_exclude": ["support_cost_tier1"]}},
-    {"id": "G23", "description": "Delta fixture: insufficient data pauses with gaps", "company": {"fixture": "delta-broken"},
-     "expect": {"status": "needs_evidence", "pause_reason": "insufficient_data",
-                "gap_codes": ["missing_dataset", "stale_dataset", "month_gaps"], "suspicious_min": 1}},
-    {"id": "G24", "description": "Broken archetype, seed variant", "company": {"base": "delta-broken", "seed": 414},
-     "expect": {"status": "needs_evidence", "pause_reason": "insufficient_data", "gap_codes": ["missing_dataset", "stale_dataset"]}},
-    {"id": "G25", "description": "Human accepts gaps: continues on sufficient analyses only", "company": {"fixture": "delta-broken"},
-     "actions": ["accept_gaps"],
-     "expect": {"status": "awaiting_approval", "levers_exclude": ["pricing"], "skipped_branches": ["pricing", "unit_economics", "ai_opportunity"]}},
-    {"id": "G26", "description": "Approval completes run and activates KPIs", "company": {"fixture": "beacon-pricing"},
-     "actions": ["approve"], "expect": {"status": "complete", "kpis_min": 3}},
-    {"id": "G27", "description": "One diagnostic branch fails: run continues", "company": {"fixture": "beacon-pricing"},
-     "fault": {"branch": "retention", "kind": "error", "times": 99},
-     "expect": {"status": "awaiting_approval", "levers_include": ["pricing"], "branch_failures": ["retention"]}},
-    {"id": "G28", "description": "Value modeling fails once: fails cleanly, resume completes", "company": {"fixture": "cedar-churn"},
-     "fault": {"step": "value_modeling", "kind": "error", "times": 1}, "actions": ["resume"],
-     "expect": {"first_status": "failed", "status": "awaiting_approval"}},
-    {"id": "G29", "description": "Changes requested: rewinds and excludes the removed initiative", "company": {"fixture": "beacon-pricing"},
-     "actions": ["changes_requested"], "expect": {"status": "awaiting_approval", "excluded_metric_absent_from_plan": "renewing_arr"}}
-  ]
+    {
+      "id": "G01",
+      "description": "Beacon fixture: all three planted pricing leaks",
+      "company": {
+        "fixture": "beacon-pricing"
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "levers_include": [
+          "pricing"
+        ],
+        "metrics_include": [
+          "discounted_arr",
+          "renewing_arr",
+          "legacy_price_book_arr"
+        ],
+        "segment_for": {
+          "discounted_arr": "mid_market"
+        },
+        "legacy_value_matches_ground_truth": true,
+        "value_ranges": {
+          "support_cost_tier1": [
+            8100,
+            11000
+          ],
+          "discounted_arr": [
+            182700,
+            247300
+          ],
+          "renewing_arr": [
+            299100,
+            404800
+          ],
+          "legacy_price_book_arr": [
+            323500,
+            437800
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          1033000,
+          1264000
+        ]
+      }
+    },
+    {
+      "id": "G02",
+      "description": "Pricing-leak archetype, seed variant",
+      "company": {
+        "base": "beacon-pricing",
+        "seed": 212
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "metrics_include": [
+          "discounted_arr",
+          "renewing_arr",
+          "legacy_price_book_arr"
+        ],
+        "segment_for": {
+          "discounted_arr": "mid_market"
+        },
+        "legacy_value_matches_ground_truth": true,
+        "value_ranges": {
+          "support_cost_tier1": [
+            11500,
+            15700
+          ],
+          "discounted_arr": [
+            151900,
+            205600
+          ],
+          "renewing_arr": [
+            296200,
+            400800
+          ],
+          "legacy_price_book_arr": [
+            383900,
+            519500
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          1065000,
+          1302000
+        ]
+      }
+    },
+    {
+      "id": "G03",
+      "description": "Pricing-leak archetype, seed variant",
+      "company": {
+        "base": "beacon-pricing",
+        "seed": 222
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "metrics_include": [
+          "discounted_arr",
+          "renewing_arr",
+          "legacy_price_book_arr"
+        ],
+        "segment_for": {
+          "discounted_arr": "mid_market"
+        },
+        "value_ranges": {
+          "support_cost_tier1": [
+            10400,
+            14100
+          ],
+          "discounted_arr": [
+            127900,
+            173200
+          ],
+          "renewing_arr": [
+            290800,
+            393500
+          ],
+          "legacy_price_book_arr": [
+            360600,
+            487900
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          1008000,
+          1233000
+        ]
+      }
+    },
+    {
+      "id": "G04",
+      "description": "Legacy price books only",
+      "company": {
+        "base": "beacon-pricing",
+        "seed": 232,
+        "overrides": {
+          "discount_mean": {
+            "smb": 0.08,
+            "mid_market": 0.12,
+            "enterprise": 0.18
+          },
+          "discount_sd": {
+            "smb": 0.03,
+            "mid_market": 0.03,
+            "enterprise": 0.04
+          },
+          "quarter_end_discount_bump": 0.0,
+          "realized_uplift": 0.045,
+          "concession_prob": 0.05,
+          "legacy_share": 0.3
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "legacy_price_book_arr"
+        ],
+        "metrics_exclude": [
+          "discounted_arr",
+          "renewing_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            8900,
+            12200
+          ],
+          "legacy_price_book_arr": [
+            424400,
+            574200
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          630000,
+          772000
+        ]
+      }
+    },
+    {
+      "id": "G05",
+      "description": "Waived renewal uplifts only",
+      "company": {
+        "base": "beacon-pricing",
+        "seed": 242,
+        "overrides": {
+          "discount_mean": {
+            "smb": 0.08,
+            "mid_market": 0.12,
+            "enterprise": 0.18
+          },
+          "discount_sd": {
+            "smb": 0.03,
+            "mid_market": 0.03,
+            "enterprise": 0.04
+          },
+          "quarter_end_discount_bump": 0.0,
+          "realized_uplift": 0.005,
+          "concession_prob": 0.05,
+          "legacy_share": 0.05
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "renewing_arr"
+        ],
+        "metrics_exclude": [
+          "discounted_arr",
+          "legacy_price_book_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            12100,
+            16400
+          ],
+          "renewing_arr": [
+            283700,
+            383900
+          ]
+        },
+        "plan_total_range": [
+          313000,
+          383000
+        ]
+      }
+    },
+    {
+      "id": "G06",
+      "description": "Mid-market discount dispersion only",
+      "company": {
+        "base": "beacon-pricing",
+        "seed": 252,
+        "overrides": {
+          "discount_mean": {
+            "smb": 0.08,
+            "mid_market": 0.22,
+            "enterprise": 0.18
+          },
+          "discount_sd": {
+            "smb": 0.03,
+            "mid_market": 0.15,
+            "enterprise": 0.04
+          },
+          "quarter_end_discount_bump": 0.0,
+          "realized_uplift": 0.045,
+          "concession_prob": 0.05,
+          "legacy_share": 0.05
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "discounted_arr"
+        ],
+        "segment_for": {
+          "discounted_arr": "mid_market"
+        },
+        "metrics_exclude": [
+          "renewing_arr",
+          "legacy_price_book_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            3800,
+            5200
+          ],
+          "discounted_arr": [
+            157300,
+            213000
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          342000,
+          419000
+        ]
+      }
+    },
+    {
+      "id": "G07",
+      "description": "Cedar fixture: voluntary and failed-payment churn",
+      "company": {
+        "fixture": "cedar-churn"
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "levers_include": [
+          "retention"
+        ],
+        "metrics_include": [
+          "addressable_churned_arr",
+          "failed_payment_churned_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            98400,
+            133300
+          ],
+          "addressable_churned_arr": [
+            570900,
+            772500
+          ],
+          "failed_payment_churned_arr": [
+            207000,
+            280200
+          ],
+          "s_and_m_expense": [
+            184500,
+            249700
+          ]
+        },
+        "plan_total_range": [
+          1123000,
+          1374000
+        ]
+      }
+    },
+    {
+      "id": "G08",
+      "description": "Churn archetype, seed variant",
+      "company": {
+        "base": "cedar-churn",
+        "seed": 313
+      },
+      "expect": {
+        "levers_include": [
+          "retention"
+        ],
+        "metrics_include": [
+          "addressable_churned_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            89800,
+            121700
+          ],
+          "addressable_churned_arr": [
+            407300,
+            551200
+          ],
+          "failed_payment_churned_arr": [
+            253100,
+            342500
+          ],
+          "s_and_m_expense": [
+            184500,
+            249700
+          ]
+        },
+        "plan_total_range": [
+          989000,
+          1210000
+        ]
+      }
+    },
+    {
+      "id": "G09",
+      "description": "Churn archetype, seed variant",
+      "company": {
+        "base": "cedar-churn",
+        "seed": 323
+      },
+      "expect": {
+        "levers_include": [
+          "retention"
+        ],
+        "metrics_include": [
+          "addressable_churned_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            101700,
+            137800
+          ],
+          "addressable_churned_arr": [
+            364000,
+            492500
+          ],
+          "failed_payment_churned_arr": [
+            292500,
+            395800
+          ]
+        },
+        "plan_total_range": [
+          802000,
+          982000
+        ]
+      }
+    },
+    {
+      "id": "G10",
+      "description": "Voluntary churn without payment failures",
+      "company": {
+        "base": "cedar-churn",
+        "seed": 333,
+        "overrides": {
+          "involuntary_monthly_hazard": 0.0
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "addressable_churned_arr"
+        ],
+        "metrics_exclude": [
+          "failed_payment_churned_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            117900,
+            159700
+          ],
+          "addressable_churned_arr": [
+            375700,
+            508400
+          ],
+          "s_and_m_expense": [
+            184500,
+            249700
+          ]
+        },
+        "plan_total_range": [
+          718000,
+          878000
+        ]
+      }
+    },
+    {
+      "id": "G11",
+      "description": "Heavy failed-payment churn",
+      "company": {
+        "base": "cedar-churn",
+        "seed": 343,
+        "overrides": {
+          "involuntary_monthly_hazard": 0.012
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "failed_payment_churned_arr"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            88400,
+            119700
+          ],
+          "addressable_churned_arr": [
+            310700,
+            420500
+          ],
+          "failed_payment_churned_arr": [
+            332100,
+            449400
+          ]
+        },
+        "plan_total_range": [
+          774000,
+          947000
+        ]
+      }
+    },
+    {
+      "id": "G12",
+      "description": "Churn archetype, third seed",
+      "company": {
+        "base": "cedar-churn",
+        "seed": 353
+      },
+      "expect": {
+        "levers_include": [
+          "retention"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            100800,
+            136500
+          ],
+          "addressable_churned_arr": [
+            310300,
+            420000
+          ],
+          "failed_payment_churned_arr": [
+            158500,
+            214600
+          ]
+        },
+        "plan_total_range": [
+          603000,
+          738000
+        ]
+      }
+    },
+    {
+      "id": "G13",
+      "description": "Acme fixture: healthy, no pricing or retention levers",
+      "company": {
+        "fixture": "acme-healthy"
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "levers_exclude": [
+          "pricing",
+          "retention",
+          "sales_efficiency",
+          "gross_margin"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            12900,
+            17600
+          ]
+        },
+        "plan_total_range": [
+          13000,
+          17000
+        ]
+      }
+    },
+    {
+      "id": "G14",
+      "description": "Healthy archetype, seed variant",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 111
+      },
+      "expect": {
+        "levers_exclude": [
+          "pricing",
+          "retention",
+          "gross_margin"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            14900,
+            20300
+          ]
+        },
+        "plan_total_range": [
+          15000,
+          20000
+        ]
+      }
+    },
+    {
+      "id": "G15",
+      "description": "Healthy archetype, seed variant",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 121
+      },
+      "expect": {
+        "levers_exclude": [
+          "pricing",
+          "retention",
+          "gross_margin"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            13800,
+            18800
+          ]
+        },
+        "plan_total_range": [
+          14000,
+          18000
+        ]
+      }
+    },
+    {
+      "id": "G16",
+      "description": "Healthy archetype, seed variant",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 131
+      },
+      "expect": {
+        "levers_exclude": [
+          "pricing",
+          "retention",
+          "gross_margin"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            10600,
+            14500
+          ]
+        },
+        "plan_total_range": [
+          11000,
+          14000
+        ]
+      }
+    },
+    {
+      "id": "G17",
+      "description": "Inefficient go-to-market spend",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 141,
+        "overrides": {
+          "sm_programs_monthly": 450000
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "s_and_m_expense"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            13800,
+            18800
+          ],
+          "s_and_m_expense": [
+            294600,
+            398700
+          ]
+        },
+        "plan_total_range": [
+          326000,
+          400000
+        ]
+      }
+    },
+    {
+      "id": "G18",
+      "description": "High hosting cost",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 151,
+        "overrides": {
+          "hosting_cogs_rate": 0.24
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "hosting_cost"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            13800,
+            18800
+          ],
+          "hosting_cost": [
+            274000,
+            370800
+          ]
+        },
+        "plan_total_range": [
+          304000,
+          373000
+        ]
+      }
+    },
+    {
+      "id": "G19",
+      "description": "Both unit-economics problems",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 161,
+        "overrides": {
+          "sm_programs_monthly": 450000,
+          "hosting_cogs_rate": 0.24
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "s_and_m_expense",
+          "hosting_cost"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            10400,
+            14100
+          ],
+          "s_and_m_expense": [
+            294600,
+            398700
+          ],
+          "hosting_cost": [
+            224100,
+            303400
+          ]
+        },
+        "plan_total_range": [
+          560000,
+          685000
+        ]
+      }
+    },
+    {
+      "id": "G20",
+      "description": "Inefficient go-to-market spend, seed variant",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 171,
+        "overrides": {
+          "sm_programs_monthly": 450000
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "s_and_m_expense"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            4600,
+            6400
+          ],
+          "s_and_m_expense": [
+            294600,
+            398700
+          ]
+        },
+        "plan_total_range": [
+          316000,
+          388000
+        ]
+      }
+    },
+    {
+      "id": "G21",
+      "description": "Heavy tier-1 support load",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 181,
+        "overrides": {
+          "customers_per_tier1_fte": 8
+        }
+      },
+      "expect": {
+        "metrics_include": [
+          "support_cost_tier1"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            146200,
+            197900
+          ]
+        },
+        "plan_total_range": [
+          154000,
+          190000
+        ]
+      }
+    },
+    {
+      "id": "G22",
+      "description": "Light tier-1 support load: no automation case",
+      "company": {
+        "base": "acme-healthy",
+        "seed": 191,
+        "overrides": {
+          "customers_per_tier1_fte": 150
+        }
+      },
+      "expect": {
+        "metrics_exclude": [
+          "support_cost_tier1"
+        ]
+      }
+    },
+    {
+      "id": "G23",
+      "description": "Delta fixture: insufficient data pauses with gaps",
+      "company": {
+        "fixture": "delta-broken"
+      },
+      "expect": {
+        "status": "needs_evidence",
+        "pause_reason": "insufficient_data",
+        "gap_codes": [
+          "missing_dataset",
+          "stale_dataset",
+          "month_gaps"
+        ],
+        "suspicious_min": 1
+      }
+    },
+    {
+      "id": "G24",
+      "description": "Broken archetype, seed variant",
+      "company": {
+        "base": "delta-broken",
+        "seed": 414
+      },
+      "expect": {
+        "status": "needs_evidence",
+        "pause_reason": "insufficient_data",
+        "gap_codes": [
+          "missing_dataset",
+          "stale_dataset"
+        ]
+      }
+    },
+    {
+      "id": "G25",
+      "description": "Human accepts gaps: continues on sufficient analyses only",
+      "company": {
+        "fixture": "delta-broken"
+      },
+      "actions": [
+        "accept_gaps"
+      ],
+      "expect": {
+        "status": "awaiting_approval",
+        "levers_exclude": [
+          "pricing"
+        ],
+        "skipped_branches": [
+          "pricing",
+          "unit_economics",
+          "ai_opportunity"
+        ]
+      }
+    },
+    {
+      "id": "G26",
+      "description": "Approval completes run and activates KPIs",
+      "company": {
+        "fixture": "beacon-pricing"
+      },
+      "actions": [
+        "approve"
+      ],
+      "expect": {
+        "status": "complete",
+        "kpis_min": 3,
+        "value_ranges": {
+          "support_cost_tier1": [
+            8100,
+            11000
+          ],
+          "discounted_arr": [
+            182700,
+            247300
+          ],
+          "renewing_arr": [
+            299100,
+            404800
+          ],
+          "legacy_price_book_arr": [
+            323500,
+            437800
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          1033000,
+          1264000
+        ]
+      }
+    },
+    {
+      "id": "G27",
+      "description": "One diagnostic branch fails: run continues",
+      "company": {
+        "fixture": "beacon-pricing"
+      },
+      "fault": {
+        "branch": "retention",
+        "kind": "error",
+        "times": 99
+      },
+      "expect": {
+        "status": "awaiting_approval",
+        "levers_include": [
+          "pricing"
+        ],
+        "branch_failures": [
+          "retention"
+        ],
+        "value_ranges": {
+          "support_cost_tier1": [
+            8100,
+            11000
+          ],
+          "discounted_arr": [
+            182700,
+            247300
+          ],
+          "renewing_arr": [
+            299100,
+            404800
+          ],
+          "legacy_price_book_arr": [
+            323500,
+            437800
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          1033000,
+          1264000
+        ]
+      }
+    },
+    {
+      "id": "G28",
+      "description": "Value modeling fails once: fails cleanly, resume completes",
+      "company": {
+        "fixture": "cedar-churn"
+      },
+      "fault": {
+        "step": "value_modeling",
+        "kind": "error",
+        "times": 1
+      },
+      "actions": [
+        "resume"
+      ],
+      "expect": {
+        "first_status": "failed",
+        "status": "awaiting_approval",
+        "value_ranges": {
+          "support_cost_tier1": [
+            98400,
+            133300
+          ],
+          "addressable_churned_arr": [
+            570900,
+            772500
+          ],
+          "failed_payment_churned_arr": [
+            207000,
+            280200
+          ],
+          "s_and_m_expense": [
+            184500,
+            249700
+          ]
+        },
+        "plan_total_range": [
+          1123000,
+          1374000
+        ]
+      }
+    },
+    {
+      "id": "G29",
+      "description": "Changes requested: rewinds and excludes the removed initiative",
+      "company": {
+        "fixture": "beacon-pricing"
+      },
+      "actions": [
+        "changes_requested"
+      ],
+      "expect": {
+        "status": "awaiting_approval",
+        "excluded_metric_absent_from_plan": "renewing_arr",
+        "value_ranges": {
+          "support_cost_tier1": [
+            8100,
+            11000
+          ],
+          "discounted_arr": [
+            182700,
+            247300
+          ],
+          "renewing_arr": [
+            299100,
+            404800
+          ],
+          "legacy_price_book_arr": [
+            323500,
+            437800
+          ],
+          "s_and_m_expense": [
+            162400,
+            219900
+          ]
+        },
+        "plan_total_range": [
+          716000,
+          877000
+        ]
+      }
+    }
+  ],
+  "value_ranges_basis": "value_ranges (base-case annual EBITDA per opportunity, +/-15%) and plan_total_range (+/-10%) are regression bands around the rule-based proposer's results reviewed on 2026-09-23, not independent ground truth. The domain-expert review (PVC-071) should confirm or tighten them; legacy_value_matches_ground_truth is the one check recomputed independently from generator ground truth."
 }

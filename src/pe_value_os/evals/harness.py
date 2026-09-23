@@ -294,8 +294,16 @@ def _observe(
     opps = repo.list_opportunities(run_id)
     obs["status"] = st.status.value
     obs["pause_reason"] = (st.pause_reason or {}).get("reason")
+    sized = {vc.opportunity_id: vc for vc in repo.list_value_cases(run_id)}
     obs["opportunities"] = [
-        {"lever": o.lever.value, "metric": o.baseline_metric, "params": o.metric_params, "title": o.title} for o in opps
+        {
+            "lever": o.lever.value,
+            "metric": o.baseline_metric,
+            "params": o.metric_params,
+            "title": o.title,
+            "base_ebitda": float(sized[o.opportunity_id].annual_ebitda_base) if o.opportunity_id in sized else None,
+        }
+        for o in opps
     ]
     diag = st.artifacts.get("diagnostics", {})
     results = diag.get("results", {})
@@ -338,6 +346,7 @@ def _observe(
             in {i["opportunity_id"] for ws in plan.plan["workstreams"] for i in ws["initiatives"]}
         }
     )
+    obs["plan_total_base"] = float(plan.plan["total_run_rate_ebitda_base"]) if plan else None
     obs["kpis"] = len(repo.list_kpi_definitions(cid))
     # dimension measurements
     unsized = st.artifacts.get("value_modeling", {}).get("unsized", [])
@@ -439,6 +448,17 @@ def _check(
             check(key, want not in obs["plan_metrics"], str(obs["plan_metrics"]))
         elif key in ("cross_company_denied", "approval_denied"):
             check(key, obs.get(key) is want, str(obs.get(key)))
+        elif key == "value_ranges":
+            # {baseline_metric: [low, high]}: the base-case annual EBITDA of that opportunity must fall in the band.
+            for m, (lo, hi) in want.items():
+                vals = [
+                    o["base_ebitda"] for o in obs["opportunities"] if o["metric"] == m and o["base_ebitda"] is not None
+                ]
+                check(f"value_range:{m}", bool(vals) and all(lo <= v <= hi for v in vals), str(vals))
+        elif key == "plan_total_range":
+            lo, hi = want
+            total = obs.get("plan_total_base")
+            check(key, total is not None and lo <= total <= hi, str(total))
         elif key == "legacy_value_matches_ground_truth":
             check(key, _legacy_matches(obs, planted, ctx), "")
         else:

@@ -351,3 +351,128 @@ async def test_golden_5_resources_and_prompt(server):
             assert "Do not approve" in p.messages[0].content.text
             with pytest.raises(Exception):  # noqa: B017 - scope violation on a resource
                 await c.read_resource("company://beacon-pricing/data-inventory")
+
+
+# --- PVC-056: every tool rejects out-of-scope ids and invalid arguments ---------------------------------------
+async def _beacon_interactive_run(c):
+    r = await c.call_tool("start_diagnostic_run", {"company_id": "beacon-pricing", "mode": "interactive"})
+    assert r.is_error is False, text(r)
+    return r.structured_content["run_id"]
+
+
+RUN_TOOLS = [
+    ("get_run_status", lambda run_id: {"run_id": run_id}),
+    ("prioritize_opportunities", lambda run_id: {"run_id": run_id}),
+    ("draft_100_day_plan", lambda run_id: {"run_id": run_id}),
+    ("request_approval", lambda run_id: {"run_id": run_id}),
+    (
+        "record_finding",
+        lambda run_id: {
+            "run_id": run_id,
+            "finding_type": "observation",
+            "title": "t",
+            "statement": "s",
+            "confidence": "low",
+            "evidence_ids": [],
+        },
+    ),
+    (
+        "propose_opportunity",
+        lambda run_id: {
+            "run_id": run_id,
+            "lever": "pricing",
+            "baseline_metric": "legacy_price_book_arr",
+            "title": "t",
+            "low": {"improvement_rate": 0.1, "realization_rate": 0.5},
+            "base": {"improvement_rate": 0.2, "realization_rate": 0.6},
+            "high": {"improvement_rate": 0.3, "realization_rate": 0.7},
+            "confidence": "low",
+            "rationale": "r",
+            "evidence_ids": [],
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("tool,args", RUN_TOOLS, ids=[t for t, _ in RUN_TOOLS])
+async def test_run_tools_hide_other_companies_runs(server, ctx, tool, args):
+    with as_("beacon-pricing"):
+        async with Client(server) as c:
+            run_id = await _beacon_interactive_run(c)
+    with as_("beacon-pricing"):
+        before = len(ctx.repo.list_audit(run_id=run_id))
+    with as_("cedar-churn"):
+        async with Client(server) as c:
+            r = await c.call_tool(tool, args(run_id))
+            assert r.is_error and ("Not found" in text(r) or "Access denied" in text(r)), text(r)
+    with as_("beacon-pricing"):
+        assert len(ctx.repo.list_audit(run_id=run_id)) == before  # nothing was changed or recorded
+
+
+@pytest.mark.parametrize(
+    "tool,args",
+    [
+        ("size_value_case", {"company_id": "cedar-churn", "opportunity_id": "x"}),
+        ("list_evidence", {"company_id": "cedar-churn", "opportunity_id": "x"}),
+        ("start_diagnostic_run", {"company_id": "cedar-churn"}),
+    ],
+)
+async def test_company_tools_deny_other_companies(server, tool, args):
+    with as_("beacon-pricing"):
+        async with Client(server) as c:
+            r = await c.call_tool(tool, args)
+            assert r.is_error and ("Access denied" in text(r) or "Not found" in text(r)), text(r)
+
+
+@pytest.mark.parametrize(
+    "tool,args",
+    [
+        ("healthcheck", {"unexpected": 1}),
+        ("get_company_profile", {}),
+        ("get_churn_summary", {"company_id": "beacon-pricing", "period": "Q3"}),
+        ("get_usage_metrics", {"company_id": "beacon-pricing", "period": "2026-00"}),
+        ("get_support_metrics", {"company_id": "beacon-pricing", "period": "yesterday"}),
+        ("compute_saas_metrics", {"company_id": "beacon-pricing", "period": "2026/08"}),
+        (
+            "record_finding",
+            {
+                "run_id": "r",
+                "finding_type": "rumour",
+                "title": "t",
+                "statement": "s",
+                "confidence": "low",
+                "evidence_ids": [],
+            },
+        ),
+        ("propose_opportunity", {"run_id": "r", "lever": "magic", "baseline_metric": "x", "title": "t"}),
+        ("size_value_case", {"company_id": "beacon-pricing", "opportunity_id": "x", "ev_multiple": "lots"}),
+        ("list_evidence", {"company_id": "beacon-pricing"}),
+        ("prioritize_opportunities", {}),
+        ("draft_100_day_plan", {}),
+        ("get_kpi_status", {}),
+        ("start_diagnostic_run", {"company_id": "beacon-pricing", "mode": "batch"}),
+        ("get_run_status", {}),
+        ("request_approval", {"run_id": "r", "approve": True}),
+    ],
+)
+async def test_every_tool_rejects_invalid_arguments(server, tool, args):
+    with as_("beacon-pricing"):
+        async with Client(server) as c:
+            try:
+                r = await c.call_tool(tool, args)
+            except Exception:  # StrictArguments raises INVALID_PARAMS as a protocol error
+                return
+            assert r.is_error, (tool, text(r))
+
+
+async def test_mutating_tools_only_change_open_interactive_runs(server, ctx):
+    from pe_value_os.workflows import primary
+
+    with as_("beacon-pricing"):
+        rec, _ = primary.start(ctx, "beacon-pricing", "human:x")  # automated run (workflow-owned)
+        async with Client(server) as c:
+            r = await c.call_tool(RUN_TOOLS[5][0], RUN_TOOLS[5][1](rec.run_id))
+            assert r.is_error and "automated run" in text(r)
+            run_id = await _beacon_interactive_run(c)
+            r = await c.call_tool("draft_100_day_plan", {"run_id": run_id})
+            assert r.is_error and "prioritize_opportunities first" in text(r)
