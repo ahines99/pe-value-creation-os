@@ -32,7 +32,7 @@ Convert a sized opportunity list into a plan management can run and the monitori
 6. **Risks and mitigations:** from each opportunity's risks, plus execution risk (owner capacity, change load on sales and CS).
 7. **Decision points:** what needs sponsor or board approval, and by when.
 8. **Governance:** propose a cadence, such as a weekly workstream check-in, a biweekly steering meeting, and a monthly sponsor update. Adjust it to what the user specifies.
-9. **Submit** with `request_approval(run_id, artifact_id)` and stop.
+9. **Build and submit.** Call `draft_100_day_plan(run_id)` for the deterministic plan (workstreams, KPIs, totals), add the qualitative content above in your response, then call `request_approval(run_id)` and stop.
 
 # Plan quality checklist
 - [ ] Every initiative traces to an opportunity id and its value case.
@@ -50,3 +50,6 @@ Convert a sized opportunity list into a plan management can run and the monitori
 5. **Risks and mitigations.**
 6. **Decisions requiring approval.**
 7. **Appendix:** excluded `NEEDS_EVIDENCE` opportunities.
+
+# References
+- `references/worked-example.md`: the draft plan produced for the fictional Beacon fixture.

@@ -43,3 +43,6 @@ Find where retained revenue is being lost, separate causes from correlations, an
 - Leading indicators and their lead time.
 - Sized opportunities and program costs.
 - `NEEDS_EVIDENCE` items, for example missing reason codes or no usage data.
+
+# References
+- `references/worked-example.md`: tool outputs and findings for the fictional Cedar fixture, generated from real tool calls.

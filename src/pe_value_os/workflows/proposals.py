@@ -43,6 +43,7 @@ class BranchContext:
     findings: list[DraftFinding]
     evidence_ids: list[str]
     documents: list[dict[str, str]] = field(default_factory=list)  # untrusted text, delimited by the model layer
+    report: dict[str, Any] = field(default_factory=dict)  # proposer diagnostics (rejections, usage) for audit
 
 
 class Proposer(Protocol):

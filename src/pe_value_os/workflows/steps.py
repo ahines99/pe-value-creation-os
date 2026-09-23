@@ -34,6 +34,7 @@ from ..domain.retention import analyse_retention
 from ..domain.runs import ApprovalDecision, PlanRecord, RunState, Status
 from ..domain.services import size_value_case
 from ..domain.source_models import DatasetKind
+from ..llm.client import ModelUnavailable
 from ..observability import get_logger
 from ..policy import PolicyConfig
 from .base import Rewind
@@ -55,10 +56,6 @@ NS = uuid.UUID("0b8f3f4e-5d1a-4c55-9a8c-7e2f6d4b3a10")
 
 def stable_id(*parts: str) -> str:
     return str(uuid.uuid5(NS, ":".join(parts)))
-
-
-class ModelUnavailable(RuntimeError):
-    """The model layer could not respond; the run pauses instead of guessing (PVC-074)."""
 
 
 @dataclass
@@ -185,19 +182,24 @@ def diagnostic_branch(ctx: RunContext, state: RunState, branch: str) -> dict[str
     bctx = BranchContext(analysis=branch, company_id=state.company_id, policy=ctx.policy, result=result,
                          findings=drafts, evidence_ids=getattr(result, "evidence_ids", None)
                          or sorted({e for d in drafts for e in d.evidence_ids}), documents=docs)
+    proposer_name = ctx.proposer.name
+    model_unavailable = None
     try:
         proposals = ctx.proposer.propose(bctx)
-    except ModelUnavailable:
+    except ModelUnavailable as exc:
         if ctx.policy.model.on_unavailable == "rules":
-            proposals = RuleBasedProposer().propose(bctx)
-        else:
-            raise
+            proposals, proposer_name = RuleBasedProposer().propose(bctx), "rules(fallback)"
+            bctx.report["fallback_reason"] = str(exc)
+        else:  # PVC-074: pause the run instead of guessing; diagnostics re-run on resume
+            proposals, model_unavailable = [], str(exc)
     return {
         "skipped": False,
         "summary": jsonable(result),
         "finding_ids": finding_ids,
         "proposals": [p.model_dump(mode="json") for p in proposals],
-        "proposer": ctx.proposer.name,
+        "proposer": proposer_name,
+        "proposer_report": jsonable(bctx.report),
+        "model_unavailable": model_unavailable,
     }
 
 

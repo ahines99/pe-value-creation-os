@@ -53,3 +53,6 @@ Report the scores. Don't combine them into one number. `prioritize_opportunities
 - Revenue-side AI ideas handed off to the pricing or retention skills, with the reason.
 - Unsized candidates and the data needed.
 - Risks, including data-rights and quality risks.
+
+# References
+- `references/worked-example.md`: tool outputs and findings for the fictional Cedar fixture, generated from real tool calls.

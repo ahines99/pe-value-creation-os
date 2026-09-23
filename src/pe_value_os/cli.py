@@ -191,6 +191,14 @@ def cmd_audit_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_mcp_stdio(args: argparse.Namespace) -> int:
+    """Serve the MCP server over stdio for local clients (Claude Code plugin, PVC-076). Dev scope only."""
+    from .mcp_server import mcp
+
+    anyio.run(mcp.run_stdio_async)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
@@ -260,6 +268,9 @@ def build_parser() -> argparse.ArgumentParser:
     ae.add_argument("--company", required=True)
     ae.add_argument("--out", required=True)
     ae.set_defaults(fn=cmd_audit_export)
+
+    ms = sub.add_parser("mcp-stdio", help="serve MCP over stdio for local clients")
+    ms.set_defaults(fn=cmd_mcp_stdio)
     return p
 
 

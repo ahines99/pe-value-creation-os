@@ -38,6 +38,21 @@ def _branch(ctx: S.RunContext, name: str) -> Any:
     return run
 
 
+class DiagnosticsStep(ParallelStep):
+    """Parallel diagnostics that pause the run when the model layer is unavailable (PVC-074)."""
+
+    async def execute(self, state: RunState) -> RunState:
+        state = await super().execute(state)
+        results = state.artifacts[self.name]["results"]
+        down = {b: r["model_unavailable"] for b, r in results.items() if r.get("model_unavailable")}
+        if down:
+            state.status = Status.NEEDS_EVIDENCE
+            state.pause_reason = {"reason": "model_unavailable", "branches": down,
+                                  "detail": "The model could not produce proposals; resume when it is available "
+                                            "or set policy model.on_unavailable = 'rules'"}
+        return state
+
+
 def build_steps(ctx: S.RunContext, timeouts: dict[str, float] | None = None) -> list[Step]:
     t = timeouts or {}
     seq = {
@@ -48,7 +63,7 @@ def build_steps(ctx: S.RunContext, timeouts: dict[str, float] | None = None) -> 
     out: list[Step] = []
     for name in STEP_ORDER:
         if name == "diagnostics":
-            out.append(ParallelStep("diagnostics", {b: _branch(ctx, b) for b in DIAGNOSTIC_BRANCHES},
+            out.append(DiagnosticsStep("diagnostics", {b: _branch(ctx, b) for b in DIAGNOSTIC_BRANCHES},
                                     timeout_s=t.get("diagnostics", 600.0),
                                     branch_timeout_s=t.get("branch", 300.0)))
         else:

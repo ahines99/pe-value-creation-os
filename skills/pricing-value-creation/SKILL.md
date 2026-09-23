@@ -37,7 +37,7 @@ Report leakage as a share of list for each layer. The largest layer is usually t
 | Renewal price uplift | `renewing_arr` (renewals in the next 12 months) | Uplift % | Accepted share after negotiation, churn, and downgrade |
 | Discount governance | `discounted_arr` | Reduction in average discount, as % of list | Adoption of the approval policy by sales |
 | Legacy migration | `legacy_price_book_arr` | Gap to current price | Share migrated in the window, net of churn |
-| Packaging/value metric | `arr_in_affected_tiers` | Expected ARPA change | Adoption and rollout timing |
+| Packaging/value metric | `total_arr` with `metric_params.segment` for the affected segment | Expected ARPA change | Adoption and rollout timing |
 
 - Only renewals inside the window count toward in-year value. Run-rate value is annualized. Label which one you mean.
 - Implementation costs (CPQ changes, pricing study, sales training) go in `one_time_cost`. Ongoing tooling goes in `annual_run_cost`.
@@ -53,3 +53,6 @@ Report leakage as a share of list for each layer. The largest layer is usually t
 - Findings, one per leakage source or monetization gap.
 - Opportunities with contract-constraint status (checked / `NEEDS_EVIDENCE`) and an explicit customer-response assumption.
 - Risks: churn response, competitive response, concentration.
+
+# References
+- `references/worked-example.md`: tool outputs and findings for the fictional Beacon fixture, generated from real tool calls.

@@ -61,3 +61,6 @@ Never size "grow faster" as an opportunity on its own. Growth levers belong to p
 - Hand-offs to other lever skills, with the reason.
 - Data-quality flags that change interpretation.
 - `NEEDS_EVIDENCE` items.
+
+# References
+- `references/worked-example.md`: tool outputs and findings for the fictional Cedar fixture, generated from real tool calls.

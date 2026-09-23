@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "pe-value-creation-os": {
+      "command": "uv",
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "pvc", "mcp-stdio"],
+      "env": { "PVC_ENV": "dev" }
+    }
+  }
+}
