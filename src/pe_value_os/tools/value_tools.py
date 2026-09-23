@@ -140,6 +140,7 @@ def register_value_model(mcp: MCPServer) -> None:
         """Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this
         company."""
         rec = _open_interactive_run(run_id)
+        company_data(rec.company_id)  # registers the company's evidence, so the ids it cites can be checked
         principal = security.current_principal()
         f = Finding(
             finding_id=str(uuid.uuid4()),

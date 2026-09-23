@@ -36,7 +36,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 TOOL_PARAMS: dict[str, frozenset[str]] = {}
 _ctx: RunContext | None = None
 _lock = threading.Lock()
-_cache: dict[str, tuple[float, CompanyData]] = {}
+_cache: dict[str, tuple[float, CompanyData, bool]] = {}  # company -> (loaded at, data, evidence registered)
 CACHE_TTL_S = 60.0
 
 
@@ -60,13 +60,16 @@ def company_data(company_id: str) -> CompanyData:
     """Scope-checked, briefly cached company data."""
     security.require(company_id)
     now = time.monotonic()
+    onboarded = _onboarded(company_id)
     hit = _cache.get(company_id)
-    if hit and now - hit[0] < CACHE_TTL_S:
+    # Reuse a cached load unless the company has been onboarded since, in which case its evidence must now be
+    # registered so findings and opportunities can cite it.
+    if hit and now - hit[0] < CACHE_TTL_S and (hit[2] or not onboarded):
         return hit[1]
     ctx = get_ctx()
     # Evidence is registered only for onboarded companies; reads for others still work but cannot be cited.
-    data = ctx.adapter.load(company_id, sink=ctx.repo if _onboarded(company_id) else None)
-    _cache[company_id] = (now, data)
+    data = ctx.adapter.load(company_id, sink=ctx.repo if onboarded else None)
+    _cache[company_id] = (now, data, onboarded)
     return data
 
 

@@ -15,17 +15,17 @@ Track status by checking boxes here, or import the tickets into an issue tracker
 
 ## Status
 
-As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 334 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet. An internal audit (code, security and status reviews) found 4 high-severity security, 3 high-severity correctness and several medium issues, and showed that some tickets had been marked Done too early. All findings are fixed with regression tests; the statuses below reflect the audit.
+As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 335 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet. An internal audit (code, security and status reviews) found 4 high-severity security, 3 high-severity correctness and several medium issues, and showed that some tickets had been marked Done too early. All findings are fixed with regression tests; the statuses below reflect the audit.
 
 | Status | Tickets | Meaning |
 |---|---|---|
-| Done | 83 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
+| Done | 84 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
 | Built, not yet run in its target environment | 11 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
-| Blocked on a person, decision, or pilot company | 17 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
+| Blocked on a person, decision, or pilot company | 16 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
 
 | Release gate | State |
 |---|---|
-| R0.1 Vertical slice | All exit criteria verified locally. Four R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro), PVC-030 (`docker compose` run), and PVC-070 (interactive skill session). |
+| R0.1 Vertical slice | All exit criteria verified locally. Three R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro) and PVC-030 (`docker compose` run, which needs Docker). |
 | R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, a live-model eval (API key), and pilot data. |
 | R1.0 Production | Needs the pilot, go decision, pen test, production drill, on-call rotation, and a second onboarded company. |
 
@@ -526,10 +526,10 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-070: Diagnostic skill validated end to end
 `P0 · M · R0.1 · deps: PVC-056`
 
-**Status: Blocked on a person, decision, or pilot company.** Worked examples are generated from the Beacon run and now show the scenario rates. Steps the tools could not perform (marking items `NEEDS_EVIDENCE`, a `contradicts` relation) are rewritten into supported ones. Still to do: an interactive session in Claude Code by a team member, checked against the output contract.
+**Status: Done.** Session run on 2026-09-23 against the Cedar fixture over the plugin's MCP stdio server, with Claude as the analyst making every judgment. The output meets all 8 items of the output contract ([docs/skill-sessions/2026-09-23-cedar-diagnostic.md](docs/skill-sessions/2026-09-23-cedar-diagnostic.md)). The session found and fixed an evidence-registration bug in `record_finding`. A repeat by a team member in Claude Code is still recommended before the domain-expert review (PVC-071).
 
 - [x] `pe-value-creation-diagnostic` has a worked example in `references/` from the *Pricing leak* fixture run.
-- [ ] A manual session in an MCP client, using the skill, produces output that meets its output contract.
+- [x] A manual session in an MCP client, using the skill, produces output that meets its output contract.
 
 ### PVC-075: Skill lint
 `P1 · S · R0.1 · deps: PVC-050`

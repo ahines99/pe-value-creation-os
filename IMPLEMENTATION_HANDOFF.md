@@ -21,7 +21,7 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 
 ## Current state (verified 2026-09-23)
 
-The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 334 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. An internal audit (code, security, status) on 2026-09-23 found 4 high security and 3 high correctness issues, plus medium ones; all are fixed, with regression tests in `tests/test_audit_fixes.py`. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
+The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 335 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. An internal audit (code, security, status) on 2026-09-23 found 4 high security and 3 high correctness issues, plus medium ones; all are fixed, with regression tests in `tests/test_audit_fixes.py`. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
 
 | Area | State |
 |---|---|

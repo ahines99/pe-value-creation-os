@@ -476,3 +476,25 @@ async def test_mutating_tools_only_change_open_interactive_runs(server, ctx):
             run_id = await _beacon_interactive_run(c)
             r = await c.call_tool("draft_100_day_plan", {"run_id": run_id})
             assert r.is_error and "prioritize_opportunities first" in text(r)
+
+
+async def test_findings_can_cite_evidence_right_after_the_run_starts(server, ctx):
+    """Found in the PVC-070 skill session: citations failed until a read tool had registered the evidence, and
+    a read before onboarding cached unregistered data."""
+    with as_("cedar-churn"):
+        async with Client(server) as c:
+            prof = await c.call_tool("get_company_profile", {"company_id": "cedar-churn"})  # before onboarding
+            arr_ev = next(d["evidence_id"] for d in prof.structured_content["data_inventory"] if d["kind"] == "arr")
+            run = await c.call_tool("start_diagnostic_run", {"company_id": "cedar-churn", "mode": "interactive"})
+            r = await c.call_tool(
+                "record_finding",
+                {
+                    "run_id": run.structured_content["run_id"],
+                    "finding_type": "value_claim",
+                    "title": "GRR",
+                    "statement": "GRR below floor",
+                    "confidence": "high",
+                    "evidence_ids": [arr_ev],
+                },
+            )
+            assert r.is_error is False, text(r)
