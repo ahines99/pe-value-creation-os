@@ -81,6 +81,10 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
         kind = DatasetKind(name)
         required = name in rule.required
         ds = data.datasets.get(kind)
+        if ds is not None and not ds.records and ds.row_errors:
+            gaps.append(Gap(code="row_errors", dataset=name, blocking=required,
+                            detail=f"'{name}' has no valid rows ({len(ds.row_errors)} invalid); first: {ds.row_errors[0]}"))
+            continue
         if ds is None or not ds.records:
             gaps.append(
                 Gap(

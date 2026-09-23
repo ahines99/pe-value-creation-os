@@ -33,6 +33,7 @@ class Screening(BaseModel):
     renewal_uplift_realization_min: Decimal
     concession_leakage_max: Decimal
     segment_grr_gap_max: Decimal
+    segment_min_arr_share: Decimal
     involuntary_churn_share_max: Decimal
     support_tier1_cost_share_min: Decimal
 

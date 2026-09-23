@@ -1,0 +1,48 @@
+name: nightly-evals
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic:
+    runs-on: ubuntu-latest
+    env:
+      PVC_ENV: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - run: uv run pvc eval --suite all --gate --report var/eval-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: var/eval-report.*
+
+  live-model:
+    # Live model evaluation (ADR 0005). Runs only when the secret is configured; not a merge gate.
+    runs-on: ubuntu-latest
+    if: ${{ vars.PVC_RUN_LIVE_EVALS == 'true' }}
+    env:
+      PVC_ENV: dev
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PVC_EGRESS_ALLOWLIST: api.anthropic.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - run: uv run pvc eval --suite golden --proposer model --report var/eval-report-model.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report-model
+          path: var/eval-report-model.*

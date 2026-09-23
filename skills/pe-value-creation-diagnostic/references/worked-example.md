@@ -14,17 +14,17 @@
 
 | Finding id | Statement | Confidence | Evidence |
 |---|---|---|---|
-| `dba2bc97` | New-deal discount standard deviation in mid_market is 12.2% across 54 deals. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
-| `02fa3cf3` | Realized renewal uplift 1.1% against 4.7% contracted. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
-| `c4d7d2e0` | 17.9% of ARR is on legacy price books. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
+| `5c0940ae` | New-deal discount standard deviation in mid_market is 12.2% across 54 deals. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
+| `266c3d21` | Realized renewal uplift 1.1% against 4.7% contracted. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
+| `45552f9f` | 17.9% of ARR is on legacy price books. | high | `c7d690b3`, `27bbb957`, `2e8af7ab` ... |
 
 ## 3. Opportunities
 
 | Id | Lever | Low / base / high annual EBITDA | One-time cost | Confidence | Rank |
 |---|---|---|---|---|---|
-| `f137943c` Discount governance in mid_market | pricing | 89,586 / 215,006 / 403,136 | 60,000 | medium | 3 |
-| `0dfda0b5` Enforce contracted renewal uplifts | pricing | 180,483 / 351,942 / 649,738 | 40,000 | medium | 1 |
-| `98e708d7` Migrate legacy price-book customers | pricing | 138,418 / 380,650 / 605,579 | 75,000 | medium | 2 |
+| `6e45f1c1` Discount governance in mid_market | pricing | 89,586 / 215,006 / 403,136 | 60,000 | medium | 3 |
+| `c2b3c321` Enforce contracted renewal uplifts | pricing | 180,483 / 351,942 / 649,738 | 40,000 | medium | 1 |
+| `1cab95a7` Migrate legacy price-book customers | pricing | 138,418 / 380,650 / 605,579 | 75,000 | medium | 2 |
 
 ## 4. Assumptions
 
@@ -62,15 +62,15 @@
 6. `check_data_sufficiency(company_id='beacon-pricing', analysis='ai_opportunity')`
 7. `price_waterfall(company_id='beacon-pricing')`
 8. `compute_saas_metrics(company_id='beacon-pricing')`
-9. `record_finding(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', finding_type='observation', title='Wide discount dispersion', statement='New-deal discount standard deviation in mid_market is 12.2% across 54 deals.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
-10. `record_finding(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', finding_type='observation', title='Renewal uplifts largely waived', statement='Realized renewal uplift 1.1% against 4.7% contracted.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
-11. `record_finding(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', finding_type='observation', title='ARR on legacy price books', statement='17.9% of ARR is on legacy price books.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
-12. `propose_opportunity(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', lever='pricing', baseline_metric='discounted_arr', title='Discount governance in mid_market', confidence='medium', rationale='Discount governance in mid_market', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='60000', metric_params={'segment': 'mid_market'})`
-13. `size_value_case(company_id='beacon-pricing', opportunity_id='f137943c-2af3-404f-ad96-3326ad369f7d')`
-14. `propose_opportunity(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', lever='pricing', baseline_metric='renewing_arr', title='Enforce contracted renewal uplifts', confidence='medium', rationale='Enforce contracted renewal uplifts', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='40000')`
-15. `size_value_case(company_id='beacon-pricing', opportunity_id='0dfda0b5-f232-4ed2-a01b-2078a0a22b6a')`
-16. `propose_opportunity(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77', lever='pricing', baseline_metric='legacy_price_book_arr', title='Migrate legacy price-book customers', confidence='medium', rationale='Migrate legacy price-book customers', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='75000')`
-17. `size_value_case(company_id='beacon-pricing', opportunity_id='98e708d7-48ee-46ee-86b7-6830a5d57295')`
-18. `prioritize_opportunities(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77')`
-19. `draft_100_day_plan(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77')`
-20. `request_approval(run_id='c8736397-1f9c-4351-8e6c-9a814d4e3b77')`
+9. `record_finding(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', finding_type='observation', title='Wide discount dispersion', statement='New-deal discount standard deviation in mid_market is 12.2% across 54 deals.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
+10. `record_finding(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', finding_type='observation', title='Renewal uplifts largely waived', statement='Realized renewal uplift 1.1% against 4.7% contracted.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
+11. `record_finding(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', finding_type='observation', title='ARR on legacy price books', statement='17.9% of ARR is on legacy price books.', confidence='high', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'])`
+12. `propose_opportunity(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', lever='pricing', baseline_metric='discounted_arr', title='Discount governance in mid_market', confidence='medium', rationale='Discount governance in mid_market', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='60000', metric_params={'segment': 'mid_market'})`
+13. `size_value_case(company_id='beacon-pricing', opportunity_id='6e45f1c1-f7df-4c43-87d4-05efbe86c3f9')`
+14. `propose_opportunity(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', lever='pricing', baseline_metric='renewing_arr', title='Enforce contracted renewal uplifts', confidence='medium', rationale='Enforce contracted renewal uplifts', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='40000')`
+15. `size_value_case(company_id='beacon-pricing', opportunity_id='c2b3c321-4254-4916-9518-087789b155a0')`
+16. `propose_opportunity(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30', lever='pricing', baseline_metric='legacy_price_book_arr', title='Migrate legacy price-book customers', confidence='medium', rationale='Migrate legacy price-book customers', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='75000')`
+17. `size_value_case(company_id='beacon-pricing', opportunity_id='1cab95a7-c089-4d70-b217-c6644c9d2ad0')`
+18. `prioritize_opportunities(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30')`
+19. `draft_100_day_plan(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30')`
+20. `request_approval(run_id='2732ffa4-4108-4ea1-913a-ad53d4b6ca30')`

@@ -4,9 +4,9 @@
 
 ## Support volume (trailing 12 months)
 
-- Tickets: 4137; by tier {"tier1": 2499, "tier2": 1638}; by category {"account_admin": 873, "billing": 812, "bug": 804, "how_to": 814, "integration": 834}
-- Average handle minutes by tier: {"tier1": "18.9640", "tier2": "75.1349"}
-- Evidence: `5c2ecd86`, `f1e40a39`
+- Tickets: 4401; by tier {"tier1": 2620, "tier2": 1781}; by category {"account_admin": 877, "billing": 891, "bug": 903, "how_to": 852, "integration": 878}
+- Average handle minutes by tier: {"tier1": "19.1011", "tier2": "74.6075"}
+- Evidence: `2cb0c70c`, `87ee76de`
 
 ## Candidates
 

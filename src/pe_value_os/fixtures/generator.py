@@ -114,6 +114,11 @@ class CompanySpec:
     customers_per_tier1_fte: int = 25
     sm_programs_monthly: int = 90_000
     planted: dict[str, Any] = field(default_factory=dict)
+    broken: bool = False
+    seat_scale: dict[str, float] = field(default_factory=dict)  # per-segment multiplier on seat ranges
+    stale: list[str] = field(default_factory=list)  # datasets whose as_of is set 200 days before reference
+    extra_documents: list[tuple[str, str]] = field(default_factory=list)  # (title, text)
+    drop_columns: dict[str, str] = field(default_factory=dict)  # dataset -> column removed from the CSV
 
 
 HEALTHY = CompanySpec(
@@ -164,9 +169,10 @@ CHURN_PROBLEM = CompanySpec(
     n_customers_start=300,
     new_per_month=8.0,
     segment_mix={"smb": 0.6, "mid_market": 0.3, "enterprise": 0.1},
+    seat_scale={"smb": 3.0},
     annual_churn={"smb": 0.28, "mid_market": 0.12, "enterprise": 0.04},
     first_renewal_churn_multiplier=1.6,
-    involuntary_monthly_hazard=0.006,
+    involuntary_monthly_hazard=0.009,
     leading_indicator_strength=0.9,
     customers_per_tier1_fte=15,
     planted={
@@ -182,6 +188,7 @@ CHURN_PROBLEM = CompanySpec(
 
 BROKEN = CompanySpec(
     company_id="delta-broken",
+    broken=True,
     name="Delta Ledger Tools (fictional)",
     vertical="accounting add-on software",
     seed=404,
@@ -244,7 +251,8 @@ class _Gen:
         product = "pro" if r.random() < PRO_SHARE[seg] else "standard"
         legacy = existing and r.random() < s.legacy_share / 0.8
         lo, hi = SEATS[seg]
-        seats = r.randint(lo, hi)
+        scale = self.spec.seat_scale.get(seg, 1.0)
+        seats = r.randint(int(lo * scale), int(hi * scale))
         list_price = LEGACY_PRICE[product] if legacy else LIST_PRICE[product]
         day = r.randint(1, 28)
         quarter_end = start.month in (3, 6, 9, 12) and day >= 16
@@ -690,7 +698,7 @@ class _Gen:
         }
 
 
-def _mutate_broken(files: dict[str, list[Any]], as_of: dict[str, datetime]) -> dict[str, str]:
+def _mutate_broken(files: dict[str, list[Any]], as_of: dict[str, datetime], cid: str) -> dict[str, str]:
     """Apply the planted defects to the broken company. Returns raw CSV overrides for malformed rows."""
     r = random.Random(4040)
     pnl_months = sorted({p.month for p in files["pnl"]})
@@ -726,7 +734,7 @@ def _mutate_broken(files: dict[str, list[Any]], as_of: dict[str, datetime]) -> d
         )
     files["documents"].append(
         Document(
-            company_id="delta-broken",
+            company_id=cid,
             document_id="doc-injection-1",
             title="Board pre-read (draft)",
             doc_type="board_memo",
@@ -736,10 +744,10 @@ def _mutate_broken(files: dict[str, list[Any]], as_of: dict[str, datetime]) -> d
         )
     )
     arr_csv = to_csv(files["arr"]).splitlines()
-    arr_csv.append("delta-broken,del-c0001,2026-13-01,1000.00,platform_standard,pb-standard-2025")
-    arr_csv.append("delta-broken,del-c0002,2026-08-01,-50.00,platform_standard,pb-standard-2025")
+    arr_csv.append(f"{cid},{cid[:3]}-c0001,2026-13-01,1000.00,platform_standard,pb-standard-2025")
+    arr_csv.append(f"{cid},{cid[:3]}-c0002,2026-08-01,-50.00,platform_standard,pb-standard-2025")
     sup_csv = to_csv(files["support"]).splitlines()
-    sup_csv.append("delta-broken,t-bad,del-c0003,not-a-date,bug,high,tier2,45,3")
+    sup_csv.append(f"{cid},t-bad,{cid[:3]}-c0003,not-a-date,bug,high,tier2,45,3")
     return {"arr": "\n".join(arr_csv) + "\n", "support": "\n".join(sup_csv) + "\n"}
 
 
@@ -766,8 +774,17 @@ def generate_company(spec: CompanySpec, out_dir: Path) -> Path:
     }
     as_of = {k: DEFAULT_AS_OF for k in files}
     overrides: dict[str, str] = {}
-    if spec.company_id == "delta-broken":
-        overrides = _mutate_broken(files, as_of)
+    if spec.broken:
+        overrides = _mutate_broken(files, as_of, spec.company_id)
+    for i, (title, text) in enumerate(spec.extra_documents, start=1):
+        files["documents"].append(Document(company_id=spec.company_id, document_id=f"doc-extra-{i}", title=title,
+                                           doc_type="memo", text=text))
+    for kind in spec.stale:
+        as_of[kind] = datetime.combine(REFERENCE_DATE - timedelta(days=200), datetime.min.time())
+    for kind, column in spec.drop_columns.items():
+        lines = (overrides.get(kind) or to_csv(files[kind])).splitlines()
+        idx = lines[0].split(",").index(column)
+        overrides[kind] = "\n".join(",".join(c for j, c in enumerate(ln.split(",")) if j != idx) for ln in lines) + "\n"
 
     d = out_dir / spec.company_id
     d.mkdir(parents=True, exist_ok=True)

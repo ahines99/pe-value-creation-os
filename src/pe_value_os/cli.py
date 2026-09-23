@@ -147,7 +147,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
 def cmd_eval(args: argparse.Namespace) -> int:
     from .evals.harness import main as eval_main
 
-    return int(eval_main(suite=args.suite, gate=args.gate, report=args.report))
+    return int(eval_main(suite=args.suite, gate=args.gate, report=args.report, proposer=args.proposer))
 
 
 def cmd_recompute(args: argparse.Namespace) -> int:
@@ -248,6 +248,8 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--suite", default="all", choices=["all", "golden", "adversarial"])
     e.add_argument("--gate", action="store_true", help="exit non-zero when scores fall below thresholds")
     e.add_argument("--report", default="var/eval-report.json")
+    e.add_argument("--proposer", default="rules", choices=["rules", "model"],
+                   help="model requires ANTHROPIC_API_KEY (live evaluation; not used by the CI gate)")
     e.set_defaults(fn=cmd_eval)
 
     rc = sub.add_parser("recompute")

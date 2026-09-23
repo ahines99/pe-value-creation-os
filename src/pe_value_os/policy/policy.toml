@@ -29,6 +29,7 @@ legacy_arr_share_max = "0.10"
 renewal_uplift_realization_min = "0.60"   # realized uplift / contracted uplift
 concession_leakage_max = "0.02"           # off-invoice concessions as share of list
 segment_grr_gap_max = "0.10"              # worst segment GRR below company GRR
+segment_min_arr_share = "0.15"            # ignore segments below this share of opening ARR (immaterial)
 involuntary_churn_share_max = "0.10"
 support_tier1_cost_share_min = "0.25"     # tier-1 share of support cost worth automating
 

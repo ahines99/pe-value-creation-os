@@ -6,15 +6,15 @@
 
 | Metric | Value | Period end | Variant | Evidence | Peer p50 |
 |---|---|---|---|---|---|
-| arr | 29155455.12 | 2026-08-01 | month_end | `f1e40a39` | - |
-| grr | 0.8537 | 2026-08-01 | t12m_opening_cohort | `f1e40a39` | 0.89 (synthetic) |
-| nrr | 0.9368 | 2026-08-01 | t12m_opening_cohort | `f1e40a39` | 1.03 (synthetic) |
-| subscription_gross_margin | 0.7957 | 2026-08-01 | t12m_hosting_thirdparty_support_cogs | `58738798` | 0.78 (synthetic) |
-| cac_payback_months | 48.2297 | 2026-08-01 | prior_quarter_sm_over_net_new_arr_x_gm | `f1e40a39`, `58738798` | 20 (synthetic) |
-| ltv_to_cac | 7.9131 | 2026-08-01 | arpa_x_gm_over_annual_dollar_churn__t12m_sm_per_new_logo | `f1e40a39`, `58738798` | - |
-| magic_number | 0.5116 | 2026-08-01 | total_revenue_qoq_x4_over_prior_quarter_sm | `58738798` | 0.8 (synthetic) |
-| burn_multiple | 0.0000 | 2026-08-01 | negative_ebitda_proxy_over_net_new_arr | `f1e40a39`, `58738798` | 1.4 (synthetic) |
-| rule_of_40 | 0.4688 | 2026-08-01 | t12m_revenue_growth_plus_ebitda_margin | `f1e40a39`, `58738798` | 0.28 (synthetic) |
+| arr | 39519005.75 | 2026-08-01 | month_end | `87ee76de` | - |
+| grr | 0.7951 | 2026-08-01 | t12m_opening_cohort | `87ee76de` | 0.89 (synthetic) |
+| nrr | 0.8607 | 2026-08-01 | t12m_opening_cohort | `87ee76de` | 1.03 (synthetic) |
+| subscription_gross_margin | 0.8184 | 2026-08-01 | t12m_hosting_thirdparty_support_cogs | `f0fb4758` | 0.78 (synthetic) |
+| cac_payback_months | 255.0852 | 2026-08-01 | prior_quarter_sm_over_net_new_arr_x_gm | `87ee76de`, `f0fb4758` | 20 (synthetic) |
+| ltv_to_cac | 7.9197 | 2026-08-01 | arpa_x_gm_over_annual_dollar_churn__t12m_sm_per_new_logo | `87ee76de`, `f0fb4758` | - |
+| magic_number | 0.1253 | 2026-08-01 | total_revenue_qoq_x4_over_prior_quarter_sm | `f0fb4758` | 0.8 (synthetic) |
+| burn_multiple | 0.0000 | 2026-08-01 | negative_ebitda_proxy_over_net_new_arr | `87ee76de`, `f0fb4758` | 1.4 (synthetic) |
+| rule_of_40 | 0.5597 | 2026-08-01 | t12m_revenue_growth_plus_ebitda_margin | `87ee76de`, `f0fb4758` | 0.28 (synthetic) |
 
 ## Hand-offs
 

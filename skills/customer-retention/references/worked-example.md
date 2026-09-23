@@ -6,25 +6,25 @@
 
 | GRR | NRR | Logo retention | Failed-payment share of churned ARR | Evidence |
 |---|---|---|---|---|
-| 85.4% | 93.7% | 72.3% | 15.6% | `f1e40a39`, `fef9b080`, `4414c661` |
+| 79.5% | 86.1% | 71.1% | 12.6% | `87ee76de`, `01d1baab`, `e3338b4a` |
 
 ## Segments (observed)
 
 | Segment | Opening ARR | GRR | NRR |
 |---|---|---|---|
-| enterprise | 9,673,277 | 96.0% | 105.2% |
-| mid_market | 10,233,377 | 82.1% | 90.0% |
-| smb | 2,952,118 | 61.8% | 68.6% |
+| enterprise | 17,204,607 | 87.2% | 93.1% |
+| mid_market | 10,761,881 | 83.5% | 91.8% |
+| smb | 8,293,081 | 58.3% | 64.0% |
 
 ## Drivers
 
-- Observed: first-renewal customers are 1.0766x over-represented in voluntary churn.
-- Hypothesis (medium confidence): onboarding or fit problem; reason codes {"price": 17, "poor_onboarding": 33, "product_gaps": 19, "budget": 3, "competitor": 4} are sales-entered and need corroboration.
+- Observed: first-renewal customers are 1.4574x over-represented in voluntary churn.
+- Hypothesis (medium confidence): onboarding or fit problem; reason codes {"budget": 7, "poor_onboarding": 26, "price": 15, "product_gaps": 26, "competitor": 3} are sales-entered and need corroboration.
 
 ## Leading indicators
 
-- core_seat_utilisation: churned 0.3805 vs retained 0.7349 (lead 1-3 months; signal=True)
-- support_tickets_per_customer_month: churned 1.9254 vs retained 1.0453 (lead 1-3 months; signal=True)
+- core_seat_utilisation: churned 0.3940 vs retained 0.7463 (lead 1-3 months; signal=True)
+- support_tickets_per_customer_month: churned 2.2814 vs retained 1.1222 (lead 1-3 months; signal=True)
 
 ## Tool calls in this session
 

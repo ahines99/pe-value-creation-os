@@ -42,7 +42,12 @@
     "leading_indicator_strength": 0.3,
     "hosting_cogs_rate": 0.11,
     "customers_per_tier1_fte": 25,
-    "sm_programs_monthly": 90000
+    "sm_programs_monthly": 90000,
+    "broken": false,
+    "seat_scale": {},
+    "stale": [],
+    "extra_documents": [],
+    "drop_columns": {}
   },
   "planted": {
     "summary": "Healthy benchmark company. No material pricing leak, retention within policy.",

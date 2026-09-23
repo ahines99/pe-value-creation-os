@@ -29,7 +29,7 @@ Total base-case run-rate EBITDA 380,650; in-year 237,906.
 
 1. `start_diagnostic_run(company_id='beacon-pricing', mode='interactive')`
 2. `price_waterfall(company_id='beacon-pricing')`
-3. `propose_opportunity(run_id='e183bae1-50dd-42d5-b0e3-7bc5047c99a6', lever='pricing', baseline_metric='legacy_price_book_arr', title='Migrate legacy price-book customers', confidence='medium', rationale='Legacy share above policy', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='75000')`
-4. `size_value_case(company_id='beacon-pricing', opportunity_id='eb5cbaff-2a1f-4f2f-a962-9a4f731d0568')`
-5. `prioritize_opportunities(run_id='e183bae1-50dd-42d5-b0e3-7bc5047c99a6')`
-6. `draft_100_day_plan(run_id='e183bae1-50dd-42d5-b0e3-7bc5047c99a6')`
+3. `propose_opportunity(run_id='743b7ed5-1c28-4f26-a0e8-fe98ad292b17', lever='pricing', baseline_metric='legacy_price_book_arr', title='Migrate legacy price-book customers', confidence='medium', rationale='Legacy share above policy', evidence_ids=['c7d690b3-306f-54be-ac2c-2e749bb64e0b', '27bbb957-c738-5b3a-bd03-411e471a02d2', '2e8af7ab-0e98-5c78-a316-b619585197ad', '7cdbc0a7-983e-5629-ace4-67181bb56efa', '41f44216-6bb3-59a6-8d17-c235cb9438b1', 'fad58e2d-37bf-574f-a681-9451b5d87c04'], one_time_cost='75000')`
+4. `size_value_case(company_id='beacon-pricing', opportunity_id='bf7aa6ca-314f-41fc-860a-0903db23a5b8')`
+5. `prioritize_opportunities(run_id='743b7ed5-1c28-4f26-a0e8-fe98ad292b17')`
+6. `draft_100_day_plan(run_id='743b7ed5-1c28-4f26-a0e8-fe98ad292b17')`

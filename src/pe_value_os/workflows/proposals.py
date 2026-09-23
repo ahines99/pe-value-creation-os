@@ -142,7 +142,9 @@ def retention_findings(ra: RetentionAnalysis, policy: PolicyConfig) -> list[Draf
                             f"GRR {_pct(ra.grr)}, NRR {_pct(ra.nrr)}, logo retention {_pct(ra.logo_retention)}.",
                             Confidence.HIGH, ev))
     ws = ra.worst_segment()
-    if ws and ra.grr is not None and ws.grr is not None and (ra.grr - ws.grr) > s.segment_grr_gap_max:
+    total_opening = sum((x.opening_arr for x in ra.segments if x.dimension == "segment"), Decimal(0))
+    material = bool(ws and total_opening and ws.opening_arr / total_opening >= s.segment_min_arr_share)
+    if ws and material and ra.grr is not None and ws.grr is not None and (ra.grr - ws.grr) > s.segment_grr_gap_max:
         out.append(DraftFinding("worst_segment", FindingType.OBSERVATION, f"Churn concentrated in {ws.value}",
                                 f"{ws.value} GRR is {_pct(ws.grr)} against {_pct(ra.grr)} company-wide.",
                                 Confidence.HIGH, ev, metadata={"segment": ws.value}))

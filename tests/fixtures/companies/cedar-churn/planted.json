@@ -31,7 +31,7 @@
       "enterprise": 0.04
     },
     "first_renewal_churn_multiplier": 1.6,
-    "involuntary_monthly_hazard": 0.006,
+    "involuntary_monthly_hazard": 0.009,
     "expansion_prob_at_renewal": 0.35,
     "expansion_seat_growth": [
       0.05,
@@ -42,7 +42,14 @@
     "leading_indicator_strength": 0.9,
     "hosting_cogs_rate": 0.11,
     "customers_per_tier1_fte": 15,
-    "sm_programs_monthly": 90000
+    "sm_programs_monthly": 90000,
+    "broken": false,
+    "seat_scale": {
+      "smb": 3.0
+    },
+    "stale": [],
+    "extra_documents": [],
+    "drop_columns": {}
   },
   "planted": {
     "summary": "Retention problem concentrated in SMB, front-loaded at first renewal, with material failed-payment churn and usage/support leading indicators 1-3 months ahead.",
@@ -60,19 +67,19 @@
   },
   "ground_truth": {
     "last_month": "2026-08-01",
-    "active_customers_last_month": 329,
-    "arr_last_month": "29155455.12",
-    "legacy_arr_share_last_month": "0.0568",
+    "active_customers_last_month": 314,
+    "arr_last_month": "39519005.75",
+    "legacy_arr_share_last_month": "0.0305",
     "mean_realized_uplift": 0.0457,
     "t12m_churned_arr_by_type": {
-      "involuntary_payment": "500235.51",
-      "voluntary": "2701532.84"
+      "involuntary_payment": "925376.42",
+      "voluntary": "6449083.59"
     },
-    "t12m_involuntary_payment_share": "0.1562",
+    "t12m_involuntary_payment_share": "0.1255",
     "customer_level_grr_proxy_by_segment": {
-      "smb": "0.6182",
-      "mid_market": "0.8213",
-      "enterprise": "0.9599"
+      "smb": "0.5830",
+      "mid_market": "0.8354",
+      "enterprise": "0.8722"
     }
   }
 }
