@@ -305,6 +305,17 @@ def _observe(
     obs["rejected"] = [x for rep in reports for x in rep.get("rejected", [])]
     obs["model_tokens"] = sum(rep.get("input_tokens", 0) + rep.get("output_tokens", 0) for rep in reports)
     obs["model_cost_usd"] = round(sum(rep.get("cost_usd", 0) for rep in reports), 6)
+    # Per-step latency from the runner's audit events, and per-branch model usage (PVC-084).
+    step_ms: dict[str, float] = {}
+    for ev in repo.list_audit(run_id=run_id):
+        if "duration_ms" in ev.payload and ev.step:
+            step_ms[ev.step] = round(step_ms.get(ev.step, 0.0) + float(ev.payload["duration_ms"]), 1)
+    obs["step_ms"] = step_ms
+    obs["branch_model_usage"] = {
+        b: {"tokens": rep.get("input_tokens", 0) + rep.get("output_tokens", 0), "cost_usd": rep.get("cost_usd", 0)}
+        for b, r in results.items()
+        if (rep := r.get("proposer_report", {})).get("input_tokens")
+    }
     findings = repo.list_findings(run_id)
     obs["suspicious"] = [
         f.metadata.get("reasons", []) for f in findings if f.finding_type == FindingType.SUSPICIOUS_CONTENT
@@ -483,6 +494,11 @@ def score(results: list[dict[str, Any]], suite: str) -> dict[str, Any]:
     s["median_run_ms"] = statistics.median(walls) if walls else 0
     s["model_tokens"] = sum(r["model_tokens"] for r in results)
     s["model_cost_usd"] = round(sum(r["model_cost_usd"] for r in results), 6)
+    per_step: dict[str, list[float]] = {}
+    for r in results:
+        for step, ms in r.get("step_ms", {}).items():
+            per_step.setdefault(step, []).append(ms)
+    s["step_p95_ms"] = {k: sorted(v)[max(0, int(len(v) * 0.95) - 1)] for k, v in sorted(per_step.items())}
     return s
 
 

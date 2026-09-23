@@ -73,6 +73,8 @@ def cmd_db(args: argparse.Namespace) -> int:
             if os.environ.get(v)
         }
         migrate.bootstrap_roles(url, pw)
+        print(f"db bootstrap-roles: ok ({len(pw)} role password(s) set)")
+        return 0
     print(f"db {args.action}: ok (revision {migrate.current()})")
     return 0
 

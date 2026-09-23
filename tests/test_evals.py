@@ -21,6 +21,9 @@ def test_sample_cases_pass_and_report_dimensions():
     assert s["p95_run_ms"] > 0 and "model_cost_usd" in s
     a02 = results[2]
     assert a02["model_tokens"] > 0  # scripted model usage is tracked (PVC-084)
+    assert sum(u["tokens"] for u in a02["branch_model_usage"].values()) == a02["model_tokens"]
+    assert {"intake", "diagnostics", "value_modeling"} <= set(results[0]["step_ms"])  # per-step latency
+    assert set(s["step_p95_ms"]) >= {"intake", "diagnostics"}
 
 
 def test_gate_detects_regressions():
