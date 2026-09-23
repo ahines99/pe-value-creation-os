@@ -24,6 +24,7 @@ from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore, S3Evide
 from pe_value_os.adapters.fixtures import FixtureAdapter
 from pe_value_os.adapters.repositories import InMemoryRepository
 from pe_value_os.domain import sufficiency
+from pe_value_os.domain.baselines import baseline_overlap
 from pe_value_os.domain.calc import MetricUnavailable
 from pe_value_os.domain.kpi_models import KpiDefinition, KpiObservation
 from pe_value_os.domain.metrics import compute_saas_metrics
@@ -34,7 +35,7 @@ from pe_value_os.observability import configure_logging
 from pe_value_os.policy import get_policy
 from pe_value_os.workflows import primary
 from pe_value_os.workflows.base import AttemptAbandoned, FunctionalStep, Runner, run_guarded_in_thread
-from pe_value_os.workflows.steps import RunContext, baseline_overlap
+from pe_value_os.workflows.steps import RunContext
 from tests.helpers import D, make_data
 from tests.test_metrics import customers, ledger_rows, pnl_rows
 

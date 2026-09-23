@@ -19,14 +19,14 @@ As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 335 tests on Pytho
 
 | Status | Tickets | Meaning |
 |---|---|---|
-| Done | 84 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
+| Done | 85 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
 | Built, not yet run in its target environment | 11 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
-| Blocked on a person, decision, or pilot company | 16 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
+| Blocked on a person, decision, or pilot company | 15 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
 
 | Release gate | State |
 |---|---|
 | R0.1 Vertical slice | All exit criteria verified locally. Three R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro) and PVC-030 (`docker compose` run, which needs Docker). |
-| R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, a live-model eval (API key), and pilot data. |
+| R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, and pilot data. The live-model eval has run (subset). |
 | R1.0 Production | Needs the pilot, go decision, pen test, production drill, on-call rotation, and a second onboarded company. |
 
 Each ticket below has a **Status** line. Checked boxes are criteria met now. Unchecked boxes say in the status line what is missing.
@@ -550,11 +550,11 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-072: Model reasoning at judgment steps
 `P0 · L · R0.5 · deps: PVC-043, PVC-080`
 
-**Status: Blocked on a person, decision, or pilot company.** ADRs 0005 and 0006 exist. The no-new-numbers guardrail is enforced and hardened (words, scale words, multipliers, signs), but it has only been exercised with a scripted model. The criterion needs a live-model eval (`pvc eval --proposer model`), which needs an `ANTHROPIC_API_KEY` from the project owner.
+**Status: Done.** ADRs 0005 and 0006. The live-model eval on 2026-09-23 (`claude-opus-5`, 8-case subset plus a 2-case re-run, $2.03 total) passed the model gate: lever recall 1.0, citation validity 1.0, safety dimensions 1.0. Every accepted proposal contained only numbers copied from tool results, and one invented total was rejected. The run found and fixed overlapping proposals and proposals inside policy thresholds ([docs/evals/2026-09-23-live-model.md](docs/evals/2026-09-23-live-model.md)). The full suite and nightly runs need the key as a GitHub secret.
 
 Replace the rule-based opportunity proposals, and add evidence synthesis and plan narrative, using Claude through the Anthropic SDK with structured outputs validated by Pydantic.
 - [x] One ADR per model-dependent decision explains why a rule isn't enough and names its eval.
-- [ ] Model outputs never contain numbers that aren't copied from tool results (checked in eval).
+- [x] Model outputs never contain numbers that aren't copied from tool results (checked in eval).
 
 ### PVC-073: Prompt-injection defences
 `P0 · M · R0.5 · deps: PVC-072`

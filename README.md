@@ -91,7 +91,7 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Built and tested. An independent audit (code, security, status) found 4 high security, 3 high correctness and several medium issues; all are fixed with regression tests (`tests/test_audit_fixes.py`). |
 | CI (GitHub Actions) | Green: lint, types, 335 tests on Python 3.12, 3.13 and 3.14 with PostgreSQL, eval gate, pip-audit, gitleaks, and an image build with a Trivy scan. Actions and base images are pinned; Dependabot proposes updates. |
 | Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test` with 5 security test runs, actionlint). Not applied. |
-| Live-model evaluation | Harness is ready. It needs an API key to run (`pvc eval --proposer model`). |
+| Live-model evaluation | Run on 2026-09-23 on an 8-case subset: model gate passed, $2.03 total ([docs/evals/2026-09-23-live-model.md](docs/evals/2026-09-23-live-model.md)). Full suite and nightly runs need the key as a GitHub secret. |
 | Sign-offs and operations | Pending named people: domain expert (skills, policy values, eval value bands), threat-model review, external pen test, legal, on-call rotation |
 | Merge protection | Blocked: branch protection and deployment approvals need GitHub Pro on a private repository |
 | Pilot and GA | Pending a pilot portfolio company. See [docs/pilot/](docs/pilot/). |

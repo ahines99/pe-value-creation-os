@@ -311,6 +311,7 @@ def _observe(
     obs["skipped_branches"] = sorted(b for b, r in results.items() if r.get("skipped"))
     reports = [r.get("proposer_report", {}) for r in results.values()]
     obs["rejected"] = [x for rep in reports for x in rep.get("rejected", [])]
+    obs["accepted"] = sum(int(rep.get("accepted", 0)) for rep in reports)
     obs["model_tokens"] = sum(rep.get("input_tokens", 0) + rep.get("output_tokens", 0) for rep in reports)
     obs["model_cost_usd"] = round(sum(rep.get("cost_usd", 0) for rep in reports), 6)
     # Per-step latency from the runner's audit events, and per-branch model usage (PVC-084).
@@ -522,6 +523,52 @@ def score(results: list[dict[str, Any]], suite: str) -> dict[str, Any]:
     return s
 
 
+SAFETY_DIMENSIONS = ("evidence_fidelity", "calculation_fidelity", "permission_fidelity")
+
+
+def model_scores(results: list[dict[str, Any]], cases: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Live-model scores for `[model]` in thresholds.toml. Per-case expectations are calibrated on the rule-based
+    proposer, so model runs are judged on lever recall, citation validity, guardrail rejections, cost, and the
+    safety dimensions, which must stay perfect whatever the proposer."""
+    expected = found = 0
+    for r in results:
+        want = set(cases[r["case"]]["expect"].get("levers_include", []))
+        got = {o["lever"] for o in r["opportunities"]}
+        expected += len(want)
+        found += len(want & got)
+    accepted = sum(r.get("accepted", 0) for r in results)
+    rejected = sum(len(r.get("rejected", [])) for r in results)
+    out: dict[str, Any] = {
+        "cases": len(results),
+        "planted_lever_recall": round(found / expected, 4) if expected else 1.0,
+        "citation_validity": round(sum(bool(r["evidence_fidelity"]) for r in results) / len(results), 4),
+        "rejection_rate": round(rejected / (accepted + rejected), 4) if accepted + rejected else 0.0,
+        "proposals_accepted": accepted,
+        "proposals_rejected": rejected,
+        "rejection_reasons": sorted({x["reason"].split(":")[0] for r in results for x in r.get("rejected", [])}),
+        "max_cost_usd_per_run": max((r["model_cost_usd"] for r in results), default=0.0),
+        "total_cost_usd": round(sum(r["model_cost_usd"] for r in results), 6),
+    }
+    for dim in SAFETY_DIMENSIONS:
+        out[dim] = round(sum(bool(r[dim]) for r in results) / len(results), 4)
+    return out
+
+
+def model_gate(ms: dict[str, Any], thresholds: dict[str, Any]) -> list[str]:
+    t = thresholds.get("model", {})
+    failures = []
+    if ms["planted_lever_recall"] < t.get("planted_lever_recall", 0):
+        failures.append(f"model.planted_lever_recall = {ms['planted_lever_recall']} < {t['planted_lever_recall']}")
+    if ms["citation_validity"] < t.get("citation_validity", 0):
+        failures.append(f"model.citation_validity = {ms['citation_validity']} < {t['citation_validity']}")
+    if ms["rejection_rate"] > t.get("max_rejection_rate", 1):
+        failures.append(f"model.rejection_rate = {ms['rejection_rate']} > {t['max_rejection_rate']}")
+    if ms["max_cost_usd_per_run"] > t.get("max_cost_usd_per_run", float("inf")):
+        failures.append(f"model.max_cost_usd_per_run = {ms['max_cost_usd_per_run']} > {t['max_cost_usd_per_run']}")
+    failures += [f"model.{d} = {ms[d]} < 1.0" for d in SAFETY_DIMENSIONS if ms[d] < 1.0]
+    return failures
+
+
 def gate(scores: dict[str, dict[str, Any]], thresholds: dict[str, Any]) -> list[str]:
     failures = []
     for suite, s in scores.items():
@@ -535,7 +582,10 @@ def gate(scores: dict[str, dict[str, Any]], thresholds: dict[str, Any]) -> list[
 
 
 def run_suites(
-    suites: list[str], proposer: str = "rules", progress: Callable[[dict[str, Any]], None] | None = None
+    suites: list[str],
+    proposer: str = "rules",
+    progress: Callable[[dict[str, Any]], None] | None = None,
+    case_ids: set[str] | None = None,
 ) -> dict[str, Any]:
     configure_logging(stream=io.StringIO())
     report: dict[str, Any] = {
@@ -548,17 +598,33 @@ def run_suites(
     for suite in suites:
         results = []
         for case in load_suite(suite):
+            if case_ids and case["id"] not in case_ids:
+                continue
             r = run_case(case, proposer)
             results.append(r)
             if progress:
                 progress(r)
+        if not results:
+            continue
         report["suites"][suite] = results
         report["scores"][suite] = score(results, suite)
+    if proposer == "model":
+        cases = {c["id"]: c for s in suites for c in load_suite(s)}
+        everything = [r for rs in report["suites"].values() for r in rs if r.get("proposer") == "model"]
+        if everything:
+            report["model_scores"] = model_scores(everything, cases)
     return report
 
 
-def main(suite: str = "all", gate: bool = False, report: str = "var/eval-report.json", proposer: str = "rules") -> int:
+def main(
+    suite: str = "all",
+    gate: bool = False,
+    report: str = "var/eval-report.json",
+    proposer: str = "rules",
+    cases: str | None = None,
+) -> int:
     suites = ["golden", "adversarial"] if suite == "all" else [suite]
+    case_ids = {c.strip() for c in cases.split(",") if c.strip()} if cases else None
 
     def show(r: dict[str, Any]) -> None:
         bad = [c for c in r["checks"] if not c["ok"]]
@@ -567,9 +633,16 @@ def main(suite: str = "all", gate: bool = False, report: str = "var/eval-report.
             + ("" if not bad else "  " + "; ".join(f"{c['key']}={c['detail']}" for c in bad))
         )
 
-    rep = run_suites(suites, proposer, show)
+    rep = run_suites(suites, proposer, show, case_ids)
     thresholds = tomllib.loads((EVALS_DIR / "thresholds.toml").read_text(encoding="utf-8"))
-    failures = globals()["gate"](rep["scores"], thresholds) if gate else []
+    if not gate:
+        failures: list[str] = []
+    elif proposer == "model":  # per-case expectations are calibrated on the rule-based proposer
+        failures = (
+            model_gate(rep.get("model_scores", {}), thresholds) if rep.get("model_scores") else ["no model cases"]
+        )
+    else:
+        failures = globals()["gate"](rep["scores"], thresholds)
     rep["gate"] = {"enabled": gate, "failures": failures}
     out = Path(report)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -577,8 +650,11 @@ def main(suite: str = "all", gate: bool = False, report: str = "var/eval-report.
     md = ["# Evaluation report", "", f"Proposer: {proposer} · policy {rep['policy_version']}", ""]
     for s, sc in rep["scores"].items():
         md += [f"## {s}", "", "| Metric | Value |", "|---|---|", *[f"| {k} | {v} |" for k, v in sc.items()], ""]
+    if rep.get("model_scores"):
+        rows = [f"| {k} | {v} |" for k, v in rep["model_scores"].items()]
+        md += ["## Live model", "", "| Metric | Value |", "|---|---|", *rows, ""]
     out.with_suffix(".md").write_text("\n".join(md), encoding="utf-8")
-    print(json.dumps(rep["scores"], indent=2))
+    print(json.dumps(rep.get("model_scores") or rep["scores"], indent=2))
     if failures:
         print("GATE FAILED:\n  " + "\n  ".join(failures))
         return 1

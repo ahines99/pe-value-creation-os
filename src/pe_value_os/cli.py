@@ -184,7 +184,9 @@ def cmd_demo(args: argparse.Namespace) -> int:
 def cmd_eval(args: argparse.Namespace) -> int:
     from .evals.harness import main as eval_main
 
-    return int(eval_main(suite=args.suite, gate=args.gate, report=args.report, proposer=args.proposer))
+    return int(
+        eval_main(suite=args.suite, gate=args.gate, report=args.report, proposer=args.proposer, cases=args.cases)
+    )
 
 
 def cmd_recompute(args: argparse.Namespace) -> int:
@@ -295,6 +297,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--suite", default="all", choices=["all", "golden", "adversarial"])
     e.add_argument("--gate", action="store_true", help="exit non-zero when scores fall below thresholds")
     e.add_argument("--report", default="var/eval-report.json")
+    e.add_argument("--cases", help="comma-separated case ids to run (default: every case in the suites)")
     e.add_argument(
         "--proposer",
         default="rules",

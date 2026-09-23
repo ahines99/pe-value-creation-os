@@ -312,3 +312,23 @@ def test_guardrail_allows_cited_quantities(text):
     from pe_value_os.llm.guardrails import unsupported_numbers
 
     assert unsupported_numbers(text, GUARD_SOURCES) == [], text
+
+
+def test_overlapping_model_proposals_are_rejected_not_paused(tmp_path):
+    """Found in the first live-model run: the model proposed a segment and an unscoped version of one metric."""
+
+    def overlapping(user):
+        out = good_pricing(user)
+        p = out["proposals"][0]
+        seg = p | {"baseline_metric": "discounted_arr", "segment": "mid_market", "title": "Discount governance (mid)"}
+        whole = p | {"baseline_metric": "discounted_arr", "segment": None, "title": "Discount governance (all)"}
+        out["proposals"] = [seg, whole]
+        return out
+
+    ctx = ctx_with(ScriptedLLMClient([dispatch(overlapping)] * 4), tmp_path)
+    _, st = run(ctx, "beacon-pricing")
+    report = st.artifacts["diagnostics"]["results"]["pricing"]["proposer_report"]
+    assert report["accepted"] == 1
+    assert [r["reason"].split(":")[0] for r in report["rejected"]] == ["overlap"]
+    assert st.status == Status.AWAITING_APPROVAL  # no double-counting pause
+    assert "No double counting" in ctx.proposer.client.prompts[0]["system"]

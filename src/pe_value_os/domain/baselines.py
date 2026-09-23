@@ -483,3 +483,23 @@ def derive_baseline(
     if not (Decimal(0) < ft <= Decimal(1)):
         raise MetricUnavailable(f"Flow-through {ft} outside (0, 1]")
     return DerivedBaseline(baseline=baseline, ebitda_flow_through=ft, flow_through_rule=desc, evidence_ids=evidence)
+
+
+# Cost baselines that contain other cost baselines: sizing both would count the contained cost twice.
+BASELINE_CONTAINS: dict[str, frozenset[str]] = {
+    "subscription_cogs": frozenset({"hosting_cost", "support_cost_tier1"}),
+}
+
+
+def baseline_overlap(m1: str, p1: dict[str, str], m2: str, p2: dict[str, str]) -> str | None:
+    """Why two opportunity baselines overlap, or None. Different segments of one metric are disjoint."""
+    if m1 == m2:
+        if p1 == p2:
+            return f"same baseline {m1}"
+        if not p1 or not p2:
+            return f"{m1} for a segment is part of the unscoped {m1}"
+        return None
+    for outer, inner in ((m1, m2), (m2, m1)):
+        if inner in BASELINE_CONTAINS.get(outer, frozenset()):
+            return f"{inner} is part of {outer}"
+    return None

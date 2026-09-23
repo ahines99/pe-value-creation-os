@@ -48,3 +48,30 @@ def test_value_ranges_fail_when_sizing_drifts():
     assert all(c["ok"] for c in ok) and not any(c["ok"] for c in drift)
     golden = [c for c in harness.load_suite("golden") if "value_ranges" in c["expect"]]
     assert len(golden) >= 25  # PVC-081: cases carry expected value ranges
+
+
+def test_model_scores_and_gate():
+    cases = {"G1": {"expect": {"levers_include": ["pricing", "retention"]}}}
+    base = {
+        "case": "G1",
+        "opportunities": [{"lever": "pricing"}],
+        "accepted": 3,
+        "rejected": [{"reason": "overlap: x"}],
+        "model_cost_usd": 0.3,
+        "evidence_fidelity": True,
+        "calculation_fidelity": True,
+        "permission_fidelity": True,
+    }
+    ms = harness.model_scores([base], cases)
+    assert ms["planted_lever_recall"] == 0.5 and ms["rejection_rate"] == 0.25 and ms["rejection_reasons"] == ["overlap"]
+    thresholds = {
+        "model": {
+            "planted_lever_recall": 0.8,
+            "citation_validity": 1.0,
+            "max_rejection_rate": 0.3,
+            "max_cost_usd_per_run": 2.0,
+        }
+    }
+    assert harness.model_gate(ms, thresholds) == ["model.planted_lever_recall = 0.5 < 0.8"]
+    leaky = harness.model_scores([base | {"permission_fidelity": False}], cases)
+    assert "model.permission_fidelity = 0.0 < 1.0" in harness.model_gate(leaky, thresholds)

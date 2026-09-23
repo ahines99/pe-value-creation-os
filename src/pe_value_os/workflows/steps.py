@@ -18,7 +18,7 @@ from ..adapters.base import SourceAdapter
 from ..adapters.repositories import Repository
 from ..content_safety import scan
 from ..domain import ai_ops, sufficiency
-from ..domain.baselines import derive_baseline
+from ..domain.baselines import baseline_overlap, derive_baseline
 from ..domain.calc import MetricUnavailable, jsonable
 from ..domain.dataset import CompanyData
 from ..domain.metrics import compute_saas_metrics
@@ -370,26 +370,6 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
         state.status = Status.NEEDS_EVIDENCE
         state.pause_reason = {"reason": "evidence_review", "violations": violations}
     return {"opportunities_checked": len(opps), "violations": violations, "warnings": warnings}
-
-
-# Cost baselines that contain other cost baselines: sizing both would count the contained cost twice.
-BASELINE_CONTAINS: dict[str, frozenset[str]] = {
-    "subscription_cogs": frozenset({"hosting_cost", "support_cost_tier1"}),
-}
-
-
-def baseline_overlap(m1: str, p1: dict[str, str], m2: str, p2: dict[str, str]) -> str | None:
-    """Why two opportunity baselines overlap, or None. Different segments of one metric are disjoint."""
-    if m1 == m2:
-        if p1 == p2:
-            return f"same baseline {m1}"
-        if not p1 or not p2:
-            return f"{m1} for a segment is part of the unscoped {m1}"
-        return None
-    for outer, inner in ((m1, m2), (m2, m1)):
-        if inner in BASELINE_CONTAINS.get(outer, frozenset()):
-            return f"{inner} is part of {outer}"
-    return None
 
 
 # --- 6. prioritization ------------------------------------------------------------------------------------------
