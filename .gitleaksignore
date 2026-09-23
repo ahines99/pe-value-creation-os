@@ -1,0 +1,4 @@
+# Reviewed false positives (fingerprint = commit:file:rule:line). Add entries only after review.
+# Test idempotency key "q3-diagnostic" matched generic-api-key; it is not a credential.
+4db55673827fb006ea2100cef90407dd8b067807:tests/test_workflow.py:generic-api-key:127
+4db55673827fb006ea2100cef90407dd8b067807:tests/test_workflow.py:generic-api-key:128
