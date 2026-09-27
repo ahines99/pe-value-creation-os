@@ -4,7 +4,7 @@ Primary audience confirmed by Alex: technical hiring managers and applied-AI lea
 
 ## Engineering evidence
 
-See [container acceptance](../container-acceptance.md), [audit remediation](../audit-remediation.md) and [the execution roadmap](../portfolio-finalization-roadmap.md). The current work remains a candidate until fresh committed-SHA CI and the gates below are complete.
+All ten CI jobs passed at `48459ba`: 453 tests per Python version, full evaluations, installed-package and Compose smoke, infrastructure and clean application/database scans. See [the versioned evidence index](../releases/0.1.0/evidence.md), [container acceptance](../container-acceptance.md), [audit remediation](../audit-remediation.md) and [the execution roadmap](../portfolio-finalization-roadmap.md). The current work remains a candidate until the remaining gates below are complete.
 
 ## Human session — awaiting actual performance
 
@@ -28,8 +28,8 @@ Suggested client prompt: “Use the PE value creation diagnostic skill for beaco
 
 ## Publication and ownership
 
-Alex confirmed publication rights and authorized a public Apache-2.0 release. LICENSE, NOTICE, package, plugin and image metadata are being aligned with that decision. Repository publication follows the source/history review and current candidate checks. Domain sign-off, security certification and launch approval remain independent gates.
+Alex confirmed publication rights and authorized a public Apache-2.0 release. LICENSE, NOTICE, package, plugin and image metadata are aligned. Secret scans of history and the publication candidate passed. Domain sign-off, security certification and launch approval remain independent gates.
 
 ## Current interaction limitation
 
-The computer-use inventory exposed no browsers or native apps; both Chrome and in-app-browser creation reported unavailable. HTTP and automated API acceptance can continue, but rendered screenshots, keyboard/narrow-screen inspection and a real human session require an enabled browser. This is recorded as missing evidence, not a passing visual review.
+The browser connector exposed no surfaces. A native Chrome fallback was discovered, but Computer Use stopped because it could not determine the current Windows browser URL reliably enough to enforce policy. No further UI input was issued after that stop. HTTP acceptance and captured read-only HTML are available; rendered screenshots, keyboard/narrow-screen inspection and the actual human session remain missing evidence.
