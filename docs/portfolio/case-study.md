@@ -46,7 +46,9 @@ Delta provides the counterexample: only one of four analyses has sufficient data
 
 ## Validation and tradeoffs
 
-The audit remediation recorded 449 passing tests, one Windows symlink-privilege skip and 39/39 deterministic evaluation cases. Subsequent container acceptance exercised the actual installed artifact, PostgreSQL, worker and approval API. See [the acceptance index](acceptance.md) for current scope and reports; these measurements do not substitute for a fresh release-SHA CI run.
+The [verified main build at `fd00495`](https://github.com/ahines99/pe-value-creation-os/actions/runs/36359511827) passed all ten CI jobs: 453 tests on each of Python 3.12, 3.13 and 3.14; 39/39 deterministic evaluation cases; installed-package and Compose journeys; infrastructure checks; secret/dependency checks; and strict application/database image scans. The Linux matrix exercised the symlink coverage that Windows could not run without additional privileges. See [the evidence index](../releases/0.1.0/evidence.md) for scope and [human acceptance](acceptance.md) for the remaining independent session.
+
+[Load-test methodology and results](../load_test.md) distinguish local synthetic measurements from staging SLO acceptance. [The recording storyboard](../pilot/demo-script.md) follows evidence, sizing, human decision, KPI activation and the controlled missing-data case; rendered screenshots and the actual human session remain pending.
 
 The default demo uses rules and synthetic data so reviewers need neither credentials nor paid inference. That makes the core behavior repeatable, while the current optional live-model path still needs a newly authorized provider evaluation. The source has warehouse/CSV/HubSpot/Zendesk integration paths; no real pilot reconciliation is claimed.
 
