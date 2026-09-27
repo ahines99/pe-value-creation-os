@@ -4,7 +4,7 @@ Primary audience confirmed by Alex: technical hiring managers and applied-AI lea
 
 ## Engineering evidence
 
-All ten CI jobs passed at `48459ba`: 453 tests per Python version, full evaluations, installed-package and Compose smoke, infrastructure and clean application/database scans. See [the versioned evidence index](../releases/0.1.0/evidence.md), [container acceptance](../container-acceptance.md), [audit remediation](../audit-remediation.md) and [the execution roadmap](../portfolio-finalization-roadmap.md). The current work remains a candidate until the remaining gates below are complete.
+All ten CI jobs passed at `9f9b95f`: 453 tests per Python version, full evaluations, installed-package and Compose smoke, infrastructure and clean application/database scans. See [the versioned evidence index](../releases/0.1.0/evidence.md), [container acceptance](../container-acceptance.md), [audit remediation](../audit-remediation.md) and [the execution roadmap](../portfolio-finalization-roadmap.md). The current work remains a candidate until the remaining gates below are complete.
 
 ## Human session — awaiting actual performance
 
@@ -28,7 +28,7 @@ Suggested client prompt: “Use the PE value creation diagnostic skill for beaco
 
 ## Publication and ownership
 
-Alex confirmed publication rights and authorized a public Apache-2.0 release. LICENSE, NOTICE, package, plugin and image metadata are aligned. Secret scans of history and the publication candidate passed. Domain sign-off, security certification and launch approval remain independent gates.
+Alex confirmed publication rights and authorized a public Apache-2.0 release. The repository is now public, with a [portfolio site](https://ahines99.github.io/pe-value-creation-os/). LICENSE, NOTICE, package, plugin and image metadata are aligned. Main requires all ten checks with administrator enforcement; private vulnerability reporting is enabled. Secret scans of history and the publication candidate passed. Domain sign-off, security certification and launch approval remain independent gates.
 
 ## Current interaction limitation
 

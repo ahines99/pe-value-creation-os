@@ -2,9 +2,9 @@
 
 Turns portfolio-company operating data into evidence-backed value-creation initiatives, deterministically sized EBITDA cases, a human-approved 100-day plan, and ongoing KPI monitoring.
 
-**Portfolio showcase for technical hiring managers and applied-AI leaders.** Start with the [case study](docs/portfolio/case-study.md), [ten-minute walkthrough](docs/portfolio/quickstart.md) or [actual synthetic output](docs/portfolio/demo-report.md).
+**Portfolio showcase for technical hiring managers and applied-AI leaders.** Open the [portfolio site](https://ahines99.github.io/pe-value-creation-os/), [case study](docs/portfolio/case-study.md), [ten-minute walkthrough](docs/portfolio/quickstart.md) or [actual synthetic output](docs/portfolio/demo-report.md).
 
-**Status: release candidate; production acceptance remains open.** The installed demo and 39 evaluation cases pass outside the checkout, and the core Compose workflow passes. An Alpine application-image candidate clears the strict HIGH/CRITICAL scan after replacing the vulnerable Debian base. Optional observability images have separate findings, and current release-SHA CI and human/browser acceptance remain pending. See [acceptance](docs/portfolio/acceptance.md), [audit remediation](docs/audit-remediation.md) and [ROADMAP.md](ROADMAP.md).
+**Status: public showcase candidate; human acceptance remains open.** All ten [candidate CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36359188626) passed: 453 tests on each of Python 3.12-3.14, 39 evaluation cases, installed-package and Compose acceptance, infrastructure checks, and zero HIGH/CRITICAL findings in the application and local database images. Optional observability images retain separate findings. See [evidence](docs/releases/0.1.0/evidence.md), [human acceptance](docs/portfolio/acceptance.md), the [remaining-work roadmap](docs/portfolio-finalization-roadmap.md) and [production tickets](ROADMAP.md).
 
 ## Try it
 
