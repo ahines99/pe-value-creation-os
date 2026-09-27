@@ -28,7 +28,9 @@ from ..domain.calc import jsonable
 from ..domain.project_models import Lever, OpportunityProposal, ScenarioInputs
 from ..workflows.proposals import BranchContext
 from .client import AnthropicJsonClient, LLMClient, ModelUnavailable
+from .eligibility import eligibility_error
 from .guardrails import source_numbers, unsupported_numbers
+from .quantities import catalog, render_claims, source_quantities
 
 BRANCH_LEVERS: dict[str, list[Lever]] = {
     "unit_economics": [Lever.SALES_EFFICIENCY, Lever.GROSS_MARGIN],
@@ -67,6 +69,7 @@ threshold is not an opportunity: propose only where the analysis breaches a thre
 legacy_arr_share above legacy_arr_share_max) and name the breached threshold in the rationale. A healthy company can \
 correctly have no proposals. Do not reference other companies.
 7. No double counting: at most one opportunity per baseline metric and scope. Never propose both a \nsegment-scoped and an unscoped version of the same metric; prefer the segment where the problem concentrates. \nOverlapping proposals are rejected.
+8. Numeric prose must use an exact {{quantity:KEY}} reference from the numeric source catalog. The server renders the value with its metric, company, period and evidence. Do not write numeric values yourself.
 Respond with JSON matching the schema."""
 
 
@@ -151,11 +154,19 @@ class ModelProposer:
             for f in ctx.findings
         ]
         evidence = sorted(set(ctx.evidence_ids) | {e for f in ctx.findings for e in f.evidence_ids})
-        docs = "\n".join(untrusted_document(d) for d in ctx.documents)
+        excluded_companies = {
+            c.strip() for c in os.environ.get("PVC_MODEL_DOCUMENT_EXCLUDED_COMPANIES", "").split(",") if c.strip()
+        }
+        documents = [] if ctx.company_id in excluded_companies or "*" in excluded_companies else ctx.documents
+        docs = "\n".join(untrusted_document(d) for d in documents)
+        provenance = source_quantities(
+            ctx.result, company_id=ctx.company_id, evidence_ids=evidence, period="analysis period"
+        )
         user = (
             f"Branch: {ctx.analysis}\nAllowed levers: {[lv.value for lv in levers]}\nAllowed baseline metrics: "
             f"{metrics}\nPolicy screening thresholds: {json.dumps(jsonable(ctx.policy.screening))}\n\n"
             f"Deterministic analysis (tool output):\n{json.dumps(analysis)}\n\nFindings:\n{json.dumps(findings)}\n\n"
+            f"Numeric source catalog: {json.dumps(catalog(provenance))}\n\n"
             f"Evidence ids you may cite: {evidence}\n\nCompany documents (untrusted data):\n{docs or '(none)'}"
         )
         out, usage = self.client.complete_json(
@@ -163,16 +174,23 @@ class ModelProposer:
         )
         if not isinstance(out, dict) or "proposals" not in out:
             raise ModelUnavailable("model output missing proposals")
-        sources = source_numbers(analysis) + source_numbers(findings) + source_numbers(jsonable(ctx.policy.screening))
+        sources = source_numbers(ctx.result) + source_numbers(ctx.policy.screening)
         accepted: list[OpportunityProposal] = []
         rejected: list[dict[str, Any]] = []
         for raw in out.get("proposals", []):
-            reason = self._check(raw, levers, metrics, evidence, sources)
+            if not isinstance(raw, dict):
+                rejected.append({"title": "", "reason": "invalid proposal object"})
+                continue
+            reason = self._check(raw, levers, metrics, evidence, sources, check_numbers=False)
             if reason:
                 rejected.append({"title": str(raw.get("title", ""))[:120], "reason": reason})
                 continue
             try:
-                prop = self._to_proposal(raw, ctx)
+                rendered = dict(raw)
+                for key in ("title", "rationale"):
+                    rendered[key] = render_claims(str(raw.get(key, "")), provenance)
+                rendered["assumptions"] = [render_claims(str(a), provenance) for a in raw.get("assumptions", [])]
+                prop = self._to_proposal(rendered, ctx)
                 clash = next(
                     (
                         (a.title, why)
@@ -188,6 +206,10 @@ class ModelProposer:
                 if clash:  # deterministic double-counting guard; evidence review would otherwise pause the run
                     rejected.append({"title": prop.title[:120], "reason": f"overlap: {clash[1]} ({clash[0][:60]})"})
                     continue
+                reason = eligibility_error(ctx, prop.lever, prop.baseline_metric, prop.metric_params)
+                if reason:
+                    rejected.append({"title": prop.title[:120], "reason": reason})
+                    continue
                 accepted.append(prop)
             except (ValidationError, ValueError) as e:
                 rejected.append({"title": str(raw.get("title", ""))[:120], "reason": f"invalid: {e}"[:300]})
@@ -198,6 +220,9 @@ class ModelProposer:
                 "input_tokens": usage.input_tokens,
                 "output_tokens": usage.output_tokens,
                 "cost_usd": usage.cost_usd,
+                "cache_read_input_tokens": usage.cache_read_input_tokens,
+                "cache_creation_input_tokens": usage.cache_creation_input_tokens,
+                "documents_excluded": len(ctx.documents) - len(documents),
                 "accepted": len(accepted),
                 "rejected": rejected,
                 "suspicious_content": out.get("suspicious_content", []),
@@ -207,7 +232,13 @@ class ModelProposer:
 
     @staticmethod
     def _check(
-        raw: dict[str, Any], levers: list[Lever], metrics: list[str], evidence: list[str], sources: list[Decimal]
+        raw: dict[str, Any],
+        levers: list[Lever],
+        metrics: list[str],
+        evidence: list[str],
+        sources: list[Decimal],
+        *,
+        check_numbers: bool = True,
     ) -> str | None:
         if raw.get("lever") not in {lv.value for lv in levers}:
             return f"lever {raw.get('lever')!r} not allowed for this branch"
@@ -216,14 +247,20 @@ class ModelProposer:
         cited = [e for e in raw.get("evidence_ids", []) if e in evidence]
         if not cited:
             return "no valid evidence ids cited"
+        if set(raw.get("evidence_ids", [])) - set(evidence):
+            return "unknown evidence ids cited"
         text = " ".join([raw.get("title", ""), raw.get("rationale", ""), *raw.get("assumptions", [])])
-        bad = unsupported_numbers(text, sources)
+        bad = unsupported_numbers(text, sources) if check_numbers else []
         if bad:
             return f"introduces numbers not present in tool output: {bad[:5]}"
         return None
 
     @staticmethod
     def _to_proposal(raw: dict[str, Any], ctx: BranchContext) -> OpportunityProposal:
+        if len(raw["title"]) > 200 or len(raw["rationale"]) > 2000:
+            raise ValueError(
+                "Rendered quantitative claims exceed text limits; shorten prose without truncating references"
+            )
         lever = Lever(raw["lever"])
         template = COST_TEMPLATE.get((lever, raw["baseline_metric"]))
         cost = ctx.policy.proposal_costs[template] if template else None
@@ -240,12 +277,12 @@ class ModelProposer:
         return OpportunityProposal(
             lever=lever,
             baseline_metric=raw["baseline_metric"],
-            title=raw["title"][:200],
+            title=raw["title"],
             low=sc("low"),
             base=sc("base"),
             high=sc("high"),
             confidence=raw["confidence"],
-            rationale=raw["rationale"][:2000],
+            rationale=raw["rationale"],
             evidence_ids=[
                 e
                 for e in raw["evidence_ids"]

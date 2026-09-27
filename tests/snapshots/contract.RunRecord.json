@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "Status": {
+      "enum": [
+        "pending",
+        "running",
+        "needs_evidence",
+        "awaiting_approval",
+        "complete",
+        "rejected",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "completed_steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Completed Steps",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "current_step": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Current Step"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Idempotency Key"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    },
+    "project_type": {
+      "title": "Project Type",
+      "type": "string"
+    },
+    "reference_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Reference Date"
+    },
+    "requested_by": {
+      "title": "Requested By",
+      "type": "string"
+    },
+    "resume_requested_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resume Requested At"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "state": {
+      "additionalProperties": true,
+      "title": "State",
+      "type": "object"
+    },
+    "status": {
+      "$ref": "#/$defs/Status"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "company_id",
+    "project_type",
+    "status",
+    "current_step",
+    "completed_steps",
+    "state",
+    "idempotency_key",
+    "requested_by",
+    "reference_date",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "RunRecord",
+  "type": "object"
+}

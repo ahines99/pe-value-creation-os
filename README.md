@@ -2,7 +2,9 @@
 
 Turns portfolio-company operating data into evidence-backed value-creation initiatives, deterministically sized EBITDA cases, a human-approved 100-day plan, and ongoing KPI monitoring.
 
-**Status: feature-complete, CI green; not yet deployed.** Everything in [ROADMAP.md](ROADMAP.md) that can be built and tested without cloud access or outside reviewers is done. The remaining tickets need an AWS account, named people (a domain expert, a security reviewer, legal, an on-call rotation), or a pilot portfolio company. See [Status](#status).
+**Portfolio showcase for technical hiring managers and applied-AI leaders.** Start with the [case study](docs/portfolio/case-study.md), [ten-minute walkthrough](docs/portfolio/quickstart.md) or [actual synthetic output](docs/portfolio/demo-report.md).
+
+**Status: release candidate; production acceptance remains open.** The installed demo and 39 evaluation cases pass outside the checkout, and the core Compose workflow passes. An Alpine application-image candidate clears the strict HIGH/CRITICAL scan after replacing the vulnerable Debian base. Optional observability images have separate findings, and current release-SHA CI and human/browser acceptance remain pending. See [acceptance](docs/portfolio/acceptance.md), [audit remediation](docs/audit-remediation.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Try it
 
@@ -21,6 +23,10 @@ The demo runs in process, with no database or API key. It shows:
 4. **Branch failure the run survives.** Cedar's pricing diagnostic fails, and the other branches still produce a plan.
 5. **Clean failure and resume.** Value modeling fails once, the run stops at `failed`, and `pvc resume` finishes it without redoing completed steps.
 
+For the actual browser review workspace, start Docker Desktop and run `python scripts/showcase.py up`. Open `http://localhost:18081/` and enter the generated local token. The [walkthrough](docs/portfolio/quickstart.md) covers review, evidence, decisions, KPIs and shutdown. All companies are fictional; reported value cases are modeled opportunities.
+
+Licensed under [Apache-2.0](LICENSE). See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md).
+
 ## Develop
 
 Commands that start services or read company data run in production mode unless `PVC_ENV=dev` is set, and then
@@ -29,7 +35,7 @@ refuse to start without an identity provider. For local work, export it once:
 ```bash
 export PVC_ENV=dev                            # PowerShell: $env:PVC_ENV = "dev"
 uv run pytest -q                              # unit, contract, MCP, API, workflow and regression tests
-uv run pvc eval --suite all --gate            # 29 golden + 9 adversarial cases, gated at 100%
+uv run pvc eval --suite all --gate            # 29 golden + 10 adversarial cases, gated at 100%
 uv run ruff check . && uv run ruff format --check . && uv run mypy
 uv run python -m pe_value_os.skills_lint     # skills reference only tools that exist
 ```
@@ -68,16 +74,16 @@ flowchart LR
 | Layer | Owns |
 |---|---|
 | Deterministic core | All arithmetic, metric definitions, sufficiency rules, value-case sizing |
-| MCP server | 21 typed tools, resources and prompts; company scope checked on every call |
+| MCP server | 22 typed tools, resources and prompts; company scope checked on every call |
 | Agent Skills (`skills/`) | Domain procedure: diagnostic trees, checklists, output contracts |
 | Workflow + PostgreSQL | Run state, checkpoints, approvals, audit trail, row-level security |
-| Model layer (optional) | Opportunity proposals and plan narrative. It is guarded so it cannot introduce numbers. |
+| Model layer (optional) | Opportunity proposals and plan narrative. Numeric prose uses server-issued quantity references that bind metric, units, company, period and evidence. |
 
 The model supplies judgment: which levers to investigate, scenario assumptions, narrative. The system supplies facts and arithmetic. The default proposer is rule-based. Set `PVC_PROPOSER=model` with `ANTHROPIC_API_KEY` to use Claude at the judgment steps. See [docs/architecture.md](docs/architecture.md) for the full diagram and the run state machine.
 
 ## Why this is not just a chatbot
 
-- The LLM never does financial arithmetic. Sizing and metrics are versioned, tested code, and a guardrail rejects model text that contains numbers not produced by a tool.
+- The LLM never does financial arithmetic. Sizing and metrics are versioned, tested code, and a guardrail rejects unbound numeric prose; `get_numeric_sources` supplies references for supported facts.
 - The LLM is not the system of record. Runs, evidence, findings and approvals live in PostgreSQL, and every step is checkpointed and audited.
 - Every value claim must resolve to stored, immutable evidence, or the run pauses with `NEEDS_EVIDENCE`.
 - Company scope is enforced twice: by the token's company claims on every tool call, and by row-level security in the database.
@@ -88,15 +94,15 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 
 | Area | State |
 |---|---|
-| Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Built and tested. An independent audit (code, security, status) found 4 high security, 3 high correctness and several medium issues; all are fixed with regression tests (`tests/test_audit_fixes.py`). |
-| CI (GitHub Actions) | Green: lint, types, 335 tests on Python 3.12, 3.13 and 3.14 with PostgreSQL, eval gate, pip-audit, gitleaks, and an image build with a Trivy scan. Actions and base images are pinned; Dependabot proposes updates. |
-| Terraform (AWS), CD pipeline | Written and statically validated (`terraform validate`, `terraform test` with 5 security test runs, actionlint). Not applied. |
-| Live-model evaluation | Run on 2026-09-23 on an 8-case subset: model gate passed, $2.03 total ([docs/evals/2026-09-23-live-model.md](docs/evals/2026-09-23-live-model.md)). Full suite and nightly runs need the key as a GitHub secret. |
-| Sign-offs and operations | Pending named people: domain expert (skills, policy values, eval value bands), threat-model review, external pen test, legal, on-call rotation |
-| Merge protection | Blocked: branch protection and deployment approvals need GitHub Pro on a private repository |
-| Pilot and GA | Pending a pilot portfolio company. See [docs/pilot/](docs/pilot/). |
+| Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
+| CI (GitHub Actions) | The audited pre-remediation SHA had seven successful checks. Current uncommitted changes need a fresh CI run; do not reuse historical green checks as current evidence. HIGH and CRITICAL image findings now fail regardless of fix availability. |
+| Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
+| Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
+| Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |
+| Merge protection | Historical GitHub private-plan restriction remains unresolved; release CI verification is separately enforced by CD. |
+| Pilot and launch | Staging acceptance ? pilot ? conditional production provisioning decision ? production validation ? launch decision. See [pilot documentation](docs/pilot/). |
 
-[ROADMAP.md](ROADMAP.md) has the per-ticket status.
+[ROADMAP.md](ROADMAP.md) has the per-ticket status. The [portfolio finalization roadmap](docs/portfolio-finalization-roadmap.md) prioritizes a polished showcase, assigns implementation and owner actions, and preserves the later production acceptance path.
 
 ## Repository map
 
@@ -105,7 +111,7 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | [IMPLEMENTATION_HANDOFF.md](IMPLEMENTATION_HANDOFF.md) | Specification: contracts, data model, tool catalog, current state |
 | [ROADMAP.md](ROADMAP.md) | Ticketed milestones, release gates, per-ticket status |
 | [src/pe_value_os/](src/pe_value_os/) | Application: `domain/`, `tools/`, `workflows/`, `adapters/`, `llm/`, `api/`, `db/` |
-| [skills/](skills/) | Six Agent Skills with generated worked examples |
+| [skills/](skills/) | Six Agent Skills with scripted MCP replay examples (human acceptance pending) |
 | [tests/](tests/) | Tests, synthetic fixture companies, snapshots |
 | [evals/](evals/) | Golden and adversarial suites and gate thresholds |
 | [docs/](docs/) | Architecture, ADRs, data contracts, threat model, SLOs, runbooks, deployment, pilot |

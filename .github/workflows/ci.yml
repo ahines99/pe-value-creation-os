@@ -13,6 +13,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Validate workflows, shell, Compose, Terraform and alert rules
+        run: bash infra/scripts/check-infrastructure.sh
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - name: Build, initialize and seed the local showcase
+        run: uv run python scripts/showcase.py up
+      - name: Exercise session, evidence, approval, worker and KPI HTTP contracts
+        run: uv run python infra/scripts/smoke_showcase.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: compose-acceptance
+          path: var/local-showcase/http-acceptance.json
+      - name: Stop the isolated stack
+        if: always()
+        run: uv run python scripts/showcase.py down
+
   lint:
     runs-on: ubuntu-latest
     env:
@@ -96,13 +124,49 @@ jobs:
           name: eval-report
           path: var/eval-report.*
 
+  package-smoke:
+    runs-on: ubuntu-latest
+    env:
+      PVC_ENV: dev
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.12"
+      - name: Build and install the distribution with locked runtime dependencies
+        run: |
+          uv build
+          uv export --frozen --extra server --no-dev --no-emit-project > /tmp/pvc-runtime.txt
+          uv venv /tmp/pvc-installed
+          uv pip sync --python /tmp/pvc-installed/bin/python /tmp/pvc-runtime.txt
+          uv pip install --python /tmp/pvc-installed/bin/python --no-deps dist/*.whl
+      - name: Run the installed demo and eval gate outside the checkout
+        run: |
+          mkdir /tmp/pvc-package-smoke
+          cd /tmp/pvc-package-smoke
+          /tmp/pvc-installed/bin/pvc demo --quiet
+          /tmp/pvc-installed/bin/pvc eval --suite all --gate --report eval-report.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: installed-package-evidence
+          path: /tmp/pvc-package-smoke/
+
   container-scan:
-    # PVC-096: build the production image and fail on HIGH/CRITICAL vulnerabilities that have a fix.
+    # PVC-096: build the production image and fail on all HIGH/CRITICAL vulnerabilities, including unfixed.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Build image
         run: docker build --pull --tag "pvc:ci-${GITHUB_SHA}" .
+      - name: Import runtime entrypoints without development dependencies
+        run: >-
+          docker run --rm -e PVC_ENV=dev "pvc:ci-${GITHUB_SHA}"
+          python -c 'import pe_value_os.mcp_server; import pe_value_os.api.app; import pe_value_os.worker'
+      - name: Run the complete synthetic demo in the built image
+        run: docker run --rm -e PVC_ENV=dev --workdir /tmp "pvc:ci-${GITHUB_SHA}" pvc demo --quiet
+      - name: Build local PostgreSQL image
+        run: docker build --pull --file infra/docker/Postgres.Dockerfile --tag "pvc-db:ci-${GITHUB_SHA}" .
       - name: Scan image (Trivy)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -110,22 +174,25 @@ jobs:
           scan-type: image
           vuln-type: os,library
           severity: HIGH,CRITICAL
-          ignore-unfixed: true
+          ignore-unfixed: false
           exit-code: "1"
-          format: table
+          format: json
+          output: trivy-image.json
           version: v0.70.0
-      # Unfixed HIGH/CRITICAL findings cannot be patched yet (no upstream fix), so they do not fail the build,
-      # but they are listed on every run so they stay visible until a fix ships.
-      - name: Report unfixed vulnerabilities (non-blocking)
-        if: always()
+      - name: Scan local PostgreSQL image (Trivy)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: pvc:ci-${{ github.sha }}
+          image-ref: pvc-db:ci-${{ github.sha }}
           scan-type: image
           vuln-type: os,library
           severity: HIGH,CRITICAL
           ignore-unfixed: false
-          exit-code: "0"
-          format: table
+          exit-code: "1"
+          format: json
+          output: trivy-database.json
           version: v0.70.0
-          skip-setup-trivy: true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: image-vulnerability-report
+          path: trivy-*.json

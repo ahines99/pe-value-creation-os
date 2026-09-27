@@ -15,9 +15,10 @@ propose opportunities for each diagnostic branch. The model supplies judgment on
 scenario rates, confidence, rationale and citations. The server:
 
 - restricts levers, metrics and evidence ids to enumerated values in the output schema;
-- rejects proposals whose text introduces numbers not present in the tool output given to the model;
+- rejects unbound numeric prose; server-issued quantity references bind each metric, unit, company, period and evidence;
+- enforces screening eligibility and overlapping-baseline rules in code, in addition to prompt guidance;
 - validates rates and ordering, derives baseline values and flow-through, and applies policy costs;
-- passes documents as `<untrusted_document>` data, with no tools available to the model in this step;
+- passes permitted documents as `<untrusted_document>` data, with no tools available to the model in this step; `PVC_MODEL_DOCUMENT_EXCLUDED_COMPANIES` excludes selected companies or `*` before prompt construction;
 - pauses the run (`NEEDS_EVIDENCE`, reason `model_unavailable`) on outage or refusal unless policy selects rules.
 
 ## Why a deterministic rule is insufficient
@@ -27,9 +28,12 @@ documents, is judgment that thresholds encode poorly. Arithmetic stays determini
 ## Evaluation
 - Deterministic gate (CI): `evals/adversarial` cases run a scripted model that obeys injected instructions and
   invents numbers; every such proposal must be rejected (`pvc eval --suite adversarial --gate`).
-- Live model eval (requires `ANTHROPIC_API_KEY`): `pvc eval --suite golden --proposer model` scores planted-lever
-  recall, citation validity, rejection rate, and cost per run. Thresholds in `evals/thresholds.toml`.
+- Live model eval (requires `ANTHROPIC_API_KEY`): `pvc eval --suite all --proposer model --gate` scores planted-lever
+  recall, citation validity, rejection rate, and cost per run. Thresholds in `evals/thresholds.toml`; costs are estimates, not billing reconciliation.
 
 ## Consequences
-- Model spend per run is tracked (`pvc.model.tokens`, `pvc.model.cost_usd`).
+- Token/cache usage and estimated model cost per run are tracked (`pvc.model.tokens`, `pvc.model.cost_usd`).
 - A model outage never produces a guess; operators either resume later or switch policy to the rule fallback.
+
+
+September 27 evaluation correction: the historical September 23 paid subset exercised the proposer only. Current evaluation includes narrator checks and negative/adversarial outcomes; it rejects empty selections and incomplete score evidence. Scheduled paid runs need explicit repository opt-in (`PVC_RUN_LIVE_EVALS=true`) as well as the API secret. No current live-provider rerun is claimed.

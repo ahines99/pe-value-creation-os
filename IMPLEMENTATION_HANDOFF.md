@@ -2,7 +2,7 @@
 
 ## Implementation-agent handoff
 
-> **Revision 3 (2026-09-23).** The system described here is now built and verified locally; see [Current state](#current-state-verified-2026-09-23). Revision 2 fixed the design gaps found in review and moved milestone planning to [ROADMAP.md](ROADMAP.md), which carries the per-ticket status. See [Changes in this revision](#changes-in-this-revision) at the end.
+> **Revision 4 (2026-09-27).** Implementation and audit remediation are local; deployment and human acceptance remain open. [Current state](#current-state-2026-09-27) distinguishes implemented controls from acceptance. [ROADMAP.md](ROADMAP.md) carries the release gates and [audit remediation](docs/audit-remediation.md) carries fresh verification.
 
 ### Mission
 Turn portfolio-company operating data into evidence-backed value-creation initiatives, deterministic economic cases, 100-day plans, and KPI monitoring.
@@ -19,32 +19,24 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 - Do not create a generalized multi-agent framework before the primary workflow works.
 - Do not optimize UI before evidence, contracts, and tests are stable.
 
-## Current state (verified 2026-09-23)
+## Current state (2026-09-27)
 
-The specification below is implemented in `src/pe_value_os/`. CI is green on GitHub: lint, types, and 335 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, plus the eval gate, security scans, and an image build with a Trivy scan. An internal audit (code, security, status) on 2026-09-23 found 4 high security and 3 high correctness issues, plus medium ones; all are fixed, with regression tests in `tests/test_audit_fixes.py`. Nothing has been applied to AWS, because no cloud account is connected yet. [ROADMAP.md](ROADMAP.md#status) has the per-ticket status. [docs/architecture.md](docs/architecture.md) has the architecture as built.
+The repository contains a working implementation and repairs for the September 27 engineering audit. It is not feature-complete or production-certified. Historical CI and live-model results apply only to their recorded revisions. Use [audit remediation](docs/audit-remediation.md) for current local validation and remaining finding-specific work; Docker Compose and AWS have not been validated in this remediation.
 
-| Area | State |
+| Area | Implementation and acceptance boundary |
 |---|---|
-| Contracts, fixtures, deterministic core (sizing, metrics, retention, pricing, sufficiency, prioritization, baselines) | Built. Golden, property-based and snapshot tests. |
-| PostgreSQL schema, repository, RLS, append-only audit, evidence store (filesystem and S3) | Built. The contract suite runs against both the in-memory and PostgreSQL 18 implementations. |
-| Workflow engine and primary workflow | Built: checkpoints, resume, rewind, parallel diagnostics, timeouts, transient-only retries, fault injection |
-| MCP server | 21 tools, 3 resources, 1 prompt. OAuth bearer auth, company scope from token claims, strict arguments, DNS-rebinding protection. |
-| Approval API and review UI | Built. Human principals only, CSRF, override diff and rate, expiry escalation. |
-| Model layer | Claude proposer and narrator with JSON-schema output, the no-new-numbers guardrail (digits, words, scale words, multipliers), escaped and delimited untrusted text, and a pause when the model is unavailable. Covered by scripted-model tests. **Not yet run against the live API.** |
-| Evals | 29 golden and 9 adversarial cases, 7 dimensions. The gate passes at 100%. Per-step latency and model cost are reported. |
-| Adapters | Fixture, CSV export, warehouse, Stripe, HubSpot, Zendesk, and composite with entity resolution. Vendor adapters are tested against simulated APIs. None has run against a real portfolio company's systems. |
-| KPI monitoring, worker, notifications | Built |
-| Observability | structlog JSON with allow-list redaction, OpenTelemetry traces and metrics, a Grafana dashboard and Prometheus alerts (promtool-valid) |
-| Ops tooling | `pvc recompute`, `offboard`, `access-review`, `audit-export`, `onboard-check`. Restore drill and load test run locally. |
-| Container, Terraform (AWS), CD | The image builds in CI and passes Trivy (no fixable HIGH or CRITICAL findings). Base images and actions are pinned. Terraform passes `fmt`, `validate` and `test` (5 runs, including the security controls). **Nothing applied; CD hasn't run.** |
-| Sign-offs, pen test, legal, on-call, pilot | Not started. They need named people or a pilot company (ROADMAP "Open decisions"). |
+| Deterministic core | Decimal calculations, versioned metrics, sufficiency, prioritization and baselines; multi-product pricing is `price-waterfall/2`. |
+| Persistence | In-memory/PostgreSQL repositories, RLS, append-only runtime audit, evidence stores; migrations through `0003`. Persisted contracts are snapshot-tested. |
+| Workflow | Immutable input/policy snapshots, checkpoints, review rounds, leased/fenced worker writes and linked replacement runs for explicit input refresh. |
+| MCP | 22 tools, 3 resources, 1 prompt; auth, strict arguments, company scope and numeric source catalog. Interactive proposals, drafts and submission share evidence, sufficiency, eligibility, freshness and overlap validation. |
+| Approval/KPIs | Human approval API; each retained initiative requires a monitorable KPI. Durable notification delivery is at least once with a stable idempotency key. |
+| Model | Proposer and optional narrator use quantity-bound numeric prose and citation validation. Management documents can be excluded per company before provider prompts. Scripted tests are not live-provider evidence. |
+| Evals | 29 golden and 10 adversarial cases, including narrator injection. Model gates cover negative outcomes and narrator results; empty selections fail. Token/cache usage feeds cost estimates, not billing reconciliation. |
+| Adapters | Fixture, CSV, warehouse, Stripe, HubSpot, Zendesk and composite adapters. Vendor API tests use simulators; pilot mapping/conformance and real-source acceptance remain open. Product analytics is CSV/warehouse ingestion, not a native product-vendor connector. |
+| Deployment | Image/Terraform/CD code exists. CI and CD image scans fail all HIGH/CRITICAL findings. No claim of fresh image scan, Compose validation or live AWS acceptance. |
+| External acceptance | Human skill session, domain/policy/value-band review, provider/legal/retention approval, SLO acceptance, security review, on-call, pilot and launch remain open. |
 
-Verification on 2026-09-23 (Python 3.14, `mcp` 2.2.0, PostgreSQL 18):
-
-- `uv sync --extra dev && uv run pytest`: 335 passed with `PVC_TEST_DATABASE_URL` set. Without a database, the PostgreSQL tests are skipped.
-- `ruff check`, `ruff format --check`, `mypy` and the skills lint are clean. `pip-audit` finds no known vulnerabilities in the locked runtime dependencies.
-- `pvc eval --suite all --gate` passes. `pvc demo` runs all five scenarios. `python -m pe_value_os.db.migrate_check` round-trips.
-- `pvc run`, `status` and `resume` work against PostgreSQL as the row-level-security-bound `pvc_app` role.
+The historical September 23 paid subset exercised only the proposer. It did not exercise the narrator or the stronger current gates. No paid call or human sign-off was performed during remediation.
 
 ## Reference architecture
 
@@ -116,6 +108,7 @@ Every tool that touches company data takes `company_id` and enforces scope serve
 | `get_support_metrics(company_id, period)` | support | Volumes, categories, handle time, CSAT | built |
 | `price_waterfall(company_id, period, segment=None)` | pricing | List → invoice → pocket price and leakage | built |
 | `get_benchmarks(metric, peer_set)` | benchmark | Anonymized peer distribution (at least 5 peers; never portco-level values) | built on a synthetic peer set; real data source is open (PVC-116) |
+| `get_numeric_sources(company_id)` | value_model | Server-issued numeric provenance catalog for claim references | built |
 | `check_data_sufficiency(company_id, analysis)` | value_model | SUFFICIENT/INSUFFICIENT plus a gap list per analysis | built |
 | `compute_saas_metrics(company_id, period)` | value_model | ARR bridge, NRR, GRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 | built |
 | `compute_retention_cohorts(company_id, cohort_grain)` | value_model | Logo and dollar retention by cohort | built |
@@ -166,6 +159,8 @@ After approval, the `kpi_monitoring` job runs on a schedule against the approved
 - No uncited value claim (enforced by `record_finding` and the evidence-review step)
 
 ## Data and state model
+
+The schema and skeleton excerpts below preserve the original design handoff; they are not executable migration or runtime sources. Current contracts are in `src/pe_value_os/domain/`, migrations are in `src/pe_value_os/db/migrations/versions/`, and reviewed schemas are in `tests/snapshots/`. For current lease fencing, immutable run snapshots, approval rounds and durable notification semantics, use [architecture](docs/architecture.md) and the implemented modules.
 
 Use PostgreSQL as the workflow source of truth. Every company-scoped table carries `company_id` so row-level security can enforce tenancy. Minimum tables:
 
@@ -784,7 +779,7 @@ Milestones, tickets, and release gates live in [ROADMAP.md](ROADMAP.md). Summary
 
 ## Acceptance checklist (R0.1)
 
-All items are verified by tests (`tests/test_workflow.py`, `tests/test_mcp.py`, `tests/test_api.py`, `tests/test_demo.py`) and by the eval gate.
+The automated criteria below are covered by tests (`tests/test_workflow.py`, `tests/test_mcp.py`, `tests/test_api.py`, `tests/test_demo.py`) and by the eval gate.
 
 - [x] `intake` has a deterministic artifact, audit event, and failure path.
 - [x] `data_sufficiency` has a deterministic artifact, audit event, and failure path.
@@ -803,7 +798,7 @@ All items are verified by tests (`tests/test_workflow.py`, `tests/test_mcp.py`, 
 - [x] The demo can survive one injected tool failure.
 - [x] `pytest` passes from a clean checkout with no manual path setup.
 
-## First implementation-agent tasks
+## First implementation-agent tasks (historical scaffold sequence)
 
 These map to the R0.1 tickets in [ROADMAP.md](ROADMAP.md).
 
@@ -833,7 +828,7 @@ Revision 3 (2026-09-23):
   - See the threat model's *audit* rows.
 
 - **Current state** now describes the built system and how it was verified.
-- **Tool catalog** lists the 21 built tools. `get_churn_summary`, `draft_100_day_plan` and `start_diagnostic_run` were added during implementation.
+- **Tool catalog** listed the 21 tools at that revision. `get_churn_summary`, `draft_100_day_plan` and `start_diagnostic_run` were added during implementation.
 - **R0.1 acceptance checklist** checked.
 
 Revision 2:

@@ -7,14 +7,16 @@ re-executed step never duplicates records.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, date, datetime
 from typing import Any
 
 from .. import freshness, kpi
-from ..adapters.base import SourceAdapter
+from ..adapters.base import SourceAdapter, make_evidence
 from ..adapters.repositories import Repository
 from ..content_safety import scan
 from ..domain import ai_ops, sufficiency
@@ -30,7 +32,7 @@ from ..domain.project_models import Opportunity, OpportunityProposal, Plan
 from ..domain.retention import analyse_retention
 from ..domain.runs import ApprovalDecision, PlanRecord, RunState, Status
 from ..domain.services import size_value_case
-from ..domain.source_models import DatasetKind
+from ..domain.source_models import RECORD_TYPES, CompanyProfile, Dataset, DatasetKind, RowError
 from ..llm.client import ModelUnavailable
 from ..observability import get_logger
 from ..policy import PolicyConfig
@@ -75,6 +77,36 @@ class RunContext:
         return self.data(company_id)
 
 
+def restore_snapshot(raw: dict[str, Any]) -> CompanyData:
+    """Rehydrate only declared source schemas, never executable/pickled objects."""
+    return CompanyData(
+        profile=CompanyProfile.model_validate(raw["profile"]),
+        profile_evidence_id=raw["profile_evidence_id"],
+        reference_date=date.fromisoformat(raw["reference_date"]),
+        datasets={
+            DatasetKind(k): Dataset(
+                kind=DatasetKind(k),
+                records=[RECORD_TYPES[DatasetKind(k)].model_validate(r) for r in ds["records"]],
+                evidence_id=ds["evidence_id"],
+                as_of=datetime.fromisoformat(ds["as_of"]),
+                source_uri=ds["source_uri"],
+                row_errors=[RowError(**e) for e in ds["row_errors"]],
+            )
+            for k, ds in raw["datasets"].items()
+        },
+        entity_resolution=raw.get("entity_resolution"),
+    )
+
+
+def load_snapshot(ctx: RunContext, reference: dict[str, Any]) -> CompanyData:
+    if "profile" in reference:  # compatibility with earlier inline checkpoints
+        return restore_snapshot(reference)
+    content = ctx.repo.evidence_content(reference["evidence_id"])
+    if hashlib.sha256(content).hexdigest() != reference["content_hash"]:
+        raise ValueError("Run input snapshot integrity check failed")
+    return restore_snapshot(json.loads(content))
+
+
 def _persist_findings(ctx: RunContext, state: RunState, branch: str, drafts: list[DraftFinding]) -> list[str]:
     ids = []
     for d in drafts:
@@ -98,7 +130,20 @@ def _persist_findings(ctx: RunContext, state: RunState, branch: str, drafts: lis
 
 # --- 1. intake ------------------------------------------------------------------------------------------------
 def intake(ctx: RunContext, state: RunState) -> dict[str, Any]:
-    data = ctx.reload(state.company_id)
+    if "input_snapshot" in state.artifacts:
+        data = load_snapshot(ctx, state.artifacts["input_snapshot"])
+        ctx._data[state.company_id] = data
+    else:
+        data = ctx.reload(state.company_id)
+        content = json.dumps(jsonable(asdict(data)), sort_keys=True).encode("utf-8")
+        snapshot = make_evidence(
+            state.company_id, f"run-input://{state.run_id}", "workflow_snapshot", content, datetime.now(UTC)
+        )
+        ctx.repo.add_evidence(snapshot)
+        state.artifacts["input_snapshot"] = {"evidence_id": snapshot.evidence_id, "content_hash": snapshot.content_hash}
+        state.artifacts["policy_snapshot"] = ctx.policy.model_dump(mode="json")
+        # Pin input before any derived writes, including retries and process restarts.
+        ctx.repo.save_run_state(state)
     ctx.repo.upsert_company(data.profile)
     freshness.record(data, ctx.policy.freshness.max_age_days)
     if state.reference_date is None:
@@ -211,8 +256,11 @@ def diagnostic_branch(ctx: RunContext, state: RunState, branch: str) -> dict[str
     )
     proposer_name = ctx.proposer.name
     model_unavailable = None
+    from ..llm.client import usage_scope
+
     try:
-        proposals = ctx.proposer.propose(bctx)
+        with usage_scope(ctx.repo, state, ctx.actor):
+            proposals = ctx.proposer.propose(bctx)
     except ModelUnavailable as exc:
         if ctx.policy.model.on_unavailable == "rules":
             proposals, proposer_name = RuleBasedProposer().propose(bctx), "rules(fallback)"
@@ -366,7 +414,7 @@ def evidence_review(ctx: RunContext, state: RunState) -> dict[str, Any]:
             violations.append(f"Finding {f.title}: uncited value claim")
         if f.finding_type == FindingType.SUSPICIOUS_CONTENT:
             warnings.append(f"Suspicious content recorded for human review: {f.title}")
-    if violations and not state.params.get("accept_gaps"):
+    if violations:
         state.status = Status.NEEDS_EVIDENCE
         state.pause_reason = {"reason": "evidence_review", "violations": violations}
     return {"opportunities_checked": len(opps), "violations": violations, "warnings": warnings}
@@ -421,7 +469,10 @@ def roadmap_100_day(ctx: RunContext, state: RunState) -> dict[str, Any]:
         reviewer_notes=state.params.get("reviewer_notes"),
     )
     if ctx.narrator is not None:
-        narrative = ctx.narrator(plan, ctx.repo.list_findings(state.run_id))
+        from ..llm.client import usage_scope
+
+        with usage_scope(ctx.repo, state, ctx.actor):
+            narrative = ctx.narrator(plan, ctx.repo.list_findings(state.run_id))
         if narrative:
             plan = plan.model_copy(update={"narrative": narrative})
     ctx.repo.save_plan(
@@ -447,7 +498,12 @@ def human_approval(ctx: RunContext, state: RunState) -> dict[str, Any]:
     plan = ctx.repo.latest_plan(state.run_id)
     if plan is None:
         raise RuntimeError("No plan to approve")
-    approvals = [a for a in ctx.repo.list_approvals(state.run_id) if a.artifact_id == plan.plan_id]
+    consumed = set(state.params.get("consumed_approvals", []))
+    approvals = [
+        a
+        for a in ctx.repo.list_approvals(state.run_id)
+        if a.artifact_id == plan.plan_id and a.approval_id not in consumed
+    ]
     latest = approvals[-1] if approvals else None
     if latest is None or latest.decision is None:
         req = latest or ctx.repo.create_approval_request(state.run_id, state.company_id, "plan", plan.plan_id)
@@ -460,6 +516,8 @@ def human_approval(ctx: RunContext, state: RunState) -> dict[str, Any]:
         state.pause_reason = {"reason": "rejected", "rationale": latest.rationale, "decided_by": latest.decided_by}
         return {"approval_id": latest.approval_id, "decision": latest.decision.value}
     if latest.decision == ApprovalDecision.CHANGES_REQUESTED:
+        state.params["consumed_approvals"] = sorted(consumed | {latest.approval_id})
+        state.params["review_round"] = int(state.params.get("review_round", 0)) + 1
         state.params["reviewer_notes"] = latest.rationale
         state.params["excluded_opportunities"] = sorted(
             set(state.params.get("excluded_opportunities", [])) | set(latest.edits.get("exclude_opportunities", []))

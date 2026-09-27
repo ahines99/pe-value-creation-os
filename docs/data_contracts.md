@@ -1,6 +1,6 @@
 # Data contracts
 
-Every contract is a Pydantic v2 model. Code is the source of truth; this page explains units, meaning and versioning. JSON Schemas for all contracts are exported and snapshot-tested in `tests/snapshots/` (PVC-015). A change that alters a snapshot fails CI until the snapshot is regenerated and reviewed.
+Every contract is a Pydantic v2 model. Code is the source of truth; this page explains units, meaning and versioning. JSON Schemas for source records/profile, core evidence/findings/audit, proposals/value cases/plans, persisted run/approval/plan records and KPI/notification records are exported and snapshot-tested in `tests/snapshots/` (PVC-015). A change that alters a snapshot fails CI until the snapshot is regenerated and reviewed.
 
 ## Conventions
 
@@ -65,6 +65,13 @@ Migrations live in `src/pe_value_os/db/migrations/versions/`:
 
 - `0001` covers companies, runs, evidence, findings, opportunities, value cases, priorities, plans, approvals and audit.
 - `0002` covers KPI definitions, observations, alerts and the notification outbox.
+- `0003` adds notification delivery claims for durable shared-worker retry/ownership.
+
+`RunRecord`, `ApprovalRecord`, `PlanRecord`, `KpiAlert` and `Notification` have independent schema snapshots; `RunRecord.state` and plan JSON remain extensible payloads, so a top-level schema snapshot alone does not prove semantic compatibility of those payloads. Workflow behavior tests cover immutable input/policy snapshots, review rounds and refresh linkage.
+
+## Numeric claim references
+
+`get_numeric_sources(company_id)` returns a catalog with `key`, `metric`, `value`, `unit`, `company_id`, `period` and `evidence_ids`. For numeric prose in `record_finding` or `propose_opportunity`, copy a key from this catalog and write `{{quantity:KEY}}`. For example, use `Legacy share is {{quantity:pricing.legacy.legacy_arr_share}}` only when that exact key is returned. The server renders the fact with its provenance. Unbound numbers, invented keys and ID substrings cannot supply numeric evidence. Qualitative prose remains supported. Structured scenario rates/cost assumptions remain separate proposal fields; they are not facts to insert into prose.
 
 Every company-scoped table has row-level security keyed on the `pvc.companies` session setting. `audit_events` is insert and select only for `pvc_app`.
 
@@ -72,5 +79,5 @@ Every company-scoped table has row-level security keyed on the `pvc.companies` s
 
 - **Additive** changes, such as a new optional field or a new dataset, bump the minor contract version and need no migration of stored JSON.
 - **Breaking** changes, such as renaming or removing a field, changing units, or tightening validation on stored data, need an ADR, an Alembic migration (where stored), a regenerated snapshot, and a note in the release changelog.
-- **Calculation** changes bump the relevant `CALC_VERSION` (`value-case/1`, `saas-metrics/1`, `retention/1`, `price-waterfall/1`). Stored value cases keep their version. Recomputing is an explicit, audited action (`pvc recompute`, PVC-145).
+- **Calculation** changes bump the relevant `CALC_VERSION` (`value-case/1`, `saas-metrics/1`, `retention/1`, `price-waterfall/2`). Stored value cases keep their version. Recomputing is an explicit, audited action (`pvc recompute`, PVC-145).
 - **Policy** changes bump `policy.toml` `version`. The version is recorded on value cases and audit events.

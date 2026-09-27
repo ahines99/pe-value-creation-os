@@ -302,7 +302,7 @@ variable "evidence_retention_days" {
 
 # ---- Compute ----------------------------------------------------------------------------------------------
 variable "image_tag" {
-  description = "Image tag written into the Terraform-managed task definitions. CD registers new revisions with the commit SHA; services ignore task-definition drift."
+  description = "Image tag written into the Terraform-managed task definitions. CD registers new revisions with the scanned image digest; services ignore task-definition drift."
   type        = string
   default     = "initial"
 }
@@ -407,6 +407,16 @@ variable "otel_exporter_otlp_endpoint" {
   description = "OTLP/HTTP collector URL (OTEL_EXPORTER_OTLP_ENDPOINT). Empty disables export; its host joins the egress allow-list."
   type        = string
   default     = ""
+  validation {
+    condition     = var.otel_exporter_otlp_endpoint == "" || can(regex("^https://[^/:]+(:443)?(/.*)?$", var.otel_exporter_otlp_endpoint))
+    error_message = "AWS telemetry must use HTTPS on port 443, matching workload egress; empty disables export."
+  }
+}
+
+variable "otel_auth_enabled" {
+  description = "Inject OTLP authentication headers from the otel-headers secret (never a plaintext Terraform variable)."
+  type        = bool
+  default     = false
 }
 
 variable "policy_path" {

@@ -25,18 +25,37 @@ decisions (see `security.WRITE_SCOPE` / `security.APPROVE_SCOPE`).
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
+import httpx
 import jwt
 from mcp.server.auth.provider import AccessToken
 from mcp.server.auth.settings import AuthSettings
 
-from .egress import check_url
+from .egress import EgressDenied, check_url, checked_client
 from .security import Principal
 
 
 class AuthConfigError(RuntimeError):
     pass
+
+
+class CheckedJWKClient(jwt.PyJWKClient):
+    """Fetch keys through the same checked HTTP path as other outbound traffic."""
+
+    def fetch_data(self) -> Any:
+        try:
+            with checked_client(timeout=self.timeout, follow_redirects=True) as client:
+                response = client.get(self.uri, headers=self.headers)
+                response.raise_for_status()
+                data = response.json()
+            if self.jwk_set_cache is not None:
+                self.jwk_set_cache.put(data)
+            self._last_successful_fetch = time.monotonic()
+            return data
+        except (httpx.HTTPError, ValueError, EgressDenied) as exc:
+            raise jwt.PyJWKClientConnectionError("Unable to retrieve permitted signing keys") from exc
 
 
 class JwtTokenVerifier:
@@ -57,7 +76,7 @@ class JwtTokenVerifier:
         self.jwks = None
         if jwks_url:
             check_url(jwks_url)  # identity provider must be on the egress allow-list
-            self.jwks = jwt.PyJWKClient(jwks_url, cache_keys=True, lifespan=300)
+            self.jwks = CheckedJWKClient(jwks_url, cache_keys=False, lifespan=300)
 
     def decode(self, token: str) -> dict[str, Any]:
         key: Any = self.public_key
@@ -72,6 +91,7 @@ class JwtTokenVerifier:
             leeway=self.leeway,
             options={"require": ["exp", "iat", "sub", "iss", "aud"]},
         )
+        principal_from_claims(claims)  # reject ambiguous authorization claims before accepting the token
         return claims
 
     async def verify_token(self, token: str) -> AccessToken | None:
@@ -91,18 +111,36 @@ class JwtTokenVerifier:
 
 def _scopes(claims: dict[str, Any]) -> frozenset[str]:
     raw = claims.get("scope", claims.get("scp", ""))
-    return frozenset(raw.split() if isinstance(raw, str) else (str(s) for s in raw))
+    if isinstance(raw, str):
+        return frozenset(raw.split())
+    return _claim_list(raw, "scope")
+
+
+def _claim_list(raw: Any, name: str) -> frozenset[str]:
+    if not isinstance(raw, list) or any(not isinstance(v, str) or not v or v.strip() != v for v in raw):
+        raise jwt.InvalidTokenError(f"{name} must be a list of nonempty strings")
+    return frozenset(raw)
 
 
 def principal_from_claims(claims: dict[str, Any]) -> Principal:
-    return Principal(
-        subject=str(claims.get("sub")),
-        companies=frozenset(str(c) for c in claims.get("pvc_companies") or []),
-        roles=frozenset(str(r) for r in claims.get("pvc_roles") or []),
-        principal_type=str(claims.get("pvc_principal_type", "service")),
-        scopes=_scopes(claims),
-        client_id=str(claims.get("azp") or claims.get("client_id") or "") or None,
-    )
+    try:
+        subject = claims.get("sub")
+        kind = claims.get("pvc_principal_type", "service")
+        client = claims.get("azp") or claims.get("client_id")
+        if not isinstance(subject, str) or not subject or kind not in {"human", "service", "model"}:
+            raise ValueError("Invalid principal claims")
+        if client is not None and (not isinstance(client, str) or not client):
+            raise ValueError("Invalid client claim")
+        return Principal(
+            subject=subject,
+            companies=_claim_list(claims.get("pvc_companies", []), "pvc_companies"),
+            roles=_claim_list(claims.get("pvc_roles", []), "pvc_roles"),
+            principal_type=kind,
+            scopes=_scopes(claims),
+            client_id=client,
+        )
+    except (ValueError, TypeError) as exc:
+        raise jwt.InvalidTokenError("Invalid authorization claims") from exc
 
 
 def verifier_from_env(*, for_api: bool = False) -> JwtTokenVerifier | None:

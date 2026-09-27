@@ -28,7 +28,7 @@ CASES = [
     (KpiDefinition, "kpi_definitions", set(), set()),
     (KpiObservation, "kpi_observations", set(), set()),
     (KpiAlert, "kpi_alerts", set(), set()),
-    (Notification, "notifications", set(), set()),
+    (Notification, "notifications", set(), {"locked_by", "locked_at"}),
 ]
 
 

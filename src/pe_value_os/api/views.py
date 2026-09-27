@@ -30,7 +30,10 @@ border:1px solid var(--line);font-size:12px}form label{display:block;margin:6px 
 min-height:80px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px}
 button{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 14px;font-weight:600;
 margin-right:8px;cursor:pointer}button.secondary{background:transparent;color:var(--fg);border:1px solid var(--line)}
-.scroll{overflow-x:auto}
+.scroll{overflow-x:auto}a{color:var(--accent)}a:focus-visible,button:focus-visible,input:focus-visible,
+textarea:focus-visible{outline:3px solid var(--warn);outline-offset:3px}nav{margin-bottom:20px}
+input[type=password]{width:100%;max-width:480px;padding:10px;margin:8px 0 16px}td{overflow-wrap:anywhere}
+@media(max-width:600px){main{padding:16px 12px}button{margin:4px 0;min-height:44px}h1{font-size:21px}}
 """
 
 
@@ -45,8 +48,45 @@ def page(title: str, body: str) -> str:
     return (
         f"<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' "
         f"content='width=device-width,initial-scale=1'><title>{escape(title)}</title><style>{CSS}</style>"
-        f"</head><body><main>{body}</main></body></html>"
+        f"</head><body><main><nav aria-label='Main'><a href='/'>Value Creation OS</a></nav>{body}</main></body></html>"
     )
+
+
+def login_page(csrf: str) -> str:
+    return page(
+        "Open the local showcase",
+        "<h1>From evidence to an approved plan</h1>"
+        "<p>Review a value case, inspect its evidence and decide what belongs in the 100-day plan.</p>"
+        "<div class='card'><h2>Local showcase sign-in</h2>"
+        "<p>This development workspace uses fictional companies. Enter the local approver token "
+        "printed by the showcase setup command.</p><form method='post' action='/dev/login'>"
+        f"<input type='hidden' name='csrf' value='{escape(csrf)}'>"
+        "<label for='token'>Local approver token</label>"
+        "<input id='token' name='token' type='password' required autocomplete='off'>"
+        "<div><button type='submit'>Open workspace</button></div></form></div>"
+        "<p class='muted'>No model can approve a plan. Production uses an identity provider; "
+        "this local sign-in is available only in development mode.</p>",
+    )
+
+
+def home_page(runs: list[RunRecord], *, dev: bool) -> str:
+    body = ["<h1>Value creation workspace</h1>", "<p>Evidence first. Deterministic sizing. Human decisions.</p>"]
+    if dev:
+        body.append("<p class='card'>Local development showcase · fictional company data · no live model required.</p>")
+    body.append("<h2>Diagnostic runs</h2>")
+    if not runs:
+        body.append(
+            "<p>No runs are available to this account. Run the showcase setup or start a diagnostic through MCP.</p>"
+        )
+    for run in sorted(runs, key=lambda r: r.created_at, reverse=True)[:50]:
+        body.append(
+            f"<article class='card'><h2>{escape(run.company_id)}</h2>"
+            f"<p><span class='pill'>{escape(run.status.value.replace('_', ' '))}</span> "
+            f"<time>{escape(run.created_at.strftime('%Y-%m-%d %H:%M UTC'))}</time></p>"
+            f"<p><a href='/runs/{escape(run.run_id)}/review'>Review plan and evidence</a> · "
+            f"<a href='/companies/{escape(run.company_id)}/kpis'>View KPIs</a></p></article>"
+        )
+    return page("Value creation workspace", "".join(body))
 
 
 def review_page(

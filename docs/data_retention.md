@@ -28,3 +28,12 @@
 Verified by `tests/test_ops.py::test_offboarding_deletes_data_but_retains_audit` (in-memory), `tests/test_repository_contract.py::test_kpis_notifications_and_deletion` (in-memory and PostgreSQL), and `tests/test_audit_fixes.py::test_offboarding_deletes_evidence_first_and_audits_failures` (ordering and failure audit).
 
 Object Lock in governance mode lets the deletion role bypass retention with `BypassGovernanceRetention`. Compliance mode would block offboarding deletion and must not be used for this bucket.
+
+## Required reconciliation before deployment
+
+The table above is the proposed business policy. Terraform currently proposes production evidence Object Lock of 2555 days and CloudWatch retention of 365 days; staging uses 30 days. These differ from engagement-plus-90-day evidence and 90-day application-log proposals above. Governance-mode deletion authority does not make the policies equivalent. Legal/compliance and operations must choose and record one approved set, update the environment variables/IaC, and validate expiration/deletion behavior before apply with real company data. Backup expiry and audit retention require the same approval.
+
+| Reviewer | Role | Date | Approved periods and legal basis | Configuration / validation evidence |
+|---|---|---|---|---|
+| Pending | Legal/compliance | | | |
+| Pending | Operations | | | |

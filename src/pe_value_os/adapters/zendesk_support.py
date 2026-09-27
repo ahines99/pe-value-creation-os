@@ -57,7 +57,7 @@ class ZendeskSupportAdapter:
             nxt = page.get("next_page")
             if not nxt:
                 return out
-            page = self.api.get(nxt.replace(self.api.base_url, ""))
+            page = self.api.get(nxt)
 
     def foreign_entities(self) -> list[ForeignEntity]:
         return [

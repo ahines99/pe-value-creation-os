@@ -152,9 +152,12 @@ def transport_security_from_env() -> TransportSecuritySettings | None:
 
 def create_http_app(server: MCPServer | None = None) -> Any:
     """Streamable HTTP ASGI app with transport security and request metrics."""
+    from .readiness import ReadinessMiddleware
+
     s = server or mcp
     return RequestMetricsMiddleware(
-        s.streamable_http_app(transport_security=transport_security_from_env()), service="mcp"
+        ReadinessMiddleware(s.streamable_http_app(transport_security=transport_security_from_env()), get_ctx),
+        service="mcp",
     )
 
 

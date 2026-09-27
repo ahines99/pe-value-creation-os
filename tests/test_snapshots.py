@@ -13,7 +13,7 @@ import anyio
 import pytest
 from mcp import Client
 
-from pe_value_os.domain import kpi_models, models, project_models, source_models
+from pe_value_os.domain import kpi_models, models, project_models, runs, source_models
 from pe_value_os.mcp_server import build_server
 
 SNAP = Path(__file__).parent / "snapshots"
@@ -30,6 +30,12 @@ CONTRACTS = {
     "Plan": project_models.Plan,
     "KpiDefinition": kpi_models.KpiDefinition,
     "KpiObservation": kpi_models.KpiObservation,
+    "KpiAlert": kpi_models.KpiAlert,
+    "Notification": kpi_models.Notification,
+    "RunRecord": runs.RunRecord,
+    "ApprovalRecord": runs.ApprovalRecord,
+    "PlanRecord": runs.PlanRecord,
+    "CompanyProfile": source_models.CompanyProfile,
     **{f"source.{k.value}": t for k, t in source_models.RECORD_TYPES.items()},
 }
 

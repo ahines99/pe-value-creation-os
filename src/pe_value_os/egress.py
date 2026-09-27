@@ -26,7 +26,10 @@ def allowed_hosts() -> set[str]:
 
 
 def check_url(url: str) -> None:
-    host = (urlsplit(url).hostname or "").lower()
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or parsed.username is not None or parsed.password is not None:
+        raise EgressDenied("Outbound URL must use HTTP(S) without embedded credentials")
+    host = (parsed.hostname or "").lower()
     hosts = allowed_hosts()
     if not any(host == h or (h.startswith("*.") and host.endswith(h[1:])) for h in hosts):
         raise EgressDenied(f"Outbound request to {host!r} is not on the egress allow-list")

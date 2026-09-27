@@ -163,8 +163,17 @@ def span(name: str, **attrs: Any) -> Iterator[Any]:
         yield None
         return
     safe = {k: (v if isinstance(v, str | int | float | bool) else str(v)) for k, v in redact(attrs).items()}
-    with tracer.start_as_current_span(name, attributes=safe) as s:
-        yield s
+    with tracer.start_as_current_span(
+        name, attributes=safe, record_exception=False, set_status_on_exception=False
+    ) as s:
+        try:
+            yield s
+        except BaseException as exc:
+            from opentelemetry.trace import Status, StatusCode
+
+            s.set_attribute("error_type", type(exc).__name__)
+            s.set_status(Status(StatusCode.ERROR))
+            raise
 
 
 def configure_tracing(exporter: Any = None, service_name: str = "pe-value-os") -> Any:

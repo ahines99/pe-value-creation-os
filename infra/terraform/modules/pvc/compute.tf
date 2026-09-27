@@ -42,6 +42,7 @@ locals {
   app_secrets = merge(
     { PGPASSWORD = aws_secretsmanager_secret.db_role["app"].arn },
     var.proposer == "model" ? { ANTHROPIC_API_KEY = aws_secretsmanager_secret.app["anthropic-api-key"].arn } : {},
+    var.otel_auth_enabled ? { OTEL_EXPORTER_OTLP_HEADERS = aws_secretsmanager_secret.app["otel-headers"].arn } : {},
   )
 
   # Trust X-Forwarded-* only from inside the VPC (the ALB), so client IPs in logs cannot be spoofed.
@@ -116,7 +117,7 @@ locals {
 
 # ---- Application secrets (values are set out of band; see docs/deployment.md) -------------------------------
 resource "aws_secretsmanager_secret" "app" {
-  for_each                = toset(["anthropic-api-key", "notify-webhook-url"])
+  for_each                = toset(["anthropic-api-key", "notify-webhook-url", "otel-headers"])
   name                    = "${local.prefix}/app/${each.key}"
   description             = "Set with: aws secretsmanager put-secret-value --secret-id ${local.prefix}/app/${each.key} --secret-string ..."
   kms_key_id              = aws_kms_key.data.arn
@@ -288,5 +289,5 @@ resource "aws_ecs_service" "this" {
     ignore_changes = [task_definition]
   }
 
-  depends_on = [aws_lb_listener.https]
+  depends_on = [aws_lb_listener_rule.host, aws_lb_listener_rule.api_browser]
 }

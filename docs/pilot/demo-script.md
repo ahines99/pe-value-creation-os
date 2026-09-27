@@ -21,7 +21,7 @@ Open two panes: a terminal, and `var/demo-report.md` in a Markdown preview. Use 
 | 1:15 to 1:45 | Section 2 | "An unauthenticated approval is refused with 401. The approver's token works, and the decision and rationale are audited. The worker resumes the run, and KPIs for the plan are now monitored." |
 | 1:45 to 2:25 | Section 3 (the controlled failure) | "Delta's data is broken. Instead of guessing, the run pauses at 'needs evidence' and names each gap by dataset. Delta's files also contain planted prompt-injection text. It was recorded as suspicious content and never followed." |
 | 2:25 to 2:50 | Sections 4 and 5 | "A failing diagnostic branch becomes a recorded gap, and the other branches still finish. A failed step can be resumed without redoing completed work, and the audit trail shows every step." |
-| 2:50 to 3:00 | `docs/architecture.md` diagram | "Company scope is enforced on every call and in the database. No model-callable tool can approve. That is what makes this safe to point at real portfolio data." |
+| 2:50 to 3:00 | `docs/architecture.md` diagram | "Company scope and human approval are enforced controls. This showcase uses fictional data; real-company deployment still requires domain, security and operational acceptance." |
 
 ## If something goes wrong on camera
 

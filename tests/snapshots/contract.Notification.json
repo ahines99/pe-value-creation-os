@@ -1,0 +1,57 @@
+{
+  "properties": {
+    "body": {
+      "title": "Body",
+      "type": "string"
+    },
+    "channel": {
+      "title": "Channel",
+      "type": "string"
+    },
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "delivered_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Delivered At"
+    },
+    "notification_id": {
+      "title": "Notification Id",
+      "type": "string"
+    },
+    "status": {
+      "default": "pending",
+      "title": "Status",
+      "type": "string"
+    },
+    "subject": {
+      "title": "Subject",
+      "type": "string"
+    }
+  },
+  "required": [
+    "notification_id",
+    "company_id",
+    "channel",
+    "subject",
+    "body",
+    "created_at"
+  ],
+  "title": "Notification",
+  "type": "object"
+}

@@ -107,10 +107,15 @@ def test_streamable_http_requires_bearer_and_enforces_scope(keys, monkeypatch, t
     monkeypatch.setenv("PVC_MCP_RESOURCE_URL", f"http://127.0.0.1:{port}/mcp")
     monkeypatch.setenv("PVC_EVIDENCE_DIR", str(tmp_path / "ev"))
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore
+    from pe_value_os.adapters.repositories import InMemoryRepository
+    from pe_value_os.app import build_context
     from pe_value_os.mcp_server import build_server, create_http_app
     from pe_value_os.tools import _runtime
 
-    _runtime.set_ctx(None)
+    # This test isolates the real HTTP/auth boundary with an explicit test repository.
+    # Production environment wiring separately rejects a missing DATABASE_URL.
+    _runtime.set_ctx(build_context(repo=InMemoryRepository(FileSystemEvidenceStore(tmp_path / "ev"))))
     app = create_http_app(build_server())
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="error"))
     th = threading.Thread(target=server.run, daemon=True)

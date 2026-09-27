@@ -6,10 +6,8 @@
 
 locals {
   target_health = {
-    # Protected-resource metadata (RFC 9728) is served without a token once auth is configured, so a 200
-    # here proves the MCP app is up and wired to the identity provider.
-    mcp = { path = "/.well-known/oauth-protected-resource/mcp", matcher = "200", hostname = var.mcp_hostname, priority = 10 }
-    api = { path = "/healthz", matcher = "200", hostname = var.api_hostname, priority = 20 }
+    mcp = { path = "/readyz", matcher = "200", hostname = var.mcp_hostname, priority = 10 }
+    api = { path = "/readyz", matcher = "200", hostname = var.api_hostname, priority = 20 }
   }
 }
 
@@ -38,6 +36,19 @@ resource "aws_vpc_security_group_egress_rule" "alb_to_targets" {
   from_port                    = each.value.port
   to_port                      = each.value.port
   referenced_security_group_id = aws_security_group.workload[each.key].id
+}
+
+# ALB authentication calls the IdP token and user-info endpoints itself. These
+# calls originate in the public ALB subnets, not in the application firewall path.
+# Security groups cannot filter DNS names; restrict to HTTPS, only when OIDC is on.
+resource "aws_vpc_security_group_egress_rule" "alb_oidc_https" {
+  count             = var.api_browser_oidc == null ? 0 : 1
+  security_group_id = aws_security_group.alb.id
+  description       = "ALB OIDC token and user-info HTTPS requests"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_lb" "this" {
@@ -234,6 +245,27 @@ resource "aws_lb_listener_rule" "host" {
 # Browser pages of the approval UI: the ALB signs the user in with the identity provider (OIDC) and forwards
 # the IdP access token in x-amzn-oidc-accesstoken, which the API verifies like a bearer token. JSON API calls
 # with a bearer token use the plain host rule above. Higher priority (lower number) than the host rule.
+# Explicit bearer clients still reach API authentication on browser-shaped URLs
+# (notably evidence downloads); the application verifies the bearer token itself.
+resource "aws_lb_listener_rule" "api_bearer" {
+  count        = var.api_browser_oidc == null ? 0 : 1
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 14
+  condition {
+    host_header { values = [var.api_hostname] }
+  }
+  condition {
+    http_header {
+      http_header_name = "Authorization"
+      values           = ["Bearer *", "bearer *"]
+    }
+  }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this["api"].arn
+  }
+}
+
 resource "aws_lb_listener_rule" "api_browser" {
   count        = var.api_browser_oidc == null ? 0 : 1
   listener_arn = aws_lb_listener.https.arn

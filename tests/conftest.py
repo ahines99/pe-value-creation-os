@@ -39,17 +39,27 @@ def pg_database():
         pytest.skip("PVC_TEST_DATABASE_URL not set")
     import psycopg
 
-    from pe_value_os.db.migrate import bootstrap_roles, upgrade
+    from pe_value_os.db.migrate import bootstrap_roles, scram_sha256_verifier, upgrade
 
     name = f"pvc_test_{uuid.uuid4().hex[:8]}"
+    login = f"{name}_app"
     with psycopg.connect(PG_ADMIN_URL, autocommit=True) as conn:
         conn.execute(f'create database "{name}"')
     admin_url = _with_db(PG_ADMIN_URL, name)
-    bootstrap_roles(admin_url, {"pvc_app": APP_PASSWORD})
-    upgrade(admin_url)
-    yield admin_url, _with_db(PG_ADMIN_URL, name, "pvc_app", APP_PASSWORD)
-    with psycopg.connect(PG_ADMIN_URL, autocommit=True) as conn:
-        conn.execute(f'drop database "{name}" with (force)')
+    try:
+        bootstrap_roles(admin_url)
+        upgrade(admin_url)
+        with psycopg.connect(PG_ADMIN_URL, autocommit=True) as conn:
+            conn.execute(
+                psycopg.sql.SQL("create role {} login password {} in role pvc_app").format(
+                    psycopg.sql.Identifier(login), psycopg.sql.Literal(scram_sha256_verifier(APP_PASSWORD))
+                )
+            )
+        yield admin_url, _with_db(PG_ADMIN_URL, name, login, APP_PASSWORD)
+    finally:
+        with psycopg.connect(PG_ADMIN_URL, autocommit=True) as conn:
+            conn.execute(psycopg.sql.SQL("drop database {} with (force)").format(psycopg.sql.Identifier(name)))
+            conn.execute(psycopg.sql.SQL("drop role if exists {}").format(psycopg.sql.Identifier(login)))
 
 
 TABLES = (

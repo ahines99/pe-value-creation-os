@@ -31,7 +31,9 @@ def test_gate_detects_regressions():
     th = {"golden": {"case_pass_rate": 1.0, "tool_correctness": 1.0}, "latency": {"p95_run_ms": 50}}
     fails = harness.gate(scores, th)
     assert "golden.case_pass_rate = 0.9 < 1.0" in fails and any("p95_run_ms" in f for f in fails)
-    assert harness.gate({"golden": {"case_pass_rate": 1.0, "p95_run_ms": 1}}, th) == []
+    complete = {"cases": 1, "case_pass_rate": 1.0, "p95_run_ms": 1, **dict.fromkeys(harness.DIMENSIONS, 1.0)}
+    assert harness.gate({"golden": complete}, th) == []
+    assert harness.gate({"golden": {"case_pass_rate": 1.0, "p95_run_ms": 1}}, th)
 
 
 def test_value_ranges_fail_when_sizing_drifts():
@@ -54,6 +56,10 @@ def test_model_scores_and_gate():
     cases = {"G1": {"expect": {"levers_include": ["pricing", "retention"]}}}
     base = {
         "case": "G1",
+        "checks": [],
+        "usage_complete": True,
+        "has_plan": True,
+        "narrator_reports": [{"status": "accepted"}],
         "opportunities": [{"lever": "pricing"}],
         "accepted": 3,
         "rejected": [{"reason": "overlap: x"}],

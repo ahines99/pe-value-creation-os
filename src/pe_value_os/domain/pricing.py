@@ -8,6 +8,7 @@ contract constraints that limit price action. Definitions follow skills/pricing-
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from itertools import pairwise
@@ -19,7 +20,30 @@ from .calc import ZERO, ArrLedger, add_months, cv, dec, is_quarter_end_window, m
 from .dataset import CompanyData
 from .source_models import Concession, ContractTerm, Customer, DatasetKind, InvoiceLine, PriceBook
 
-CALC_VERSION = "price-waterfall/1"
+CALC_VERSION = "price-waterfall/2"
+
+
+@dataclass
+class InvoicePeriod:
+    """One customer's product on one invoice date, independent of line order/splitting."""
+
+    invoice_date: date
+    quantity: Decimal = ZERO
+    list_amount: Decimal = ZERO
+    discount: Decimal = ZERO
+    net_amount: Decimal = ZERO
+
+
+def invoice_periods(invoices: list[InvoiceLine]) -> dict[tuple[str, str], list[InvoicePeriod]]:
+    groups: dict[tuple[str, str], dict[date, InvoicePeriod]] = {}
+    for line in invoices:
+        periods = groups.setdefault((line.customer_id, line.product), {})
+        period = periods.setdefault(line.invoice_date, InvoicePeriod(line.invoice_date))
+        period.quantity += line.quantity
+        period.list_amount += line.quantity * line.list_price_per_unit
+        period.discount += line.on_invoice_discount
+        period.net_amount += line.net_amount
+    return {key: sorted(periods.values(), key=lambda p: p.invoice_date) for key, periods in groups.items()}
 
 
 class WaterfallLayer(BaseModel):
@@ -192,35 +216,32 @@ def price_waterfall(data: CompanyData, period_end: date | None = None, segment: 
             gaps.append((mean(q_r) - mean(o_r), len(q_r)))
     qe_gap = sum(g * n for g, n in gaps) / sum(n for _, n in gaps) if gaps else None
 
-    # Renewal realization: unit net price change between consecutive annual invoices of the same customer
-    by_cust: dict[str, list[InvoiceLine]] = defaultdict(list)
-    for ln in invoices:
-        by_cust[ln.customer_id].append(ln)
+    # Match customer/product periods, aggregating split invoice lines before comparing unit prices.
+    by_product = invoice_periods(invoices)
     contract_by_cust: dict[str, list[ContractTerm]] = defaultdict(list)
     for ct in contracts:
         contract_by_cust[ct.customer_id].append(ct)
     realized: list[float] = []  # every renewal, for the mean realized uplift
     matched_realized: list[float] = []  # renewals that also have a contracted uplift, for the realization ratio
     contracted: list[float] = []
-    for cid, lines in by_cust.items():
+    for (cid, _product), periods in by_product.items():
         if segment and seg_of(cid) != segment:
             continue
-        lines = sorted(lines, key=lambda ln: ln.invoice_date)
-        for prev, cur in pairwise(lines):
+        for prev, cur in pairwise(periods):
             if not (start <= cur.invoice_date < end_excl):
                 continue
-            if (cur.invoice_date - prev.invoice_date).days < 330 or cur.product != prev.product:
+            if (cur.invoice_date - prev.invoice_date).days < 330:
                 continue
             if not prev.quantity or not cur.quantity or prev.net_amount <= 0:
                 continue  # free or zero-quantity periods (pilots, credits) have no unit price to compare
             prev_unit = prev.net_amount / prev.quantity
-            if prev_unit >= prev.list_price_per_unit:
+            if prev_unit >= prev.list_amount / prev.quantity:
                 continue  # already at list; uplift is not available
             change = float(cur.net_amount / cur.quantity / prev_unit - 1)
             realized.append(change)
             terms = [ct for ct in contract_by_cust.get(cid, []) if ct.start_date <= prev.invoice_date <= ct.end_date]
             if terms:
-                t = terms[-1]
+                t = max(terms, key=lambda ct: (ct.start_date, ct.end_date, ct.contract_id))
                 up = t.contracted_uplift_rate
                 if t.price_cap_rate is not None:
                     up = min(up, t.price_cap_rate)

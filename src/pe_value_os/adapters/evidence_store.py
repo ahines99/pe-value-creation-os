@@ -128,8 +128,12 @@ class S3EvidenceStore:
     def __init__(self, bucket: str, client: Any = None, prefix: str = "evidence", kms_key_id: str | None = None):
         if client is None:  # pragma: no cover - requires boto3 and AWS credentials
             import boto3
+            from botocore.config import Config
 
-            client = boto3.client("s3")
+            client = boto3.client(
+                "s3",
+                config=Config(connect_timeout=2, read_timeout=2, retries={"total_max_attempts": 2, "mode": "standard"}),
+            )
         self.bucket, self.client, self.prefix = bucket, client, prefix.strip("/")
         # With a key id, objects are encrypted with that customer-managed key; without one the bucket's default
         # encryption applies (never the AWS-managed aws/s3 key by accident).
@@ -150,7 +154,19 @@ class S3EvidenceStore:
             if head.get("Metadata", {}).get("sha256") != digest:
                 raise ImmutableEvidenceError(f"Evidence {evidence_id} already stored with different content")
             return key
-        self.client.put_object(Bucket=self.bucket, Key=key, Body=content, Metadata={"sha256": digest}, **self._sse)
+        try:
+            self.client.put_object(
+                Bucket=self.bucket, Key=key, Body=content, Metadata={"sha256": digest}, IfNoneMatch="*", **self._sse
+            )
+        except self._client_error() as exc:
+            response = getattr(exc, "response", {})
+            code = str(response.get("Error", {}).get("Code", ""))
+            if code not in {"412", "PreconditionFailed", "409", "ConditionalRequestConflict"}:
+                raise
+            # A competing create won. Verify it; never publish a second version.
+            head = self.client.head_object(Bucket=self.bucket, Key=key)
+            if head.get("Metadata", {}).get("sha256") != digest:
+                raise ImmutableEvidenceError(f"Evidence {evidence_id} already stored with different content") from exc
         return key
 
     def _client_error(self) -> type[Exception]:

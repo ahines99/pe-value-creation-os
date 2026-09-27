@@ -18,6 +18,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from jwt import PyJWTError
 from pydantic import BaseModel, Field
 
 from .. import __version__, approvals, security
@@ -96,19 +97,24 @@ def current_principal(request: Request) -> security.Principal:
     token = (
         auth[7:].strip() if auth.lower().startswith("bearer ") else request.headers.get("x-amzn-oidc-accesstoken", "")
     )
+    if not token and os.environ.get("PVC_ENV") == "dev":
+        token = request.cookies.get("pvc_dev_session", "")
     if not token:
         raise HTTPException(401, "Missing bearer token", headers={"WWW-Authenticate": "Bearer"})
     dev = _dev_tokens()
     if token in dev:
-        return principal_from_claims(dev[token])
+        try:
+            return principal_from_claims(dev[token])
+        except (TypeError, ValueError, PyJWTError) as exc:
+            raise HTTPException(401, "Invalid token", headers={"WWW-Authenticate": "Bearer"}) from exc
     verifier = _get_verifier()
     if verifier is None:
         raise HTTPException(401, "Invalid token", headers={"WWW-Authenticate": "Bearer"})
     try:
         claims = verifier.decode(token)
+        return principal_from_claims(claims)
     except Exception as e:
         raise HTTPException(401, "Invalid token", headers={"WWW-Authenticate": "Bearer"}) from e
-    return principal_from_claims(claims)
 
 
 Principal = Annotated[security.Principal, Depends(current_principal)]
@@ -154,9 +160,56 @@ def _decide(run_id: str, p: security.Principal, body: DecisionIn) -> dict[str, A
     return rec.model_dump(mode="json")
 
 
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request) -> Response:
+    try:
+        principal = current_principal(request)
+    except HTTPException as exc:
+        if exc.status_code != 401 or os.environ.get("PVC_ENV") != "dev":
+            raise
+        csrf = secrets.token_urlsafe(24)
+        response = HTMLResponse(views.login_page(csrf))
+        response.set_cookie("pvc_login_csrf", csrf, httponly=True, samesite="strict", max_age=600)
+        return response
+    with scoped(principal):
+        runs = get_ctx().repo.list_runs()
+    return HTMLResponse(views.home_page(runs, dev=os.environ.get("PVC_ENV") == "dev"))
+
+
+@app.post("/dev/login")
+def dev_login(request: Request, token: Annotated[str, Form()], csrf: Annotated[str, Form()]) -> Response:
+    if os.environ.get("PVC_ENV") != "dev":
+        raise HTTPException(404, "Not found")
+    expected = request.cookies.get("pvc_login_csrf", "")
+    if not expected or not secrets.compare_digest(csrf, expected):
+        raise HTTPException(403, "CSRF check failed")
+    claims = _dev_tokens().get(token)
+    if not claims:
+        raise HTTPException(401, "Invalid demo token")
+    try:
+        principal_from_claims(claims)
+    except (TypeError, ValueError, PyJWTError) as exc:
+        raise HTTPException(401, "Invalid demo token") from exc
+    response = RedirectResponse("/", status_code=303)
+    response.set_cookie("pvc_dev_session", token, httponly=True, samesite="strict", max_age=3600)
+    response.delete_cookie("pvc_login_csrf")
+    return response
+
+
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok", "version": __version__}
+
+
+@app.get("/readyz")
+def readyz() -> JSONResponse:
+    from ..readiness import is_ready
+
+    try:
+        ready = is_ready(get_ctx())
+    except Exception:
+        ready = False
+    return JSONResponse({"status": "ready" if ready else "unready"}, status_code=200 if ready else 503)
 
 
 @app.get("/runs/{run_id}")
@@ -183,7 +236,8 @@ def post_decision_form(
     rationale: Annotated[str, Form()] = "",
     remove_initiatives: Annotated[list[str] | None, Form()] = None,
 ) -> Response:
-    if not secrets.compare_digest(csrf, request.cookies.get("pvc_csrf", "")):
+    expected_csrf = request.cookies.get("pvc_csrf", "")
+    if not expected_csrf or not secrets.compare_digest(csrf, expected_csrf):
         raise HTTPException(403, "CSRF check failed")
     if decision not in ("approved", "rejected", "changes_requested"):
         raise HTTPException(422, "Invalid decision")
@@ -208,7 +262,7 @@ def review(run_id: str, p: Principal) -> HTMLResponse:
         cases = {v.opportunity_id: v for v in ctx.repo.list_value_cases(run_id)}
         approvals_ = ctx.repo.list_approvals(run_id)
         csrf = secrets.token_urlsafe(24)
-        can = p.is_human and ctx.policy.approval.approver_role in p.roles
+        can = p.is_human and ctx.policy.approval.approver_role in p.roles and p.has_scope(security.APPROVE_SCOPE)
         html = views.review_page(
             run,
             ctx.repo.latest_plan(run_id),

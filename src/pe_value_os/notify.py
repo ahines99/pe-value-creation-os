@@ -63,15 +63,18 @@ class WebhookNotifier:
     def __init__(self, url: str):
         self.url = url
 
-    def _post(self, text: str) -> None:
+    def _post(self, text: str, key: str) -> None:
         with checked_client(timeout=10) as client:
-            client.post(self.url, json={"text": text}).raise_for_status()
+            client.post(self.url, json={"text": text}, headers={"Idempotency-Key": key}).raise_for_status()
 
     def deliver(self, repo: Repository, n: Notification) -> None:
-        self._post(f"*{n.subject}* ({n.company_id})\n{n.body}")
+        self._post(f"*{n.subject}* ({n.company_id})\n{n.body}", n.notification_id)
 
     def escalate(self, repo: Repository, approval: ApprovalRecord, contact: str) -> None:
-        self._post(f"Plan approval overdue for {approval.company_id} (run {approval.run_id}); escalated to {contact}.")
+        self._post(
+            f"Plan approval overdue for {approval.company_id} (run {approval.run_id}); escalated to {contact}.",
+            f"escalation-{approval.approval_id}",
+        )
 
 
 def notifier_from_env() -> Notifier:

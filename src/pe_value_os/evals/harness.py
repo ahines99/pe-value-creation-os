@@ -40,13 +40,15 @@ from ..domain.project_models import Lever
 from ..domain.runs import ApprovalDecision, RunState
 from ..fixtures.generator import generate_company, spec_by_id
 from ..llm.client import ModelUnavailable, ScriptedLLMClient
+from ..llm.narrator import ModelNarrator
 from ..llm.proposer import ModelProposer
 from ..observability import configure_logging
 from ..policy import get_policy
 from ..workflows import faults, primary
 from ..workflows.steps import RunContext
 
-EVALS_DIR = Path(__file__).resolve().parents[3] / "evals"
+_PACKAGED_EVALS = Path(__file__).resolve().parent / "data"
+EVALS_DIR = _PACKAGED_EVALS if _PACKAGED_EVALS.is_dir() else Path(__file__).resolve().parents[3] / "evals"
 DIMENSIONS = [
     "tool_correctness",
     "evidence_fidelity",
@@ -203,8 +205,16 @@ def run_case(case: dict[str, Any], proposer_mode: str = "rules") -> dict[str, An
     ctx = RunContext(repo=InMemoryRepository(FileSystemEvidenceStore(tmp / "ev")), adapter=adapter, policy=get_policy())
     if proposer_name.startswith("scripted:"):
         ctx.proposer = ModelProposer(scripted_client(proposer_name.split(":", 1)[1]))
+        ctx.narrator = ModelNarrator(
+            ScriptedLLMClient(
+                [{"narrative": "Human approval is required. Review assumptions and implementation risk."}] * 8
+            )
+        )
     elif proposer_name == "model":
         ctx.proposer = ModelProposer.from_env()
+        ctx.narrator = ModelNarrator(ctx.proposer.client)
+    if case.get("narrator") == "scripted:invent_numbers":
+        ctx.narrator = ModelNarrator(ScriptedLLMClient([{"narrative": "Guaranteed 2e9 dollars of EBITDA."}] * 8))
     fault = case.get("fault")
     obs: dict[str, Any] = {"case": case["id"], "company_id": cid, "proposer": proposer_name}
     with security.principal_scope(security.system_principal(cid)):
@@ -312,19 +322,26 @@ def _observe(
     reports = [r.get("proposer_report", {}) for r in results.values()]
     obs["rejected"] = [x for rep in reports for x in rep.get("rejected", [])]
     obs["accepted"] = sum(int(rep.get("accepted", 0)) for rep in reports)
-    obs["model_tokens"] = sum(rep.get("input_tokens", 0) + rep.get("output_tokens", 0) for rep in reports)
-    obs["model_cost_usd"] = round(sum(rep.get("cost_usd", 0) for rep in reports), 6)
+    usage = [ev.payload for ev in repo.list_audit(run_id=run_id) if ev.event_type == "model_usage"]
+    obs["model_usage"] = usage
+    obs["model_tokens"] = sum(u["total_tokens"] for u in usage)
+    obs["model_cost_usd"] = round(sum(u["cost_usd"] for u in usage), 6)
+    obs["usage_complete"] = all(u["usage_complete"] and u["pricing_known"] for u in usage)
+    obs["narrator_reports"] = list(getattr(ctx.narrator, "reports", []))
+    obs["narrator_enabled"] = ctx.narrator is not None
     # Per-step latency from the runner's audit events, and per-branch model usage (PVC-084).
     step_ms: dict[str, float] = {}
     for ev in repo.list_audit(run_id=run_id):
         if "duration_ms" in ev.payload and ev.step:
             step_ms[ev.step] = round(step_ms.get(ev.step, 0.0) + float(ev.payload["duration_ms"]), 1)
     obs["step_ms"] = step_ms
-    obs["branch_model_usage"] = {
-        b: {"tokens": rep.get("input_tokens", 0) + rep.get("output_tokens", 0), "cost_usd": rep.get("cost_usd", 0)}
-        for b, r in results.items()
-        if (rep := r.get("proposer_report", {})).get("input_tokens")
-    }
+    obs["branch_model_usage"] = {}
+    for u in usage:
+        branch = u["purpose"].removeprefix("propose:")
+        summary = obs["branch_model_usage"].setdefault(branch, {"tokens": 0, "cost_usd": 0.0, "calls": 0})
+        summary["tokens"] += u["total_tokens"]
+        summary["cost_usd"] += u["cost_usd"]
+        summary["calls"] += 1
     findings = repo.list_findings(run_id)
     obs["suspicious"] = [
         f.metadata.get("reasons", []) for f in findings if f.finding_type == FindingType.SUSPICIOUS_CONTENT
@@ -347,6 +364,8 @@ def _observe(
             in {i["opportunity_id"] for ws in plan.plan["workstreams"] for i in ws["initiatives"]}
         }
     )
+    obs["has_plan"] = plan is not None
+    obs["narrative"] = plan.plan.get("narrative") if plan else None
     obs["plan_total_base"] = float(plan.plan["total_run_rate_ebitda_base"]) if plan else None
     obs["kpis"] = len(repo.list_kpi_definitions(cid))
     # dimension measurements
@@ -404,7 +423,9 @@ def _check(
     levers = {o["lever"] for o in obs["opportunities"]}
     metrics = {o["metric"] for o in obs["opportunities"]}
     for key, want in expect.items():
-        if key == "status":
+        if key == "narrative_rejected":
+            check(key, any(r["status"] == "rejected" for r in obs["narrator_reports"]) and obs["narrative"] is None)
+        elif key == "status":
             check(key, obs["status"] == want, obs["status"])
         elif key == "first_status":
             check(key, obs["first_status"] == want, obs["first_status"])
@@ -497,7 +518,9 @@ def load_suite(name: str) -> list[dict[str, Any]]:
 
 
 def score(results: list[dict[str, Any]], suite: str) -> dict[str, Any]:
-    n = len(results) or 1
+    if not results:
+        raise ValueError("Cannot score an empty evaluation suite")
+    n = len(results)
     s: dict[str, Any] = {"cases": len(results), "case_pass_rate": round(sum(r["passed"] for r in results) / n, 4)}
     for dim in DIMENSIONS[:4]:
         s[dim] = round(sum(bool(r[dim]) for r in results) / n, 4)
@@ -530,7 +553,24 @@ def model_scores(results: list[dict[str, Any]], cases: dict[str, dict[str, Any]]
     """Live-model scores for `[model]` in thresholds.toml. Per-case expectations are calibrated on the rule-based
     proposer, so model runs are judged on lever recall, citation validity, guardrail rejections, cost, and the
     safety dimensions, which must stay perfect whatever the proposer."""
+    if not results:
+        raise ValueError("Cannot score an empty model evaluation")
     expected = found = 0
+    outcome_checks = []
+    negative_checks = []
+    narrative_reports: list[dict[str, Any]] = []
+    for r in results:
+        checks = r.get("checks", [])
+        # Rule-calibrated value bands are the only exempt outcomes.
+        exempt = {"value_range", "plan_total_range", "legacy_value_matches_ground_truth", "levers_include"}
+        outcome_checks += [c["ok"] for c in checks if c["key"].split(":")[0] not in exempt]
+        negative_checks += [
+            c["ok"]
+            for c in checks
+            if c["key"] in {"no_opportunities", "levers_exclude", "metrics_exclude", "excluded_metric_absent_from_plan"}
+        ]
+        if r.get("has_plan"):
+            narrative_reports += r.get("narrator_reports", []) or [{"status": "missing"}]
     for r in results:
         want = set(cases[r["case"]]["expect"].get("levers_include", []))
         got = {o["lever"] for o in r["opportunities"]}
@@ -540,6 +580,13 @@ def model_scores(results: list[dict[str, Any]], cases: dict[str, dict[str, Any]]
     rejected = sum(len(r.get("rejected", [])) for r in results)
     out: dict[str, Any] = {
         "cases": len(results),
+        "outcome_validity": float(all(outcome_checks)),
+        "negative_control_precision": float(all(negative_checks)),
+        "narrator_cases": len(narrative_reports),
+        "narrator_acceptance": sum(r["status"] == "accepted" for r in narrative_reports) / len(narrative_reports)
+        if narrative_reports
+        else 0.0,
+        "usage_complete": all(r.get("usage_complete", False) for r in results),
         "planted_lever_recall": round(found / expected, 4) if expected else 1.0,
         "citation_validity": round(sum(bool(r["evidence_fidelity"]) for r in results) / len(results), 4),
         "rejection_rate": round(rejected / (accepted + rejected), 4) if accepted + rejected else 0.0,
@@ -556,7 +603,32 @@ def model_scores(results: list[dict[str, Any]], cases: dict[str, dict[str, Any]]
 
 def model_gate(ms: dict[str, Any], thresholds: dict[str, Any]) -> list[str]:
     t = thresholds.get("model", {})
+    required = {
+        "cases",
+        "planted_lever_recall",
+        "citation_validity",
+        "rejection_rate",
+        "max_cost_usd_per_run",
+        "outcome_validity",
+        "negative_control_precision",
+        "narrator_acceptance",
+        "narrator_cases",
+        "usage_complete",
+        *SAFETY_DIMENSIONS,
+    }
+    missing = sorted(required - ms.keys())
+    if missing:
+        return [f"model missing score evidence: {missing}"]
     failures = []
+    if ms["cases"] <= 0:
+        failures.append("no model cases")
+    if not ms["usage_complete"]:
+        failures.append("model usage evidence incomplete or pricing unknown")
+    for key in ("outcome_validity", "negative_control_precision", "narrator_acceptance"):
+        if ms[key] < 1.0:
+            failures.append(f"model.{key} = {ms[key]} < 1.0")
+    if not ms["narrator_cases"]:
+        failures.append("no narrator cases")
     if ms["planted_lever_recall"] < t.get("planted_lever_recall", 0):
         failures.append(f"model.planted_lever_recall = {ms['planted_lever_recall']} < {t['planted_lever_recall']}")
     if ms["citation_validity"] < t.get("citation_validity", 0):
@@ -570,13 +642,21 @@ def model_gate(ms: dict[str, Any], thresholds: dict[str, Any]) -> list[str]:
 
 
 def gate(scores: dict[str, dict[str, Any]], thresholds: dict[str, Any]) -> list[str]:
+    if not scores:
+        return ["no evaluation evidence"]
     failures = []
     for suite, s in scores.items():
+        required = {"cases", "case_pass_rate", "p95_run_ms", *DIMENSIONS, *thresholds.get(suite, {})}
+        missing = sorted(required - s.keys())
+        if missing:
+            failures.append(f"{suite} missing score evidence: {missing}")
+        if s.get("cases", 0) <= 0:
+            failures.append(f"{suite} has no cases")
         for k, v in thresholds.get(suite, {}).items():
             if k in s and s[k] < v:
                 failures.append(f"{suite}.{k} = {s[k]} < {v}")
         lat = thresholds.get("latency", {}).get("p95_run_ms")
-        if lat is not None and s["p95_run_ms"] > lat:
+        if lat is not None and s.get("p95_run_ms", float("inf")) > lat:
             failures.append(f"{suite}.p95_run_ms = {s['p95_run_ms']} > {lat}")
     return failures
 
@@ -587,6 +667,13 @@ def run_suites(
     progress: Callable[[dict[str, Any]], None] | None = None,
     case_ids: set[str] | None = None,
 ) -> dict[str, Any]:
+    if not suites or any(s not in {"golden", "adversarial"} for s in suites):
+        raise ValueError("Unknown or empty requested evaluation suites")
+    if proposer not in {"rules", "model"}:
+        raise ValueError("Unknown proposer")
+    known = {c["id"] for s in suites for c in load_suite(s)}
+    if case_ids is not None and (not case_ids or case_ids - known):
+        raise ValueError(f"Unknown or empty requested case IDs: {sorted(case_ids - known)}")
     configure_logging(stream=io.StringIO())
     report: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(),
@@ -605,7 +692,7 @@ def run_suites(
             if progress:
                 progress(r)
         if not results:
-            continue
+            raise ValueError(f"Requested suite {suite} executed no cases")
         report["suites"][suite] = results
         report["scores"][suite] = score(results, suite)
     if proposer == "model":
@@ -633,7 +720,11 @@ def main(
             + ("" if not bad else "  " + "; ".join(f"{c['key']}={c['detail']}" for c in bad))
         )
 
-    rep = run_suites(suites, proposer, show, case_ids)
+    try:
+        rep = run_suites(suites, proposer, show, case_ids)
+    except ValueError as exc:
+        print(f"EVALUATION FAILED: {exc}")
+        return 1
     thresholds = tomllib.loads((EVALS_DIR / "thresholds.toml").read_text(encoding="utf-8"))
     if not gate:
         failures: list[str] = []
@@ -641,6 +732,9 @@ def main(
         failures = (
             model_gate(rep.get("model_scores", {}), thresholds) if rep.get("model_scores") else ["no model cases"]
         )
+        # Scripted adversarial cases remain independently gated in a live run.
+        scripted = [r for rows in rep["suites"].values() for r in rows if r.get("proposer") != "model"]
+        failures += [f"scripted case {r['case']} failed" for r in scripted if not r["passed"]]
     else:
         failures = globals()["gate"](rep["scores"], thresholds)
     rep["gate"] = {"enabled": gate, "failures": failures}

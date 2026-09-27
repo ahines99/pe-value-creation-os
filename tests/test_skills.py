@@ -73,11 +73,12 @@ def test_stdio_server_serves_tools():
     from mcp.client.session import ClientSession
     from mcp.client.stdio import StdioServerParameters, stdio_client
 
+    plugin = json.loads((ROOT / ".mcp.json").read_text())["mcpServers"]["pe-value-creation-os"]
     params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "pe_value_os.cli", "mcp-stdio"],
         env={
-            "PVC_ENV": "dev",
+            **plugin["env"],
             "PYTHONPATH": str(ROOT / "src"),
             "PVC_LOG_LEVEL": "WARNING",
             "SYSTEMROOT": "C:\\Windows",
@@ -87,6 +88,9 @@ def test_stdio_server_serves_tools():
     async def go():
         async with stdio_client(params) as (r, w), ClientSession(r, w) as s:
             await s.initialize()
+            result = await s.call_tool("get_company_profile", {"company_id": "beacon-pricing"})
+            assert not result.is_error
+            assert result.structured_content["profile"]["company_id"] == "beacon-pricing"
             return {t.name for t in (await s.list_tools()).tools}
 
     names = anyio.run(go)

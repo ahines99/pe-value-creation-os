@@ -196,3 +196,8 @@ variable "db_role_password_version" {
   type        = number
   default     = 1
 }
+
+variable "otel_auth_enabled" {
+  type    = bool
+  default = false
+}

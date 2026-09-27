@@ -46,7 +46,7 @@ def good_pricing(user):
                 "base": scen(0.2, 0.55),
                 "high": scen(0.25, 0.7),
                 "confidence": "medium",
-                "rationale": "17.9% of ARR sits on legacy price books.",
+                "rationale": "Legacy price-book exposure: {{quantity:analysis.legacy.legacy_arr_share}}.",
                 "evidence_ids": ev_ids(user)[:2],
                 "assumptions": ["Migration at renewal"],
             }
@@ -188,10 +188,9 @@ def test_outage_with_rules_fallback_policy(tmp_path):
 
 def test_narrator_accepts_restatement_and_rejects_new_numbers(tmp_path):
     def narrative(system, user):
-        import json
-
-        plan = json.loads(user)["plan"]
-        return {"narrative": f"Base-case run-rate EBITDA is {plan['total_run_rate_ebitda_base']}. Approval required."}
+        return {
+            "narrative": "Base-case run-rate EBITDA: {{quantity:plan.total_run_rate_ebitda_base}}. Approval required."
+        }
 
     nar = ModelNarrator(ScriptedLLMClient([narrative]))
     ctx = ctx_with(ScriptedLLMClient([dispatch()] * 4), tmp_path, narrator=nar)
@@ -203,7 +202,7 @@ def test_narrator_accepts_restatement_and_rejects_new_numbers(tmp_path):
     rec2, _ = run(ctx2, "beacon-pricing")
     with security.principal_scope(security.system_principal("beacon-pricing")):
         assert ctx2.repo.latest_plan(rec2.run_id).plan["narrative"] is None
-    assert nar2.last_rejection == ["$9.9M"]
+    assert "$9.9M" in str(nar2.last_rejection)
 
 
 class FakeMessages:

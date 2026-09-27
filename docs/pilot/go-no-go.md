@@ -48,17 +48,17 @@ Take each value from the source named in [pilot-plan.md](pilot-plan.md), "What w
 - **Opportunities approvers rejected, and why:**
 - **Incidents and pages during the pilot:** (links to incident notes)
 
-## 5. Production readiness checklist
+## 5. Production validation conditions
 
-All must be checked for GO. Any unchecked item becomes a condition for GO WITH CONDITIONS.
+This pilot decision authorizes conditional production provisioning (PVC-136). It is taken after staging and pilot acceptance, before production exists. An unchecked production item below is an owned condition for GO WITH CONDITIONS, not a prerequisite for running the pilot or provisioning its target environment. No production traffic or portfolio-company onboarding is authorized until every condition has evidence and section 8 is signed.
 
-- [ ] Production environment applied from Terraform, and the smoke test passes (PVC-131 to 136)
+- [ ] Production environment applied from Terraform, and the smoke test passes (PVC-136)
 - [ ] External pen test complete; high and critical findings fixed (PVC-097)
 - [ ] Production restore drill passed (PVC-142)
 - [ ] On-call rotation staffed and paged successfully in a test (PVC-148)
 - [ ] Legal and data-processing review covers production and the model provider (PVC-147)
 - [ ] Policy values signed off by the fund's operating team (no `-placeholder` in the policy version)
-- [ ] Live-model eval (`pvc eval --proposer model`) meets the `[model]` thresholds in `evals/thresholds.toml`
+- [ ] Current live proposer and narrator eval (`pvc eval --suite all --proposer model --gate`) meets the `[model]` thresholds in `evals/thresholds.toml`
 - [ ] Onboarding playbook updated with lessons from this pilot
 
 ## 6. Conditions for production
@@ -76,3 +76,17 @@ All must be checked for GO. Any unchecked item becomes a condition for GO WITH C
 | Security lead | | | | |
 
 A NO-GO records what would have to change before another pilot. A GO WITH CONDITIONS is not a production release until every condition in section 6 has evidence.
+
+## 8. Launch authorization (after provisioning and validation)
+
+- [ ] Every section 5 and section 6 condition has linked evidence and an owner sign-off.
+- [ ] Staging observation, accepted SLOs/retention, restore and security checks meet the R1.0 exit criteria.
+- [ ] Second-company onboarding is complete (PVC-155).
+
+| Role | Name | Launch / Hold | Signature | Date | Evidence bundle |
+|---|---|---|---|---|---|
+| Operating partner | | | | | |
+| Engineering lead | | | | | |
+| Security lead | | | | | |
+
+A provisioning decision is not launch authorization. A HOLD records remaining conditions and preserves the production environment for validation without admitting production traffic.

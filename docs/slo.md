@@ -9,8 +9,19 @@ Measured from application metrics exported through the OpenTelemetry Collector (
 | MCP tool latency | p95 below 2 s per tool call at 20 concurrent sessions | 30 minutes | `pvc_http_duration_milliseconds{service="mcp"}` | Load test gate (`scripts/mcp_load_test.py`); dashboard panel |
 | Run completion | No run stuck in `running` for more than 30 minutes | continuous | `pvc_runs_stuck` (worker gauge) | `PvcStuckRuns` (page) |
 | Approval responsiveness | No approval pending beyond the policy expiry (120 h placeholder) | continuous | `pvc_approvals_pending_oldest_hours` | `PvcApprovalOverdue` (ticket); worker also escalates to the policy contact |
-| Evaluation quality | Deterministic eval gate at 100% on golden and adversarial suites | every merge and nightly | `pvc eval --gate` | CI marks the PR failed. It blocks the merge only once branch protection is enabled (needs GitHub Pro or a public repository). The nightly workflow runs from `main`, so it starts after PR #1 merges. |
+| Evaluation quality | Deterministic eval gate at 100% on golden and adversarial suites | every merge and nightly | `pvc eval --gate` | CI marks the PR failed. It blocks the merge only once branch protection is enabled (needs GitHub Pro or a public repository). The scheduled deterministic workflow uses the default branch; verify an actual run after merge. Paid proposer/narrator runs also require `PVC_RUN_LIVE_EVALS=true` and the API secret. CD independently requires successful CI for its exact SHA. |
 
 Error budget: 0.5% of requests per 30 days (about 3.6 hours of full outage). When more than half the budget is spent in a window, feature releases pause in favour of reliability work until burn returns under 1x.
 
 The SLO targets are engineering placeholders to be confirmed with the operating team before general availability.
+
+## Proposed recovery objectives and acceptance
+
+RPO: 5 minutes using RDS point-in-time recovery. RTO: 1 hour to restored, checked service. These are engineering targets, not demonstrated production guarantees. The local restore record does not certify RDS recovery time. Complete the staging/production drill in the database restore runbook and attach observed recovery point/time before launch.
+
+| Reviewer | Role | Date | Accepted targets / changes | Evidence |
+|---|---|---|---|---|
+| Pending | Operating team | | | |
+| Pending | Operations lead | | | |
+
+Acceptance also requires live dashboards/alert routing and the two-week staging observation period in the R1.0 gate.

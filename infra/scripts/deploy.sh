@@ -44,9 +44,13 @@ register_revision() {
 }
 
 cmd_push() {
-  local local_image="${1:?usage: deploy.sh push <local-image>}" tag digest
+  local local_image="${1:?usage: deploy.sh push <local-image>}" tag digest image_id remote_id
   require_env ECR_REPOSITORY_URL
-  tag="${GITHUB_SHA:-$(docker image inspect --format '{{.Id}}' "$local_image" | cut -c8-19)}"
+  image_id="$(docker image inspect --format '{{.Id}}' "$local_image")"
+  [[ "$image_id" =~ ^sha256:[a-f0-9]{64}$ ]] || die "invalid local image id"
+  [[ -z "${EXPECTED_IMAGE_ID:-}" || "$image_id" == "$EXPECTED_IMAGE_ID" ]] || die "image differs from scanned artifact"
+  # Content-address the tag, not the source commit: a rebuild can change OS packages.
+  tag="image-${image_id#sha256:}"
   if digest="$(aws ecr describe-images --repository-name "${ECR_REPOSITORY_URL#*/}" \
       --image-ids "imageTag=$tag" --query 'imageDetails[0].imageDigest' --output text 2>/dev/null)"; then
     log "image tag $tag already in ECR ($digest); not pushing again (tags are immutable)"
@@ -56,6 +60,12 @@ cmd_push() {
     digest="$(aws ecr describe-images --repository-name "${ECR_REPOSITORY_URL#*/}" \
       --image-ids "imageTag=$tag" --query 'imageDetails[0].imageDigest' --output text)"
   fi
+  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || die "invalid remote image digest"
+  docker pull "$ECR_REPOSITORY_URL@$digest" >&2
+  remote_id="$(docker image inspect --format '{{.Id}}' "$ECR_REPOSITORY_URL@$digest")"
+  [[ "$remote_id" == "$image_id" ]] || die "remote image differs from scanned artifact"
+  [[ -z "${EXPECTED_MANIFEST_DIGEST:-}" || "$digest" == "$EXPECTED_MANIFEST_DIGEST" ]] \
+    || die "production manifest differs from verified staging manifest"
   echo "$ECR_REPOSITORY_URL@$digest"
 }
 

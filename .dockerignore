@@ -5,8 +5,11 @@
 !pyproject.toml
 !uv.lock
 !README.md
+!LICENSE
+!NOTICE
 !src/
 !tests/fixtures/companies/
+!evals/
 !infra/docker/healthcheck.py
 !infra/docker/bootstrap_db.py
 

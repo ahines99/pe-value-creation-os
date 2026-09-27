@@ -62,5 +62,11 @@ Never size "grow faster" as an opportunity on its own. Growth levers belong to p
 - Data-quality flags that change interpretation.
 - `NEEDS_EVIDENCE` items.
 
+
+# Numeric claims and server validation
+Before writing a numeric finding or proposal, call `get_numeric_sources(company_id)`. Copy an exact catalog key and use `{{quantity:KEY}}` in prose; for example `Legacy share is {{quantity:pricing.legacy.legacy_arr_share}}` only when that key is returned. The server renders metric, value, unit, company, period and evidence together. Do not paste bare values into `record_finding` or `propose_opportunity` text, invent keys, or use identifiers as numeric sources. Qualitative wording is allowed. Structured scenario-rate/cost fields remain assumptions and must not be recast as measured facts.
+
+Proposal, draft and submission calls enforce sufficiency, source freshness, policy eligibility, evidence and overlap checks. If rejected, record the named gap and resolve it; rewording the same unsupported or overlapping proposal does not make it eligible. Worked examples below were regenerated through a scripted MCP replay on the date shown in each file. They illustrate executable calls and returned outputs, not a human acceptance session.
+
 # References
-- `references/worked-example.md`: tool outputs and findings for the fictional Cedar fixture, generated from real tool calls.
+- `references/worked-example.md`: tool outputs and findings for the fictional Cedar fixture, generated from tool calls; see its scripted replay date.

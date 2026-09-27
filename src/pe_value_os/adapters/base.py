@@ -68,6 +68,22 @@ class EvidenceSink(Protocol):
     def add_evidence(self, record: EvidenceRecord) -> str: ...
 
 
+class StagedEvidence:
+    """Buffer a complete import so validation failures publish no source content."""
+
+    def __init__(self) -> None:
+        self.records: list[EvidenceRecord] = []
+
+    def add_evidence(self, record: EvidenceRecord) -> str:
+        self.records.append(record)
+        return record.evidence_id
+
+    def publish(self, sink: EvidenceSink | None) -> None:
+        if sink is not None:
+            for record in self.records:
+                sink.add_evidence(record)
+
+
 class SourceAdapter(Protocol):
     """Loads one company's data. Implementations must be deterministic for identical source content."""
 

@@ -8,11 +8,15 @@ Scope rules (both implementations):
 
 from __future__ import annotations
 
+import copy
 import os
 import threading
 import uuid
 from collections import defaultdict
-from datetime import UTC, date, datetime
+from collections.abc import Iterator
+from contextlib import AbstractContextManager, contextmanager
+from contextvars import ContextVar
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Any, Protocol
 
@@ -32,6 +36,39 @@ class NotFound(LookupError):
 
 class Conflict(RuntimeError):
     pass
+
+
+class LeaseLost(Conflict):
+    """An execution no longer owns its database lease."""
+
+
+LEASE: ContextVar[tuple[str, str] | None] = ContextVar("pvc_execution_lease", default=None)
+
+
+class FencedRepository:
+    """Bind every operation to a unique claim; checks and mutations share a transaction/lock."""
+
+    def __init__(self, repo: Any, run_id: str, owner: str):
+        self._repo, self._run_id, self._owner = repo, run_id, owner
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._repo, name)
+        if not callable(attr):
+            return attr
+
+        def fenced(*args: Any, **kwargs: Any) -> Any:
+            token = LEASE.set((self._run_id, self._owner))
+            try:
+                if isinstance(self._repo, InMemoryRepository):
+                    with self._repo._lock:
+                        if not self._repo.lease_valid(self._run_id, self._owner):
+                            raise LeaseLost(self._run_id)
+                        return attr(*args, **kwargs)
+                return attr(*args, **kwargs)
+            finally:
+                LEASE.reset(token)
+
+        return fenced
 
 
 def now() -> datetime:
@@ -73,6 +110,8 @@ class Repository(Protocol):
     def renew_lease(self, run_id: str, worker_id: str) -> bool: ...
     def release_run(self, run_id: str, worker_id: str | None = None) -> None: ...
 
+    def fenced_run(self, run_id: str, owner: str) -> Any: ...
+
     # findings, opportunities, value cases, priorities
     def add_finding(self, finding: Finding) -> None: ...
     def list_findings(self, run_id: str) -> list[Finding]: ...
@@ -86,6 +125,7 @@ class Repository(Protocol):
     def list_priorities(self, run_id: str) -> list[PriorityScore]: ...
 
     # plans and approvals
+    def approval_transaction(self) -> AbstractContextManager[None]: ...
     def save_plan(self, record: PlanRecord) -> None: ...
     def get_plan(self, plan_id: str) -> PlanRecord: ...
     def latest_plan(self, run_id: str) -> PlanRecord | None: ...
@@ -120,6 +160,8 @@ class Repository(Protocol):
     def list_kpi_alerts(self, company_id: str) -> list[KpiAlert]: ...
     def add_notification(self, n: Notification) -> None: ...
     def list_notifications(self, company_id: str) -> list[Notification]: ...
+    def claim_notification(self, n: Notification, owner: str) -> bool: ...
+    def finish_notification(self, notification_id: str, owner: str, *, delivered: bool) -> None: ...
 
     # retention and deletion (PVC-144)
     def delete_company_data(self, company_id: str) -> dict[str, int]: ...
@@ -155,6 +197,14 @@ class InMemoryRepository:
         self.kpi_alerts: list[KpiAlert] = []
         self.notifications: list[Notification] = []
         self.locks: dict[str, str] = {}
+        self.lease_times: dict[str, datetime] = {}
+        self.notification_claims: dict[str, tuple[str, datetime]] = {}
+
+    def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
+        return FencedRepository(self, run_id, owner)
+
+    def lease_valid(self, run_id: str, owner: str) -> bool:
+        return self.locks.get(run_id) == owner and self.lease_times.get(run_id, now()) > now() - timedelta(minutes=15)
 
     # companies ---------------------------------------------------------------------------------------------
     def upsert_company(self, profile: CompanyProfile) -> None:
@@ -300,12 +350,17 @@ class InMemoryRepository:
             for r in sorted(self.runs.values(), key=lambda r: r.created_at):
                 if len(out) >= limit:
                     break
-                if not _visible(r.company_id) or r.run_id in self.locks or r.params.get("mode") == "interactive":
+                if (
+                    not _visible(r.company_id)
+                    or (r.run_id in self.locks and self.lease_valid(r.run_id, self.locks[r.run_id]))
+                    or r.params.get("mode") == "interactive"
+                ):
                     continue  # interactive runs are driven by the client and finalized on approval
-                if r.status == Status.PENDING or (
+                if r.status in (Status.PENDING, Status.RUNNING) or (
                     r.resume_requested_at is not None and r.status not in (Status.COMPLETE, Status.REJECTED)
                 ):
                     self.locks[r.run_id] = worker_id
+                    self.lease_times[r.run_id] = now()
                     self.runs[r.run_id] = r.model_copy(update={"resume_requested_at": None})
                     out.append(self.runs[r.run_id])
             return out
@@ -314,14 +369,18 @@ class InMemoryRepository:
         self.get_run(run_id)
         with self._lock:
             holder = self.locks.get(run_id)
-            if holder not in (None, worker_id):
+            if holder not in (None, worker_id) and self.lease_valid(run_id, holder):
                 return False
             self.locks[run_id] = worker_id
+            self.lease_times[run_id] = now()
             return True
 
     def renew_lease(self, run_id: str, worker_id: str) -> bool:
         with self._lock:
-            return self.locks.get(run_id) == worker_id
+            if not self.lease_valid(run_id, worker_id):
+                return False
+            self.lease_times[run_id] = now()
+            return True
 
     def release_run(self, run_id: str, worker_id: str | None = None) -> None:
         with self._lock:
@@ -396,6 +455,19 @@ class InMemoryRepository:
         return sorted(self.priorities.get(run_id, []), key=lambda p: p.rank)
 
     # plans / approvals -------------------------------------------------------------------------------------
+    @contextmanager
+    def approval_transaction(self) -> Iterator[None]:
+        # Approval decisions mutate only these collections; no source/evidence object writes occur here.
+        with self._lock:
+            fields = ("runs", "plans", "approvals", "audit", "kpi_defs")
+            before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
+            try:
+                yield
+            except BaseException:
+                for name, value in before.items():
+                    setattr(self, name, value)
+                raise
+
     def save_plan(self, record: PlanRecord) -> None:
         security.require(record.company_id)
         self.get_run(record.run_id)
@@ -470,6 +542,8 @@ class InMemoryRepository:
                 }
             )
             self.approvals[approval_id] = rec
+            if self.get_run(rec.run_id).params.get("mode") != "interactive":
+                self.request_resume(rec.run_id)
             return rec
 
     def latest_approval(self, run_id: str) -> ApprovalRecord | None:
@@ -558,11 +632,39 @@ class InMemoryRepository:
     def add_notification(self, n: Notification) -> None:
         security.require(n.company_id)
         with self._lock:
-            self.notifications.append(n)
+            if not any(x.notification_id == n.notification_id for x in self.notifications):
+                self.notifications.append(n)
 
     def list_notifications(self, company_id: str) -> list[Notification]:
         security.require(company_id)
         return [n for n in self.notifications if n.company_id == company_id]
+
+    def claim_notification(self, n: Notification, owner: str) -> bool:
+        security.require(n.company_id)
+        with self._lock:
+            self.add_notification(n)
+            current = next(x for x in self.notifications if x.notification_id == n.notification_id)
+            claim = self.notification_claims.get(n.notification_id)
+            if current.status == "delivered" or (claim and claim[1] > now() - timedelta(minutes=5)):
+                return False
+            self.notification_claims[n.notification_id] = (owner, now())
+            return True
+
+    def finish_notification(self, notification_id: str, owner: str, *, delivered: bool) -> None:
+        with self._lock:
+            claim = self.notification_claims.get(notification_id)
+            if claim is None or claim[0] != owner:
+                raise LeaseLost(notification_id)
+            for i, n in enumerate(self.notifications):
+                if n.notification_id == notification_id:
+                    security.require(n.company_id)
+                    self.notifications[i] = n.model_copy(
+                        update={
+                            "status": "delivered" if delivered else "pending",
+                            "delivered_at": now() if delivered else None,
+                        }
+                    )
+            del self.notification_claims[notification_id]
 
     # deletion ----------------------------------------------------------------------------------------------
     def delete_company_data(self, company_id: str) -> dict[str, int]:
@@ -612,6 +714,8 @@ def get_repository() -> Repository:
     with _repo_lock:
         if _repo is None:
             url = os.environ.get("DATABASE_URL")
+            if not url and os.environ.get("PVC_ENV", "prod") != "dev":
+                raise RuntimeError("DATABASE_URL is required outside dev")
             store = _default_store()
             if url:
                 from .postgres import PostgresRepository

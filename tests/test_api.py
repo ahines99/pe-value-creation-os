@@ -65,6 +65,36 @@ def H(tok):
     return {"Authorization": f"Bearer {tok}"}
 
 
+def test_browser_demo_login_scoping_and_csrf(env):
+    _, run_id, client = env
+    landing = client.get("/")
+    assert landing.status_code == 200
+    assert "Local showcase sign-in" in landing.text
+    csrf = client.cookies["pvc_login_csrf"]
+    assert client.post("/dev/login", data={"token": "approver-beacon", "csrf": "wrong"}).status_code == 403
+    assert client.post("/dev/login", data={"token": "invalid", "csrf": csrf}).status_code == 401
+    login = client.post("/dev/login", data={"token": "approver-beacon", "csrf": csrf}, follow_redirects=False)
+    assert login.status_code == 303
+    assert "HttpOnly" in login.headers["set-cookie"]
+    workspace = client.get("/")
+    assert run_id in workspace.text
+    assert "cedar-churn" not in workspace.text
+    assert client.get(f"/runs/{run_id}/review").status_code == 200
+    client.cookies.delete("pvc_csrf")
+    assert client.post(f"/runs/{run_id}/approvals/form", data={"decision": "approved", "csrf": ""}).status_code in {
+        403,
+        422,
+    }
+
+
+def test_development_cookie_is_not_production_auth(env, monkeypatch):
+    _, _, client = env
+    client.cookies.set("pvc_dev_session", "approver-beacon")
+    monkeypatch.setenv("PVC_ENV", "prod")
+    assert client.get("/").status_code == 401
+    assert client.post("/dev/login", data={"token": "approver-beacon", "csrf": "x"}).status_code == 404
+
+
 @pytest.fixture
 def env(tmp_path, monkeypatch):
     monkeypatch.setenv("PVC_ENV", "dev")

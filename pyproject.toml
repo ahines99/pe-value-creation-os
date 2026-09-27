@@ -7,6 +7,8 @@ name = "pe-value-creation-os"
 version = "0.1.0"
 description = "Evidence-backed value-creation diagnostics, deterministic value cases, and approved 100-day plans for PE portfolio companies."
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12"
 dependencies = [
   "mcp[cli]>=2.2,<3",
@@ -15,7 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.2", "psycopg-pool>=3.2", "sqlalchemy>=2.0", "alembic>=1.13"]
-http = ["fastapi>=0.115", "uvicorn>=0.30", "pyjwt[crypto]>=2.9", "python-multipart>=0.0.9"]
+http = ["fastapi>=0.115", "uvicorn>=0.30", "pyjwt[crypto]>=2.9", "python-multipart>=0.0.9", "httpx>=0.27"]
 observability = [
   "structlog>=24.4",
   "opentelemetry-api>=1.27",
@@ -42,6 +44,10 @@ pvc = "pe_value_os.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pe_value_os"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"tests/fixtures/companies" = "pe_value_os/fixtures/companies"
+"evals" = "pe_value_os/evals/data"
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "."]

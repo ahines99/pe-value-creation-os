@@ -2,6 +2,8 @@
 
 For the domain expert and engineering lead reviewing whether the `pe-value-creation-diagnostic` skill works end to end.
 
+> **Historical agent-driven session.** No human executed or signed off this session. PVC-070 remains open. The log predates the server-issued numeric-reference contract and has not been replayed against the current tools; old numeric prose cannot be copied into current mutation calls.
+
 ## How the session was run
 
 - **Company:** Cedar Field Analytics, a fictional fixture company with a planted churn problem. The existing worked example covers Beacon, the pricing fixture.
@@ -9,7 +11,7 @@ For the domain expert and engineering lead reviewing whether the `pe-value-creat
 - **Analyst:** Claude, following the skill's procedure and making each judgment from the tool outputs: which levers to pursue, the scenario rates, the confidence levels and the wording. Nothing was scripted by the rule-based proposer.
 - **Two passes.** A read-only pass (policy, profile, inventory, sufficiency for all four analyses, metrics, retention, churn, pricing, support, usage, benchmarks) informed the judgments. A second pass ran the interactive run: findings, proposals, sizing, evidence listing, prioritization, plan draft and approval request. The read-only results are deterministic, so the second pass saw the same data.
 - **Deviation:** the second pass did not repeat the intake read before recording findings. That exposed a bug (below).
-- **Not done:** no human performed this session. A 15-minute repeat by a team member in Claude Code is still recommended before the domain-expert review (PVC-071).
+- **Not done:** no human performed this session. A 15-minute repeat by a team member in Claude Code is required to close PVC-070 before the domain-expert review (PVC-071).
 
 ## What the session found
 

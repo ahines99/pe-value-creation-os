@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
@@ -56,6 +57,19 @@ def plan_kpis(plan: dict[str, Any]) -> list[dict[str, Any]]:
 
 def check_monitorable(plan: dict[str, Any]) -> None:
     bad = [k["metric"] for k in plan_kpis(plan) if k["metric"] not in REGISTRY or not k.get("monitorable", True)]
+    covered = {
+        k.get("opportunity_id")
+        for k in plan_kpis(plan)
+        if k.get("metric") in REGISTRY and k.get("monitorable", True) and k.get("evidence_ids")
+    }
+    missing = [
+        i["opportunity_id"]
+        for ws in plan.get("workstreams", [])
+        for i in ws.get("initiatives", [])
+        if i["opportunity_id"] not in covered
+    ]
+    if missing:
+        raise UnmonitorableKpi(f"Initiatives have no computable, evidence-backed KPI: {sorted(missing)}")
     if bad:
         raise UnmonitorableKpi(f"KPIs cannot be monitored (no registered metric): {sorted(set(bad))}")
 
@@ -209,7 +223,9 @@ def detect_variance(d: KpiDefinition, history: list[KpiObservation], policy: Pol
     return alerts
 
 
-def build_digest(repo: Repository, company_id: str, *, channel: str, base_url: str = "") -> Notification | None:
+def build_digest(
+    repo: Repository, company_id: str, *, channel: str, base_url: str = "", now: datetime | None = None
+) -> Notification | None:
     """Read-only digest of off-track KPIs. Returns None when everything is on track."""
     defs = {d.kpi_id: d for d in repo.list_kpi_definitions(company_id)}
     latest: dict[str, KpiObservation] = {}
@@ -220,13 +236,17 @@ def build_digest(repo: Repository, company_id: str, *, channel: str, base_url: s
         return None
     lines = [f"- {d.description}: {o.value} vs target {o.target} (as of {o.period_end})" for d, o in off]
     link = f"{base_url.rstrip('/')}/companies/{company_id}/kpis" if base_url else f"/companies/{company_id}/kpis"
+    now = now or datetime.now(UTC)
+    body = "\n".join([*lines, "", f"Details: {link}"])
+    # At most one unchanged summary per UTC day, shared by every worker replica.
+    key = f"digest:{company_id}:{channel}:{now.date()}:{hashlib.sha256(body.encode()).hexdigest()}"
     n = Notification(
-        notification_id=str(uuid.uuid4()),
+        notification_id=str(uuid.uuid5(uuid.NAMESPACE_URL, key)),
         company_id=company_id,
         channel=channel,
         subject=f"{len(off)} KPI(s) off track",
-        body="\n".join([*lines, "", f"Details: {link}"]),
-        created_at=datetime.now(UTC),
+        body=body,
+        created_at=now,
     )
     repo.add_notification(n)
     return n

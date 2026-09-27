@@ -8,11 +8,13 @@ KPI monitoring runs afterwards as a scheduled job (pe_value_os.kpi), not as a st
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from typing import Any
 
 from ..domain.models import AuditEvent
 from ..domain.runs import TERMINAL, RunRecord, RunState, Status
+from ..policy import PolicyConfig
 from . import steps as S
 from .base import FunctionalStep, ParallelStep, Runner, Step, run_guarded_in_thread
 
@@ -133,6 +135,18 @@ async def execute(
     state = rec.run_state()
     if state.status in TERMINAL:
         return state
+    # A process restart must not mix a new export/policy with already completed calculations.
+    data = (
+        {state.company_id: S.load_snapshot(ctx, state.artifacts["input_snapshot"])}
+        if "input_snapshot" in state.artifacts
+        else {}
+    )
+    policy = (
+        PolicyConfig.model_validate(state.artifacts["policy_snapshot"])
+        if "policy_snapshot" in state.artifacts
+        else ctx.policy
+    )
+    ctx = replace(ctx, _data=data, policy=policy)
     return await runner(ctx, backoff_s).run(state, build_steps(ctx, timeouts))
 
 
@@ -166,6 +180,33 @@ async def resume(
         )
     )
     return await execute(ctx, run_id, backoff_s=backoff_s, timeouts=timeouts)
+
+
+def refresh_inputs(ctx: S.RunContext, run_id: str, requested_by: str, *, reason: str) -> RunRecord:
+    """Queue a clean, linked diagnostic; preserve the original run's inputs and derived audit history."""
+    if not reason.strip():
+        raise ValueError("A reason is required to refresh inputs")
+    original = ctx.repo.get_run(run_id)
+    params = {
+        k: v
+        for k, v in original.params.items()
+        if k
+        not in {"mode", "accept_gaps", "reviewer_notes", "excluded_opportunities", "consumed_approvals", "review_round"}
+    }
+    params["supersedes_run_id"] = run_id
+    fresh, _ = start(ctx, original.company_id, requested_by, params=params)
+    ctx.repo.append_audit(
+        AuditEvent(
+            run_id=run_id,
+            company_id=original.company_id,
+            step="run",
+            actor=requested_by,
+            event_type="input_refresh_requested",
+            created_at=datetime.now(UTC),
+            payload={"replacement_run_id": fresh.run_id, "reason": reason.strip()[:500]},
+        )
+    )
+    return fresh
 
 
 def status(ctx: S.RunContext, run_id: str) -> dict[str, Any]:

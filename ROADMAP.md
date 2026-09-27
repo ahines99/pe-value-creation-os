@@ -13,23 +13,21 @@ Ticketed plan that takes the PE Portfolio Value Creation Operating System from t
 
 Track status by checking boxes here, or import the tickets into an issue tracker and treat this file as the source of scope.
 
+For the current priority—polished portfolio showcase first, production afterward—see [Portfolio finalization: execution and owner roadmap](docs/portfolio-finalization-roadmap.md). It maps all 33 open tickets to implementation actions, owner inputs and acceptance evidence, and adds showcase-specific gaps without marking production work complete.
+
 ## Status
 
-As of 2026-09-23. CI is green on GitHub (PR #1): lint, types, 335 tests on Python 3.12, 3.13 and 3.14 against PostgreSQL, the eval gate at 100%, pip-audit, gitleaks, and an image build with a Trivy scan. Nothing has been applied to AWS yet. An internal audit (code, security and status reviews) found 4 high-severity security, 3 high-severity correctness and several medium issues, and showed that some tickets had been marked Done too early. All findings are fixed with regression tests; the statuses below reflect the audit.
+As of 2026-09-27. The September 27 audit found additional engineering defects after the earlier September 23 review. Remediation and current verification are tracked in [docs/audit-remediation.md](docs/audit-remediation.md). Earlier green CI, test counts and live-model reports are historical, not proof of the current worktree. Nothing has been applied to AWS in this remediation.
 
-| Status | Tickets | Meaning |
-|---|---|---|
-| Done | 85 | Every acceptance criterion is met and was verified by running it. CI re-checks it on every push. |
-| Built, not yet run in its target environment | 11 | The code or configuration is complete and statically validated. It still has to run on Docker Compose or AWS. |
-| Blocked on a person, decision, or pilot company | 15 | The engineering part is done. What remains needs a named person (domain expert, security reviewer, pen tester, legal, on-call), a decision from the project owner, or the pilot company. |
+Ticket statuses describe acceptance scope, not a production-completion percentage. **Done** refers to the listed engineering criteria; a release additionally requires its environment and human gates. **Built** requires target-environment validation. **Blocked** identifies missing external acceptance, not a claim that every associated engineering check passed. Reopened acceptance below is intentionally unchecked.
 
 | Release gate | State |
 |---|---|
-| R0.1 Vertical slice | All exit criteria verified locally. Three R0.1 tickets are still open: PVC-001 and PVC-006 (branch protection needs GitHub Pro) and PVC-030 (`docker compose` run, which needs Docker). |
-| R0.5 Pilot-ready | Engineering complete. Needs staging applied, threat-model sign-off, the model data-handling review, and pilot data. The live-model eval has run (subset). |
-| R1.0 Production | Needs the pilot, go decision, pen test, production drill, on-call rotation, and a second onboarded company. |
+| R0.1 Vertical slice | Automated fixture coverage exists. Human MCP skill session (PVC-070), repository protection (PVC-001/006) and Compose acceptance (PVC-030) remain open. |
+| R0.5 Pilot-ready | Requires current engineering validation, deployed staging, domain/policy and threat-model sign-offs, provider approval, fresh live proposer/narrator evaluation and pilot-source conformance. |
+| R1.0 Production | Requires the pilot, conditional provisioning decision, production checks, recovery drill, accepted SLOs/retention, pen test, on-call and second-company onboarding before a separate launch approval. |
 
-Each ticket below has a **Status** line. Checked boxes are criteria met now. Unchecked boxes say in the status line what is missing.
+Each ticket below has a **Status** line. Checked boxes record engineering criteria previously verified; see the remediation ledger for fixes and fresh evidence where the audit challenged those criteria.
 
 ## Release gates
 
@@ -41,7 +39,7 @@ Exit criteria:
 - [x] A seeded demo shows a success path, a `NEEDS_EVIDENCE` pause, and survival of an injected tool failure.
 - [x] A run pauses at `AWAITING_APPROVAL`, survives a process restart, and resumes after a decision through the approval API.
 - [x] Every value number in the output traces to `size_value_case` with an `inputs_hash` and evidence ids.
-- [x] R0.1 items in the handoff's acceptance checklist are checked.
+- [ ] R0.1 items in the handoff's acceptance checklist and the human MCP session (PVC-070) are accepted.
 
 ### R0.5: MVP / pilot-ready (staging, one real portco)
 All four diagnostic levers, real data adapters for one portco, model reasoning at judgment steps, authentication and tenant isolation, an eval gate in CI, and a staging deployment. This is "MVP complete" as defined in the handoff.
@@ -57,7 +55,7 @@ Exit criteria:
 Multi-portco production service with KPI monitoring, SLOs, runbooks, tested backups, external security review, and a completed pilot with a go decision.
 
 Exit criteria:
-- [ ] Pilot retrospective has a signed-off go decision (PVC-154).
+- [ ] Pilot retrospective has a signed conditional provisioning decision (PVC-154), then a separate launch authorization after all production conditions pass.
 - [ ] SLOs are defined, and dashboards and alerts are live for 2 weeks in staging without a false-page storm.
 - [ ] A backup restore drill met the RPO/RTO targets.
 - [ ] Pen-test critical and high findings are closed.
@@ -137,7 +135,7 @@ Move `src/*` into `src/pe_value_os/` and add a hatchling build system, following
 ### PVC-006: Continuous integration
 `P0 · S · R0.1 · deps: PVC-004`
 
-**Status: Blocked on a person, decision, or pilot company.** CI runs lint, types and tests on Python 3.12, 3.13 and 3.14 with a PostgreSQL service, and is green on PR #1 (250 tests on each version). Requiring it for merges needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Blocked on a person, decision, or pilot company.** CI is configured for lint, types and tests on Python 3.12, 3.13 and 3.14 with PostgreSQL. Historical PR checks passed before remediation; current changes require a fresh CI run. Requiring it for merges needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
 - [x] A GitHub Actions workflow runs lint, types, and tests on Python 3.12, 3.13, and 3.14.
 - [ ] CI is required for merges to `main`.
@@ -287,7 +285,7 @@ Logo and dollar retention by cohort, split into voluntary and involuntary churn.
 ### PVC-030: Postgres and migrations
 `P0 · M · R0.1 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** Alembic creates every table. The upgrade/downgrade round trip runs green in CI against a PostgreSQL 18 service. `docker compose up db` hasn't been run because this machine has no Docker.
+**Status: Built, not yet run in its target environment.** Alembic creates every table. CI is configured to run an isolated upgrade/downgrade round trip against PostgreSQL 18. Fresh local evidence is in the remediation ledger; historical CI does not validate this worktree. `docker compose up db` hasn't been run because this machine has no Docker.
 
 - [ ] `docker compose up db` starts Postgres. The Alembic migration creates every table in the handoff's data model.
 - [x] Upgrade and downgrade are tested in CI against a Postgres service container.
@@ -444,10 +442,12 @@ A fault-injecting adapter wrapper that can time out, raise, or return malformed 
 ### PVC-055: Resources, prompts, and policy configuration
 `P0 · M · R0.1 · deps: PVC-050`
 
-**Status: Done.**
+**Status: Blocked on domain policy acceptance.** Versioned configuration/resources are implemented. Screening, freshness and weighting values still carry the placeholder policy version; the operating team must approve the values before pilot use.
 
 Turn `project://policies` into a structured policy config: freshness window, screening thresholds used by the skills, flow-through rules, and prioritization weights. Add `company://{company_id}/data-inventory`, `run://{run_id}/summary`, and the `review_run` prompt.
 - [x] Policy config is versioned in the repo, loaded at startup, and its version appears in audit events.
+
+- [ ] Operating team signs the policy values; publish the reviewed policy version without `-placeholder`.
 
 ### PVC-056: MCP integration tests
 `P0 · M · R0.1 · deps: PVC-051 to PVC-055`
@@ -526,10 +526,10 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-070: Diagnostic skill validated end to end
 `P0 · M · R0.1 · deps: PVC-056`
 
-**Status: Done.** Session run on 2026-09-23 against the Cedar fixture over the plugin's MCP stdio server, with Claude as the analyst making every judgment. The output meets all 8 items of the output contract ([docs/skill-sessions/2026-09-23-cedar-diagnostic.md](docs/skill-sessions/2026-09-23-cedar-diagnostic.md)). The session found and fixed an evidence-registration bug in `record_finding`. A repeat by a team member in Claude Code is still recommended before the domain-expert review (PVC-071).
+**Status: Blocked on human acceptance.** The September 23 Cedar record is an agent-driven MCP session, not a manual human session. Worked examples and automated skill checks exist; a named team member must execute the current skill in the supported client and attach reviewed output. No human acceptance is claimed.
 
 - [x] `pe-value-creation-diagnostic` has a worked example in `references/` from the *Pricing leak* fixture run.
-- [x] A manual session in an MCP client, using the skill, produces output that meets its output contract.
+- [ ] A manual session in an MCP client, using the skill, produces output that meets its output contract.
 
 ### PVC-075: Skill lint
 `P1 · S · R0.1 · deps: PVC-050`
@@ -550,11 +550,12 @@ A minimal server-rendered page showing the plan, value cases with inputs, eviden
 ### PVC-072: Model reasoning at judgment steps
 `P0 · L · R0.5 · deps: PVC-043, PVC-080`
 
-**Status: Done.** ADRs 0005 and 0006. The live-model eval on 2026-09-23 (`claude-opus-5`, 8-case subset plus a 2-case re-run, $2.03 total) passed the model gate: lever recall 1.0, citation validity 1.0, safety dimensions 1.0. Every accepted proposal contained only numbers copied from tool results, and one invented total was rejected. The run found and fixed overlapping proposals and proposals inside policy thresholds ([docs/evals/2026-09-23-live-model.md](docs/evals/2026-09-23-live-model.md)). The full suite and nightly runs need the key as a GitHub secret.
+**Status: Built, awaiting current live-provider validation.** Numeric claims now use typed provenance; eligibility and negative-outcome/narrator gates run offline. The September 23 subset exercised only the proposer with the older gate and incomplete cache cost estimates. It is historical evidence, not current narrator acceptance. A fresh authorized live run of proposer and narrator remains required.
 
 Replace the rule-based opportunity proposals, and add evidence synthesis and plan narrative, using Claude through the Anthropic SDK with structured outputs validated by Pydantic.
 - [x] One ADR per model-dependent decision explains why a rule isn't enough and names its eval.
-- [x] Model outputs never contain numbers that aren't copied from tool results (checked in eval).
+- [x] Offline model outputs reject unbound numeric prose; server references bind metric, units, company, period and evidence.
+- [ ] A current live proposer and narrator evaluation meets the strengthened model gates.
 
 ### PVC-073: Prompt-injection defences
 `P0 · M · R0.5 · deps: PVC-072`
@@ -574,7 +575,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-076: Skill distribution
 `P1 · S · R0.5 · deps: PVC-071`
 
-**Status: Done.**
+**Status: Done (local installation procedure).** The marketplace source is a relative checkout, not a tag resolver. The distribution guide documents an explicit detached commit/tag checkout and records the resolved SHA; publication and a human client installation are not claimed.
 
 - [x] Documented, versioned way to install the skills in the MCP clients the team uses, such as a Claude Code plugin or project skills directory.
 
@@ -604,7 +605,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-083: CI evaluation gate
 `P1 · M · R0.5 · deps: PVC-081, PVC-082`
 
-**Status: Blocked on a person, decision, or pilot company.** The eval gate runs green in CI against `evals/thresholds.toml`. `nightly-evals.yml` has never run: scheduled workflows run from the default branch, so it starts once PR #1 merges. Blocking merges on the gate needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Blocked on a person, decision, or pilot company.** CI runs the deterministic gate against `evals/thresholds.toml`; fresh local results are in the remediation ledger. Current scheduled execution has not been verified. The nightly deterministic job runs all cases from the default branch. Paid nightly evaluation additionally requires `PVC_RUN_LIVE_EVALS=true` and the `ANTHROPIC_API_KEY` secret; it runs `--suite all --proposer model --gate`, including proposer and narrator. Adding a secret alone does not activate it. Blocking merges on the gate needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
 - [ ] Merges are blocked when scores drop below thresholds recorded in the repo. The full suite runs nightly.
 
@@ -613,7 +614,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 
 **Status: Done.**
 
-- [x] The eval report includes tokens, cost, and latency per run and per step.
+- [x] The eval report includes input/output/cache token categories, estimated cost and latency per run and per step, including narrator and rejected calls. Estimates are not reconciled provider bills.
 
 ## M9: Security and tenancy
 
@@ -656,14 +657,15 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-096: Dependency and container scanning
 `P1 · S · R0.5 · deps: PVC-130`
 
-**Status: Done.** `pip-audit` and a Trivy scan of the built image run green in CI. HIGH/CRITICAL findings with a fix fail the build; unfixed ones are listed by a non-blocking step, because rebuilding cannot fix them. The project owner should confirm this reading of the criterion. Actions are pinned by SHA and base images by digest, with Dependabot updates.
+**Status: Built, awaiting a fresh image scan.** CI and CD fail on every HIGH/CRITICAL image finding, including unfixed vulnerabilities; no exception is pre-approved. `pip-audit` is configured in CI. Historical image/dependency scan results predate remediation and do not certify the changed image under the stricter gate. Actions are pinned by SHA and base images by digest, with Dependabot updates.
 
-- [x] `pip-audit` and a container scan run in CI. High and critical findings fail the build.
+- [x] CI configures `pip-audit` and container scanning; CI/CD image gates reject every HIGH/CRITICAL finding regardless of fix availability.
+- [ ] The current release image and locked dependencies pass fresh scans; retain the report and exact artifact digest.
 
 ### PVC-094: Egress controls
 `P1 · S · R1.0 · deps: PVC-136`
 
-**Status: Built, not yet run in its target environment.** Application egress allow-list on every HTTP client (tested). AWS Network Firewall rules are in Terraform, not applied. No tool can send email or write to source systems.
+**Status: Built, not yet run in its target environment.** Common application HTTP clients use tested allow-list hooks and redirect checks. boto3 and OpenTelemetry use SDK transports; configured endpoints, IAM/VPC boundaries and the network firewall are separate controls. See the transport boundaries in `docs/architecture.md`. AWS Network Firewall rules are in Terraform, not applied. No tool can send email or write to source systems.
 
 - [ ] A network egress allow-list for production covers the model provider, data sources, and telemetry. No tool can send email or write to source systems.
 
@@ -709,9 +711,10 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-110: Adapter contract and conformance suite
 `P0 · M · R0.5 · deps: PVC-035`
 
-**Status: Blocked on a person, decision, or pilot company.** Every adapter implements one interface and passes the conformance suite. ADR 0008 chooses warehouse-first, but the criterion asks for the decision for the pilot company, which has not been chosen.
+**Status: Blocked on a person, decision, or pilot company.** Adapters have automated contract coverage using fixtures or simulated vendor responses. Recorded pilot responses and reconciliation are not yet available. ADR 0008 chooses warehouse-first, but the criterion asks for the decision for the pilot company, which has not been chosen.
 
-- [x] Every adapter implements one interface and must pass a shared conformance suite using recorded responses.
+- [x] Adapter interface and shared synthetic/simulated conformance checks are implemented.
+- [ ] Each selected pilot adapter passes conformance using approved recorded pilot responses and reconciles to the source.
 - [ ] ADR: a warehouse-first path (read from the portco's warehouse or dbt models) versus per-system APIs, decided for the pilot portco.
 
 ### PVC-111: Financials adapter
@@ -752,7 +755,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-114: Product analytics adapter
 `P2 · L · R1.0 · deps: PVC-110`
 
-**Status: Done.** Usage comes through the warehouse and CSV adapters, which pass conformance.
+**Status: Done (CSV/warehouse scope).** Usage and adoption schemas are supported through warehouse and CSV adapters with synthetic conformance coverage. No native product-analytics vendor connector or real pilot mapping is claimed.
 
 - [x] Usage and feature adoption data passes conformance.
 
@@ -812,7 +815,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-130: Container images
 `P0 · S · R0.5 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** The multi-stage image (non-root, uid 10001) builds in CI and passes the Trivy scan. `docker compose up` for the full local stack hasn't been run because this machine has no Docker.
+**Status: Built, not yet run in its target environment.** The multi-stage image (non-root, uid 10001) has a historical CI build/scan record. The changed image requires a fresh build and strict scan that rejects all HIGH/CRITICAL findings. `docker compose up` for the full local stack hasn't been run because this machine has no Docker.
 
 - [ ] A multi-stage Dockerfile with a non-root user. `docker compose up` runs db, MCP server, approval API, and worker locally.
 
@@ -833,14 +836,14 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-133: Continuous delivery
 `P0 · M · R0.5 · deps: PVC-131, PVC-096`
 
-**Status: Built, not yet run in its target environment.** `cd.yml` builds, scans, migrates, deploys and smoke-tests; production needs a manual approval. It deploys only from `main`. The deploy role can run only `migrate`, not `bootstrap` or `offboard`. It needs AWS credentials and has never run.
+**Status: Built, not yet run in its target environment.** `cd.yml` first verifies successful CI at the exact deployment SHA, then builds, strictly scans, migrates, deploys and runs an authenticated synthetic smoke transaction. It promotes the same verified image artifact from staging to production. Production environment approval must be configured and verified; a YAML environment name alone is not protection. It deploys only from `main`. The deploy role can run only `migrate`, not `bootstrap` or `offboard`. It needs AWS credentials and has never run.
 
-- [ ] Pipeline: build, scan, migrate, deploy, and smoke test. Staging deploys automatically; production needs a manual approval.
+- [ ] Pipeline: exact-SHA CI verification, strict scan, immutable artifact promotion, migration, deployment and authenticated synthetic smoke pass in staging; configured production approval is verified before promotion.
 
 ### PVC-134: Worker process
 `P1 · M · R0.5 · deps: PVC-044`
 
-**Status: Done.** `pvc worker` runs as a separate ECS service. Tests cover queued-run execution and escalation, and the load test found no double claims. Run state lives in PostgreSQL, so the MCP server holds none.
+**Status: Done (local implementation).** `pvc worker` is a separate process with an ECS service definition; no ECS execution is claimed. Tests cover queued/expired-run recovery, lease fencing and durable escalation retries. Local load evidence is in `docs/load_test.md`; deployed performance remains PVC-143.
 
 - [x] Workflow execution and scheduled jobs run in a worker process separate from the MCP server. Restarting the MCP server doesn't interrupt runs.
 
@@ -854,7 +857,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-136: Production environment
 `P0 · M · R1.0 · deps: PVC-131, PVC-154`
 
-**Status: Built, not yet run in its target environment.** The production env reuses the staging module with separate state and credentials. Not applied. It depends on the go decision (PVC-154).
+**Status: Built, not yet run in its target environment.** The production env reuses the staging module with separate state and credentials. Not applied. It depends on the conditional provisioning decision (PVC-154), not on production checks that require this environment. Launch remains gated on completion of those checks.
 
 - [ ] Production is provisioned from the same code as staging, with separate accounts or projects and credentials.
 
@@ -877,9 +880,11 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-140: Service level objectives
 `P0 · S · R1.0 · deps: PVC-102`
 
-**Status: Done.**
+**Status: Blocked on SLO acceptance.** Objectives, dashboards and alert definitions exist. Values are engineering placeholders; operating-team approval and live staging observation remain required.
 
 - [x] SLOs are defined for API availability, p95 run duration by step, and eval score floors.
+
+- [ ] Operating team accepts the SLO/RPO/RTO targets and signs the dated record in `docs/slo.md`.
 
 ### PVC-141: Runbooks
 `P0 · M · R1.0 · deps: PVC-103`
@@ -891,23 +896,23 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-142: Backup restore drill
 `P0 · S · R1.0 · deps: PVC-132`
 
-**Status: Built, not yet run in its target environment.** RPO and RTO are set in `docs/slo.md`. A local drill passed (`docs/runbooks/restore-drill-log.md`). The restore runbook now matches the infrastructure: explicit restore flags, identifier swap, state re-import, re-offboarding. The drill on RDS needs the environment applied (PVC-132).
+**Status: Built, not yet run in its target environment.** Proposed RPO and RTO targets are in `docs/slo.md`; acceptance is pending. A local drill passed (`docs/runbooks/restore-drill-log.md`). The restore runbook now matches the infrastructure: explicit restore flags, identifier swap, state re-import, re-offboarding. The drill on RDS needs the environment applied (PVC-132).
 
 - [ ] RPO and RTO targets are set. A restore to a fresh instance is performed and timed, and the results are recorded.
 
 ### PVC-143: Load test
 `P1 · M · R1.0 · deps: PVC-134`
 
-**Status: Done.** Both halves run against PostgreSQL on developer hardware (`docs/load_test.md`). Runs: 4 workers, 40 runs, no double claims. MCP sessions: 20 concurrent Streamable HTTP sessions, 600 calls, 0 errors, p95 752 ms. The MCP test found an evidence-store race, now fixed. Repeat on staging hardware.
+**Status: Built, awaiting current staging load validation.** Historical local PostgreSQL/MCP results are in `docs/load_test.md`; they do not prove lease expiry/fencing or deployed performance. Current remediation adds worker ownership coverage and durable claim validation. Repeat both load paths on staging and attach their results.
 
-- [x] Target concurrency (runs and MCP sessions) is sustained within SLOs. Bottlenecks are documented.
+- [ ] Target concurrency (runs and MCP sessions) is sustained within SLOs. Bottlenecks are documented.
 
 ### PVC-144: Data retention and deletion
 `P0 · M · R1.0 · deps: PVC-032`
 
-**Status: Done.** Audit fix: offboarding now deletes evidence before database rows and records failures. It runs as an operator-only `offboard` task whose role alone may delete evidence versions under Object Lock (`docs/data_retention.md`). Not yet run in AWS.
+**Status: Blocked on retention approval and AWS validation.** Offboarding implementation and local regression coverage exist. Retention periods remain proposals; legal must reconcile them with Terraform Object Lock/log settings before apply. Operator deletion has not been validated in AWS.
 
-- [x] A retention policy per data class. Portco offboarding deletes that company's data and evidence, verified by a test, while audit records are kept as the policy requires.
+- [ ] An approved retention policy per data class. Portco offboarding deletes that company's data and evidence, verified by a test, while audit records are kept as the policy requires.
 
 ### PVC-146: Access review and audit export
 `P1 · M · R1.0 · deps: PVC-092`
@@ -960,7 +965,9 @@ Run on the pilot portco's real data in staging, read-only, with the deal team an
 
 **Status: Blocked on a person, decision, or pilot company.** The template is in `docs/pilot/go-no-go.md`. Needs the pilot.
 
-- [ ] A written retrospective and a signed go/no-go decision, with conditions for production.
+- [ ] A written retrospective and signed GO / GO WITH CONDITIONS / NO-GO for production provisioning, with owned validation conditions.
+
+The separate launch authorization in the R1.0 gate occurs after PVC-136 and all production validation; it is not a prerequisite for closing this provisioning-decision ticket.
 
 ### PVC-155: Portco onboarding playbook
 `P0 · M · R1.0 · deps: PVC-154`

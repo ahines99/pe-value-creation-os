@@ -18,6 +18,7 @@ import httpx
 
 from ..domain.source_models import RECORD_TYPES, Dataset, DatasetKind, parse_rows, to_csv
 from ..egress import checked_client
+from ..security import validate_company_id
 from .base import EvidenceSink, SourceError, TransientSourceError, make_evidence
 
 
@@ -43,6 +44,10 @@ def dataset_from_records(
     Evidence content is the raw vendor payload when given (canonical JSON), otherwise the canonical CSV of the
     validated records, so identical source content always yields the same evidence id.
     """
+    validate_company_id(company_id)
+    rows = list(rows)
+    if any("company_id" in r and r["company_id"] != company_id for r in rows):
+        raise SourceError("Source rows contain another company identifier")
     rows = [{**r, "company_id": company_id} for r in rows]
     records, errors = parse_rows(RECORD_TYPES[kind], rows, source_uri)
     if raw_payload is not None:
@@ -73,15 +78,19 @@ class ApiClient:
         )
 
     def get(self, path: str, params: dict[str, Any] | None = None) -> Any:
+        base = httpx.URL(self.base_url)
+        target = base.join(path)
+        if (target.scheme, target.host, target.port) != (base.scheme, base.host, base.port) or target.userinfo:
+            raise SourceError("Authenticated API requests must stay on the configured origin")
         try:
-            r = self.client.get(path, params=params)
+            r = self.client.get(target, params=params, follow_redirects=False)
         except httpx.TimeoutException as e:
             raise TransientSourceError(f"timeout calling {path}") from e
         except httpx.TransportError as e:
             raise TransientSourceError(f"network error calling {path}: {type(e).__name__}") from e
         if r.status_code == 429 or r.status_code >= 500:
             raise TransientSourceError(f"{r.status_code} from {path}")
-        if r.status_code >= 400:
+        if r.status_code >= 300:
             raise SourceError(f"{r.status_code} from {path}")
         try:
             return r.json()

@@ -62,8 +62,30 @@ def apply_edits(plan: dict[str, Any], remove_initiatives: list[str]) -> tuple[di
         ws["initiatives"] = [i for i in ws["initiatives"] if i["opportunity_id"] not in remove]
         ws["kpis"] = [k for k in ws["kpis"] if k.get("opportunity_id") not in remove]
         if ws["initiatives"]:
+            ws["risks"] = [r for r in ws.get("risks", []) if not any(r.startswith(t + ":") for t in removed_titles)]
+            ws["milestones"] = {
+                day: [m for m in entries if not any(m.endswith(": " + t) for t in removed_titles)]
+                for day, entries in ws.get("milestones", {}).items()
+            }
             kept_ws.append(ws)
     approved["workstreams"] = kept_ws
+    approved["decisions_requiring_approval"] = [
+        d
+        for d in approved.get("decisions_requiring_approval", [])
+        if not any(d.startswith(t + ":") for t in removed_titles)
+    ]
+    if not any(ws.get("lever") == "retention" for ws in kept_ws):
+        for ws in kept_ws:
+            ws["dependencies"] = [
+                d
+                for d in ws.get("dependencies", [])
+                if d != "Price changes sequenced after the retention health score identifies at-risk accounts"
+            ]
+    # Narrative was generated against the original initiative set; retain an accurate edit summary.
+    approved["narrative"] = "Reviewer removed initiatives: " + "; ".join(removed_titles)
+    approved.setdefault("excluded_opportunities", []).extend(
+        {"opportunity_id": oid, "reason": "Removed by human approver"} for oid in sorted(remove)
+    )
     before = Decimal(plan["total_run_rate_ebitda_base"])
     after = sum((Decimal(i["run_rate_ebitda_base"]) for ws in kept_ws for i in ws["initiatives"]), Decimal(0))
     approved["total_run_rate_ebitda_base"] = str(after)
@@ -80,6 +102,28 @@ def apply_edits(plan: dict[str, Any], remove_initiatives: list[str]) -> tuple[di
 
 
 def decide(
+    ctx: RunContext,
+    run_id: str,
+    principal: security.Principal,
+    decision: ApprovalDecision,
+    *,
+    rationale: str | None = None,
+    remove_initiatives: list[str] | None = None,
+    exclude_opportunities: list[str] | None = None,
+) -> ApprovalRecord:
+    with ctx.repo.approval_transaction():
+        return _decide(
+            ctx,
+            run_id,
+            principal,
+            decision,
+            rationale=rationale,
+            remove_initiatives=remove_initiatives,
+            exclude_opportunities=exclude_opportunities,
+        )
+
+
+def _decide(
     ctx: RunContext,
     run_id: str,
     principal: security.Principal,
@@ -134,8 +178,7 @@ def decide(
     metrics().approval_decisions.add(1, {"decision": decision.value, "changed": str(changed).lower()})
     if run.params.get("mode") == "interactive":
         _finalize_interactive(ctx, run.run_state(), rec, plan.plan_id)
-    else:
-        ctx.repo.request_resume(run_id)
+    # Automated enqueue is committed atomically by record_decision.
     return rec
 
 

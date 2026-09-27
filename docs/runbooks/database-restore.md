@@ -46,7 +46,12 @@ Use administrator credentials for the environment's account. `<env>` is `staging
 `scripts/restore_drill.py` does the following:
 - seeds a database through the workflow;
 - dumps it with `pg_dump -Fc` and restores it into a fresh database with `pg_restore`;
-- checks row counts and row-level security on the restored copy;
+- compares counts for every public table and the migration revision;
+- seeds monitoring/notification data, verifies forced RLS and exact scoped reads on every tenant table including child evidence links;
+- rejects foreign INSERT/UPDATE/DELETE, verifies own-company UPDATE, audit append-only grants and an own-company INSERT/DELETE round trip in rolled-back transactions;
+- creates and removes a unique temporary runtime login; shared-role passwords never change;
 - appends the timings to [restore-drill-log.md](restore-drill-log.md).
 
 The local drill has been run. The drill against RDS, following the procedure above, must be run once the environment exists (PVC-142).
+
+The 2026-09-27 rerun verified all 17 public table counts and read/write RLS on 16 tenant tables. This local database dump/restore does not prove AWS PITR timings, S3 recovery, or production RPO/RTO.

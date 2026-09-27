@@ -19,6 +19,8 @@ Boundaries: (1) client ↔ MCP server, (2) browser ↔ approval API, (3) service
 ## Assets
 Portco financial and customer data; value cases presented to investment committees; approval decisions; the audit log; credentials (DB roles, model API key, webhook URL, adapter credentials).
 
+The implementation/test references below describe local controls. Terraform-backed mitigations require deployed verification; this table does not certify production effectiveness or replace the pending reviewer sign-off.
+
 ## STRIDE analysis
 
 | # | Threat | Where | Mitigation | Verified by |
@@ -28,12 +30,12 @@ Portco financial and customer data; value cases presented to investment committe
 | S3 | Forged approval via cross-site request | Boundary 2 | Double-submit CSRF cookie (SameSite=Strict) on the HTML form; JSON endpoint requires bearer | `tests/test_api.py::test_review_page_and_csrf_form` |
 | T1 | Tampering with evidence originals | Boundary 4 | Write-once originals (hash check), S3 Object Lock + versioning in production | `tests/test_repository_contract.py::test_evidence_dedupe_and_immutability` |
 | T2 | Tampering with the audit trail | Boundary 3 | `pvc_app` has INSERT/SELECT only on `audit_events` | `test_audit_is_append_only_for_app_role` (PostgreSQL) |
-| T3 | Model output alters numbers | Boundary 6 | Server-derived baselines, deterministic sizing, no-new-numbers guardrail, strict tool arguments. *Audit:* the guardrail also catches spelled-out numbers, scale words (million, bn), percent words and basis points, multiplier claims (triple, 3x), signed values and currency amounts that look like years | `tests/test_llm.py` (including `test_guardrail_flags_invented_quantities`), `test_propose_rejects_caller_supplied_baseline`, adversarial A02 |
-| T4 | Prompt injection in documents or CRM notes | Boundaries 5, 6 | Deterministic screening into `suspicious_content`; `<untrusted_document>` delimiting, with document text HTML-escaped so it cannot close the tag (*audit*); no tools during model steps; guardrails reject steered outputs; free text never returned by tools | adversarial A01, `test_injected_document_cannot_steer_outputs` |
+| T3 | Model output alters numbers | Boundary 6 | Server-derived baselines, deterministic sizing and typed quantity references binding metric/unit/company/period/evidence; unbound numeric prose is rejected. Parsing includes exponent/leading-decimal forms and does not treat ID substrings as numeric evidence | `tests/test_llm.py` (including `test_guardrail_flags_invented_quantities`), `test_propose_rejects_caller_supplied_baseline`, adversarial A02 |
+| T4 | Prompt injection in documents or CRM notes | Boundaries 5, 6 | Deterministic screening into `suspicious_content`; `<untrusted_document>` delimiting, with document text HTML-escaped so it cannot close the tag (*audit*); no tools during model steps; quantity/citation guards reject unsupported output; retrieved text remains untrusted data | adversarial A01, `test_injected_document_cannot_steer_outputs` |
 | R1 | Actor denies a decision or data change | All | Append-only audit events with actor, policy version, approval id; approvals store decided_by and diff | `test_approve_with_edits_records_diff_and_resumes` |
 | I1 | Cross-portco data leakage | Boundaries 1-3 | `security.require` on every tool and repository call; PostgreSQL row-level security keyed on token-derived company scope; ids of other companies' rows return NotFound. Row-level security binds the application roles; a person with direct database credentials could set their own scope, so no person is given database credentials (reporting goes through the API or exports). | `test_cross_company_isolation`, `test_rls_filters_unfiltered_queries`, `test_run_tools_hide_other_companies_runs` (every run tool), adversarial A07, eval permission dimension |
-| I2 | Sensitive values in logs or traces | Observability | Allow-listed log fields; everything else hashed; span attributes redacted the same way | `tests/test_observability.py` |
-| I3 | Data exfiltration through outbound calls | Boundaries 6, 7 | Application egress allow-list for every HTTP client; Network Firewall domain allow-list in production | `test_egress_allow_list`, infra `network.tf` |
+| I2 | Sensitive values in logs or traces | Observability | Allow-listed log/span fields; raw automatic exception messages, stack traces and status descriptions are disabled in managed spans; sanitized error metadata only | `tests/test_observability.py` |
+| I3 | Data exfiltration through outbound calls | Boundaries 6, 7 | Checked application HTTP clients enforce allow-list/redirect checks; boto3/OTel use separate SDK endpoint and IAM/network controls (see architecture transport boundaries). Terraform Network Firewall rules are not yet applied | `test_egress_allow_list`, infra `network.tf` |
 | I4 | Model provider retains portco data | Boundary 6 | Data-handling review before pilot data reaches a model; only aggregated tool outputs and documents sent; PVC_PROPOSER=rules until approved | `docs/model_data_handling.md` (PVC-147) |
 | I5 | Benchmark data reveals a single company | Benchmark tool | Distributions only; peer sets with n < 5 refused | `test_benchmarks_return_distribution_only`, invalid-args test |
 | D1 | Request floods or oversized payloads | Boundaries 1, 2 | WAF rate limiting and request-size limits at the load balancer (PVC-135) | infra `ingress.tf`; load test PVC-143 |
@@ -47,7 +49,7 @@ Portco financial and customer data; value cases presented to investment committe
 | E8 | CD pipeline abused to run privileged tasks | Supply chain | *Audit:* the deploy role can run only `migrate` and pass only service and migrate roles; `bootstrap` (RDS master secret) and `offboard` (evidence deletion) need operator credentials. CD deploys only `main`. Actions are pinned by SHA and base images by digest. | `infra/terraform/modules/pvc/tests` (`security_controls`) |
 | E9 | Adapter configuration overrides core settings (for example `PVC_ENV=dev`) | Infrastructure | *Audit:* reserved keys are rejected in `source_adapter_env`, and core settings are merged last | `terraform test` (`rejects_core_settings_in_source_adapter_env`) |
 | E4 | Secrets committed to the repo | Supply chain | gitleaks in CI and pre-commit; secrets only from environment/Secrets Manager | `test_no_secrets_in_skills_prompts_policy_or_source`, CI security job |
-| E5 | Vulnerable dependencies or base image | Supply chain | pip-audit and Trivy in CI; uv.lock pinned | CI security and container-scan jobs (PVC-096) |
+| E5 | Vulnerable dependencies or base image | Supply chain | pip-audit in CI; CI/CD Trivy gates reject all HIGH/CRITICAL findings including unfixed vulnerabilities; uv.lock pinned; changed image awaits fresh scan | CI security and container-scan jobs (PVC-096) |
 
 ## Residual risks and follow-ups
 

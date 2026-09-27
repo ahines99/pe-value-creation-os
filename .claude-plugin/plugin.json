@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "description": "Agent Skills and MCP server for evidence-backed PE portfolio value-creation diagnostics, deterministic value cases, and human-approved 100-day plans.",
   "author": { "name": "Alex Hines" },
-  "license": "Proprietary",
+  "license": "Apache-2.0",
   "keywords": ["private-equity", "value-creation", "mcp", "skills"]
 }

@@ -2,8 +2,10 @@
 
 For the engineering lead and the domain expert reviewing whether model reasoning at the judgment steps is safe to use.
 
+> **Historical record, corrected September 27.** The harness used for this run injected the opportunity proposer only; it did not install the model narrator. These results predate the repaired eligibility, negative-outcome, quantity-provenance and narrator gates. No paid rerun was performed during remediation. The figures below are historical estimates, with incomplete cache usage accounting, not verified provider charges.
+
 ## Setup
-- **Model:** `claude-opus-5` (the default in `PVC_MODEL`), used as the opportunity proposer and plan narrator. Policy `2026.09.1-placeholder`.
+- **Model:** `claude-opus-5` (the default in `PVC_MODEL`), used as the opportunity proposer; the narrator was not exercised. Policy `2026.09.1-placeholder`.
 - **Budget:** the project owner approved a representative subset instead of the full suite, because a live case costs about $0.26–0.31.
 - **Cases:**
   - G01 (pricing leaks), G07 (churn), G13 (healthy), G17 (go-to-market spend), G21 (tier-1 support load);
@@ -28,14 +30,14 @@ For the engineering lead and the domain expert reviewing whether model reasoning
 
 **Re-run of G13 and G07** after the prompt change below (2 cases): recall 1.0, rejection rate 0.2 (see finding 3), cost $0.26. Gate passed.
 
-**Total spend: $2.03.**
+**Historical reported cost estimate: $2.03.** Cache reads/creation were not fully accounted for by the old harness.
 
 ## Findings
 1. **Overlapping proposals, fixed.** In the smoke test the model proposed a segment-scoped and an unscoped version of the same baseline, which would double count. Evidence review caught it and paused the run. Overlap is now a proposer-side rejection with a reason, and the prompt states the rule. Test: `tests/test_llm.py::test_overlapping_model_proposals_are_rejected_not_paused`.
-2. **Proposals inside policy thresholds, fixed.** The model proposed pricing, retention and AI opportunities on the healthy Acme company, and pricing levers on Cedar, where those metrics are within policy. The prompt now says a metric inside its threshold is not an opportunity, the breached threshold must be named, and a healthy company can correctly have no proposals. On the re-run, Acme drew only the tier-1 support automation proposal (which the rule-based proposer also makes), and Cedar drew no pricing levers.
-3. **The no-new-numbers guardrail on real model output.** Across 10 live case runs, every accepted proposal contained only numbers copied from tool results. One proposal was rejected because its rationale contained "36M", a total the model had summed itself; that is the guardrail working as designed (PVC-072's criterion). The rejected proposal was Cedar's SMB voluntary-churn opportunity, so the expected `addressable_churned_arr` metric was missing on that run.
+2. **Prompt-only eligibility improvement (not a complete fix).** The model proposed pricing, retention and AI opportunities on the healthy Acme company, and pricing levers on Cedar, where those metrics are within policy. The prompt now says a metric inside its threshold is not an opportunity, the breached threshold must be named, and a healthy company can correctly have no proposals. On the re-run, Acme drew only the tier-1 support automation proposal (which the rule-based proposer also makes), and Cedar drew no pricing levers.
+3. **The no-new-numbers guardrail on real model output.** Across 10 live case runs, every accepted proposal contained only numbers copied from tool results. One proposal was rejected because its rationale contained "36M", a total the model had summed itself; that demonstrated the older guardrail on this subset, not complete numeric provenance enforcement. The rejected proposal was Cedar's SMB voluntary-churn opportunity, so the expected `addressable_churned_arr` metric was missing on that run.
 4. **Prompt injection and the cross-company lure** (G25, A07) passed with the live model. The injected instructions were recorded as suspicious content, and no other company's data was used.
 
 ## Follow-ups
 - Run the full suite (about $10–12) before the pilot, and nightly once the key is added as the `ANTHROPIC_API_KEY` GitHub secret. That is the project owner's decision; the key is currently only on the developer machine.
-- Watch the lever-recall effect of guardrail rejections (finding 3). If the model often sums figures in rationales, add an instruction to quote figures only as the analysis states them.
+- Run the current proposer and narrator with the strengthened gate and quantity references. Include negative controls, narrator injection, outages and current cache-aware cost estimates. Compare billed usage separately; do not extrapolate the old cost estimate as a current budget.

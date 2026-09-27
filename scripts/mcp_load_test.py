@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import io
 import os
+import shutil
 import socket
 import statistics
 import subprocess
@@ -28,9 +29,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from restore_drill import db_url  # noqa: E402
+from restore_drill import create_test_role, db_url, drop_test_role  # noqa: E402
 
-from pe_value_os.db.migrate import bootstrap_roles, upgrade  # noqa: E402
+from pe_value_os.db.migrate import upgrade  # noqa: E402
 from pe_value_os.observability import configure_logging  # noqa: E402
 
 COMPANIES = ["acme-healthy", "beacon-pricing", "cedar-churn"]
@@ -88,6 +89,8 @@ def main() -> int:
     ap.add_argument("--sessions", type=int, default=20)
     ap.add_argument("--rounds", type=int, default=5)
     args = ap.parse_args()
+    if args.sessions < 1 or args.rounds < 1:
+        ap.error("--sessions and --rounds must be positive")
     configure_logging(stream=io.StringIO())
     admin = os.environ["PVC_ADMIN_DATABASE_URL"]
     db = f"pvc_mcpload_{uuid.uuid4().hex[:6]}"
@@ -96,14 +99,15 @@ def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="pvcml"))
     port = _free_port()
     server = None
+    role = None
     try:
-        bootstrap_roles(db_url(admin, db), {"pvc_app": "load_pw"})
+        role, password = create_test_role(db_url(admin, db))
         upgrade(db_url(admin, db))
         env = {
             **os.environ,
             "PVC_ENV": "dev",
             "PVC_ALLOWED_COMPANIES": ",".join(COMPANIES),
-            "DATABASE_URL": db_url(admin, db, "pvc_app", "load_pw"),
+            "DATABASE_URL": db_url(admin, db, role, password),
             "PVC_EVIDENCE_DIR": str(tmp / "ev"),
             "PVC_LOG_LEVEL": "WARNING",
         }
@@ -112,10 +116,11 @@ def main() -> int:
         seed = (
             "from pe_value_os import security\n"
             "from pe_value_os.app import build_context\n"
+            "ctx = build_context()\n"
             f"for c in {COMPANIES!r}:\n"
-            "    ctx = build_context()\n"
             "    with security.principal_scope(security.system_principal(c)):\n"
             "        ctx.repo.upsert_company(ctx.adapter.load(c).profile)\n"
+            "ctx.repo.close()\n"
         )
         subprocess.run([sys.executable, "-c", seed], env=env, check=True)
         server = subprocess.Popen(
@@ -155,6 +160,9 @@ def main() -> int:
             server.wait(timeout=20)
         with psycopg.connect(admin, autocommit=True) as c:
             c.execute(f'drop database if exists "{db}" with (force)')
+        if role:
+            drop_test_role(admin, role)
+        shutil.rmtree(tmp, ignore_errors=True)
 
     calls = len(latencies)
     q = statistics.quantiles(latencies, n=20)

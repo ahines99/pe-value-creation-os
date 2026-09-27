@@ -10,6 +10,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import date
 from typing import Any
 
@@ -25,11 +26,14 @@ from ..domain.runs import ApprovalDecision, ApprovalRecord, PlanRecord, RunRecor
 from ..domain.source_models import CompanyProfile
 from .base import EvidenceRecord
 from .evidence_store import EvidenceStore
-from .repositories import Conflict, NotFound
+from .repositories import LEASE, Conflict, FencedRepository, LeaseLost, NotFound
 
 
 def _s(v: Any) -> str | None:
     return None if v is None else str(v)
+
+
+_APPROVAL_CURSOR: ContextVar[tuple[int, Any] | None] = ContextVar("pvc_approval_cursor", default=None)
 
 
 class PostgresRepository:
@@ -37,17 +41,48 @@ class PostgresRepository:
         self.url = url
         self.evidence_store = evidence_store
         self.pool = ConnectionPool(
-            url, min_size=min_size, max_size=max_size, open=True, kwargs={"row_factory": dict_row}
+            url,
+            min_size=min_size,
+            max_size=max_size,
+            open=True,
+            kwargs={"row_factory": dict_row},
+            check=ConnectionPool.check_connection,
         )
+
+    def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
+        return FencedRepository(self, run_id, owner)
 
     def close(self) -> None:
         self.pool.close()
 
     @contextmanager
+    def approval_transaction(self) -> Iterator[None]:
+        with self._tx() as cur:
+            token = _APPROVAL_CURSOR.set((id(self), cur))
+            try:
+                yield
+            finally:
+                _APPROVAL_CURSOR.reset(token)
+
+    @contextmanager
     def _tx(self) -> Iterator[Any]:
+        current = _APPROVAL_CURSOR.get()
+        if current is not None and current[0] == id(self):
+            yield current[1]
+            return
         scope = ",".join(sorted(security.allowed_companies()))
         with self.pool.connection() as conn, conn.transaction(), conn.cursor() as cur:
             cur.execute("select set_config('pvc.companies', %s, true)", (scope,))
+            lease = LEASE.get()
+            if (
+                lease
+                and not cur.execute(
+                    "select 1 from workflow_runs where run_id = %s and locked_by = %s "
+                    "and locked_at > now() - interval '15 minutes' for update",
+                    lease,
+                ).fetchone()
+            ):
+                raise LeaseLost(lease[0])
             yield cur
 
     # companies ---------------------------------------------------------------------------------------------
@@ -75,10 +110,11 @@ class PostgresRepository:
     # evidence ----------------------------------------------------------------------------------------------
     def add_evidence(self, record: EvidenceRecord) -> str:
         security.require(record.company_id)
-        key = self.evidence_store.put_original(record.company_id, record.evidence_id, record.content)
         with self._tx() as cur:
             if not cur.execute("select 1 from companies where company_id = %s", (record.company_id,)).fetchone():
                 raise NotFound(f"Company {record.company_id} is not onboarded")
+            # Ownership is checked and locked before the external object-store write.
+            key = self.evidence_store.put_original(record.company_id, record.evidence_id, record.content)
             cur.execute(
                 """insert into evidence (evidence_id, company_id, source_uri, source_type, as_of, retrieved_at,
                      content_hash, storage_key, size_bytes, metadata)
@@ -259,7 +295,7 @@ class PostgresRepository:
                 """update workflow_runs set locked_by = %s, locked_at = now(), resume_requested_at = null
                    where run_id in (
                      select run_id from workflow_runs
-                     where (status = 'pending'
+                     where (status in ('pending', 'running')
                             or (resume_requested_at is not null and status not in ('complete', 'rejected')))
                        and coalesce(params->>'mode', 'automated') <> 'interactive'
                        and (locked_by is null or locked_at < now() - interval '15 minutes')
@@ -286,7 +322,7 @@ class PostgresRepository:
         """Heartbeat: extend the lease. False means the lock was lost to another worker."""
         with self._tx() as cur:
             row = cur.execute(
-                "update workflow_runs set locked_at = now() where run_id = %s and locked_by = %s returning run_id",
+                "update workflow_runs set locked_at = now() where run_id = %s and locked_by = %s and locked_at > now() - interval '15 minutes' returning run_id",
                 (run_id, worker_id),
             ).fetchone()
         return row is not None
@@ -681,6 +717,11 @@ class PostgresRepository:
                 (decision.value, decided_by, rationale, Jsonb(edits or {}), Jsonb(diff or {}), approval_id),
             ).fetchone()
             if row:
+                cur.execute(
+                    "update workflow_runs set resume_requested_at = now(), updated_at = now() "
+                    "where run_id = %s and coalesce(params->>'mode', 'automated') <> 'interactive'",
+                    (row["run_id"],),
+                )
                 return self._appr(row)
             exists = cur.execute("select decision from approvals where approval_id = %s", (approval_id,)).fetchone()
         if exists:
@@ -874,9 +915,33 @@ class PostgresRepository:
         with self._tx() as cur:
             cur.execute(
                 """insert into notifications (notification_id, company_id, channel, subject, body, created_at,
-                             delivered_at, status) values (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                             delivered_at, status) values (%s, %s, %s, %s, %s, %s, %s, %s) on conflict do nothing""",
                 (n.notification_id, n.company_id, n.channel, n.subject, n.body, n.created_at, n.delivered_at, n.status),
             )
+
+    def claim_notification(self, n: Notification, owner: str) -> bool:
+        self.add_notification(n)
+        with self._tx() as cur:
+            row = cur.execute(
+                "update notifications set locked_by = %s, locked_at = now() "
+                "where notification_id = %s and status <> 'delivered' "
+                "and (locked_by is null or locked_at < now() - interval '5 minutes') "
+                "returning notification_id",
+                (owner, n.notification_id),
+            ).fetchone()
+        return row is not None
+
+    def finish_notification(self, notification_id: str, owner: str, *, delivered: bool) -> None:
+        with self._tx() as cur:
+            changed = cur.execute(
+                "update notifications set status = %s, "
+                "delivered_at = case when %s then now() else null end, "
+                "locked_by = null, locked_at = null "
+                "where notification_id = %s and locked_by = %s",
+                ("delivered" if delivered else "pending", delivered, notification_id, owner),
+            ).rowcount
+            if not changed:
+                raise LeaseLost(notification_id)
 
     def list_notifications(self, company_id: str) -> list[Notification]:
         security.require(company_id)

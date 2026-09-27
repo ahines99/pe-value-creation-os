@@ -90,6 +90,7 @@ module "pvc" {
   worker_companies            = var.worker_companies
   notify_webhook_enabled      = var.notify_webhook_enabled
   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
+  otel_auth_enabled           = var.otel_auth_enabled
 
   # Observability
   log_retention_days = 30

@@ -219,7 +219,7 @@ async def _golden_pricing_flow(c) -> str:
             "run_id": run_id,
             "finding_type": "observation",
             "title": "Legacy price books",
-            "statement": f"{pw['legacy']['legacy_arr_share']} of ARR on legacy price books",
+            "statement": "Legacy share: {{quantity:pricing.legacy.legacy_arr_share}}",
             "confidence": "high",
             "evidence_ids": ev,
         },

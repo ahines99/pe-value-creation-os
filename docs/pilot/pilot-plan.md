@@ -6,7 +6,7 @@ For the operating partner, the pilot company's deal team, and the engineering le
 
 Do not start until all of these are true:
 
-- [ ] R0.5 gate passed: staging deployed (PVC-131 to 136), live alerting for 2 weeks (PVC-103), threat-model review signed (PVC-090).
+- [ ] R0.5 gate passed: staging deployed and authenticated smoke tests passed (PVC-131/132/133/135; production PVC-136 is not a pilot prerequisite), live alerting for 2 weeks (PVC-103), threat-model review signed (PVC-090).
 - [ ] Legal and data-processing review complete (PVC-147), including the model data-handling terms in [model_data_handling.md](../model_data_handling.md).
 - [ ] Domain-expert sign-off on the six skills and the policy values (PVC-071, PVC-055). The policy file must not carry `-placeholder` in its version.
 - [ ] Data-access agreement signed with the pilot company. Read-only credentials issued.
@@ -46,7 +46,7 @@ Do not start until all of these are true:
 | Calculation disputes traced to a code defect | Dispute log | 0 unresolved |
 | Value claims without evidence | Evidence review step; eval `evidence_fidelity` | 0 |
 | Cross-company access attempts that succeeded | Access logs; RLS | 0 |
-| Model cost per run | `pvc.model.cost_usd` metric | At most $2.00 (eval threshold) |
+| Model cost per run | `pvc.model.cost_usd` metric | At most $2.00 estimated (eval threshold); reconcile separately against provider billing |
 | Run p95 duration, availability | [slo.md](../slo.md) dashboards | Within SLO |
 | Reviewer usefulness score (1 to 5, per opportunity) | Reviewer form (kept outside the system) | Recorded |
 

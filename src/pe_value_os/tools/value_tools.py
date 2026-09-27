@@ -28,6 +28,8 @@ from ..domain.retention import RetentionAnalysis, analyse_retention
 from ..domain.runs import PlanRecord, RunState, Status
 from ..domain.services import size_value_case as _size
 from ..domain.sufficiency import SufficiencyResult
+from ..llm.quantities import catalog, render_claims
+from ..llm.validation import interactive_sources, validate_interactive_opportunity, validate_interactive_run
 from ..workflows import primary
 from ..workflows.planning import build_plan
 from ._runtime import audit, company_data, get_ctx, governed
@@ -101,6 +103,14 @@ def register_pricing(mcp: MCPServer) -> None:
 
 def register_value_model(mcp: MCPServer) -> None:
     @mcp.tool()
+    @governed("get_numeric_sources")
+    def get_numeric_sources(company_id: str) -> list[dict[str, Any]]:
+        """Typed numeric facts from sufficient analyses. For a quantitative claim in record_finding or
+        propose_opportunity, insert {{quantity:KEY}} using a returned key. The server renders the exact value
+        with its metric, company, period and evidence. Write qualitative prose without numeric assertions."""
+        return catalog(interactive_sources(get_ctx(), company_data(company_id)))
+
+    @mcp.tool()
     @governed("check_data_sufficiency")
     def check_data_sufficiency(
         company_id: str, analysis: Literal["unit_economics", "pricing", "retention", "ai_opportunity"]
@@ -138,9 +148,16 @@ def register_value_model(mcp: MCPServer) -> None:
         assumptions: list[str] | None = None,
     ) -> Finding:
         """Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this
-        company."""
+        company. Numeric claims must use {{quantity:KEY}} references from get_numeric_sources."""
         rec = _open_interactive_run(run_id)
-        company_data(rec.company_id)  # registers the company's evidence, so the ids it cites can be checked
+        data = company_data(rec.company_id)
+        sources = interactive_sources(get_ctx(), data)
+        title = render_claims(title, sources)
+        statement = render_claims(statement, sources)
+        assumptions = [render_claims(a, sources) for a in assumptions or []]
+        known = {e.evidence_id for e in get_ctx().repo.list_evidence(rec.company_id, evidence_ids)}
+        if set(evidence_ids) - known:
+            raise ValueError("Evidence missing or outside this company")
         principal = security.current_principal()
         f = Finding(
             finding_id=str(uuid.uuid4()),
@@ -179,11 +196,17 @@ def register_value_model(mcp: MCPServer) -> None:
     ) -> Opportunity:
         """Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the
         server fills in the baseline value and EBITDA flow-through from company data. Returns the stored
-        opportunity; call size_value_case next. Only for open interactive runs."""
+        opportunity; call size_value_case next. Only for open interactive runs. Numeric prose must use
+        {{quantity:KEY}} references from get_numeric_sources; overlapping proposals are rejected."""
         rec = _open_interactive_run(run_id)
         ctx = get_ctx()
         data = company_data(rec.company_id)
         derived = derive_baseline(data, Lever(lever), baseline_metric, metric_params or {}, ctx.policy)
+        contexts: dict[str, Any] = {}
+        sources = interactive_sources(ctx, data, contexts)
+        title = render_claims(title, sources)
+        rationale = render_claims(rationale, sources)
+        assumptions = [render_claims(a, sources) for a in assumptions or []]
         opp = Opportunity(
             opportunity_id=str(uuid.uuid4()),
             run_id=run_id,
@@ -203,6 +226,9 @@ def register_value_model(mcp: MCPServer) -> None:
             assumptions=assumptions or [],
             evidence_ids=sorted(set(evidence_ids) | set(derived.evidence_ids)),
             metric_params=metric_params or {},
+        )
+        validate_interactive_opportunity(
+            ctx, data, opp, ctx.repo.list_opportunities(run_id), sources=sources, contexts=contexts
         )
         ctx.repo.add_opportunity(
             opp,
@@ -271,6 +297,7 @@ def register_value_model(mcp: MCPServer) -> None:
         plan; submit it with request_approval. Requires prioritize_opportunities first."""
         rec = _open_interactive_run(run_id)
         ctx = get_ctx()
+        validate_interactive_run(ctx, company_data(rec.company_id), rec.run_state())
         scores = ctx.repo.list_priorities(run_id)
         if not scores:
             raise ValueError("No prioritized opportunities. Run size_value_case and prioritize_opportunities first.")
@@ -375,6 +402,10 @@ def register_workflow(mcp: MCPServer) -> None:
         plan = ctx.repo.latest_plan(run_id)
         if plan is None:
             raise ValueError("No plan to submit. Run prioritize_opportunities and draft_100_day_plan first.")
+        validate_interactive_run(ctx, company_data(rec.company_id), rec.run_state())
+        from ..kpi import check_monitorable
+
+        check_monitorable(plan.plan)
         req = ctx.repo.create_approval_request(run_id, rec.company_id, "plan", plan.plan_id)
         st: RunState = ctx.repo.get_run(run_id).run_state()
         if st.status not in (Status.COMPLETE, Status.REJECTED):

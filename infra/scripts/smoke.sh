@@ -18,12 +18,12 @@ failures=0
 pass() { echo "PASS $*"; }
 fail() { echo "FAIL $*" >&2; failures=$((failures + 1)); }
 
-# 1. Approval API health
-body="$("${CURL[@]}" --fail "$API_URL/healthz" || true)"
-if [[ "$(jq -r '.status // empty' <<<"$body" 2>/dev/null)" == "ok" ]]; then
-  pass "api /healthz -> $(jq -c . <<<"$body")"
+# 1. Approval API dependency readiness
+body="$("${CURL[@]}" --fail "$API_URL/readyz" || true)"
+if [[ "$(jq -r '.status // empty' <<<"$body" 2>/dev/null)" == "ready" ]]; then
+  pass "api /readyz"
 else
-  fail "api /healthz returned: ${body:-<no body>}"
+  fail "api dependency readiness failed"
 fi
 
 # 2. Unauthenticated MCP request must be rejected
@@ -64,3 +64,4 @@ if ((failures > 0)); then
   exit 1
 fi
 echo "all smoke checks passed"
+uv run python infra/scripts/smoke_authenticated.py

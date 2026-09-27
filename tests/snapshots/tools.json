@@ -1293,6 +1293,39 @@
       "type": "object"
     }
   },
+  "get_numeric_sources": {
+    "description": "Typed numeric facts from sufficient analyses. For a quantitative claim in record_finding or\npropose_opportunity, insert {{quantity:KEY}} using a returned key. The server renders the exact value\nwith its metric, company, period and evidence. Write qualitative prose without numeric assertions.",
+    "input": {
+      "properties": {
+        "company_id": {
+          "title": "Company Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "company_id"
+      ],
+      "title": "get_numeric_sourcesArguments",
+      "type": "object"
+    },
+    "output": {
+      "properties": {
+        "result": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "get_numeric_sourcesOutput",
+      "type": "object"
+    }
+  },
   "get_run_status": {
     "description": "Current step, status, pause reason and errors for a run.",
     "input": {
@@ -2240,7 +2273,7 @@
           "type": "object"
         },
         "calc_version": {
-          "default": "price-waterfall/1",
+          "default": "price-waterfall/2",
           "title": "Calc Version",
           "type": "string"
         },
@@ -2478,7 +2511,7 @@
     }
   },
   "propose_opportunity": {
-    "description": "Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the\nserver fills in the baseline value and EBITDA flow-through from company data. Returns the stored\nopportunity; call size_value_case next. Only for open interactive runs.",
+    "description": "Propose an opportunity. You supply scenario rates (fractions: 0.05 = 5%), evidence and rationale; the\nserver fills in the baseline value and EBITDA flow-through from company data. Returns the stored\nopportunity; call size_value_case next. Only for open interactive runs. Numeric prose must use\n{{quantity:KEY}} references from get_numeric_sources; overlapping proposals are rejected.",
     "input": {
       "$defs": {
         "ScenarioInputs": {
@@ -2849,7 +2882,7 @@
     }
   },
   "record_finding": {
-    "description": "Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this\ncompany.",
+    "description": "Persist a finding for an open interactive run. Value claims must cite at least one evidence id from this\ncompany. Numeric claims must use {{quantity:KEY}} references from get_numeric_sources.",
     "input": {
       "properties": {
         "assumptions": {

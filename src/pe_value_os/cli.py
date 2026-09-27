@@ -107,13 +107,18 @@ def cmd_run(args: argparse.Namespace) -> int:
 @contextmanager
 def _run_lock(ctx: Any, run_id: str) -> Iterator[None]:
     """Hold the same run lock the worker uses, so a CLI execution never overlaps a worker's."""
-    holder = f"cli:{socket.gethostname()}:{os.getpid()}"
+    import uuid
+
+    holder = f"cli:{socket.gethostname()}:{os.getpid()}:{uuid.uuid4()}"
     if not ctx.repo.acquire_run(run_id, holder):
         raise SystemExit(f"Run {run_id} is being executed by another worker; try again later or check `pvc status`.")
+    repo = ctx.repo
+    ctx.repo = repo.fenced_run(run_id, holder)
     try:
         yield
     finally:
-        ctx.repo.release_run(run_id, holder)
+        ctx.repo = repo
+        repo.release_run(run_id, holder)
 
 
 def cmd_resume(args: argparse.Namespace) -> int:
@@ -121,6 +126,13 @@ def cmd_resume(args: argparse.Namespace) -> int:
     from .workflows import primary
 
     ctx, principal = _ctx_and_principal()
+    if args.refresh_inputs:
+        if not (args.reason or "").strip():
+            raise SystemExit("--refresh-inputs requires --reason")
+        with principal_scope(principal):
+            fresh = primary.refresh_inputs(ctx, args.run_id, principal.subject, reason=args.reason)
+            _print({**primary.status(ctx, fresh.run_id), "supersedes_run_id": args.run_id})
+        return 0
     with principal_scope(principal), _run_lock(ctx, args.run_id):
         anyio.run(
             lambda: primary.resume(
@@ -270,6 +282,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     rs = sub.add_parser("resume")
     rs.add_argument("run_id")
+    rs.add_argument(
+        "--refresh-inputs",
+        action="store_true",
+        help="queue a new linked run using fresh data and policy (requires --reason)",
+    )
     rs.add_argument("--accept-gaps", action="store_true", help="human decision to proceed despite data gaps")
     rs.add_argument("--reason")
     rs.set_defaults(fn=cmd_resume)

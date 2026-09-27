@@ -13,7 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 
-from ..domain.baselines import REGISTRY, compute_metric
+from ..domain.baselines import LEVER_METRICS, REGISTRY, compute_metric
 from ..domain.calc import MetricUnavailable, q_money, q_ratio
 from ..domain.dataset import CompanyData
 from ..domain.project_models import (
@@ -121,6 +121,22 @@ KPI_RULES: dict[tuple[Lever, str], KpiRule] = {
 }
 
 
+# Every accepted baseline has a measurable outcome. Prefer diagnostic outcome metrics above;
+# cost/revenue baselines themselves provide a direct, reproducible fallback.
+for _lever, _metrics in LEVER_METRICS.items():
+    for _metric in _metrics:
+        if (_lever, _metric) not in KPI_RULES:
+            _spec = REGISTRY[_metric]
+            KPI_RULES[(_lever, _metric)] = KpiRule(
+                _metric,
+                _spec.description,
+                "segment" if "segment" in _spec.params else None,
+                lambda b, o, d: (
+                    b * (1 + _eff(o) if REGISTRY[o.baseline_metric].direction == "increase" else 1 - _eff(o))
+                ),
+            )
+
+
 def classify(o: Opportunity, policy: PolicyConfig) -> InitiativeClass:
     return InitiativeClass.QUICK_WIN if policy.prioritization.start_month[o.lever] <= 3 else InitiativeClass.STRUCTURAL
 
@@ -136,7 +152,7 @@ def day_100_fraction(o: Opportunity, policy: PolicyConfig) -> Decimal:
 def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | None:
     rule = KPI_RULES.get((o.lever, o.baseline_metric))
     if rule is None:
-        return None
+        raise MetricUnavailable(f"No KPI mapping for initiative {o.opportunity_id}: {o.lever}/{o.baseline_metric}")
     params = (
         {rule.params_from: o.metric_params[rule.params_from]}
         if rule.params_from and o.metric_params.get(rule.params_from)
@@ -147,7 +163,17 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
     try:
         base = compute_metric(data, rule.metric, params)
     except MetricUnavailable:
-        return None
+        # A diagnostic ratio can be unavailable (for example no historical renewals).
+        # The accepted opportunity's baseline still supplies a computable KPI.
+        spec = REGISTRY[o.baseline_metric]
+        params = {k: v for k, v in o.metric_params.items() if k in spec.params}
+        base = compute_metric(data, o.baseline_metric, params)
+        rule = KpiRule(
+            o.baseline_metric,
+            spec.description,
+            None,
+            lambda b, opp, d: b * (1 + _eff(opp) if spec.direction == "increase" else 1 - _eff(opp)),
+        )
     target = q_ratio(rule.target(base.value, o, data))
     frac = day_100_fraction(o, policy)
     spec = REGISTRY[rule.metric]
@@ -155,7 +181,7 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
         kpi_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"kpi:{o.opportunity_id}:{rule.metric}")),
         opportunity_id=o.opportunity_id,
         metric=rule.metric,
-        description=rule.description + (f" ({params['segment']})" if params else ""),
+        description=rule.description + (f" ({params['segment']})" if "segment" in params else ""),
         baseline=base.value,
         day_100_target=q_ratio(base.value + (target - base.value) * frac),
         run_rate_target=target,

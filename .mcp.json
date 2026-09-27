@@ -2,8 +2,13 @@
   "mcpServers": {
     "pe-value-creation-os": {
       "command": "uv",
-      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "pvc", "mcp-stdio"],
-      "env": { "PVC_ENV": "dev" }
+      "args": ["run", "--extra", "server", "--project", "${CLAUDE_PLUGIN_ROOT}", "pvc", "mcp-stdio"],
+      "env": {
+        "PVC_ENV": "dev",
+        "PVC_PROPOSER": "rules",
+        "PVC_SOURCE_ADAPTER": "fixtures",
+        "PVC_ALLOWED_COMPANIES": "acme-healthy,beacon-pricing,cedar-churn,delta-broken"
+      }
     }
   }
 }

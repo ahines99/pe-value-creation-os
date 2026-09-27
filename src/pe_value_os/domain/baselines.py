@@ -29,7 +29,7 @@ from .calc import (
 )
 from .dataset import CompanyData
 from .metrics import compute_saas_metrics
-from .pricing import price_waterfall
+from .pricing import invoice_periods, price_waterfall
 from .project_models import Lever
 from .retention import analyse_retention
 from .source_models import ChurnType, ContractTerm, DatasetKind, PnLAccount
@@ -169,24 +169,28 @@ def _renewing_arr(data: CompanyData, params: dict[str, str]) -> BaselineValue:
 @metric(
     "discounted_arr",
     "currency",
-    "List-price value of ARR in scope (ARR grossed up by each customer's latest discount rate)",
+    "List-price value of ARR in scope (grossed up by each customer/product's latest discount rate)",
     "increase",
     ("segment",),
 )
 def _discounted_arr(data: CompanyData, params: dict[str, str]) -> BaselineValue:
     ledger = _ledger(data)
     ids = _segment_ids(data, params)
-    latest: dict[str, tuple[date, Decimal]] = {}
-    for ln in data.records(DatasetKind.INVOICES):
-        gross = ln.list_price_per_unit * ln.quantity
-        if gross and (ln.customer_id not in latest or ln.invoice_date >= latest[ln.customer_id][0]):
-            latest[ln.customer_id] = (ln.invoice_date, ln.on_invoice_discount / gross)
-    if not latest:
+    periods = invoice_periods(data.records(DatasetKind.INVOICES))
+    if not periods:
         raise MetricUnavailable("No invoices")
+    end_excl = add_months(ledger.last_month, 1)
     total = ZERO
-    for c in ledger.active(ledger.last_month):
-        if (ids is None or c in ids) and c in latest and latest[c][1] < 1:
-            total += ledger.arr(c, ledger.last_month) / (1 - latest[c][1])
+    for row in data.records(DatasetKind.ARR):
+        if row.month != ledger.last_month or row.arr <= 0 or (ids is not None and row.customer_id not in ids):
+            continue
+        matching = [p for p in periods.get((row.customer_id, row.product), []) if p.invoice_date < end_excl]
+        if not matching:
+            raise MetricUnavailable("Latest ARR contains a customer/product without a matching invoice")
+        latest = matching[-1]
+        if latest.list_amount <= latest.discount:
+            raise MetricUnavailable("Cannot gross up positive ARR from a fully discounted invoice")
+        total += row.arr * latest.list_amount / (latest.list_amount - latest.discount)
     return _bv(
         "discounted_arr",
         q_money(total),
@@ -485,9 +489,10 @@ def derive_baseline(
     return DerivedBaseline(baseline=baseline, ebitda_flow_through=ft, flow_through_rule=desc, evidence_ids=evidence)
 
 
-# Cost baselines that contain other cost baselines: sizing both would count the contained cost twice.
+# Aggregate baselines that contain narrower scopes cannot be independently added to those scopes.
 BASELINE_CONTAINS: dict[str, frozenset[str]] = {
     "subscription_cogs": frozenset({"hosting_cost", "support_cost_tier1"}),
+    "total_arr": frozenset({"discounted_arr", "renewing_arr", "legacy_price_book_arr"}),
 }
 
 
@@ -501,5 +506,7 @@ def baseline_overlap(m1: str, p1: dict[str, str], m2: str, p2: dict[str, str]) -
         return None
     for outer, inner in ((m1, m2), (m2, m1)):
         if inner in BASELINE_CONTAINS.get(outer, frozenset()):
+            if p1.get("segment") and p2.get("segment") and p1["segment"] != p2["segment"]:
+                return None
             return f"{inner} is part of {outer}"
     return None

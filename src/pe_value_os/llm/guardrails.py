@@ -23,6 +23,8 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from pydantic import BaseModel
+
 SCALE_WORDS = {
     "thousand": 3,
     "k": 3,
@@ -36,7 +38,7 @@ SCALE_WORDS = {
     "trillion": 12,
 }
 NUM = re.compile(
-    r"(?<![\w.])(?P<sign>-)?(?P<cur>\$)?(?P<num>\d[\d,]*(?:\.\d+)?)"
+    r"(?<![\w.])(?P<sign>-)?(?P<cur>\$)?(?P<num>(?:\d[\d,]*(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?)"
     r"(?:\s?(?P<pct>%|percent\b|per\s?cent\b|bps\b|basis\s+points\b)"
     r"|\s?(?P<scale>thousand|million|billion|trillion|mn|mm|bn)\b"
     r"|(?P<short>[kKmMbB])(?![a-zA-Z])"
@@ -90,7 +92,8 @@ def _digit_quantities(text: str) -> list[Quantity]:
             v = Decimal(raw)
         except InvalidOperation:
             continue
-        places = len(raw.split(".")[1]) if "." in raw else 0
+        exponent = v.as_tuple().exponent
+        places = -exponent if isinstance(exponent, int) else 0
         pct, scale, short, times = m.group("pct"), m.group("scale"), m.group("short"), m.group("times")
         if times:
             out.append(Quantity(m.group().strip(), v, Decimal("0.05"), relative=True))
@@ -104,6 +107,12 @@ def _digit_quantities(text: str) -> list[Quantity]:
             exp = SCALE_WORDS[short.lower()]
         value = -v.scaleb(exp) if m.group("sign") else v.scaleb(exp)
         plain = not (m.group("sign") or m.group("cur") or pct or scale or short) and places == 0
+        # Bare quantities are structural only in explicit calendar/list context.
+        suffix = text[m.end() :]
+        prefix = text[: m.start()]
+        structural = bool(re.match(r"\s*(?:days?|months?|years?|workstreams?|steps?)\b", suffix, re.I))
+        structural |= bool(re.search(r"\bin\s+$", prefix, re.I) and Decimal(1990) <= v <= Decimal(2100))
+        plain = plain and structural
         out.append(
             Quantity(m.group().strip(), value, _half_unit(places - exp), signed=bool(m.group("sign")), plain=plain)
         )
@@ -171,7 +180,12 @@ def _word_quantities(text: str) -> list[Quantity]:
             value, exp = value.scaleb(-2), exp - 2
             end = words[j + (0 if words[j][0] == "percent" else 1)][2]
             j += 1 if words[j][0] == "percent" else 2
-        plain = value == value.to_integral_value() and exp == 0 and value <= 12
+        plain = (
+            value == value.to_integral_value()
+            and exp == 0
+            and value <= 12
+            and bool(re.match(r"\s*(?:days?|months?|years?|workstreams?|steps?)\b", text[end:], re.I))
+        )
         out.append(Quantity(text[start:end], value, _half_unit(-exp), plain=plain))
         i = j
     return out
@@ -196,7 +210,9 @@ def source_numbers(obj: Any) -> list[Decimal]:
     out: list[Decimal] = []
 
     def walk(x: Any) -> None:
-        if isinstance(x, dict):
+        if isinstance(x, BaseModel):
+            walk(x.model_dump(mode="python"))
+        elif isinstance(x, dict):
             for v in x.values():
                 walk(v)
         elif isinstance(x, list | tuple):
@@ -206,8 +222,7 @@ def source_numbers(obj: Any) -> list[Decimal]:
             return
         elif isinstance(x, int | float | Decimal):
             out.append(Decimal(str(x)))
-        elif isinstance(x, str):
-            out.extend(q.value for q in quantities(x))
+        # Arbitrary strings, dates, IDs and prose are never numeric evidence.
 
     walk(obj)
     return out

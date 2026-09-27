@@ -21,7 +21,8 @@ from typing import Any
 
 from ..domain.dataset import CompanyData
 from ..domain.source_models import CompanyProfile, DatasetKind
-from .base import EvidenceSink, SourceError, TransientSourceError, make_evidence
+from ..security import validate_company_id
+from .base import EvidenceSink, SourceError, StagedEvidence, TransientSourceError, make_evidence
 from .sources import dataset_from_records
 
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -69,6 +70,7 @@ class WarehouseAdapter:
         return [r["company_id"] for r in rows]
 
     def _profile(self, company_id: str) -> tuple[CompanyProfile, bytes, date]:
+        validate_company_id(company_id)
         if self._exists("pvc_company_profile"):
             rows = self._query(
                 f"select profile_json, reference_date from {self.schema}.pvc_company_profile where company_id = :c",
@@ -78,19 +80,22 @@ class WarehouseAdapter:
                 raw = rows[0]["profile_json"]
                 raw_bytes = (raw if isinstance(raw, str) else json.dumps(raw)).encode()
                 ref = rows[0]["reference_date"] or datetime.now(UTC).date()
-                return CompanyProfile.model_validate_json(raw_bytes), raw_bytes, ref
+                profile = CompanyProfile.model_validate_json(raw_bytes)
+                if profile.company_id != company_id:
+                    raise SourceError("Warehouse profile belongs to another company")
+                return profile, raw_bytes, ref
         raise SourceError(f"No profile for {company_id!r} in {self.schema}.pvc_company_profile")
 
     def reference_date(self, company_id: str) -> date:
         return self._profile(company_id)[2]
 
     def load(self, company_id: str, sink: EvidenceSink | None = None) -> CompanyData:
+        staged = StagedEvidence()
         profile, raw, ref = self._profile(company_id)
         pev = make_evidence(
             company_id, f"warehouse://{self.schema}/pvc_company_profile/{company_id}", "company_profile", raw, None
         )
-        if sink:
-            sink.add_evidence(pev)
+        staged.add_evidence(pev)
         data = CompanyData(profile=profile, profile_evidence_id=pev.evidence_id, reference_date=ref)
         freshness: dict[str, datetime] = {}
         if self._exists("pvc_dataset_freshness"):
@@ -104,13 +109,21 @@ class WarehouseAdapter:
             if not self._exists(view):
                 continue
             rows = self._query(f"select * from {self.schema}.{view} where company_id = :c", {"c": company_id})
+            if any(r.get("company_id") != company_id for r in rows):
+                raise SourceError("Warehouse rows belong to another company")
             rows = [{k: _plain(v) for k, v in r.items()} for r in rows]
             as_of = freshness.get(kind.value)
             if as_of is not None and as_of.tzinfo is not None:
                 as_of = as_of.astimezone(UTC).replace(tzinfo=None)
             data.datasets[kind] = dataset_from_records(
-                kind, company_id, _sorted(rows), source_uri=f"warehouse://{self.schema}/{view}", as_of=as_of, sink=sink
+                kind,
+                company_id,
+                _sorted(rows),
+                source_uri=f"warehouse://{self.schema}/{view}",
+                as_of=as_of,
+                sink=staged,
             )
+        staged.publish(sink)
         return data
 
 

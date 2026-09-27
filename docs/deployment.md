@@ -1,19 +1,47 @@
 # Deployment
 
+## Audit remediation acceptance (2026-09-27)
+
+CD requires successful CI at the exact deployment SHA before building. ECR tags use the scanned image's full content ID so a rebuild cannot select an older image. Every push pulls and verifies remote content; production also compares its manifest digest to the successfully smoked staging digest. The same saved image artifact is promoted to both environments. All HIGH/CRITICAL findings block CI and CD, including unfixed findings.
+
+Cloud delivery is disabled unless the repository variable `PVC_ENABLE_CD` is exactly `true`. Leave it unset for a portfolio-only release. Enable it only after accounts, environment protection, credentials, budget and staging prerequisites are accepted; both automatic main pushes and manual dispatch use this gate. CI and deterministic nightly evaluations remain available without enabling deployment.
+
+Set each deployment environment's `PVC_SMOKE_COMPANY` variable to `beacon-pricing`, and `PVC_SMOKE_MCP_TOKEN` / `PVC_SMOKE_API_TOKEN` secrets to separate audience-specific tokens scoped only to that pre-onboarded **synthetic** fixture. The API token must represent a human approver with the configured client ID, read/approve scopes and approver role. MCP requires read/write. Do not use real tenant credentials or real data. Keep this dedicated fixture in `worker_companies`, backed by the fixture adapter or a composite fixture route even after pilot adapters connect.
+
+The authenticated smoke initializes MCP, retrieves profile evidence through the API, queues a diagnostic, waits for the worker approval checkpoint, renders the review, rejects the synthetic plan with a stated rationale, and verifies worker resume reaches `rejected`. Missing tokens or failed dependencies block release. The script sends no external notification and retains the synthetic audit trail. Manual browser login/callback remains a staging acceptance check. Optional ALB OIDC has HTTPS egress; a higher-priority bearer rule preserves API clients on review/evidence paths. ECS services depend on forwarding rules for first-apply ordering.
+
+Local execution on 2026-09-27 passed with separate API/MCP/worker processes, PostgreSQL 18, generated RSA-signed tokens with distinct audiences, staging authentication settings, and an isolated synthetic fixture database. Both dependency-readiness probes passed and the entire authenticated smoke reached rejection after worker resume. Processes, database and temporary login were removed afterward. This proves local authenticated integration; AWS ALB/TLS and browser OIDC remain target-environment checks. A subsequent [container acceptance run](container-acceptance.md) passed the core Compose workflow in development mode; its image scan failed the strict gate.
+
+Nightly live evaluation runs all golden/adversarial cases with `--proposer model --gate`. Repository variable `PVC_RUN_LIVE_EVALS=true` explicitly opts into paid calls; `ANTHROPIC_API_KEY` must be configured. Missing credentials fail an opted-in job. No opt-in or paid call was made during this remediation.
+
+## Local observability and AWS routing
+
+The optional Compose profile wires Collector to Prometheus/Tempo and provisioned Grafana, with alert rules routed to the local Alertmanager UI:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 docker compose --profile observability up --build -d
+```
+
+PowerShell: set `$env:OTEL_EXPORTER_OTLP_ENDPOINT='http://otel-collector:4318'`, then run Compose. Grafana is on loopback port 3000 (admin; set `PVC_GRAFANA_PASSWORD`), Prometheus on 9090, Alertmanager on 9093. Collector/Tempo have no host ports. Named volumes hold data with seven-day metric/trace retention. Local alerts intentionally send no email/webhook; configure an operator-owned receiver and verify delivery in staging. Docker is now available and the core stack has passed; metrics, traces, dashboard provisioning and Alertmanager discovery have now passed local checks. Alert delivery, restart acceptance and clean supporting-image scans remain open.
+
+For AWS, set `otel_exporter_otlp_endpoint` to a trusted OTLP/HTTP collector/backend with a valid TLS certificate on **443**. Terraform rejects plaintext/wrong-port URLs and adds the host to the firewall allow-list. Set `otel_auth_enabled=true` and populate `<prefix>/app/otel-headers` in Secrets Manager with standard `OTEL_EXPORTER_OTLP_HEADERS` syntax, following the provider's required percent encoding. ECS injects this secret into runtime services; credentials never belong in tfvars. The endpoint must accept both metrics and traces. Configure the backend's dashboards, rules and alert receiver, verify receipt/delivery with a synthetic run, and observe the SLO window. Terraform provisions application CloudWatch logs/alarms; no external telemetry provider has been provisioned or certified live.
+
+Local image versions come from published [Collector](https://github.com/open-telemetry/opentelemetry-collector-releases/releases), [Prometheus](https://github.com/prometheus/prometheus/releases), [Alertmanager](https://github.com/prometheus/alertmanager/releases), [Grafana](https://github.com/grafana/grafana/releases) and [Tempo 2.10.8](https://github.com/grafana/tempo/releases/tag/v2.10.8) releases. Tempo uses its supported v2 single-binary configuration. Pull and scan these operational images in the target runtime before exposing observability beyond localhost.
+
 This document covers M13 (PVC-130 to PVC-136), the network half of PVC-094 (egress allow-list) and the container scan in PVC-096.
 
-> **Status: not yet applied.** The Terraform and the CD pipeline are written and validated offline, and the image builds and passes the Trivy scan in CI. No AWS account has been connected, so:
+> **Status: not yet applied.** The Terraform and the CD pipeline are written and validated offline. The initial Debian image failed with 44 HIGH findings; the replacement Alpine application and PostgreSQL candidates pass the same strict policy. Optional supporting-image findings remain open. A fresh CI run is also pending. No AWS account has been connected, so:
 > - nothing has been provisioned (`terraform plan`/`apply` has not run against AWS);
 > - the CD workflow has not run.
 >
-> Offline checks that passed: `terraform fmt -check -recursive`; `terraform init -backend=false` and `terraform validate` in both environment roots; the mocked-provider module tests (`infra/terraform/modules/pvc/tests`, 5 runs including the security controls); `actionlint` with shellcheck on every workflow; `shellcheck` on `infra/scripts/*.sh`.
+> Offline checks that passed: `terraform fmt -check -recursive`; `terraform init -backend=false` and `terraform validate` in both environment roots; the mocked-provider module tests (`infra/terraform/modules/pvc/tests`, 7 runs including security and OIDC controls); `actionlint` with shellcheck on every workflow; `shellcheck` on `infra/scripts/*.sh`.
 > Treat the first staging apply as the real test, and update this note once it has run.
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `Dockerfile`, `.dockerignore` | One image for every process. uv build stage, slim runtime, non-root user (uid 10001), runtime extras only. |
+| `Dockerfile`, `.dockerignore` | One image for every process. uv build stage, Alpine runtime, non-root user (uid 10001), runtime extras only. |
 | `.env.example` | Every runtime variable with dev-safe values. `docker compose` loads it. |
 | `infra/docker/` | Files baked into the image: `healthcheck.py` (container health check) and `bootstrap_db.py` (role bootstrap task). |
 | `infra/terraform/modules/pvc/` | One environment: `network.tf`, `database.tf`, `storage.tf`, `compute.tf`, `ingress.tf`, `iam.tf`, `observability.tf`, `main.tf` (KMS keys), `variables.tf`, `outputs.tf`, `tests/`. |
@@ -21,7 +49,7 @@ This document covers M13 (PVC-130 to PVC-136), the network half of PVC-094 (egre
 | `infra/scripts/deploy.sh` | Push, one-off tasks, deploy and rollback. CD uses it for `migrate` and deploys; operators also use it for `bootstrap`, with their own credentials. |
 | `infra/scripts/smoke.sh` | Post-deploy smoke test. |
 | `.github/workflows/cd.yml` | Build, scan, push, migrate, deploy and smoke test. Staging deploys automatically; production waits for approval. |
-| `.github/workflows/ci.yml` (`container-scan` job) | Builds the image on every PR, fails on HIGH/CRITICAL vulnerabilities that have a fix, and lists unfixed ones without failing. |
+| `.github/workflows/ci.yml` (`container-scan` job) | Builds the image on every PR, fails on every HIGH/CRITICAL vulnerability, including unfixed findings. |
 
 ## Architecture (per environment, per AWS account)
 
@@ -67,7 +95,9 @@ docker compose up db             # PostgreSQL only (roles created from roles.sql
 docker compose up --build        # db, migrations, MCP server (:8000), approval API (:8080), worker
 ```
 
-The containers read `.env.example`. To change settings, copy it to `.env` (git-ignored) and edit `docker-compose.yml`'s `env_file`, or export the variables before running outside Docker.
+The containers read `.env.example` by default. To change runtime settings, copy it to `.env` (git-ignored), edit the copy, and select it with `PVC_ENV_FILE=.env docker compose up --build`. In PowerShell, set `$env:PVC_ENV_FILE='.env'` before running Compose. Configure `PVC_DEV_TOKENS` in that file for local approval access. Shell variables are not automatically forwarded into containers unless Compose explicitly maps them.
+
+Database, MCP and API host ports bind to `127.0.0.1`. Override their default ports using `PVC_DB_PORT`, `PVC_MCP_PORT` and `PVC_API_PORT`; when changing the MCP port, update `MCP_RESOURCE_URL` in the selected runtime file too. The [acceptance record](container-acceptance.md) describes the isolated synthetic test configuration and remaining release gate.
 
 ## Prerequisites (once per account)
 
@@ -78,7 +108,7 @@ The containers read `.env.example`. To change settings, copy it to `.env` (git-i
    - **MCP:** audience `https://<mcp_hostname>/mcp` (or `auth_audience`). Scopes `pvc.read` for access and `pvc.write` for tools that change state.
    - **Approval API:** its own audience, `api_audience` (default `https://<api_hostname>`). An approval UI client whose id goes in `api_client_ids`, with scope `pvc.approve` for approvers only. If you use the ALB sign-in for the review pages (`api_browser_oidc`), that client's access token must be issued for the API audience.
    - Every token carries `pvc_companies`, `pvc_roles` and `pvc_principal_type`. Only humans get `pvc_principal_type: "human"`.
-5. **GitHub environments** `staging` and `production`. Give `production` required reviewers, and allow deployments only from `main`. On a private repository this needs GitHub Pro, Team or Enterprise. Without it, the environments carry no protection rules, and the deploy role's trust is the only gate. CD also refuses to deploy anything but `main`.
+5. **GitHub environments** `staging` and `production`. Give `production` required reviewers, and allow deployments only from `main`. Environment access and deployment approval are different capabilities: GitHub Free/Pro/Team required reviewers are available only for public repositories. A private repository needs a supported enterprise capability or a separately reviewed approval design. Verify the actual gate before enabling production CD; an environment name or OIDC trust alone does not require a human approval. See [GitHub deployment protection documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#required-reviewers). CD also refuses to deploy anything but `main`.
 6. **Tools**: Terraform 1.11 or later (validated with 1.16.4), AWS CLI v2, `jq`, and Docker for the first image push.
 
 ## First-time bootstrap order
@@ -120,14 +150,15 @@ Run steps 1 to 3 and 7 in `infra/terraform/envs/<env>/`, and steps 4 to 6 and 8 
 
 `.github/workflows/cd.yml` runs on every push to `main`, and can also be started manually:
 
-1. **build**: `docker build`, then a Trivy scan (`HIGH,CRITICAL`, fixable only, `exit-code 1`). The job saves the scanned image as a workflow artifact and records its image ID.
+0. **verify-ci**: require the latest main-push `ci.yml` run at the exact deployment SHA to complete successfully.
+1. **build**: `docker build`, then a Trivy scan (`HIGH,CRITICAL`, including unfixed, `exit-code 1`). The job saves the scanned image as a workflow artifact and records its image ID.
 2. **deploy-staging** (GitHub environment `staging`):
    - load the artifact and check that its image ID matches the scanned one;
    - assume the staging deploy role through OIDC;
-   - push to staging ECR, tagged with the commit SHA (tags are immutable) and deployed by digest;
+   - push to staging ECR, tagged with its full scanned image ID (immutable) and deployed by digest; pull and compare remote content even when the tag already exists;
    - `deploy.sh deploy` runs the `migrate` task, stops if it fails, rolls `mcp`, `api` and `worker`, and waits until each service is stable on the new revision. A circuit-breaker rollback fails the job.
-   - `smoke.sh` checks four things:
-     - `GET /healthz` returns 200;
+   - `smoke.sh` checks public routing, readiness and the authenticated synthetic workflow:
+     - `GET /readyz` returns 200 after dependency checks;
      - an unauthenticated MCP `initialize` gets 401 with a Bearer challenge;
      - the OAuth protected-resource metadata is served;
      - HTTP redirects to HTTPS.
@@ -135,11 +166,11 @@ Run steps 1 to 3 and 7 in `infra/terraform/envs/<env>/`, and steps 4 to 6 and 8 
 
 There are no static AWS keys anywhere. The deploy role trusts only `repo:<owner>/<repo>:environment:<env>`. It may push to its own ECR repository, register task definitions, update the three services, run the `migrate` task family on its cluster, and pass the service and migrate roles to ECS. It cannot run or pass the roles of `bootstrap` (RDS master secret) or `offboard` (evidence deletion); those are operator actions. Both deploy jobs run only for `main`.
 
-The workflow does not wait for `ci`. Make `ci` a required status check on `main` (branch protection, which needs GitHub Pro on a private repository) so that only green commits reach CD.
+The workflow waits for successful exact-SHA main-push CI and fails closed on failure, cancellation or timeout. Branch protection should additionally require CI before merge; that repository setting is independent of the CD gate.
 
 ### Container scanning (PVC-096)
 
-Two Trivy scans run: `ci.yml` → `container-scan` on every PR and push, and CD `build` before any push. Both fail on HIGH/CRITICAL findings that have a fix available. Unfixed findings do not fail the build, because rebuilding cannot remediate them. A second, non-blocking Trivy step lists them on every CI run; review them as part of dependency upkeep. Every action is pinned to a commit SHA and the base images to digests; Dependabot (`.github/dependabot.yml`) proposes weekly updates. ECR also scans on push.
+Two Trivy scans run: `ci.yml` → `container-scan` on every PR and push, and CD `build` before any push. Both fail on all HIGH/CRITICAL findings, including unfixed findings. No vulnerability exception is pre-approved. Every action is pinned to a commit SHA and the base images to digests; Dependabot (`.github/dependabot.yml`) proposes weekly updates. ECR also scans on push.
 
 ## Secrets
 
@@ -170,7 +201,7 @@ Terraform generates the role passwords with an ephemeral resource and stores the
 That list is enforced twice:
 
 - **Network:** an AWS Network Firewall stateful rule group (`ALLOWLIST` on TLS SNI and HTTP Host, strict rule order, default `drop_established`). Every packet from the app subnets to the internet passes through it.
-- **Process:** the same list goes into `PVC_EGRESS_ALLOWLIST` (`src/pe_value_os/egress.py`). A request to any other host fails before it leaves the process.
+- **Process:** the same list goes into `PVC_EGRESS_ALLOWLIST` (`src/pe_value_os/egress.py`). Calls through the application HTTP client reject other hosts before network access. SDK and OTLP exporters do not all use that wrapper; the Network Firewall is their enforced deployment boundary.
 
 AWS APIs the platform needs (ECR, S3, CloudWatch Logs, Secrets Manager) go through VPC endpoints and never reach the firewall. The database subnets have no route out of the VPC.
 
@@ -201,9 +232,9 @@ AWS APIs the platform needs (ECR, S3, CloudWatch Logs, Secrets Manager) go throu
   - Chunked requests with no `Content-Length` are not caught by WAF. For those, the MCP SDK's own body limit applies.
 - **Managed rules:** AWS Common Rule Set and Known Bad Inputs. WAF logs redact the `authorization` and `cookie` headers.
 - **Health checks:**
-  - `api`: `GET /healthz` must return 200.
-  - `mcp`: `GET /.well-known/oauth-protected-resource/mcp` must return 200. That endpoint is served without a token once auth is configured.
-  - Containers also run `infra/docker/healthcheck.py`.
+  - `api`: `GET /readyz` must return 200.
+  - `mcp`: `GET /readyz` must return 200. Both readiness endpoints verify database role/schema and evidence storage without returning tenant data.
+  - Containers run `infra/docker/healthcheck.py`; the worker requires a live PID and successful database heartbeat less than 90 seconds old.
 
 ## Rollback
 
@@ -234,6 +265,6 @@ The infrastructure review found five application-side gaps. All five are fixed:
 
 1. **MCP host validation.** `create_http_app()` passes `transport_security` built from `PVC_MCP_RESOURCE_URL` and `PVC_MCP_ALLOWED_HOSTS`, so requests to the public hostname are accepted and other Host headers are rejected (DNS-rebinding protection). `tests/test_auth.py` covers both cases.
 2. **`boto3`.** It is in the `aws` extra, which the `server` extra includes.
-3. **Evidence KMS key.** `S3EvidenceStore` sends `SSEKMSKeyId` from `PVC_EVIDENCE_KMS_KEY_ID`, which Terraform sets to the data key ARN. Without that variable, the store sends no encryption headers, so the bucket default applies.
+3. **Evidence KMS key.** `S3EvidenceStore` sends `SSEKMSKeyId` from `PVC_EVIDENCE_KMS_KEY_ID`, which Terraform sets to the data key ARN. Without that variable, the store sends no encryption headers, so the bucket default applies. The corrected bucket policy denies a non-KMS header only when present (`Null=false`), allowing the documented absent-header default-encryption path.
 4. **Migrator privileges.** `roles.sql` grants `usage, create on schema public` to `pvc_migrator`, the same grant `bootstrap_db.py` applies.
 5. **Server certificate verification.** The image pins the Amazon RDS CA bundle by checksum at `/app/certs/rds-global-bundle.pem`, and every database URL uses `sslmode=verify-full&sslrootcert=...`. When AWS rotates the bundle, the image build fails on the checksum. Update the `RDS_CA_SHA256` build argument in the `Dockerfile` then.

@@ -113,6 +113,11 @@ variables {
 run "staging_defaults" {
   command = apply
 
+  assert {
+    condition     = length(aws_vpc_security_group_egress_rule.alb_oidc_https) == 0
+    error_message = "OIDC-disabled ALBs should not gain public HTTPS egress."
+  }
+
   # PVC-094: one allow-list drives the firewall and the in-process check.
   assert {
     condition = toset(output.egress_allowed_domains) == toset([
@@ -215,8 +220,8 @@ run "staging_defaults" {
   }
 
   assert {
-    condition     = aws_lb_target_group.this["mcp"].health_check[0].path == "/.well-known/oauth-protected-resource/mcp"
-    error_message = "MCP health check must use the protected-resource metadata path."
+    condition     = aws_lb_target_group.this["mcp"].health_check[0].path == "/readyz"
+    error_message = "MCP health check must verify dependency readiness."
   }
 
   # Staging is deletable; worker has no load balancer.
@@ -378,4 +383,39 @@ run "rejects_core_settings_in_source_adapter_env" {
   }
 
   expect_failures = [var.source_adapter_env]
+}
+
+run "oidc_and_authenticated_telemetry" {
+  command = apply
+  variables {
+    api_browser_oidc = {
+      issuer                 = "https://login.example.com"
+      authorization_endpoint = "https://login.example.com/authorize"
+      token_endpoint         = "https://login.example.com/token"
+      user_info_endpoint     = "https://login.example.com/userinfo"
+      client_id              = "approval-ui"
+      client_secret          = "synthetic-test-only"
+    }
+    otel_auth_enabled = true
+  }
+  assert {
+    condition     = aws_vpc_security_group_egress_rule.alb_oidc_https[0].to_port == 443
+    error_message = "OIDC requires HTTPS token/user-info access."
+  }
+  assert {
+    condition     = aws_lb_listener_rule.api_bearer[0].priority < aws_lb_listener_rule.api_browser[0].priority
+    error_message = "Bearer clients must reach application auth before browser redirects."
+  }
+  assert {
+    condition     = contains([for s in jsondecode(aws_ecs_task_definition.this["mcp"].container_definitions)[0].secrets : s.name], "OTEL_EXPORTER_OTLP_HEADERS")
+    error_message = "Authenticated telemetry must use an ECS secret."
+  }
+}
+
+run "rejects_plaintext_or_wrong_port_telemetry" {
+  command = plan
+  variables {
+    otel_exporter_otlp_endpoint = "http://collector.example.com:4318"
+  }
+  expect_failures = [var.otel_exporter_otlp_endpoint]
 }
