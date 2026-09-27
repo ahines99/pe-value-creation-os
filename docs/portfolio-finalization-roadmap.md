@@ -2,23 +2,35 @@
 
 Prepared September 27, 2026 from the current worktree, [audit remediation](audit-remediation.md), [ticket roadmap](../ROADMAP.md), implementation, packaging and deployment configuration.
 
-**Assessment:** the application has substantial verified engineering behind it. It is not yet a finished, independently reproducible portfolio release, and it is not accepted for production. The shortest credible finish is a polished synthetic-data showcase, followed by an optional hosted demonstration and a separately gated real-company launch.
+**Assessment:** the public Apache-2.0 showcase candidate is implemented and reproducibly tested. The remaining P1 gates are actual human MCP/browser acceptance, rendered visual evidence and final release promotion. Production remains a separate, unaccepted milestone.
 
 **Your selected priority: polished showcase first, production roadmap afterward.** The immediate target is P1: a project you can confidently show to a hiring manager, technical reviewer, investor or prospective customer. Alex selected technical hiring managers and applied-AI leaders as the audience and authorized public Apache-2.0 publication after confirming rights. P2 is an optional intermediate demonstration; P3 retains all real-company production gaps. Public source publication is now authorized; purchases, paid model runs and cloud deployment remain separately gated. No ticket is closed merely by appearing here.
 
 “My actions” means implementation, analysis, automation, configuration and evidence collection I can carry out. “Your actions” means choices, account access, spending authorization, publication rights, actual human use, and obtaining accountable specialist sign-offs. Once access and decisions are supplied, technical execution remains my responsibility.
 
-## Execution update: Docker and repository access verified
+## Execution update: public showcase candidate
 
-On September 27, Docker Desktop was installed and verified as Linux/AMD64, and the supplied GitHub repository was confirmed as the existing private origin with an open PR. Alex subsequently confirmed publication rights and authorized public Apache-2.0 publication. [Container acceptance](container-acceptance.md) records the follow-through:
+September 27, 2026: [PR #1](https://github.com/ahines99/pe-value-creation-os/pull/1) merged after all ten checks passed on `9f9b95f`. The repository is public under Apache-2.0, and [GitHub Pages](https://ahines99.github.io/pe-value-creation-os/) serves the static portfolio. Main requires all ten checks with administrator enforcement; force pushes/deletion are disabled. Private vulnerability reporting is enabled. No independent peer approval is claimed.
 
-- **G02 repaired:** wheel and source distribution rebuilt; the installed wheel completes the demo and all 39 evaluation cases outside the checkout. CI now exercises this installed path and the image demo; remote execution is pending.
-- **G04 repaired:** core Compose ports bind to loopback, ports are configurable, and `PVC_ENV_FILE` selects an ignored local runtime configuration.
-- **G03/F04 partially verified:** image build/demo, role bootstrap, migrations, healthy core services, persisted evidence and the development approval/rejection/resume smoke pass. Metrics, traces, dashboard provisioning and Alertmanager discovery are verified. Independent restart/recovery and human client acceptance remain open.
-- **Image remediation:** the initial Debian image failed with 44 HIGH findings. An Alpine application candidate and a derived Alpine PostgreSQL image now pass the unchanged strict gate. Optional Grafana, Tempo and Alertmanager images retain findings; final release-image/remote CI evidence is still required.
-- **Your decisions are recorded:** Docker/access, audience, public visibility and Apache-2.0 rights are supplied. Actual human MCP/browser acceptance remains your next P1 action. No cloud spending or paid model calls are needed for the next showcase work.
+- **G01/G02/G04/G05 repaired:** committed candidate, installed wheel/fresh checkout, loopback-only Compose and expanded CI. Linux Python 3.12/3.13/3.14 each passed 453 tests; 39/39 deterministic evaluations passed. Evidence is linked in the [versioned index](releases/0.1.0/evidence.md).
+- **F04 core complete:** fresh startup, migrations, synthetic seeds, approvals, evidence, worker/KPI consequence, shutdown and restart recovery pass. A PostgreSQL stale-pool recovery defect was found and fixed. Application and local database scans report zero HIGH/CRITICAL findings.
+- **Optional telemetry verified with limitations:** metrics, traces, dashboard provisioning and a synthetic Prometheus alert reaching local Alertmanager and resolving were exercised. Optional Grafana (104 HIGH), Tempo (12 HIGH) and Alertmanager (2 HIGH) findings remain; Collector and Prometheus scans were clean. These optional images are not production-approved.
+- **F05/F07/F08/F09 implemented:** browser entry/login/review flow, actual captured synthetic HTML/evidence, static portfolio, case study, walkthrough, Apache license/notices, contribution/security policy and changelog exist. Rendered screenshots and keyboard/narrow-screen review remain pending.
+- **Your decisions complete:** technical hiring/applied-AI audience, public Apache-2.0 rights, Docker and repository access. Your remaining P1 action is the actual human client/browser session; I handle resulting fixes, visuals when supported browser access is available, and final release promotion.
+- **Cloud/paid-model delivery stays opt-in:** the first main CD run skipped. No AWS deployment or paid provider run is required for P1.
 
-The gap table below preserves the initial audit evidence. These updates supersede its original G02/G04 and Docker-availability descriptions; they do not close all of F02/F03/F04 or change the production ticket counts.
+### Remaining actions, in execution order
+
+| Step | My action | Your action | Completion evidence |
+|---|---|---|---|
+| 1. Candidate publication | Verify public site and main CI; retain distributions/reports/checksums and draft release. | None; publication already authorized. | Public links, successful exact-SHA checks, downloadable evidence. |
+| 2. Human acceptance (F05/F06) | Keep seeded local workspace available; support and repair feedback. | Perform 30-60 minute MCP/browser session using [acceptance checklist](portfolio/acceptance.md), record client/version/date and actual results. | Honest human session record, including Delta controlled failure and Beacon approval/KPI consequence. |
+| 3. Visual evidence (F07) | Inspect rendered desktop/narrow/keyboard flows and capture authentic screenshots/walkthrough when browser tooling works. | Review narration/claims; supply observations from your session. | Actual rendered assets and accessibility observations; captured HTML alone does not close this. |
+| 4. P1 final release (F10) | Repair findings, verify the final SHA, promote the release, attach checksums/evidence and record acceptance. | Confirm the completed human results. | Versioned accepted showcase; no production claims. |
+| 5. Optional P2 | Prepare hosting/IdP/budget/teardown and optional bounded live-model plan before execution. | Choose hosting and authorize specific costs/access if desired. | Deployed synthetic acceptance under F11/F12. |
+| 6. P3 production | Execute F13-F16 and all 33 open acceptance tickets below. | Provide real-company owners/data, reviewers, operating targets, on-call and launch decisions. | Signed domain/security/pilot/operations acceptance. |
+
+The initial gap table below is preserved as audit history; this execution update supersedes its original descriptions of missing implementation and access. The detailed F01-F16 specifications remain the acceptance contract.
 
 ## 1. Three explicit finish lines
 
@@ -32,7 +44,7 @@ P1 is a legitimate completed portfolio project. P1 does not mean the existing R0
 
 ## 2. Verified baseline and newly identified gaps
 
-The preceding remediation recorded **449 passing tests, one Windows symlink-privilege skip, 39/39 deterministic eval cases, clean lint/types, a wheel/source build, local authenticated multi-process smoke, load tests and a full-table restore drill**. These are local September 27 results, not fresh GitHub checks on a committed release. Existing roadmap: **111 tickets: 78 Done, 14 Built, 19 Blocked**. The worktree still contains the uncommitted remediation.
+The preceding remediation recorded **449 passing tests, one Windows symlink-privilege skip, 39/39 deterministic eval cases, clean lint/types, a wheel/source build, local authenticated multi-process smoke, load tests and a full-table restore drill**. These are local September 27 results, not fresh GitHub checks on a committed release. Existing roadmap: **111 tickets: 78 Done, 14 Built, 19 Blocked**. That was the initial audit baseline; the remediation is now committed and the current CI evidence is linked above.
 
 | Gap | Evidence found in this review | Consequence / planned work |
 |---|---|---|
@@ -54,7 +66,7 @@ GitHub policy check on September 27: protected branches are available for public
 
 ## 3. Ordered execution plan: my actions and your actions
 
-Statuses below are **planned**, except the baseline review already performed. Dependencies are explicit to keep account/review waits from blocking independent repository work. Effort estimates are engineering planning ranges, not promises about elapsed agent runtime; revise after the first clean container build.
+The work-package descriptions below preserve the original plan; current completion and remaining work are recorded in the execution update above. Dependencies are explicit to keep account/review waits from blocking independent repository work. Effort estimates are engineering planning ranges, not promises about elapsed agent runtime; revise after the first clean container build.
 
 ### F01 — Agree the release boundary and preserve the work
 
@@ -291,20 +303,20 @@ Critical path for P1: reproducible package → current CI/container proof → hu
 
 ## 7. Acceptance checklist and evidence locations
 
-For each completed item, record owner, date, exact SHA/version, command or session, result, evidence link and any residual issue. Proposed new files below are deliverables to create during execution, not files already present.
+For each completed item, record owner, date, exact SHA/version, command or session, result, evidence link and any residual issue. The versioned evidence index links the completed engineering work; human evidence remains pending.
 
 **P1 portfolio release:**
 
-- [ ] Installed-wheel demo and fresh-clone instructions pass outside the development checkout.
-- [ ] Current CI, strict release-image scan and Linux symlink coverage pass with retained reports.
-- [ ] Clean Compose startup/migration/seed/approval/KPI/restart/shutdown sequence passes.
+- [x] Installed-wheel demo and fresh-clone instructions pass outside the development checkout.
+- [x] Current CI, strict release-image scan and Linux symlink coverage pass with retained reports.
+- [x] Clean Compose startup/migration/seed/approval/KPI/restart/shutdown sequence passes.
 - [ ] Browser walkthrough and actual human MCP session are recorded.
 - [ ] Case study, real screenshots, short walkthrough and static fallback are accessible.
-- [ ] README leads directly to the demo, architecture, evidence, limitations and release.
-- [ ] License/ownership, security reporting, setup/contribution guidance and changelog are consistent.
+- [x] README leads directly to the demo, architecture, evidence, limitations and release.
+- [x] License/ownership, security reporting, setup/contribution guidance and changelog are consistent.
 - [ ] Release tag, package/plugin version and artifact checksums identify the reviewed code.
-- [ ] Your publication approval and an independent install/demo check are recorded.
-- [ ] Synthetic/model/production boundaries are accurate; no realized ROI, legal acceptance or production claim is fabricated.
+- [x] Your publication approval and a detached-checkout/isolated-wheel install check are recorded (agent-performed; independent human acceptance remains above).
+- [x] Synthetic/model/production boundaries are accurate; no realized ROI, legal acceptance or production claim is fabricated.
 
 **P2 additional acceptance:** deployed auth/browser OIDC, scoped smoke, storage/KMS, worker recovery, dashboards, rollback, current model gate if enabled, controlled access/spend and lifecycle/teardown evidence.
 
@@ -314,4 +326,4 @@ Suggested deliverables: `docs/portfolio/case-study.md`, `docs/portfolio/media/`,
 
 ## 8. Immediate next work
 
-The first execution batch has repaired G02, added installed-package/image-demo CI checks and verified the core local Compose workflow. Docker and repository access are supplied. Next engineering work is image vulnerability triage, remaining infrastructure/observability acceptance, safe CD opt-in and case-study/release materials. These tasks can proceed without AWS, real company data or paid model calls. P1-first is confirmed; your publication and audience inputs are supplied. After that, the most valuable human contribution is the actual client/demo session; I handle the technical follow-through.
+Complete the remaining P1 steps in the execution table: final candidate evidence/public links, actual human MCP/browser acceptance, rendered visual review and release promotion. Implementation and publication decisions are already supplied. Production work remains explicitly scheduled after the showcase and requires the owner inputs listed in sections 4-6.

@@ -2,7 +2,7 @@
 
 ## Verified engineering baseline
 
-Commit **48459bab86954e6e9b75bad2936bbe5afcb8600a** passed all ten jobs in [GitHub Actions run 36358720925](https://github.com/ahines99/pe-value-creation-os/actions/runs/36358720925) on September 27, 2026.
+Commit **9f9b95f4a0bd94cbb6ddcc4ee3ef79dca9c02e18** passed all ten jobs in [GitHub Actions run 36359188626](https://github.com/ahines99/pe-value-creation-os/actions/runs/36359188626) on September 27, 2026.
 
 | Check | Evidence and scope |
 |---|---|
@@ -15,7 +15,7 @@ Commit **48459bab86954e6e9b75bad2936bbe5afcb8600a** passed all ten jobs in [GitH
 | Infrastructure | Pinned Actionlint, ShellCheck, Terraform formatting/validation, seven mocked-provider runs, Compose and Prometheus alert-rule checks passed |
 | Secrets/dependencies | Gitleaks and strict Python dependency audit passed; secret-scan SARIF artifact |
 
-These are the CI artifacts shown on that run, not reports from a different historical commit. Download them while retained by GitHub Actions. Final release attachments and checksums must be taken from the selected release SHA's successful run; they are not inferred from this earlier baseline.
+These are the CI artifacts shown on that run, not reports from a different historical commit. Download them while retained by GitHub Actions. The `release-distributions` artifact contains the wheel, source distribution and SHA256SUMS. Final release attachments and checksums must be taken from the selected release SHA's successful run; they are not inferred from this earlier baseline.
 
 ## Independent local checks
 
@@ -23,7 +23,7 @@ A detached checkout at `48459ba` was created outside the working repository. `uv
 
 The live local recovery exercise stopped the worker, recorded an approval, restarted PostgreSQL, MCP and API, then started the worker. The first API read after the database restart returned HTTP 200 and the approved run subsequently reached `complete`. An uninterrupted post-restart HTTP smoke passed separately. Details and the initial failures are preserved in [container acceptance](../../container-acceptance.md).
 
-Optional telemetry runtime checks confirmed application metrics in Prometheus, traces in Tempo, Grafana provisioning and Alertmanager discovery. These checks **do not certify the optional images**: Grafana, Tempo and Alertmanager retain HIGH/CRITICAL findings, documented in container acceptance. No external alert notification was sent.
+Optional telemetry runtime checks confirmed application metrics in Prometheus, traces in Tempo, Grafana provisioning and Alertmanager discovery. A synthetic approval-age metric then fired the Prometheus rule, reached local Alertmanager and resolved after reset. These checks **do not certify the optional images**: Grafana, Tempo and Alertmanager retain HIGH/CRITICAL findings, documented in container acceptance. No external alert notification was sent.
 
 ## Publication and acceptance boundaries
 
