@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "effective_from": {
+      "format": "date",
+      "title": "Effective From",
+      "type": "string"
+    },
+    "effective_to": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective To"
+    },
+    "is_current": {
+      "title": "Is Current",
+      "type": "boolean"
+    },
+    "list_price_per_unit": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "List Price Per Unit"
+    },
+    "price_book_id": {
+      "title": "Price Book Id",
+      "type": "string"
+    },
+    "product": {
+      "title": "Product",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "price_book_id",
+    "product",
+    "list_price_per_unit",
+    "effective_from",
+    "is_current"
+  ],
+  "title": "PriceBook",
+  "type": "object"
+}

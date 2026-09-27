@@ -1,0 +1,73 @@
+# Alert rules (PVC-103). Routing: severity=page -> on-call (docs/runbooks/oncall.md); severity=ticket -> queue.
+groups:
+  - name: pvc-slo
+    rules:
+      - alert: PvcAvailabilityFastBurn
+        expr: |
+          (sum(rate(pvc_http_requests_total{status_class="5xx"}[5m])) / sum(rate(pvc_http_requests_total[5m]))) > (14.4 * 0.005)
+          and
+          (sum(rate(pvc_http_requests_total{status_class="5xx"}[1h])) / sum(rate(pvc_http_requests_total[1h]))) > (14.4 * 0.005)
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "Availability error budget burning 14x (99.5% SLO)"
+          runbook: docs/runbooks/service-errors.md
+      - alert: PvcAvailabilitySlowBurn
+        expr: |
+          (sum(rate(pvc_http_requests_total{status_class="5xx"}[6h])) / sum(rate(pvc_http_requests_total[6h]))) > (3 * 0.005)
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Availability error budget burning 3x over 6h"
+          runbook: docs/runbooks/service-errors.md
+      - alert: PvcStepLatencySlo
+        expr: histogram_quantile(0.95, sum by (le, step) (rate(pvc_step_duration_milliseconds_bucket{step!="human_approval"}[30m]))) > 5000
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Step {{ $labels.step }} p95 above 5 s"
+          runbook: docs/runbooks/stuck-run.md
+  - name: pvc-operations
+    rules:
+      - alert: PvcStuckRuns
+        expr: max(pvc_runs_stuck) >= 1
+        for: 10m
+        labels: {severity: page}
+        annotations:
+          summary: "{{ $value }} run(s) stuck in running for >30 minutes"
+          runbook: docs/runbooks/stuck-run.md
+      - alert: PvcAdapterFailures
+        expr: sum(increase(pvc_adapter_errors_total[30m])) > 3
+        labels: {severity: ticket}
+        annotations:
+          summary: "Source adapter failures in the last 30 minutes"
+          runbook: docs/runbooks/adapter-outage.md
+      - alert: PvcModelUnavailable
+        expr: sum(increase(pvc_runs_total{status="needs_evidence"}[1h])) > 5 and sum(increase(pvc_model_tokens_total[1h])) == 0
+        labels: {severity: ticket}
+        annotations:
+          summary: "Runs pausing while no model tokens are consumed (possible model outage)"
+          runbook: docs/runbooks/model-outage.md
+      - alert: PvcScopeDenialsSpike
+        # Scope denials from every surface (tools, resources, approval API), plus tool lookups of ids the caller
+        # cannot see: row-level security reports another company's run or opportunity id as "not found".
+        expr: >-
+          (sum(increase(pvc_access_denied_total[15m])) or vector(0))
+          + (sum(increase(pvc_tool_calls_total{outcome="not_found"}[15m])) or vector(0)) > 20
+        labels: {severity: page}
+        annotations:
+          summary: "Spike in cross-company access denials (possible probing)"
+          runbook: docs/runbooks/data-exposure.md
+      - alert: PvcApprovalOverdue
+        expr: max(pvc_approvals_pending_oldest_hours) > 120
+        labels: {severity: ticket}
+        annotations:
+          summary: "An approval has been pending for more than the policy expiry"
+          runbook: docs/runbooks/stuck-run.md
+      - alert: PvcSourceStale
+        expr: max by (company_id, dataset) (pvc_source_age_days) > 45
+        for: 1h
+        labels: {severity: ticket}
+        annotations:
+          summary: "{{ $labels.dataset }} for {{ $labels.company_id }} is {{ $value }} days old (policy window 45)"
+          runbook: docs/runbooks/adapter-outage.md

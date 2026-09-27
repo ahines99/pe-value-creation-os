@@ -1,0 +1,54 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "fte": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Fte"
+    },
+    "fully_loaded_annual_cost_per_fte": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Fully Loaded Annual Cost Per Fte"
+    },
+    "function": {
+      "title": "Function",
+      "type": "string"
+    },
+    "month": {
+      "format": "date",
+      "title": "Month",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "month",
+    "function",
+    "fte",
+    "fully_loaded_annual_cost_per_fte"
+  ],
+  "title": "HeadcountMonth",
+  "type": "object"
+}

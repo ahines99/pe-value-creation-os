@@ -1,0 +1,11 @@
+{
+  "name": "pvc-internal",
+  "owner": { "name": "Alex Hines" },
+  "plugins": [
+    {
+      "name": "pe-value-creation-os",
+      "source": "./",
+      "description": "Value-creation diagnostic skills plus the governed MCP server."
+    }
+  ]
+}

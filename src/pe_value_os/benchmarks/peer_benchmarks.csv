@@ -1,0 +1,9 @@
+metric,peer_set,n,p25,p50,p75,source,licence,as_of
+grr,b2b_saas_10_50m_arr,42,0.84,0.89,0.93,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+nrr,b2b_saas_10_50m_arr,42,0.96,1.03,1.10,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+cac_payback_months,b2b_saas_10_50m_arr,38,14,20,28,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+subscription_gross_margin,b2b_saas_10_50m_arr,40,0.72,0.78,0.83,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+magic_number,b2b_saas_10_50m_arr,36,0.5,0.8,1.1,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+rule_of_40,b2b_saas_10_50m_arr,41,0.15,0.28,0.41,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+burn_multiple,b2b_saas_10_50m_arr,30,0.8,1.4,2.3,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30
+grr,vertical_saas_smb_heavy,4,0.78,0.83,0.88,SYNTHETIC placeholder - replace with licensed dataset,none - synthetic,2026-06-30

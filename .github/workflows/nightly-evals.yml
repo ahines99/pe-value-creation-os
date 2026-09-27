@@ -1,0 +1,50 @@
+name: nightly-evals
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic:
+    runs-on: ubuntu-latest
+    env:
+      PVC_ENV: dev
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - run: uv run pvc eval --suite all --gate --report var/eval-report.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: eval-report
+          path: var/eval-report.*
+
+  live-model:
+    # Live model evaluation (ADR 0005). Requires explicit paid-run opt-in and a configured API secret; failures gate this job.
+    runs-on: ubuntu-latest
+    if: ${{ vars.PVC_RUN_LIVE_EVALS == 'true' }}
+    env:
+      PVC_ENV: dev
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PVC_EGRESS_ALLOWLIST: api.anthropic.com
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - name: Require live-model credential
+        run: test -n "$ANTHROPIC_API_KEY"
+      - run: uv run pvc eval --suite all --proposer model --gate --report var/eval-report-model.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: eval-report-model
+          path: var/eval-report-model.*

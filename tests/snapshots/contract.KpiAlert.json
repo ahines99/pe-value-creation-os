@@ -1,0 +1,45 @@
+{
+  "properties": {
+    "alert_id": {
+      "title": "Alert Id",
+      "type": "string"
+    },
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "detail": {
+      "title": "Detail",
+      "type": "string"
+    },
+    "kpi_id": {
+      "title": "Kpi Id",
+      "type": "string"
+    },
+    "observation_id": {
+      "title": "Observation Id",
+      "type": "string"
+    },
+    "rule": {
+      "pattern": "^(threshold|trend)$",
+      "title": "Rule",
+      "type": "string"
+    }
+  },
+  "required": [
+    "alert_id",
+    "kpi_id",
+    "company_id",
+    "observation_id",
+    "rule",
+    "detail",
+    "created_at"
+  ],
+  "title": "KpiAlert",
+  "type": "object"
+}

@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "ChurnType": {
+      "enum": [
+        "voluntary",
+        "involuntary_payment",
+        "involuntary_other"
+      ],
+      "title": "ChurnType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "churn_type": {
+      "$ref": "#/$defs/ChurnType"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "month": {
+      "format": "date",
+      "title": "Month",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "reason_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason Code"
+    }
+  },
+  "required": [
+    "company_id",
+    "customer_id",
+    "month",
+    "churn_type"
+  ],
+  "title": "ChurnEvent",
+  "type": "object"
+}

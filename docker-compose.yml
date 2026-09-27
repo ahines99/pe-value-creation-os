@@ -1,0 +1,124 @@
+# Local stack (PVC-030, PVC-130). `docker compose up db` starts PostgreSQL only;
+# `docker compose up` runs migrations, the MCP server, the approval API, and the worker.
+name: pvc
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: infra/docker/Postgres.Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pvc
+    ports: ["127.0.0.1:${PVC_DB_PORT:-5432}:5432"]
+    volumes:
+      - pgdata_alpine:/var/lib/postgresql
+      - ./src/pe_value_os/db/roles.sql:/docker-entrypoint-initdb.d/01-roles.sql:ro
+      - ./deploy/dev-role-passwords.sql:/docker-entrypoint-initdb.d/02-passwords.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pvc"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    build: .
+    command: ["pvc", "db", "upgrade"]
+    environment:
+      PVC_MIGRATION_DATABASE_URL: postgresql://postgres:postgres@db:5432/pvc
+    depends_on:
+      db: { condition: service_healthy }
+
+  mcp:
+    build: .
+    command: ["uvicorn", "pe_value_os.mcp_server:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: ["${PVC_ENV_FILE:-.env.example}"]
+    environment:
+      DATABASE_URL: postgresql://pvc_app:pvc_app_dev@db:5432/pvc
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    ports: ["127.0.0.1:${PVC_MCP_PORT:-8000}:8000"]
+    volumes: ["evidence:/app/var/evidence"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  api:
+    build: .
+    command: ["uvicorn", "pe_value_os.api.app:app", "--host", "0.0.0.0", "--port", "8080"]
+    env_file: ["${PVC_ENV_FILE:-.env.example}"]
+    environment:
+      DATABASE_URL: postgresql://pvc_app:pvc_app_dev@db:5432/pvc
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    ports: ["127.0.0.1:${PVC_API_PORT:-8080}:8080"]
+    volumes: ["evidence:/app/var/evidence"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    command: ["pvc", "worker"]
+    env_file: ["${PVC_ENV_FILE:-.env.example}"]
+    environment:
+      DATABASE_URL: postgresql://pvc_app:pvc_app_dev@db:5432/pvc
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    volumes: ["evidence:/app/var/evidence"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  otel-collector:
+    profiles: [observability]
+    image: otel/opentelemetry-collector-contrib:0.161.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    environment:
+      TRACES_BACKEND_ENDPOINT: http://tempo:4318
+    volumes: ["./ops/observability/otel-collector.yaml:/etc/otelcol/config.yaml:ro"]
+    depends_on: [tempo]
+
+  tempo:
+    profiles: [observability]
+    image: grafana/tempo:2.10.8
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./ops/observability/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+
+  prometheus:
+    profiles: [observability]
+    image: prom/prometheus:v3.15.0
+    command: ["--config.file=/etc/prometheus/prometheus.yaml", "--storage.tsdb.retention.time=7d"]
+    ports: ["127.0.0.1:9090:9090"]
+    volumes:
+      - ./ops/observability/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - ./ops/observability/prometheus-alerts.yaml:/etc/prometheus/alerts.yaml:ro
+      - prometheus-data:/prometheus
+    depends_on: [otel-collector, alertmanager]
+
+  alertmanager:
+    profiles: [observability]
+    image: prom/alertmanager:v0.34.1
+    command: ["--config.file=/etc/alertmanager/alertmanager.yaml"]
+    ports: ["127.0.0.1:9093:9093"]
+    volumes:
+      - ./ops/observability/alertmanager.yaml:/etc/alertmanager/alertmanager.yaml:ro
+      - alertmanager-data:/alertmanager
+
+  grafana:
+    profiles: [observability]
+    image: grafana/grafana:13.2.2
+    ports: ["127.0.0.1:3000:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${PVC_GRAFANA_PASSWORD:-local-dev-only-change-me}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./ops/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/observability/grafana/pvc-overview.json:/var/lib/grafana/dashboards/pvc-overview.json:ro
+      - grafana-data:/var/lib/grafana
+    depends_on: [prometheus, tempo]
+
+volumes:
+  pgdata_alpine:
+  evidence:
+  tempo-data:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:

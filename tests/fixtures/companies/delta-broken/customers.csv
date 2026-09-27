@@ -1,0 +1,179 @@
+company_id,customer_id,name,segment,size_band,acquisition_channel,first_contract_date,crm_account_id,billing_account_id,domain
+delta-broken,del-c0001,Customer 0001 Enterprise Co,enterprise,500+,inbound,2024-03-20,crm-00001,bill-00001,customer0001.example
+delta-broken,del-c0002,Customer 0002 Mid Market Co,mid_market,51-500,partner,2023-09-05,crm-00002,bill-00002,customer0002.example
+delta-broken,del-c0003,Customer 0003 Smb Co,smb,1-50,outbound,2024-06-03,crm-00003,bill-00003,customer0003.example
+delta-broken,del-c0004,Customer 0004 Smb Co,smb,1-50,partner,2022-08-01,crm-00004,bill-00004,customer0004.example
+delta-broken,del-c0005,Customer 0005 Enterprise Co,enterprise,500+,inbound,2022-06-09,crm-00005,bill-00005,customer0005.example
+delta-broken,del-c0006,Customer 0006 Smb Co,smb,1-50,partner,2024-01-22,crm-00006,bill-00006,customer0006.example
+delta-broken,del-c0007,Customer 0007 Smb Co,smb,1-50,outbound,2023-08-20,crm-00007,bill-00007,customer0007.example
+delta-broken,del-c0008,Customer 0008 Mid Market Co,mid_market,51-500,inbound,2022-06-14,crm-00008,bill-00008,customer0008.example
+delta-broken,del-c0009,Customer 0009 Mid Market Co,mid_market,51-500,outbound,2021-11-15,crm-00009,bill-00009,customer0009.example
+delta-broken,del-c0010,Customer 0010 Smb Co,smb,1-50,inbound,2022-08-12,crm-00010,bill-00010,customer0010.example
+delta-broken,del-c0011,Customer 0011 Mid Market Co,mid_market,51-500,partner,2022-09-23,crm-00011,bill-00011,customer0011.example
+delta-broken,del-c0012,Customer 0012 Mid Market Co,mid_market,51-500,inbound,2021-11-21,crm-00012,bill-00012,customer0012.example
+delta-broken,del-c0013,Customer 0013 Smb Co,smb,1-50,inbound,2022-01-24,crm-00013,bill-00013,customer0013.example
+delta-broken,del-c0014,Customer 0014 Smb Co,smb,1-50,partner,2024-07-03,crm-00014,bill-00014,customer0014.example
+delta-broken,del-c0015,Customer 0015 Smb Co,smb,1-50,partner,2022-05-14,crm-00015,bill-00015,customer0015.example
+delta-broken,del-c0016,Customer 0016 Mid Market Co,mid_market,51-500,outbound,2023-10-25,crm-00016,bill-00016,customer0016.example
+delta-broken,del-c0017,Customer 0017 Mid Market Co,mid_market,51-500,outbound,2022-01-28,crm-00017,bill-00017,customer0017.example
+delta-broken,del-c0018,Customer 0018 Smb Co,smb,1-50,outbound,2022-01-13,crm-00018,bill-00018,customer0018.example
+delta-broken,del-c0019,Customer 0019 Enterprise Co,enterprise,500+,outbound,2022-06-07,crm-00019,bill-00019,customer0019.example
+delta-broken,del-c0020,Customer 0020 Smb Co,smb,1-50,outbound,2022-08-21,crm-00020,bill-00020,customer0020.example
+delta-broken,del-c0021,Customer 0021 Mid Market Co,mid_market,51-500,outbound,2022-07-17,crm-00021,bill-00021,customer0021.example
+delta-broken,del-c0022,Customer 0022 Mid Market Co,mid_market,51-500,inbound,2023-07-21,crm-00022,bill-00022,customer0022.example
+delta-broken,del-c0023,Customer 0023 Smb Co,smb,1-50,partner,2024-04-04,crm-00023,bill-00023,customer0023.example
+delta-broken,del-c0024,Customer 0024 Smb Co,smb,1-50,inbound,2021-09-25,crm-00024,bill-00024,customer0024.example
+delta-broken,del-c0025,Customer 0025 Smb Co,smb,1-50,partner,2023-03-08,crm-00025,bill-00025,customer0025.example
+delta-broken,del-c0026,Customer 0026 Smb Co,smb,1-50,outbound,2024-08-16,crm-00026,bill-00026,customer0026.example
+delta-broken,del-c0027,Customer 0027 Smb Co,smb,1-50,partner,2023-05-10,crm-00027,bill-00027,customer0027.example
+delta-broken,del-c0028,Customer 0028 Smb Co,smb,1-50,partner,2023-10-21,crm-00028,bill-00028,customer0028.example
+delta-broken,del-c0029,Customer 0029 Smb Co,smb,1-50,outbound,2022-06-14,crm-00029,bill-00029,customer0029.example
+delta-broken,del-c0030,Customer 0030 Mid Market Co,mid_market,51-500,partner,2024-07-23,crm-00030,bill-00030,customer0030.example
+delta-broken,del-c0031,Customer 0031 Enterprise Co,enterprise,500+,partner,2022-03-11,crm-00031,bill-00031,customer0031.example
+delta-broken,del-c0032,Customer 0032 Smb Co,smb,1-50,partner,2024-04-16,crm-00032,bill-00032,customer0032.example
+delta-broken,del-c0033,Customer 0033 Mid Market Co,mid_market,51-500,partner,2021-11-24,crm-00033,bill-00033,customer0033.example
+delta-broken,del-c0034,Customer 0034 Smb Co,smb,1-50,partner,2021-12-06,crm-00034,bill-00034,customer0034.example
+delta-broken,del-c0035,Customer 0035 Smb Co,smb,1-50,partner,2024-03-23,crm-00035,bill-00035,customer0035.example
+delta-broken,del-c0036,Customer 0036 Mid Market Co,mid_market,51-500,partner,2021-12-21,crm-00036,bill-00036,customer0036.example
+delta-broken,del-c0037,Customer 0037 Mid Market Co,mid_market,51-500,inbound,2022-10-09,crm-00037,bill-00037,customer0037.example
+delta-broken,del-c0038,Customer 0038 Smb Co,smb,1-50,inbound,2023-06-18,crm-00038,bill-00038,customer0038.example
+delta-broken,del-c0039,Customer 0039 Smb Co,smb,1-50,inbound,2023-10-14,crm-00039,bill-00039,customer0039.example
+delta-broken,del-c0040,Customer 0040 Mid Market Co,mid_market,51-500,inbound,2024-02-23,crm-00040,bill-00040,customer0040.example
+delta-broken,del-c0041,Customer 0041 Smb Co,smb,1-50,partner,2022-04-11,crm-00041,bill-00041,customer0041.example
+delta-broken,del-c0042,Customer 0042 Mid Market Co,mid_market,51-500,outbound,2022-09-10,crm-00042,bill-00042,customer0042.example
+delta-broken,del-c0043,Customer 0043 Enterprise Co,enterprise,500+,partner,2022-06-17,crm-00043,bill-00043,customer0043.example
+delta-broken,del-c0044,Customer 0044 Mid Market Co,mid_market,51-500,partner,2022-05-19,crm-00044,bill-00044,customer0044.example
+delta-broken,del-c0045,Customer 0045 Smb Co,smb,1-50,partner,2023-05-26,crm-00045,bill-00045,customer0045.example
+delta-broken,del-c0046,Customer 0046 Mid Market Co,mid_market,51-500,inbound,2023-03-01,crm-00046,bill-00046,customer0046.example
+delta-broken,del-c0047,Customer 0047 Mid Market Co,mid_market,51-500,partner,2024-03-23,crm-00047,bill-00047,customer0047.example
+delta-broken,del-c0048,Customer 0048 Enterprise Co,enterprise,500+,partner,2021-09-15,crm-00048,bill-00048,customer0048.example
+delta-broken,del-c0049,Customer 0049 Smb Co,smb,1-50,inbound,2023-03-25,crm-00049,bill-00049,customer0049.example
+delta-broken,del-c0050,Customer 0050 Mid Market Co,mid_market,51-500,inbound,2024-08-24,crm-00050,bill-00050,customer0050.example
+delta-broken,del-c0051,Customer 0051 Smb Co,smb,1-50,outbound,2021-10-24,crm-00051,bill-00051,customer0051.example
+delta-broken,del-c0052,Customer 0052 Smb Co,smb,1-50,outbound,2022-12-17,crm-00052,bill-00052,customer0052.example
+delta-broken,del-c0053,Customer 0053 Mid Market Co,mid_market,51-500,inbound,2024-01-25,crm-00053,bill-00053,customer0053.example
+delta-broken,del-c0054,Customer 0054 Mid Market Co,mid_market,51-500,partner,2021-11-15,crm-00054,bill-00054,customer0054.example
+delta-broken,del-c0055,Customer 0055 Smb Co,smb,1-50,outbound,2023-02-02,crm-00055,bill-00055,customer0055.example
+delta-broken,del-c0056,Customer 0056 Enterprise Co,enterprise,500+,inbound,2023-02-22,crm-00056,bill-00056,customer0056.example
+delta-broken,del-c0057,Customer 0057 Smb Co,smb,1-50,outbound,2022-02-24,crm-00057,bill-00057,customer0057.example
+delta-broken,del-c0058,Customer 0058 Smb Co,smb,1-50,outbound,2024-06-04,crm-00058,bill-00058,customer0058.example
+delta-broken,del-c0059,Customer 0059 Mid Market Co,mid_market,51-500,partner,2023-06-12,crm-00059,bill-00059,customer0059.example
+delta-broken,del-c0060,Customer 0060 Smb Co,smb,1-50,partner,2022-09-18,crm-00060,bill-00060,customer0060.example
+delta-broken,del-c0061,Customer 0061 Mid Market Co,mid_market,51-500,partner,2023-11-08,crm-00061,bill-00061,customer0061.example
+delta-broken,del-c0062,Customer 0062 Mid Market Co,mid_market,51-500,partner,2022-01-02,crm-00062,bill-00062,customer0062.example
+delta-broken,del-c0063,Customer 0063 Enterprise Co,enterprise,500+,inbound,2021-12-09,crm-00063,bill-00063,customer0063.example
+delta-broken,del-c0064,Customer 0064 Smb Co,smb,1-50,partner,2023-09-28,crm-00064,bill-00064,customer0064.example
+delta-broken,del-c0065,Customer 0065 Smb Co,smb,1-50,inbound,2021-11-17,crm-00065,bill-00065,customer0065.example
+delta-broken,del-c0066,Customer 0066 Smb Co,smb,1-50,outbound,2022-04-03,crm-00066,bill-00066,customer0066.example
+delta-broken,del-c0067,Customer 0067 Smb Co,smb,1-50,inbound,2022-06-13,crm-00067,bill-00067,customer0067.example
+delta-broken,del-c0068,Customer 0068 Mid Market Co,mid_market,51-500,partner,2023-04-26,crm-00068,bill-00068,customer0068.example
+delta-broken,del-c0069,Customer 0069 Enterprise Co,enterprise,500+,outbound,2023-01-23,crm-00069,bill-00069,customer0069.example
+delta-broken,del-c0070,Customer 0070 Smb Co,smb,1-50,partner,2023-07-03,crm-00070,bill-00070,customer0070.example
+delta-broken,del-c0071,Customer 0071 Smb Co,smb,1-50,outbound,2022-08-13,crm-00071,bill-00071,customer0071.example
+delta-broken,del-c0072,Customer 0072 Smb Co,smb,1-50,outbound,2023-01-12,crm-00072,bill-00072,customer0072.example
+delta-broken,del-c0073,Customer 0073 Mid Market Co,mid_market,51-500,outbound,2023-12-09,crm-00073,bill-00073,customer0073.example
+delta-broken,del-c0074,Customer 0074 Mid Market Co,mid_market,51-500,partner,2022-09-11,crm-00074,bill-00074,customer0074.example
+delta-broken,del-c0075,Customer 0075 Enterprise Co,enterprise,500+,inbound,2024-04-19,crm-00075,bill-00075,customer0075.example
+delta-broken,del-c0076,Customer 0076 Mid Market Co,mid_market,51-500,inbound,2021-10-12,crm-00076,bill-00076,customer0076.example
+delta-broken,del-c0077,Customer 0077 Smb Co,smb,1-50,outbound,2024-03-16,crm-00077,bill-00077,customer0077.example
+delta-broken,del-c0078,Customer 0078 Mid Market Co,mid_market,51-500,inbound,2022-05-08,crm-00078,bill-00078,customer0078.example
+delta-broken,del-c0079,Customer 0079 Mid Market Co,mid_market,51-500,inbound,2023-04-06,crm-00079,bill-00079,customer0079.example
+delta-broken,del-c0080,Customer 0080 Smb Co,smb,1-50,inbound,2023-10-22,crm-00080,bill-00080,customer0080.example
+delta-broken,del-c0081,Customer 0081 Smb Co,smb,1-50,outbound,2023-05-10,crm-00081,bill-00081,customer0081.example
+delta-broken,del-c0082,Customer 0082 Mid Market Co,mid_market,51-500,outbound,2022-03-23,crm-00082,bill-00082,customer0082.example
+delta-broken,del-c0083,Customer 0083 Smb Co,smb,1-50,partner,2022-04-09,crm-00083,bill-00083,customer0083.example
+delta-broken,del-c0084,Customer 0084 Mid Market Co,mid_market,51-500,partner,2022-06-08,crm-00084,bill-00084,customer0084.example
+delta-broken,del-c0085,Customer 0085 Mid Market Co,mid_market,51-500,partner,2024-08-02,crm-00085,bill-00085,customer0085.example
+delta-broken,del-c0086,Customer 0086 Mid Market Co,mid_market,51-500,partner,2022-11-18,crm-00086,bill-00086,customer0086.example
+delta-broken,del-c0087,Customer 0087 Smb Co,smb,1-50,inbound,2024-01-20,crm-00087,bill-00087,customer0087.example
+delta-broken,del-c0088,Customer 0088 Smb Co,smb,1-50,outbound,2021-09-22,crm-00088,bill-00088,customer0088.example
+delta-broken,del-c0089,Customer 0089 Enterprise Co,enterprise,500+,partner,2022-11-14,crm-00089,bill-00089,customer0089.example
+delta-broken,del-c0090,Customer 0090 Mid Market Co,mid_market,51-500,inbound,2022-05-04,crm-00090,bill-00090,customer0090.example
+delta-broken,del-c0091,Customer 0091 Mid Market Co,mid_market,51-500,outbound,2024-09-03,crm-00091,bill-00091,customer0091.example
+delta-broken,del-c0092,Customer 0092 Smb Co,smb,1-50,inbound,2024-09-03,crm-00092,bill-00092,customer0092.example
+delta-broken,del-c0093,Customer 0093 Smb Co,smb,1-50,outbound,2024-09-20,crm-00093,bill-00093,customer0093.example
+delta-broken,del-c0094,Customer 0094 Smb Co,smb,1-50,inbound,2024-09-25,crm-00094,bill-00094,customer0094.example
+delta-broken,del-c0095,Customer 0095 Enterprise Co,enterprise,500+,outbound,2024-09-01,crm-00095,bill-00095,customer0095.example
+delta-broken,del-c0096,Customer 0096 Enterprise Co,enterprise,500+,outbound,2024-09-12,crm-00096,bill-00096,customer0096.example
+delta-broken,del-c0097,Customer 0097 Mid Market Co,mid_market,51-500,inbound,2024-10-26,crm-00097,bill-00097,customer0097.example
+delta-broken,del-c0098,Customer 0098 Smb Co,smb,1-50,partner,2024-10-06,crm-00098,bill-00098,customer0098.example
+delta-broken,del-c0099,Customer 0099 Mid Market Co,mid_market,51-500,outbound,2024-11-28,crm-00099,bill-00099,customer0099.example
+delta-broken,del-c0100,Customer 0100 Smb Co,smb,1-50,partner,2024-11-16,crm-00100,bill-00100,customer0100.example
+delta-broken,del-c0101,Customer 0101 Mid Market Co,mid_market,51-500,partner,2024-11-23,crm-00101,bill-00101,customer0101.example
+delta-broken,del-c0102,Customer 0102 Mid Market Co,mid_market,51-500,inbound,2024-11-26,crm-00102,bill-00102,customer0102.example
+delta-broken,del-c0103,Customer 0103 Mid Market Co,mid_market,51-500,outbound,2024-12-11,crm-00103,bill-00103,customer0103.example
+delta-broken,del-c0104,Customer 0104 Mid Market Co,mid_market,51-500,inbound,2024-12-05,crm-00104,bill-00104,customer0104.example
+delta-broken,del-c0105,Customer 0105 Mid Market Co,mid_market,51-500,outbound,2024-12-05,crm-00105,bill-00105,customer0105.example
+delta-broken,del-c0106,Customer 0106 Smb Co,smb,1-50,outbound,2025-01-07,crm-00106,bill-00106,customer0106.example
+delta-broken,del-c0107,Customer 0107 Smb Co,smb,1-50,outbound,2025-01-23,crm-00107,bill-00107,customer0107.example
+delta-broken,del-c0108,Customer 0108 Mid Market Co,mid_market,51-500,partner,2025-01-08,crm-00108,bill-00108,customer0108.example
+delta-broken,del-c0109,Customer 0109 Mid Market Co,mid_market,51-500,inbound,2025-02-25,crm-00109,bill-00109,customer0109.example
+delta-broken,del-c0110,Customer 0110 Mid Market Co,mid_market,51-500,inbound,2025-02-27,crm-00110,bill-00110,customer0110.example
+delta-broken,del-c0111,Customer 0111 Smb Co,smb,1-50,inbound,2025-02-16,crm-00111,bill-00111,customer0111.example
+delta-broken,del-c0112,Customer 0112 Enterprise Co,enterprise,500+,inbound,2025-02-13,crm-00112,bill-00112,customer0112.example
+delta-broken,del-c0113,Customer 0113 Mid Market Co,mid_market,51-500,inbound,2025-03-14,crm-00113,bill-00113,customer0113.example
+delta-broken,del-c0114,Customer 0114 Smb Co,smb,1-50,outbound,2025-04-04,crm-00114,bill-00114,customer0114.example
+delta-broken,del-c0115,Customer 0115 Smb Co,smb,1-50,inbound,2025-04-03,crm-00115,bill-00115,customer0115.example
+delta-broken,del-c0116,Customer 0116 Mid Market Co,mid_market,51-500,outbound,2025-04-15,crm-00116,bill-00116,customer0116.example
+delta-broken,del-c0117,Customer 0117 Smb Co,smb,1-50,outbound,2025-05-03,crm-00117,bill-00117,customer0117.example
+delta-broken,del-c0118,Customer 0118 Mid Market Co,mid_market,51-500,inbound,2025-05-28,crm-00118,bill-00118,customer0118.example
+delta-broken,del-c0119,Customer 0119 Mid Market Co,mid_market,51-500,outbound,2025-05-21,crm-00119,bill-00119,customer0119.example
+delta-broken,del-c0120,Customer 0120 Mid Market Co,mid_market,51-500,inbound,2025-06-10,crm-00120,bill-00120,customer0120.example
+delta-broken,del-c0121,Customer 0121 Smb Co,smb,1-50,inbound,2025-06-16,crm-00121,bill-00121,customer0121.example
+delta-broken,del-c0122,Customer 0122 Smb Co,smb,1-50,partner,2025-07-23,crm-00122,bill-00122,customer0122.example
+delta-broken,del-c0123,Customer 0123 Mid Market Co,mid_market,51-500,outbound,2025-07-12,crm-00123,bill-00123,customer0123.example
+delta-broken,del-c0124,Customer 0124 Mid Market Co,mid_market,51-500,partner,2025-07-08,crm-00124,bill-00124,customer0124.example
+delta-broken,del-c0125,Customer 0125 Mid Market Co,mid_market,51-500,outbound,2025-07-25,crm-00125,bill-00125,customer0125.example
+delta-broken,del-c0126,Customer 0126 Enterprise Co,enterprise,500+,partner,2025-07-03,crm-00126,bill-00126,customer0126.example
+delta-broken,del-c0127,Customer 0127 Mid Market Co,mid_market,51-500,outbound,2025-07-15,crm-00127,bill-00127,customer0127.example
+delta-broken,del-c0128,Customer 0128 Smb Co,smb,1-50,outbound,2025-08-20,crm-00128,bill-00128,customer0128.example
+delta-broken,del-c0129,Customer 0129 Smb Co,smb,1-50,partner,2025-08-15,crm-00129,bill-00129,customer0129.example
+delta-broken,del-c0130,Customer 0130 Smb Co,smb,1-50,outbound,2025-08-27,crm-00130,bill-00130,customer0130.example
+delta-broken,del-c0131,Customer 0131 Smb Co,smb,1-50,inbound,2025-08-13,crm-00131,bill-00131,customer0131.example
+delta-broken,del-c0132,Customer 0132 Mid Market Co,mid_market,51-500,partner,2025-08-17,crm-00132,bill-00132,customer0132.example
+delta-broken,del-c0133,Customer 0133 Mid Market Co,mid_market,51-500,partner,2025-08-01,crm-00133,bill-00133,customer0133.example
+delta-broken,del-c0134,Customer 0134 Mid Market Co,mid_market,51-500,outbound,2025-08-11,crm-00134,bill-00134,customer0134.example
+delta-broken,del-c0135,Customer 0135 Smb Co,smb,1-50,outbound,2025-09-11,crm-00135,bill-00135,customer0135.example
+delta-broken,del-c0136,Customer 0136 Smb Co,smb,1-50,inbound,2025-09-01,crm-00136,bill-00136,customer0136.example
+delta-broken,del-c0137,Customer 0137 Enterprise Co,enterprise,500+,outbound,2025-09-11,crm-00137,bill-00137,customer0137.example
+delta-broken,del-c0138,Customer 0138 Smb Co,smb,1-50,inbound,2025-10-03,crm-00138,bill-00138,customer0138.example
+delta-broken,del-c0139,Customer 0139 Smb Co,smb,1-50,partner,2025-11-25,crm-00139,bill-00139,customer0139.example
+delta-broken,del-c0140,Customer 0140 Mid Market Co,mid_market,51-500,inbound,2025-11-11,crm-00140,bill-00140,customer0140.example
+delta-broken,del-c0141,Customer 0141 Mid Market Co,mid_market,51-500,outbound,2025-11-18,crm-00141,bill-00141,customer0141.example
+delta-broken,del-c0142,Customer 0142 Smb Co,smb,1-50,outbound,2025-12-13,crm-00142,bill-00142,customer0142.example
+delta-broken,del-c0143,Customer 0143 Smb Co,smb,1-50,inbound,2025-12-13,crm-00143,bill-00143,customer0143.example
+delta-broken,del-c0144,Customer 0144 Mid Market Co,mid_market,51-500,outbound,2025-12-23,crm-00144,bill-00144,customer0144.example
+delta-broken,del-c0145,Customer 0145 Enterprise Co,enterprise,500+,outbound,2026-01-23,crm-00145,bill-00145,customer0145.example
+delta-broken,del-c0146,Customer 0146 Smb Co,smb,1-50,outbound,2026-01-10,crm-00146,bill-00146,customer0146.example
+delta-broken,del-c0147,Customer 0147 Mid Market Co,mid_market,51-500,partner,2026-01-26,crm-00147,bill-00147,customer0147.example
+delta-broken,del-c0148,Customer 0148 Mid Market Co,mid_market,51-500,partner,2026-01-18,crm-00148,bill-00148,customer0148.example
+delta-broken,del-c0149,Customer 0149 Smb Co,smb,1-50,outbound,2026-02-26,crm-00149,bill-00149,customer0149.example
+delta-broken,del-c0150,Customer 0150 Enterprise Co,enterprise,500+,inbound,2026-02-23,crm-00150,bill-00150,customer0150.example
+delta-broken,del-c0151,Customer 0151 Mid Market Co,mid_market,51-500,partner,2026-03-08,crm-00151,bill-00151,customer0151.example
+delta-broken,del-c0152,Customer 0152 Smb Co,smb,1-50,inbound,2026-04-25,crm-00152,bill-00152,customer0152.example
+delta-broken,del-c0153,Customer 0153 Smb Co,smb,1-50,outbound,2026-04-08,crm-00153,bill-00153,customer0153.example
+delta-broken,del-c0154,Customer 0154 Enterprise Co,enterprise,500+,outbound,2026-04-05,crm-00154,bill-00154,customer0154.example
+delta-broken,del-c0155,Customer 0155 Enterprise Co,enterprise,500+,partner,2026-04-07,crm-00155,bill-00155,customer0155.example
+delta-broken,del-c0156,Customer 0156 Mid Market Co,mid_market,51-500,outbound,2026-04-07,crm-00156,bill-00156,customer0156.example
+delta-broken,del-c0157,Customer 0157 Smb Co,smb,1-50,outbound,2026-05-24,crm-00157,bill-00157,customer0157.example
+delta-broken,del-c0158,Customer 0158 Mid Market Co,mid_market,51-500,outbound,2026-05-25,crm-00158,bill-00158,customer0158.example
+delta-broken,del-c0159,Customer 0159 Smb Co,smb,1-50,inbound,2026-05-19,crm-00159,bill-00159,customer0159.example
+delta-broken,del-c0160,Customer 0160 Mid Market Co,mid_market,51-500,outbound,2026-06-13,crm-00160,bill-00160,customer0160.example
+delta-broken,del-c0161,Customer 0161 Smb Co,smb,1-50,partner,2026-06-28,crm-00161,bill-00161,customer0161.example
+delta-broken,del-c0162,Customer 0162 Mid Market Co,mid_market,51-500,partner,2026-06-26,crm-00162,bill-00162,customer0162.example
+delta-broken,del-c0163,Customer 0163 Mid Market Co,mid_market,51-500,outbound,2026-06-24,crm-00163,bill-00163,customer0163.example
+delta-broken,del-c0164,Customer 0164 Smb Co,smb,1-50,outbound,2026-06-25,crm-00164,bill-00164,customer0164.example
+delta-broken,del-c0165,Customer 0165 Smb Co,smb,1-50,inbound,2026-07-26,crm-00165,bill-00165,customer0165.example
+delta-broken,del-c0166,Customer 0166 Mid Market Co,mid_market,51-500,partner,2026-07-20,crm-00166,bill-00166,customer0166.example
+delta-broken,del-c0167,Customer 0167 Mid Market Co,mid_market,51-500,outbound,2026-07-06,crm-00167,bill-00167,customer0167.example
+delta-broken,del-c0168,Customer 0168 Smb Co,smb,1-50,outbound,2026-07-11,crm-00168,bill-00168,customer0168.example
+delta-broken,del-c0169,Customer 0169 Smb Co,smb,1-50,inbound,2026-07-13,crm-00169,bill-00169,customer0169.example
+delta-broken,del-c0170,Customer 0170 Mid Market Co,mid_market,51-500,inbound,2026-07-17,crm-00170,bill-00170,customer0170.example
+delta-broken,del-c0171,Customer 0171 Mid Market Co,mid_market,51-500,inbound,2026-07-20,crm-00171,bill-00171,customer0171.example
+delta-broken,del-c0172,Customer 0172 Mid Market Co,mid_market,51-500,outbound,2026-07-28,crm-00172,bill-00172,customer0172.example
+delta-broken,del-c0173,Customer 0173 Enterprise Co,enterprise,500+,outbound,2026-08-02,crm-00173,bill-00173,customer0173.example
+delta-broken,del-c0001-dup,CUSTOMER 0001 ENTERPRISE CO,enterprise,500+,inbound,2024-03-20,crm-00001,bill-dup-0,customer0001.example
+delta-broken,del-c0002-dup,CUSTOMER 0002 MID MARKET CO,mid_market,51-500,partner,2023-09-05,crm-00002,bill-dup-1,customer0002.example
+delta-broken,del-c0003-dup,CUSTOMER 0003 SMB CO,smb,1-50,outbound,2024-06-03,crm-00003,bill-dup-2,customer0003.example
+delta-broken,del-c0004-dup,CUSTOMER 0004 SMB CO,smb,1-50,partner,2022-08-01,crm-00004,bill-dup-3,customer0004.example
+delta-broken,del-c0005-dup,CUSTOMER 0005 ENTERPRISE CO,enterprise,500+,inbound,2022-06-09,crm-00005,bill-dup-4,customer0005.example

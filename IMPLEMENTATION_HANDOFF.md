@@ -2,7 +2,7 @@
 
 ## Implementation-agent handoff
 
-> **Revision 2 (2026-09-23).** This revision records what is actually built, fixes design gaps found in review, and moves milestone planning to [ROADMAP.md](ROADMAP.md). See [Changes in this revision](#changes-in-this-revision) at the end.
+> **Revision 4 (2026-09-27).** Implementation and audit remediation are local; deployment and human acceptance remain open. [Current state](#current-state-2026-09-27) distinguishes implemented controls from acceptance. [ROADMAP.md](ROADMAP.md) carries the release gates and [audit remediation](docs/audit-remediation.md) carries fresh verification.
 
 ### Mission
 Turn portfolio-company operating data into evidence-backed value-creation initiatives, deterministic economic cases, 100-day plans, and KPI monitoring.
@@ -19,26 +19,24 @@ Production readiness criteria are defined in [ROADMAP.md](ROADMAP.md#release-gat
 - Do not create a generalized multi-agent framework before the primary workflow works.
 - Do not optimize UI before evidence, contracts, and tests are stable.
 
-## Current state (verified 2026-09-23)
+## Current state (2026-09-27)
 
-The repository is a starter scaffold. Roughly 5% of this spec is implemented.
+The repository contains a working implementation and repairs for the September 27 engineering audit. It is not feature-complete or production-certified. Historical CI and live-model results apply only to their recorded revisions. Use [audit remediation](docs/audit-remediation.md) for current local validation and remaining finding-specific work; Docker Compose and AWS have not been validated in this remediation.
 
-| Area | State | Notes |
-|---|---|---|
-| `pyproject.toml` | Present | Matches the *original* skeleton. Needs the fixes in [Package skeleton](#package-skeleton) (ticket PVC-002/003/004). |
-| `src/domain/models.py` | Partial | `Confidence`, `EvidenceRef`, `Finding` only. `AuditEvent` missing. Fields don't match the SQL schema yet. |
-| `src/mcp_server.py` | Partial | `healthcheck` tool and `project://policies` resource only. No domain tools, no `review_run` prompt. |
-| `tests/test_mcp.py` | Partial | One healthcheck test; does not assert the returned status. |
-| `skills/*/SKILL.md` | Present | Six skills, rewritten in revision 2 with domain procedure. They reference MCP tools that are **planned, not built** (see [Tool catalog](#mcp-tool-catalog)). |
-| `project_models.py`, `services.py`, `policies.py`, `workflows/base.py`, `workflows/primary.py`, adapters, fixtures, migrations, docker-compose, docs/ | Missing | See ROADMAP milestones M1–M4. |
-| Version control | Missing | Not a git repository yet (PVC-001). |
+| Area | Implementation and acceptance boundary |
+|---|---|
+| Deterministic core | Decimal calculations, versioned metrics, sufficiency, prioritization and baselines; multi-product pricing is `price-waterfall/2`. |
+| Persistence | In-memory/PostgreSQL repositories, RLS, append-only runtime audit, evidence stores; migrations through `0003`. Persisted contracts are snapshot-tested. |
+| Workflow | Immutable input/policy snapshots, checkpoints, review rounds, leased/fenced worker writes and linked replacement runs for explicit input refresh. |
+| MCP | 22 tools, 3 resources, 1 prompt; auth, strict arguments, company scope and numeric source catalog. Interactive proposals, drafts and submission share evidence, sufficiency, eligibility, freshness and overlap validation. |
+| Approval/KPIs | Human approval API; each retained initiative requires a monitorable KPI. Durable notification delivery is at least once with a stable idempotency key. |
+| Model | Proposer and optional narrator use quantity-bound numeric prose and citation validation. Management documents can be excluded per company before provider prompts. Scripted tests are not live-provider evidence. |
+| Evals | 29 golden and 10 adversarial cases, including narrator injection. Model gates cover negative outcomes and narrator results; empty selections fail. Token/cache usage feeds cost estimates, not billing reconciliation. |
+| Adapters | Fixture, CSV, warehouse, Stripe, HubSpot, Zendesk and composite adapters. Vendor API tests use simulators; pilot mapping/conformance and real-source acceptance remain open. Product analytics is CSV/warehouse ingestion, not a native product-vendor connector. |
+| Deployment | Image/Terraform/CD code exists. CI and CD image scans fail all HIGH/CRITICAL findings. No claim of fresh image scan, Compose validation or live AWS acceptance. |
+| External acceptance | Human skill session, domain/policy/value-band review, provider/legal/retention approval, SLO acceptance, security review, on-call, pilot and launch remain open. |
 
-Verified behaviour of the scaffold on Python 3.14.5 with `mcp` 2.2.0 (latest on PyPI; `mcp>=2,<3` resolves):
-
-- `python -m pytest` → 1 passed.
-- `pytest` (console entry point) → **fails** with `ModuleNotFoundError: No module named 'src.mcp_server'`, because the repo root is not on `sys.path` and `pyproject.toml` has no build system or `pythonpath` setting.
-- The MCP v2 APIs used here (`mcp.server.MCPServer`, `mcp.Client`, `@mcp.tool`, `@mcp.resource`, `@mcp.prompt`, `CallToolResult.structured_content`) all work as written.
-- Tests use `@pytest.mark.anyio` while `pyproject.toml` configures `pytest-asyncio` auto mode. Both plugins load. Standardize on anyio (it ships with `mcp`) and drop `pytest-asyncio`.
+The historical September 23 paid subset exercised only the proposer. It did not exercise the narrator or the stronger current gates. No paid call or human sign-off was performed during remediation.
 
 ## Reference architecture
 
@@ -103,27 +101,31 @@ Every tool that touches company data takes `company_id` and enforces scope serve
 | Tool | Module | Purpose | Status |
 |---|---|---|---|
 | `healthcheck()` | core | Service health | built |
-| `get_company_profile(company_id)` | portco_financials | Business model, scale, fiscal calendar | PVC-051 |
-| `check_data_sufficiency(company_id, analysis)` | value_model | SUFFICIENT/INSUFFICIENT plus a gap list per analysis | PVC-051 |
-| `get_financials(company_id, period_start, period_end)` | portco_financials | Monthly P&L lines | PVC-057 |
-| `get_usage_metrics(company_id, period)` | product_analytics | Active accounts, feature adoption | PVC-057 |
-| `get_support_metrics(company_id, period)` | support | Volumes, categories, handle time, CSAT | PVC-057 |
-| `compute_saas_metrics(company_id, period)` | value_model | ARR bridge, NRR, GRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 | PVC-058 |
-| `compute_retention_cohorts(company_id, cohort_grain)` | value_model | Logo and dollar retention by cohort | PVC-058 |
-| `price_waterfall(company_id, period, segment=None)` | pricing | List → invoice → pocket price and leakage | PVC-052 |
-| `get_benchmarks(metric, peer_set)` | benchmark | Anonymized peer distribution | PVC-116 |
-| `record_finding(run_id, finding)` | value_model | Persist a finding; rejects uncited value claims | PVC-053 |
-| `propose_opportunity(run_id, ...)` | value_model | Model proposes scenario rates and evidence; server fills in baseline and flow-through | PVC-053 |
-| `size_value_case(company_id, opportunity_id, ev_multiple=None)` | value_model | Deterministic low/base/high EBITDA sizing | PVC-053 |
-| `list_evidence(company_id, opportunity_id)` | value_model | Evidence linked to an opportunity | PVC-053 |
-| `prioritize_opportunities(run_id)` | value_model | Deterministic priority scores | PVC-053 |
-| `get_kpi_status(company_id)` | value_model | Plan-vs-actual for approved KPIs | PVC-121 |
-| `get_run_status(run_id)` | workflow | Current step, status, gaps | PVC-054 |
-| `request_approval(run_id, artifact_id)` | workflow | Pause the run for human review | PVC-054 |
+| `get_company_profile(company_id)` | portco_financials | Business model, scale, fiscal calendar | built |
+| `get_financials(company_id, period_start, period_end)` | portco_financials | Monthly P&L lines | built |
+| `get_churn_summary(company_id, period)` | crm | Trailing-12-month churned logos by churn type, voluntary reason codes, renewal win/loss counts | built |
+| `get_usage_metrics(company_id, period)` | product_analytics | Active accounts, feature adoption | built |
+| `get_support_metrics(company_id, period)` | support | Volumes, categories, handle time, CSAT | built |
+| `price_waterfall(company_id, period, segment=None)` | pricing | List → invoice → pocket price and leakage | built |
+| `get_benchmarks(metric, peer_set)` | benchmark | Anonymized peer distribution (at least 5 peers; never portco-level values) | built on a synthetic peer set; real data source is open (PVC-116) |
+| `get_numeric_sources(company_id)` | value_model | Server-issued numeric provenance catalog for claim references | built |
+| `check_data_sufficiency(company_id, analysis)` | value_model | SUFFICIENT/INSUFFICIENT plus a gap list per analysis | built |
+| `compute_saas_metrics(company_id, period)` | value_model | ARR bridge, NRR, GRR, CAC payback, LTV/CAC, magic number, burn multiple, Rule of 40 | built |
+| `compute_retention_cohorts(company_id, cohort_grain)` | value_model | Logo and dollar retention by cohort | built |
+| `record_finding(run_id, finding_type, title, statement, confidence, evidence_ids, ...)` | value_model | Persist a finding; rejects uncited value claims | built |
+| `propose_opportunity(run_id, lever, baseline_metric, ...)` | value_model | Model proposes scenario rates and evidence; server fills in baseline and flow-through | built |
+| `size_value_case(company_id, opportunity_id, ev_multiple=None)` | value_model | Deterministic low/base/high EBITDA sizing | built |
+| `list_evidence(company_id, opportunity_id)` | value_model | Evidence linked to an opportunity | built |
+| `prioritize_opportunities(run_id)` | value_model | Deterministic priority scores | built |
+| `draft_100_day_plan(run_id)` | value_model | Workstreams, initiatives and KPIs from prioritized value cases | built |
+| `get_kpi_status(company_id)` | value_model | Plan-vs-actual for approved KPIs | built |
+| `start_diagnostic_run(company_id, mode, idempotency_key)` | workflow | Start an interactive or automated run (idempotent) | built |
+| `get_run_status(run_id)` | workflow | Current step, status, gaps | built |
+| `request_approval(run_id)` | workflow | Pause the run for human review | built |
 
 There is deliberately **no** `approve` tool. Approval decisions come only through the authenticated human approval API (PVC-060).
 
-Resources: `project://policies` (built), `company://{company_id}/data-inventory`, `run://{run_id}/summary`. Prompts: `review_run(run_id)`.
+Resources (all built): `project://policies`, `company://{company_id}/data-inventory`, `run://{run_id}/summary`. Prompt (built): `review_run(run_id)`.
 
 ### Agent Skills
 - `pe-value-creation-diagnostic`: orchestrating procedure for a full diagnostic run.
@@ -157,6 +159,8 @@ After approval, the `kpi_monitoring` job runs on a schedule against the approved
 - No uncited value claim (enforced by `record_finding` and the evidence-review step)
 
 ## Data and state model
+
+The schema and skeleton excerpts below preserve the original design handoff; they are not executable migration or runtime sources. Current contracts are in `src/pe_value_os/domain/`, migrations are in `src/pe_value_os/db/migrations/versions/`, and reviewed schemas are in `tests/snapshots/`. For current lease fencing, immutable run snapshots, approval rounds and durable notification semantics, use [architecture](docs/architecture.md) and the implemented modules.
 
 Use PostgreSQL as the workflow source of truth. Every company-scoped table carries `company_id` so row-level security can enforce tenancy. Minimum tables:
 
@@ -414,91 +418,62 @@ Results are run-rate annual EBITDA. In-year phasing is a separate calculation (P
 
 ### Project-specific MCP tools
 
+As built, in `src/pe_value_os/tools/value_tools.py`. Every tool is wrapped by `governed` (`tools/_runtime.py`), which:
+- maps domain errors to MCP tool errors;
+- records a metric and a trace span;
+- requires the `pvc.write` scope for tools that change state;
+- normalizes the description.
+
 ```python
-# add to src/pe_value_os/mcp_server.py
-from decimal import Decimal
-from .adapters.repositories import get_repository
-from .domain import services
-from .domain.models import EvidenceRef
-from .domain.project_models import ValueCase
-from .security import scope
-from .observability import audit
-
-@mcp.tool()
+@mcp.tool(name="size_value_case")
+@governed("size_value_case", mutating=True)
 def size_value_case(company_id: str, opportunity_id: str, ev_multiple: Decimal | None = None) -> ValueCase:
-    """Size low/base/high annual run-rate EBITDA impact for a stored opportunity.
-
-    Baseline values and flow-through come from ingested company data, never from the caller.
-    """
-    scope.require(company_id)
-    repo = get_repository()
-    opp = repo.get_opportunity(company_id, opportunity_id)
-    case = services.size_value_case(opp, ev_multiple)
-    repo.save_value_case(company_id, case)
-    audit.emit(company_id=company_id, step="value_modeling", event_type="value_case_sized",
-               payload={"opportunity_id": opportunity_id, "inputs_hash": case.inputs_hash})
-    return case
-
-@mcp.tool()
-def list_evidence(company_id: str, opportunity_id: str) -> list[EvidenceRef]:
-    """List evidence linked to one opportunity."""
-    scope.require(company_id)
-    return get_repository().evidence_for_opportunity(company_id, opportunity_id)
+    """Size low/base/high annual run-rate EBITDA for a stored opportunity. Baseline values and flow-through
+    come from company data, never from the caller. Quote results exactly; do not adjust them."""
+    ctx = get_ctx()
+    opp = ctx.repo.get_opportunity(company_id, opportunity_id)   # scope-checked; other companies' ids -> NotFound
+    _open_interactive_run(opp.run_id)                             # only open interactive runs can change
+    vc = _size(opp, ev_multiple)                                  # domain.services.size_value_case
+    ctx.repo.save_value_case(company_id, opp.run_id, vc, ctx.policy.version)
+    audit(company_id, "size_value_case", "value_case_sized", opp.run_id,
+          opportunity_id=opportunity_id, calc_version=vc.calc_version, policy_version=ctx.policy.version)
+    return vc
 ```
 
-`scope.require` raises if the calling principal may not access `company_id`. In v0.1 the allowed set comes from the `PVC_ALLOWED_COMPANIES` environment variable. In production it comes from OAuth token claims (PVC-091/092). `get_repository()` returns the in-memory repository in tests and the Postgres repository when `DATABASE_URL` is set.
+`security.require(company_id)` raises if the calling principal may not access `company_id`, and every repository method calls it. The principal comes from the OAuth token's `pvc_companies`, `pvc_roles` and `pvc_principal_type` claims. Only in dev does it come from `PVC_ALLOWED_COMPANIES`. PostgreSQL row-level security applies the same scope inside the database. `get_repository()` returns the in-memory repository when `DATABASE_URL` is unset (tests, demo) and the PostgreSQL repository otherwise.
 
-## Repository skeleton
+## Repository layout
 
-Target layout. Items marked ✅ exist today. Everything else is planned in [ROADMAP.md](ROADMAP.md).
+As built (the full map is in [README.md](README.md#repository-map)):
 
 ```text
 pe-value-creation-os/
-├── pyproject.toml                 ✅ (needs PVC-002/003/004 fixes)
-├── uv.lock
-├── README.md                      ✅
-├── IMPLEMENTATION_HANDOFF.md      ✅
-├── ROADMAP.md                     ✅
-├── .env.example
-├── docker-compose.yml
-├── migrations/                    # Alembic
-├── src/pe_value_os/               # currently src/ with no package name (PVC-003)
-│   ├── mcp_server.py              ✅ (partial)
-│   ├── security.py                # scope checks
-│   ├── observability.py           # structlog, OTel, audit emitter
-│   ├── domain/
-│   │   ├── models.py              ✅ (partial)
-│   │   ├── project_models.py
-│   │   ├── services.py
-│   │   ├── metrics.py             # SaaS, retention, pricing calculations
-│   │   └── policies.py
-│   ├── adapters/
-│   │   ├── repositories.py        # interface + in-memory + Postgres
-│   │   ├── fixtures.py            # fixture-backed source systems
-│   │   └── external.py
-│   ├── workflows/
-│   │   ├── base.py
-│   │   ├── steps.py
-│   │   └── primary.py
-│   └── api/
-│       └── approvals.py           # human-only approval endpoint (FastAPI)
-├── skills/                        ✅ six skills
-├── tests/
-│   ├── test_mcp.py                ✅ (partial)
-│   ├── test_services.py
-│   ├── test_workflow.py
-│   ├── test_policies.py
-│   └── fixtures/
-├── evals/
-│   └── golden/
-└── docs/
-    ├── architecture.md
-    ├── data_contracts.md
-    ├── threat_model.md
-    └── runbooks/
+├── pyproject.toml, uv.lock          uv project; extras postgres, http, observability, llm, aws, server, dev
+├── Dockerfile, docker-compose.yml   one image for every process; local stack
+├── .env.example                     every runtime setting
+├── src/pe_value_os/
+│   ├── domain/                      contracts, calculators (metrics, retention, pricing, sufficiency, sizing), baselines
+│   ├── policy/                      versioned policy.toml and its loader
+│   ├── adapters/                    fixture, CSV, warehouse, Stripe, HubSpot, Zendesk, composite; repositories; evidence store
+│   ├── db/                          roles.sql, Alembic migrations (raw SQL), migration check
+│   ├── workflows/                   runner (checkpoints, guard, retries), steps, rule-based proposals, planning
+│   ├── llm/                         Claude client, proposer, narrator, no-new-numbers guardrail
+│   ├── tools/                       MCP tools by capability boundary; governed runtime
+│   ├── api/                         approval API and review UI (FastAPI)
+│   ├── evals/                       evaluation harness
+│   ├── mcp_server.py, worker.py, cli.py, approvals.py, kpi.py, ops.py, auth.py, security.py, observability.py
+├── skills/                          six Agent Skills with generated worked examples
+├── tests/                           unit, contract, MCP, API, workflow, PostgreSQL, audit regression tests; fixtures
+├── evals/                           golden.json, adversarial.json, thresholds.toml
+├── infra/                           Terraform module and environments, deploy and smoke scripts, container helpers
+├── ops/observability/               Grafana dashboard, Prometheus alerts, OpenTelemetry collector
+├── scripts/                         worked-example generator, dashboard builder, restore drill, load tests
+└── docs/                            architecture, ADRs, data contracts, threat model, SLOs, runbooks, deployment, pilot
 ```
 
 ## Package skeleton
+
+> The skeleton sections from here to *Testing skeleton* are the revision-2 design sketches that guided the implementation. Where they differ from the code (`pyproject.toml`, `src/pe_value_os/`), the code is authoritative.
 
 Corrections from revision 1: a build system and package path (fixes the `pytest` import failure), a single async test plugin, and heavy dependencies moved to extras until they are used.
 
@@ -786,7 +761,7 @@ Never log secrets or raw sensitive payloads. Store hashes/IDs where possible.
 - Use service accounts with least privilege.
 - Treat all retrieved text as untrusted data, never as executable instructions.
 - Keep credentials outside Skills and prompts.
-- Enforce tenant/company scope server-side (`scope.require` in every tool, plus Postgres row-level security), not in natural language.
+- Enforce tenant/company scope server-side (`security.require` in every tool and repository call, plus Postgres row-level security), not in natural language.
 - Use read-only data access for discovery/analysis by default.
 - Approval decisions come only through the authenticated human approval API. No MCP tool can approve.
 - For uploaded documents, retain immutable originals and derived text separately.
@@ -803,24 +778,27 @@ Milestones, tickets, and release gates live in [ROADMAP.md](ROADMAP.md). Summary
 | R1.0 Production | All P0/P1, M12, M14, M15 | Monitored, secured, recoverable service across multiple portcos |
 
 ## Acceptance checklist (R0.1)
-- [ ] `intake` has a deterministic artifact, audit event, and failure path.
-- [ ] `data_sufficiency` has a deterministic artifact, audit event, and failure path.
-- [ ] `diagnostics` runs branches in parallel and survives a single-branch failure.
-- [ ] `value_modeling` has a deterministic artifact, audit event, and failure path.
-- [ ] `evidence_review` pauses the run with `NEEDS_EVIDENCE` on an uncited value claim.
-- [ ] `prioritization` has a deterministic artifact, audit event, and failure path.
-- [ ] `roadmap_100_day` has a deterministic artifact, audit event, and failure path.
-- [ ] `human_approval` pauses the run, and it resumes only after a human decision through the approval API.
-- [ ] `kpi_monitoring` job starts from an approved plan (R1.0, PVC-120/121).
-- [ ] Every material recommendation includes supporting evidence or explicitly says evidence is insufficient.
-- [ ] All irreversible actions are disabled or human-approved.
-- [ ] MCP tools have typed schemas and integration tests.
-- [ ] At least one Skill is dynamically useful and not just duplicate prompt text.
-- [ ] All arithmetic/financial/statistical calculations have deterministic tests.
-- [ ] The demo can survive one injected tool failure.
-- [ ] `pytest` passes from a clean checkout with no manual path setup.
 
-## First implementation-agent tasks
+The automated criteria below are covered by tests (`tests/test_workflow.py`, `tests/test_mcp.py`, `tests/test_api.py`, `tests/test_demo.py`) and by the eval gate.
+
+- [x] `intake` has a deterministic artifact, audit event, and failure path.
+- [x] `data_sufficiency` has a deterministic artifact, audit event, and failure path.
+- [x] `diagnostics` runs branches in parallel and survives a single-branch failure.
+- [x] `value_modeling` has a deterministic artifact, audit event, and failure path.
+- [x] `evidence_review` pauses the run with `NEEDS_EVIDENCE` on an uncited value claim.
+- [x] `prioritization` has a deterministic artifact, audit event, and failure path.
+- [x] `roadmap_100_day` has a deterministic artifact, audit event, and failure path.
+- [x] `human_approval` pauses the run, and it resumes only after a human decision through the approval API.
+- [x] `kpi_monitoring` job starts from an approved plan (R1.0, PVC-120/121).
+- [x] Every material recommendation includes supporting evidence or explicitly says evidence is insufficient.
+- [x] All irreversible actions are disabled or human-approved.
+- [x] MCP tools have typed schemas and integration tests.
+- [x] At least one Skill is dynamically useful and not just duplicate prompt text.
+- [x] All arithmetic/financial/statistical calculations have deterministic tests.
+- [x] The demo can survive one injected tool failure.
+- [x] `pytest` passes from a clean checkout with no manual path setup.
+
+## First implementation-agent tasks (historical scaffold sequence)
 
 These map to the R0.1 tickets in [ROADMAP.md](ROADMAP.md).
 
@@ -838,6 +816,22 @@ These map to the R0.1 tickets in [ROADMAP.md](ROADMAP.md).
 Do not broaden scope until the first vertical slice is demonstrably correct, auditable, and restartable. Prefer boring deterministic code over agent autonomy. Every time a model is introduced, document why a deterministic rule is insufficient and define an evaluation for that model-dependent decision.
 
 ## Changes in this revision
+
+Revision 3 (2026-09-23):
+
+- **Audit fixes:**
+  - Approval tokens now have their own audience, `pvc.approve` scope and client allow-list.
+  - Tools that change state require `pvc.write`, and only work on open interactive runs.
+  - Timed-out step attempts can no longer write.
+  - The guardrail, metric edge cases, pricing, stale-data and currency checks, and double counting are fixed.
+  - Passwords are sent as SCRAM verifiers, telemetry is exported, offboarding deletes evidence first, and the CD role no longer has its excess privileges.
+  - See the threat model's *audit* rows.
+
+- **Current state** now describes the built system and how it was verified.
+- **Tool catalog** listed the 21 tools at that revision. `get_churn_summary`, `draft_100_day_plan` and `start_diagnostic_run` were added during implementation.
+- **R0.1 acceptance checklist** checked.
+
+Revision 2:
 
 - **Added** a verified "Current state" section, including the `pytest` import failure and its cause.
 - **Confirmed** that the MCP SDK v2 APIs used in the skeleton work on `mcp` 2.2.0.

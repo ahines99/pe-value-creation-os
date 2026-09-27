@@ -1,0 +1,113 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "currency": {
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "deal_size_band": {
+      "title": "Deal Size Band",
+      "type": "string"
+    },
+    "invoice_date": {
+      "format": "date",
+      "title": "Invoice Date",
+      "type": "string"
+    },
+    "invoice_id": {
+      "title": "Invoice Id",
+      "type": "string"
+    },
+    "line_id": {
+      "title": "Line Id",
+      "type": "string"
+    },
+    "list_price_per_unit": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "List Price Per Unit"
+    },
+    "net_amount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Net Amount"
+    },
+    "on_invoice_discount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "On Invoice Discount"
+    },
+    "price_book_id": {
+      "title": "Price Book Id",
+      "type": "string"
+    },
+    "product": {
+      "title": "Product",
+      "type": "string"
+    },
+    "quantity": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Quantity"
+    }
+  },
+  "required": [
+    "company_id",
+    "invoice_id",
+    "line_id",
+    "customer_id",
+    "invoice_date",
+    "product",
+    "price_book_id",
+    "quantity",
+    "list_price_per_unit",
+    "on_invoice_discount",
+    "net_amount",
+    "currency",
+    "deal_size_band"
+  ],
+  "title": "InvoiceLine",
+  "type": "object"
+}

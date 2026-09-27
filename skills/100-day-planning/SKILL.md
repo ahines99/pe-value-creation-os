@@ -7,8 +7,8 @@ description: Turn prioritized, deterministically sized value-creation opportunit
 Convert a sized opportunity list into a plan management can run and the monitoring job can track. The plan adds sequencing, ownership, and measurement. It never adds value that the value cases didn't size.
 
 # Preconditions
-- The run has sized value cases from `size_value_case` and a ranking from `prioritize_opportunities`. If not, stop and say so.
-- Include only opportunities that are not `NEEDS_EVIDENCE`. List the excluded ones in an appendix with the data needed.
+- The run has sized value cases from `size_value_case` and a ranking from `prioritize_opportunities`. If not, stop and say so; `draft_100_day_plan` refuses to run without a ranking.
+- The plan contains only ranked opportunities with a positive base case: `prioritize_opportunities` ranks only sized opportunities, and `draft_100_day_plan` excludes the rest. List everything left out (unsized opportunities, `data_gap` findings, non-positive base cases) in an appendix with the data needed.
 
 # Rules
 - Keep the priority order from `prioritize_opportunities`. Sequencing may differ from priority because of dependencies; explain every difference.
@@ -32,7 +32,7 @@ Convert a sized opportunity list into a plan management can run and the monitori
 6. **Risks and mitigations:** from each opportunity's risks, plus execution risk (owner capacity, change load on sales and CS).
 7. **Decision points:** what needs sponsor or board approval, and by when.
 8. **Governance:** propose a cadence, such as a weekly workstream check-in, a biweekly steering meeting, and a monthly sponsor update. Adjust it to what the user specifies.
-9. **Submit** with `request_approval(run_id, artifact_id)` and stop.
+9. **Build and submit.** Call `draft_100_day_plan(run_id)` for the deterministic plan (workstreams, KPIs, totals), add the qualitative content above in your response, then call `request_approval(run_id)` and stop.
 
 # Plan quality checklist
 - [ ] Every initiative traces to an opportunity id and its value case.
@@ -49,4 +49,13 @@ Convert a sized opportunity list into a plan management can run and the monitori
 4. **Dependencies and critical path.**
 5. **Risks and mitigations.**
 6. **Decisions requiring approval.**
-7. **Appendix:** excluded `NEEDS_EVIDENCE` opportunities.
+7. **Appendix:** excluded opportunities (unsized, evidence gaps, or no positive base case), with the data needed.
+
+
+# Numeric claims and server validation
+Before writing a numeric finding or proposal, call `get_numeric_sources(company_id)`. Copy an exact catalog key and use `{{quantity:KEY}}` in prose; for example `Legacy share is {{quantity:pricing.legacy.legacy_arr_share}}` only when that key is returned. The server renders metric, value, unit, company, period and evidence together. Do not paste bare values into `record_finding` or `propose_opportunity` text, invent keys, or use identifiers as numeric sources. Qualitative wording is allowed. Structured scenario-rate/cost fields remain assumptions and must not be recast as measured facts.
+
+Proposal, draft and submission calls enforce sufficiency, source freshness, policy eligibility, evidence and overlap checks. If rejected, record the named gap and resolve it; rewording the same unsupported or overlapping proposal does not make it eligible. Worked examples below were regenerated through a scripted MCP replay on the date shown in each file. They illustrate executable calls and returned outputs, not a human acceptance session.
+
+# References
+- `references/worked-example.md`: the draft plan produced for the fictional Beacon fixture.

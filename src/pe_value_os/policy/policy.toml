@@ -1,0 +1,115 @@
+# Operating policy for the PE Value Creation OS (PVC-055).
+#
+# Values marked PLACEHOLDER are engineering defaults so the system runs end to end. They must be replaced
+# by the fund's operating team before the pilot (ROADMAP "Open decisions", item 4). Bump `version` on
+# every change; the version is stamped on audit events and value cases.
+
+version = "2026.09.1-placeholder"
+
+rules = [
+  "No autonomous management actions",
+  "No LLM-authored financial arithmetic",
+  "No cross-portco data leakage",
+  "No uncited value claim",
+]
+
+[freshness]
+max_age_days = 45            # PLACEHOLDER: evidence as_of older than this (vs run reference date) is stale
+
+[screening]                  # PLACEHOLDER thresholds used by rule-based proposals and skills
+cac_payback_months_max = 24
+grr_min = "0.88"
+nrr_min = "1.00"
+burn_multiple_max = "2.0"
+magic_number_min = "0.5"
+subscription_gross_margin_min = "0.72"
+discount_sd_max = "0.08"                  # std dev of new-deal discount rate within a segment (pp)
+quarter_end_discount_gap_max = "0.03"     # quarter-end avg discount minus other deals
+legacy_arr_share_max = "0.10"
+renewal_uplift_realization_min = "0.60"   # realized uplift / contracted uplift
+concession_leakage_max = "0.02"           # off-invoice concessions as share of list
+segment_grr_gap_max = "0.10"              # worst segment GRR below company GRR
+segment_min_arr_share = "0.15"            # ignore segments below this share of opening ARR (immaterial)
+involuntary_churn_share_max = "0.10"
+support_tier1_cost_share_min = "0.25"     # tier-1 share of support cost worth automating
+
+[run]
+min_sufficient_analyses = 2  # PLACEHOLDER: pause with NEEDS_EVIDENCE if fewer analyses are sufficient
+
+[sufficiency.unit_economics]
+required = ["pnl", "arr", "customers"]
+min_months = 15
+
+[sufficiency.pricing]
+required = ["invoices", "price_books", "arr", "contracts"]
+min_months = 12
+
+[sufficiency.retention]
+required = ["arr", "customers", "churn"]
+min_months = 15
+optional = ["usage", "support"]
+
+[sufficiency.ai_opportunity]
+required = ["support", "headcount", "pnl"]
+min_months = 6
+
+[flow_through]               # share of a baseline change that reaches EBITDA, by lever
+pricing = { type = "constant", value = "0.95" }                    # PLACEHOLDER: net of commissions
+retention = { type = "metric", metric = "subscription_gross_margin" }
+sales_efficiency = { type = "constant", value = "1.0" }
+gross_margin = { type = "constant", value = "1.0" }
+ai_automation = { type = "constant", value = "1.0" }
+
+[prioritization.weights]     # PLACEHOLDER
+ebitda = "0.5"
+confidence = "0.2"
+time_to_value = "0.2"
+one_time_cost = "0.1"
+
+[prioritization.start_month] # month (1-12) value starts accruing in year one, by lever
+pricing = 3
+retention = 4
+sales_efficiency = 3
+gross_margin = 4
+ai_automation = 6
+
+[prioritization.ramp_months] # linear ramp to full run-rate after start
+pricing = 6
+retention = 6
+sales_efficiency = 3
+gross_margin = 3
+ai_automation = 6
+
+[proposal_defaults]          # PLACEHOLDER scenario rates for rule-based proposals (improvement, realization)
+discount_governance = { low = ["0.02", "0.50"], base = ["0.04", "0.60"], high = ["0.06", "0.75"] }
+renewal_uplift = { low = ["0.02", "0.50"], base = ["0.03", "0.65"], high = ["0.045", "0.80"] }
+legacy_migration = { low = ["0.10", "0.40"], base = ["0.20", "0.55"], high = ["0.25", "0.70"] }
+voluntary_churn_reduction = { low = ["0.10", "0.50"], base = ["0.25", "0.60"], high = ["0.35", "0.70"] }
+involuntary_churn_recovery = { low = ["0.30", "0.60"], base = ["0.45", "0.75"], high = ["0.60", "0.85"] }
+support_automation = { low = ["0.10", "0.50"], base = ["0.20", "0.60"], high = ["0.30", "0.70"] }
+sales_efficiency = { low = ["0.03", "0.50"], base = ["0.06", "0.60"], high = ["0.10", "0.70"] }
+hosting_optimization = { low = ["0.05", "0.50"], base = ["0.10", "0.60"], high = ["0.15", "0.75"] }
+
+[proposal_costs]             # PLACEHOLDER one-time and annual run costs attached to rule-based proposals
+discount_governance = { one_time = "60000", annual_run = "0" }
+renewal_uplift = { one_time = "40000", annual_run = "0" }
+legacy_migration = { one_time = "75000", annual_run = "0" }
+voluntary_churn_reduction = { one_time = "50000", annual_run = "120000" }
+involuntary_churn_recovery = { one_time = "25000", annual_run = "12000" }
+support_automation = { one_time = "120000", annual_run = "60000" }
+sales_efficiency = { one_time = "50000", annual_run = "0" }
+hosting_optimization = { one_time = "80000", annual_run = "0" }
+
+[approval]
+expiry_hours = 120           # PLACEHOLDER: escalate runs awaiting approval longer than this
+escalation_contact = "operating-partner@fund.example"   # PLACEHOLDER
+approver_role = "approver"
+
+[kpi]
+default_cadence_days = 30
+off_track_tolerance = "0.10" # PLACEHOLDER: allowed shortfall vs interpolated target before flagging
+trend_decline_periods = 3
+
+[model]
+allowed_finding_types = ["observation", "hypothesis", "value_claim", "opportunity", "data_gap", "suspicious_content"]
+on_unavailable = "pause"     # pause | rules  (PVC-074)

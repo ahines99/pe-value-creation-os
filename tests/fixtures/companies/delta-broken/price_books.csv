@@ -1,0 +1,5 @@
+company_id,price_book_id,product,list_price_per_unit,effective_from,effective_to,is_current
+delta-broken,pb-standard-legacy,platform_standard,480,2021-01-01,2024-12-31,False
+delta-broken,pb-standard-2025,platform_standard,600,2025-01-01,,True
+delta-broken,pb-pro-legacy,platform_pro,960,2021-01-01,2024-12-31,False
+delta-broken,pb-pro-2025,platform_pro,1200,2025-01-01,,True

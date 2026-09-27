@@ -1,0 +1,27 @@
+# Copy to terraform.tfvars. No secrets belong here: secret values live in Secrets Manager.
+aws_account_id    = "222222222222"
+aws_region        = "us-east-1"
+github_repository = "example-org/pe-value-creation-os"
+
+mcp_hostname        = "mcp.example.com"
+api_hostname        = "approvals.example.com"
+acm_certificate_arn = "arn:aws:acm:us-east-1:222222222222:certificate/00000000-0000-0000-0000-000000000000"
+
+auth_issuer   = "https://login.example.com/oauth2/default"
+auth_jwks_url = "https://login.example.com/oauth2/default/v1/keys"
+
+# Egress allow-list additions (api.anthropic.com and the identity/telemetry hosts are added automatically).
+data_source_hosts = []
+# otel_exporter_otlp_endpoint = "https://otlp.example-observability.com"
+
+# First apply only: no image exists yet, so start with zero tasks (docs/deployment.md, bootstrap step 1).
+desired_counts = { mcp = 0, api = 0, worker = 0 }
+
+# Approval API: its own token audience and the approval UI client(s) allowed to decide.
+api_client_ids = ["approval-ui-client-id"]
+# api_audience   = "https://approvals.example.com"
+# api_browser_oidc = { issuer = "...", authorization_endpoint = "...", token_endpoint = "...",
+#                      user_info_endpoint = "...", client_id = "...", client_secret = "..." }
+
+# Required: SNS topic that pages on-call.
+alarm_topic_arn = "arn:aws:sns:us-east-1:222222222222:pvc-oncall"

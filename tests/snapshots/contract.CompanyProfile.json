@@ -1,0 +1,58 @@
+{
+  "properties": {
+    "arr_definition": {
+      "default": "Contracted recurring subscription revenue, annualised; excludes services and one-time fees",
+      "title": "Arr Definition",
+      "type": "string"
+    },
+    "business_model": {
+      "title": "Business Model",
+      "type": "string"
+    },
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "currency": {
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "deal_thesis": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deal Thesis"
+    },
+    "fiscal_year_start_month": {
+      "maximum": 12,
+      "minimum": 1,
+      "title": "Fiscal Year Start Month",
+      "type": "integer"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "vertical": {
+      "title": "Vertical",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "name",
+    "business_model",
+    "vertical",
+    "currency",
+    "fiscal_year_start_month"
+  ],
+  "title": "CompanyProfile",
+  "type": "object"
+}

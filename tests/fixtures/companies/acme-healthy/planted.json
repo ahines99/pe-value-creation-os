@@ -1,0 +1,74 @@
+{
+  "spec": {
+    "company_id": "acme-healthy",
+    "name": "Acme Workflow Cloud (fictional)",
+    "vertical": "field-service software",
+    "seed": 101,
+    "n_customers_start": 150,
+    "new_per_month": 4.0,
+    "segment_mix": {
+      "smb": 0.5,
+      "mid_market": 0.35,
+      "enterprise": 0.15
+    },
+    "discount_mean": {
+      "smb": 0.08,
+      "mid_market": 0.12,
+      "enterprise": 0.18
+    },
+    "discount_sd": {
+      "smb": 0.03,
+      "mid_market": 0.03,
+      "enterprise": 0.04
+    },
+    "quarter_end_discount_bump": 0.0,
+    "legacy_share": 0.05,
+    "contracted_uplift": 0.05,
+    "realized_uplift": 0.045,
+    "annual_churn": {
+      "smb": 0.1,
+      "mid_market": 0.06,
+      "enterprise": 0.03
+    },
+    "first_renewal_churn_multiplier": 1.1,
+    "involuntary_monthly_hazard": 0.0002,
+    "expansion_prob_at_renewal": 0.35,
+    "expansion_seat_growth": [
+      0.05,
+      0.25
+    ],
+    "contraction_prob_at_renewal": 0.05,
+    "concession_prob": 0.05,
+    "leading_indicator_strength": 0.3,
+    "hosting_cogs_rate": 0.11,
+    "customers_per_tier1_fte": 25,
+    "sm_programs_monthly": 90000,
+    "broken": false,
+    "seat_scale": {},
+    "stale": [],
+    "extra_documents": [],
+    "drop_columns": {}
+  },
+  "planted": {
+    "summary": "Healthy benchmark company. No material pricing leak, retention within policy.",
+    "discount_dispersion_max_segment_cv_below": 0.35,
+    "realized_uplift_approx": 0.045,
+    "legacy_share_approx": 0.05
+  },
+  "ground_truth": {
+    "last_month": "2026-08-01",
+    "active_customers_last_month": 224,
+    "arr_last_month": "24207533.65",
+    "legacy_arr_share_last_month": "0.0618",
+    "mean_realized_uplift": 0.0452,
+    "t12m_churned_arr_by_type": {
+      "voluntary": "448934.32"
+    },
+    "t12m_involuntary_payment_share": "0.0000",
+    "customer_level_grr_proxy_by_segment": {
+      "smb": "0.8832",
+      "mid_market": "0.9395",
+      "enterprise": "0.9909"
+    }
+  }
+}

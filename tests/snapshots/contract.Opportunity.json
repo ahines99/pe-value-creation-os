@@ -1,0 +1,200 @@
+{
+  "$defs": {
+    "Confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "Lever": {
+      "enum": [
+        "pricing",
+        "retention",
+        "sales_efficiency",
+        "gross_margin",
+        "ai_automation"
+      ],
+      "title": "Lever",
+      "type": "string"
+    },
+    "ScenarioInputs": {
+      "properties": {
+        "improvement_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "Fraction of baseline improved, 0.05 = 5%",
+          "title": "Improvement Rate"
+        },
+        "realization_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "Fraction of the improvement actually captured",
+          "title": "Realization Rate"
+        }
+      },
+      "required": [
+        "improvement_rate",
+        "realization_rate"
+      ],
+      "title": "ScenarioInputs",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "annual_run_cost": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "default": "0",
+      "title": "Annual Run Cost"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "base": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "baseline_metric": {
+      "title": "Baseline Metric",
+      "type": "string"
+    },
+    "baseline_value": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Baseline Value"
+    },
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "ebitda_flow_through": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Ebitda Flow Through"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "high": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "lever": {
+      "$ref": "#/$defs/Lever"
+    },
+    "low": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "metric_params": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Metric Params",
+      "type": "object"
+    },
+    "one_time_cost": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "default": "0",
+      "title": "One Time Cost"
+    },
+    "opportunity_id": {
+      "title": "Opportunity Id",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "opportunity_id",
+    "run_id",
+    "company_id",
+    "lever",
+    "title",
+    "baseline_metric",
+    "baseline_value",
+    "ebitda_flow_through",
+    "low",
+    "base",
+    "high",
+    "confidence",
+    "rationale",
+    "evidence_ids"
+  ],
+  "title": "Opportunity",
+  "type": "object"
+}

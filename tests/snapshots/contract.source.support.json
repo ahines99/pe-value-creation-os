@@ -1,0 +1,74 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "csat": {
+      "anyOf": [
+        {
+          "maximum": 5,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Csat"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "handle_minutes": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Handle Minutes"
+    },
+    "severity": {
+      "title": "Severity",
+      "type": "string"
+    },
+    "ticket_id": {
+      "title": "Ticket Id",
+      "type": "string"
+    },
+    "tier": {
+      "title": "Tier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "ticket_id",
+    "customer_id",
+    "created_at",
+    "category",
+    "severity",
+    "tier",
+    "handle_minutes"
+  ],
+  "title": "SupportTicket",
+  "type": "object"
+}

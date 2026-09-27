@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "Confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "Lever": {
+      "enum": [
+        "pricing",
+        "retention",
+        "sales_efficiency",
+        "gross_margin",
+        "ai_automation"
+      ],
+      "title": "Lever",
+      "type": "string"
+    },
+    "ScenarioInputs": {
+      "properties": {
+        "improvement_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "Fraction of baseline improved, 0.05 = 5%",
+          "title": "Improvement Rate"
+        },
+        "realization_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "description": "Fraction of the improvement actually captured",
+          "title": "Realization Rate"
+        }
+      },
+      "required": [
+        "improvement_rate",
+        "realization_rate"
+      ],
+      "title": "ScenarioInputs",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What a proposer (rules or model) may supply. Baseline and flow-through are deliberately absent:\nthe server derives them from company data (PVC-028).",
+  "properties": {
+    "annual_run_cost": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "default": "0",
+      "title": "Annual Run Cost"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "base": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "baseline_metric": {
+      "title": "Baseline Metric",
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "high": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "lever": {
+      "$ref": "#/$defs/Lever"
+    },
+    "low": {
+      "$ref": "#/$defs/ScenarioInputs"
+    },
+    "metric_params": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Metric Params",
+      "type": "object"
+    },
+    "one_time_cost": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "default": "0",
+      "title": "One Time Cost"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "lever",
+    "baseline_metric",
+    "title",
+    "low",
+    "base",
+    "high",
+    "confidence",
+    "rationale",
+    "evidence_ids"
+  ],
+  "title": "OpportunityProposal",
+  "type": "object"
+}

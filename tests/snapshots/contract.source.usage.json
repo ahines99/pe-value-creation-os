@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "active_users": {
+      "minimum": 0,
+      "title": "Active Users",
+      "type": "integer"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "events": {
+      "minimum": 0,
+      "title": "Events",
+      "type": "integer"
+    },
+    "feature": {
+      "title": "Feature",
+      "type": "string"
+    },
+    "licensed_users": {
+      "minimum": 0,
+      "title": "Licensed Users",
+      "type": "integer"
+    },
+    "month": {
+      "format": "date",
+      "title": "Month",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "customer_id",
+    "month",
+    "active_users",
+    "licensed_users",
+    "feature",
+    "events"
+  ],
+  "title": "UsageMonth",
+  "type": "object"
+}

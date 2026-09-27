@@ -1,0 +1,11 @@
+company_id,customer_id,concession_date,concession_type,amount
+delta-broken,del-c0111,2025-02-16,extended_terms,1471.08
+delta-broken,del-c0008,2025-06-06,rebate,7256.83
+delta-broken,del-c0004,2025-08-18,extended_terms,1250.03
+delta-broken,del-c0128,2025-08-20,credit,1083.72
+delta-broken,del-c0009,2025-11-25,extended_terms,5460.00
+delta-broken,del-c0144,2025-12-23,rebate,11700.48
+delta-broken,del-c0108,2026-01-01,free_months,7034.29
+delta-broken,del-c0047,2026-03-20,credit,20871.84
+delta-broken,del-c0029,2026-06-16,credit,719.97
+delta-broken,del-c0125,2026-07-23,uncharged_services,8715.23

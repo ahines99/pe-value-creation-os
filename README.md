@@ -2,45 +2,121 @@
 
 Turns portfolio-company operating data into evidence-backed value-creation initiatives, deterministically sized EBITDA cases, a human-approved 100-day plan, and ongoing KPI monitoring.
 
-**Status: pre-alpha scaffold.** Only a health-check MCP tool, a policies resource, partial domain models, and six Agent Skills exist. Everything else is specified in [IMPLEMENTATION_HANDOFF.md](IMPLEMENTATION_HANDOFF.md) and scheduled in [ROADMAP.md](ROADMAP.md).
+**Portfolio showcase for technical hiring managers and applied-AI leaders.** Start with the [case study](docs/portfolio/case-study.md), [ten-minute walkthrough](docs/portfolio/quickstart.md) or [actual synthetic output](docs/portfolio/demo-report.md).
 
-## How it works (target design)
+**Status: release candidate; production acceptance remains open.** The installed demo and 39 evaluation cases pass outside the checkout, and the core Compose workflow passes. An Alpine application-image candidate clears the strict HIGH/CRITICAL scan after replacing the vulnerable Debian base. Optional observability images have separate findings, and current release-SHA CI and human/browser acceptance remain pending. See [acceptance](docs/portfolio/acceptance.md), [audit remediation](docs/audit-remediation.md) and [ROADMAP.md](ROADMAP.md).
+
+## Try it
+
+Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.
+
+```bash
+uv sync --extra dev
+uv run pvc demo          # five scenarios on fictional companies; writes var/demo-report.md
+```
+
+The demo runs in process, with no database or API key. It shows:
+
+1. **Success path.** Beacon (a pricing leak) produces sized opportunities and a 100-day plan, then pauses for approval.
+2. **Human approval.** An unauthenticated approval attempt gets HTTP 401. An approver token approves, the worker resumes the run, and KPIs activate.
+3. **Controlled pause.** Delta (broken data) stops at `needs_evidence` with named gaps. Planted prompt-injection text is recorded as a `suspicious_content` finding, not followed.
+4. **Branch failure the run survives.** Cedar's pricing diagnostic fails, and the other branches still produce a plan.
+5. **Clean failure and resume.** Value modeling fails once, the run stops at `failed`, and `pvc resume` finishes it without redoing completed steps.
+
+For the actual browser review workspace, start Docker Desktop and run `python scripts/showcase.py up`. Open `http://localhost:18081/` and enter the generated local token. The [walkthrough](docs/portfolio/quickstart.md) covers review, evidence, decisions, KPIs and shutdown. All companies are fictional; reported value cases are modeled opportunities.
+
+Licensed under [Apache-2.0](LICENSE). See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md).
+
+## Develop
+
+Commands that start services or read company data run in production mode unless `PVC_ENV=dev` is set, and then
+refuse to start without an identity provider. For local work, export it once:
+
+```bash
+export PVC_ENV=dev                            # PowerShell: $env:PVC_ENV = "dev"
+uv run pytest -q                              # unit, contract, MCP, API, workflow and regression tests
+uv run pvc eval --suite all --gate            # 29 golden + 10 adversarial cases, gated at 100%
+uv run ruff check . && uv run ruff format --check . && uv run mypy
+uv run python -m pe_value_os.skills_lint     # skills reference only tools that exist
+```
+
+PostgreSQL tests (row-level security, repository contract, migrations, warehouse adapter) run when `PVC_TEST_DATABASE_URL` points at a PostgreSQL 18 server (the version CI and docker compose use) where the test user can create databases. Otherwise they are skipped. `docker compose up db` starts one.
+
+Run the services locally (with `PVC_ENV=dev` exported as above):
+
+```bash
+docker compose up                                    # PostgreSQL, migrations, MCP server, approval API, worker
+uv run uvicorn pe_value_os.mcp_server:app --port 8000   # MCP over Streamable HTTP (dev principal: PVC_ALLOWED_COMPANIES)
+uv run uvicorn pe_value_os.api.app:app --port 8080      # approval API and review UI (dev tokens: PVC_DEV_TOKENS)
+uv run pvc mcp-stdio                                 # MCP over stdio, used by the Claude Code plugin (.mcp.json)
+```
+
+In dev, the approval API accepts the opaque tokens defined in `PVC_DEV_TOKENS`; `.env.example` shows an approver
+token. Outside dev, every service verifies OAuth tokens from the identity provider: MCP clients need `pvc.read`
+(and `pvc.write` for tools that change state), and approval decisions need `pvc.approve` on a token issued to the
+approval UI client for the API's own audience. `.env.example` lists every setting.
+
+Operator commands: `pvc run`, `resume`, `status`, `worker`, `kpi`, `recompute`, `offboard`, `access-review`, `audit-export`. Run `uv run pvc --help` for details.
+
+## How it works
+
+```mermaid
+flowchart LR
+    C["Claude + Agent Skills"] -->|typed tools| M["MCP server"]
+    H["Human approver"] --> A["Approval API"]
+    M --> D["Deterministic core<br/>(metrics, sizing, policy)"]
+    M --> W["Workflow<br/>(checkpoints, pauses)"]
+    A --> W
+    W --> D
+    W --> P[("PostgreSQL + evidence store")]
+```
 
 | Layer | Owns |
 |---|---|
-| Deterministic services | All arithmetic, metric definitions, joins, permissions |
-| MCP server | Typed tools, resources and prompts the model can call |
+| Deterministic core | All arithmetic, metric definitions, sufficiency rules, value-case sizing |
+| MCP server | 22 typed tools, resources and prompts; company scope checked on every call |
 | Agent Skills (`skills/`) | Domain procedure: diagnostic trees, checklists, output contracts |
-| Workflow + PostgreSQL | Run state, checkpoints, approvals, audit trail |
+| Workflow + PostgreSQL | Run state, checkpoints, approvals, audit trail, row-level security |
+| Model layer (optional) | Opportunity proposals and plan narrative. Numeric prose uses server-issued quantity references that bind metric, units, company, period and evidence. |
 
-The model supplies judgment: which levers to investigate, scenario assumptions, narrative. The system supplies facts and arithmetic. Every value claim cites stored evidence. Humans approve plans through a separate authenticated API; no model-callable tool can approve.
+The model supplies judgment: which levers to investigate, scenario assumptions, narrative. The system supplies facts and arithmetic. The default proposer is rule-based. Set `PVC_PROPOSER=model` with `ANTHROPIC_API_KEY` to use Claude at the judgment steps. See [docs/architecture.md](docs/architecture.md) for the full diagram and the run state machine.
 
-## Quick start (current scaffold)
+## Why this is not just a chatbot
 
-Requires Python 3.12+.
+- The LLM never does financial arithmetic. Sizing and metrics are versioned, tested code, and a guardrail rejects unbound numeric prose; `get_numeric_sources` supplies references for supported facts.
+- The LLM is not the system of record. Runs, evidence, findings and approvals live in PostgreSQL, and every step is checkpointed and audited.
+- Every value claim must resolve to stored, immutable evidence, or the run pauses with `NEEDS_EVIDENCE`.
+- Company scope is enforced twice: by the token's company claims on every tool call, and by row-level security in the database.
+- Material actions stop at a human approval gate. No model-callable tool can approve, and approval decisions need a token issued to the approval UI with its own audience and `pvc.approve` scope, so an MCP client's token cannot be replayed to approve.
+- Failures are controlled. A broken branch becomes a recorded gap, a failed step can be resumed, and an unavailable model pauses the run instead of guessing.
 
-```bash
-pip install "mcp[cli]>=2.2,<3" "pydantic>=2.9" pytest
-python -m pytest        # 1 test passes
-```
+## Status
 
-Run pytest as `python -m pytest`. Plain `pytest` currently fails with `ModuleNotFoundError: No module named 'src.mcp_server'`; ticket PVC-002 fixes this.
+| Area | State |
+|---|---|
+| Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
+| CI (GitHub Actions) | The audited pre-remediation SHA had seven successful checks. Current uncommitted changes need a fresh CI run; do not reuse historical green checks as current evidence. HIGH and CRITICAL image findings now fail regardless of fix availability. |
+| Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
+| Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
+| Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |
+| Merge protection | Historical GitHub private-plan restriction remains unresolved; release CI verification is separately enforced by CD. |
+| Pilot and launch | Staging acceptance ? pilot ? conditional production provisioning decision ? production validation ? launch decision. See [pilot documentation](docs/pilot/). |
+
+[ROADMAP.md](ROADMAP.md) has the per-ticket status. The [portfolio finalization roadmap](docs/portfolio-finalization-roadmap.md) prioritizes a polished showcase, assigns implementation and owner actions, and preserves the later production acceptance path.
 
 ## Repository map
 
 | Path | Contents |
 |---|---|
-| [IMPLEMENTATION_HANDOFF.md](IMPLEMENTATION_HANDOFF.md) | Architecture, contracts, data model, tool catalog, current state |
-| [ROADMAP.md](ROADMAP.md) | Ticketed milestones and release gates to production |
-| [src/mcp_server.py](src/mcp_server.py) | MCP server (health check and policies resource) |
-| [src/domain/models.py](src/domain/models.py) | Core Pydantic contracts (partial) |
-| [skills/](skills/) | Six Agent Skills. They reference MCP tools that are planned but not yet built. |
-| [tests/](tests/) | In-process MCP client tests |
+| [IMPLEMENTATION_HANDOFF.md](IMPLEMENTATION_HANDOFF.md) | Specification: contracts, data model, tool catalog, current state |
+| [ROADMAP.md](ROADMAP.md) | Ticketed milestones, release gates, per-ticket status |
+| [src/pe_value_os/](src/pe_value_os/) | Application: `domain/`, `tools/`, `workflows/`, `adapters/`, `llm/`, `api/`, `db/` |
+| [skills/](skills/) | Six Agent Skills with scripted MCP replay examples (human acceptance pending) |
+| [tests/](tests/) | Tests, synthetic fixture companies, snapshots |
+| [evals/](evals/) | Golden and adversarial suites and gate thresholds |
+| [docs/](docs/) | Architecture, ADRs, data contracts, threat model, SLOs, runbooks, deployment, pilot |
+| [infra/](infra/), [Dockerfile](Dockerfile) | Container image and AWS Terraform |
+| [ops/observability/](ops/observability/) | Grafana dashboard, Prometheus alerts, OpenTelemetry collector |
+| [.claude-plugin/](.claude-plugin/) | Claude Code plugin packaging for the skills and MCP server |
 
-## Why this is not just a chatbot
-
-- The LLM never does financial arithmetic. Sizing and metrics are versioned, tested code.
-- The LLM is not the system of record. Runs, evidence, findings and approvals live in PostgreSQL.
-- Every value claim must resolve to stored evidence, or the run pauses with `NEEDS_EVIDENCE`.
-- Company scope is enforced server-side, so one portco's data can't leak into another's analysis.
-- Material actions stop at a human approval gate with an audit trail.
+All company data in this repository is synthetic.

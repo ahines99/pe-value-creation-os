@@ -1,0 +1,10 @@
+# Local evaluation routes to the Alertmanager UI only; no unsolicited external messages.
+# For staging, supply an operator-owned receiver and test delivery during acceptance.
+route:
+  receiver: local-review
+  group_by: [alertname, severity]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+receivers:
+  - name: local-review

@@ -1,0 +1,85 @@
+{
+  "spec": {
+    "company_id": "cedar-churn",
+    "name": "Cedar Field Analytics (fictional)",
+    "vertical": "agronomy analytics software",
+    "seed": 303,
+    "n_customers_start": 300,
+    "new_per_month": 8.0,
+    "segment_mix": {
+      "smb": 0.6,
+      "mid_market": 0.3,
+      "enterprise": 0.1
+    },
+    "discount_mean": {
+      "smb": 0.08,
+      "mid_market": 0.12,
+      "enterprise": 0.18
+    },
+    "discount_sd": {
+      "smb": 0.03,
+      "mid_market": 0.03,
+      "enterprise": 0.04
+    },
+    "quarter_end_discount_bump": 0.0,
+    "legacy_share": 0.05,
+    "contracted_uplift": 0.05,
+    "realized_uplift": 0.045,
+    "annual_churn": {
+      "smb": 0.28,
+      "mid_market": 0.12,
+      "enterprise": 0.04
+    },
+    "first_renewal_churn_multiplier": 1.6,
+    "involuntary_monthly_hazard": 0.009,
+    "expansion_prob_at_renewal": 0.35,
+    "expansion_seat_growth": [
+      0.05,
+      0.25
+    ],
+    "contraction_prob_at_renewal": 0.08,
+    "concession_prob": 0.05,
+    "leading_indicator_strength": 0.9,
+    "hosting_cogs_rate": 0.11,
+    "customers_per_tier1_fte": 15,
+    "sm_programs_monthly": 90000,
+    "broken": false,
+    "seat_scale": {
+      "smb": 3.0
+    },
+    "stale": [],
+    "extra_documents": [],
+    "drop_columns": {}
+  },
+  "planted": {
+    "summary": "Retention problem concentrated in SMB, front-loaded at first renewal, with material failed-payment churn and usage/support leading indicators 1-3 months ahead.",
+    "worst_segment": "smb",
+    "front_loaded": true,
+    "involuntary_payment_share_min": 0.1,
+    "leading_indicators": [
+      "usage_decline",
+      "support_volume_increase"
+    ],
+    "expected_levers": [
+      "retention",
+      "ai_automation"
+    ]
+  },
+  "ground_truth": {
+    "last_month": "2026-08-01",
+    "active_customers_last_month": 314,
+    "arr_last_month": "39519005.75",
+    "legacy_arr_share_last_month": "0.0305",
+    "mean_realized_uplift": 0.0457,
+    "t12m_churned_arr_by_type": {
+      "involuntary_payment": "925376.42",
+      "voluntary": "6449083.59"
+    },
+    "t12m_involuntary_payment_share": "0.1255",
+    "customer_level_grr_proxy_by_segment": {
+      "smb": "0.5830",
+      "mid_market": "0.8354",
+      "enterprise": "0.8722"
+    }
+  }
+}

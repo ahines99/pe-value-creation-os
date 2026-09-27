@@ -1,0 +1,24 @@
+# Build context for the pvc image (PVC-130). Allow-list style: ignore everything, then re-include
+# only what the Dockerfile copies. Keeps secrets, local state and VCS metadata out of the context.
+*
+
+!pyproject.toml
+!uv.lock
+!README.md
+!LICENSE
+!NOTICE
+!src/
+!tests/fixtures/companies/
+!evals/
+!infra/docker/healthcheck.py
+!infra/docker/bootstrap_db.py
+
+# Never ship caches or local artefacts even inside re-included directories.
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.DS_Store
+**/.env
+**/.env.*

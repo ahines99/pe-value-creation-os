@@ -1,0 +1,3 @@
+company_id,document_id,title,doc_type,text
+beacon-pricing,doc-mgmt-update,Management update Q2 2026,management_update,"Beacon Scheduling Systems (fictional) management update. Priorities: grow net new ARR, improve onboarding, and review pricing governance. Figures in this memo are unaudited."
+beacon-pricing,doc-pricing-policy,Pricing and discount policy,policy,"Discounts above 15% require VP Sales approval. Annual renewals carry a 5% uplift per contract. Sales leadership notes approvals are frequently granted retroactively at quarter end, and renewal uplifts are commonly waived to protect bookings."

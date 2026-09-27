@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "arr": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Arr"
+    },
+    "company_id": {
+      "minLength": 1,
+      "title": "Company Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "month": {
+      "format": "date",
+      "title": "Month",
+      "type": "string"
+    },
+    "price_book_id": {
+      "title": "Price Book Id",
+      "type": "string"
+    },
+    "product": {
+      "title": "Product",
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "customer_id",
+    "month",
+    "arr",
+    "product",
+    "price_book_id"
+  ],
+  "title": "CustomerArrMonth",
+  "type": "object"
+}

@@ -1,0 +1,347 @@
+{
+  "$defs": {
+    "Initiative": {
+      "properties": {
+        "classification": {
+          "$ref": "#/$defs/InitiativeClass"
+        },
+        "in_year_ebitda_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "In Year Ebitda Base"
+        },
+        "opportunity_id": {
+          "title": "Opportunity Id",
+          "type": "string"
+        },
+        "requires_approval_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Requires Approval Reasons",
+          "type": "array"
+        },
+        "run_rate_ebitda_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Run Rate Ebitda Base"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "opportunity_id",
+        "title",
+        "classification",
+        "run_rate_ebitda_base",
+        "in_year_ebitda_base"
+      ],
+      "title": "Initiative",
+      "type": "object"
+    },
+    "InitiativeClass": {
+      "enum": [
+        "quick_win",
+        "structural",
+        "enabler"
+      ],
+      "title": "InitiativeClass",
+      "type": "string"
+    },
+    "Lever": {
+      "enum": [
+        "pricing",
+        "retention",
+        "sales_efficiency",
+        "gross_margin",
+        "ai_automation"
+      ],
+      "title": "Lever",
+      "type": "string"
+    },
+    "PlanKpi": {
+      "properties": {
+        "baseline": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Baseline"
+        },
+        "cadence_days": {
+          "exclusiveMinimum": 0,
+          "title": "Cadence Days",
+          "type": "integer"
+        },
+        "day_100_target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Day 100 Target"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "direction": {
+          "pattern": "^(increase|decrease)$",
+          "title": "Direction",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "kpi_id": {
+          "title": "Kpi Id",
+          "type": "string"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "metric_params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Metric Params",
+          "type": "object"
+        },
+        "monitorable": {
+          "title": "Monitorable",
+          "type": "boolean"
+        },
+        "opportunity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Opportunity Id"
+        },
+        "run_rate_target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Run Rate Target"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kpi_id",
+        "metric",
+        "description",
+        "baseline",
+        "day_100_target",
+        "run_rate_target",
+        "direction",
+        "cadence_days",
+        "source",
+        "evidence_ids",
+        "monitorable"
+      ],
+      "title": "PlanKpi",
+      "type": "object"
+    },
+    "Workstream": {
+      "properties": {
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "initiatives": {
+          "items": {
+            "$ref": "#/$defs/Initiative"
+          },
+          "title": "Initiatives",
+          "type": "array"
+        },
+        "kpis": {
+          "items": {
+            "$ref": "#/$defs/PlanKpi"
+          },
+          "title": "Kpis",
+          "type": "array"
+        },
+        "lever": {
+          "$ref": "#/$defs/Lever"
+        },
+        "milestones": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Milestones",
+          "type": "object"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "owner_role": {
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risks",
+          "type": "array"
+        },
+        "workstream_id": {
+          "title": "Workstream Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workstream_id",
+        "name",
+        "lever",
+        "owner_role",
+        "initiatives",
+        "milestones",
+        "kpis"
+      ],
+      "title": "Workstream",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "company_id": {
+      "title": "Company Id",
+      "type": "string"
+    },
+    "decisions_requiring_approval": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Decisions Requiring Approval",
+      "type": "array"
+    },
+    "excluded_opportunities": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Excluded Opportunities",
+      "type": "array"
+    },
+    "governance": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Governance",
+      "type": "array"
+    },
+    "narrative": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Narrative"
+    },
+    "plan_id": {
+      "title": "Plan Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "total_in_year_ebitda_base": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Total In Year Ebitda Base"
+    },
+    "total_run_rate_ebitda_base": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Total Run Rate Ebitda Base"
+    },
+    "workstreams": {
+      "items": {
+        "$ref": "#/$defs/Workstream"
+      },
+      "title": "Workstreams",
+      "type": "array"
+    }
+  },
+  "required": [
+    "plan_id",
+    "run_id",
+    "company_id",
+    "workstreams",
+    "total_run_rate_ebitda_base",
+    "total_in_year_ebitda_base"
+  ],
+  "title": "Plan",
+  "type": "object"
+}
