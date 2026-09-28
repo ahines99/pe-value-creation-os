@@ -1,5 +1,11 @@
 # 0.1.0 showcase candidate: evidence index
 
+## Executive workspace update
+
+All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
+
+The merged update includes [rendered screenshots](../../portfolio/screenshots/workspace-1440.png) and [browser results](../../portfolio/screenshots/browser-checks.json). Earlier draft-release assets below remain tied to their original candidate; they are not silently relabeled as this redesign. Human new-design/MCP acceptance and final release promotion remain separate.
+
 ## Verified engineering baseline
 
 Commit **9f9b95f4a0bd94cbb6ddcc4ee3ef79dca9c02e18** passed all ten jobs in [GitHub Actions run 36359188626](https://github.com/ahines99/pe-value-creation-os/actions/runs/36359188626) on September 27, 2026.
