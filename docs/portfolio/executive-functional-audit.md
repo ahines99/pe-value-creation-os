@@ -1,5 +1,9 @@
 # Executive workspace functional audit
 
+## Published engineering verification
+
+All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
+
 Verified 2026-09-27 America/New_York (2026-09-28 UTC). The redesigned workspace was tested through FastAPI's HTTP test client using fictional company data, the real diagnostic workflow, repository-backed approval records and a temporary filesystem evidence store. Tests did not use the live showcase database or browser.
 
 Current direction is PE operating partners and portfolio-company executives first, with technical diligence available through disclosures and source views. Alex rejected the earlier visuals; this substantial redesign now has fresh engineering rendered evidence; human approval of the new design remains open.
@@ -59,4 +63,4 @@ This test result does not certify pixel layout, browser accessibility, live iden
 
 The coordinator inspected the actual screenshots. Evidence: [machine-readable browser results](screenshots/browser-checks.json), [desktop workspace](screenshots/workspace-1440.png), [mobile workspace](screenshots/workspace-375.png), [Beacon memo](screenshots/memo-1440.png), [expanded evidence](screenshots/memo-evidence-detail.png), [Delta](screenshots/gaps-1440.png), [KPIs](screenshots/performance-1440.png) and [public landing](screenshots/landing-1440.png).
 
-These checks render captured synthetic application output; they do not automate decisions in a live user session or constitute comprehensive accessibility certification. The unreliable native Windows connector no longer blocks engineering rendering. Human new-design approval, the remaining MCP/browser session and the new PR's ten CI checks remain pending. No final release is claimed. The 478-pass/one-skip full-suite result is unchanged; All 39 targeted API/UI/integration tests passed again after the final fixes. The local API, MCP and worker were rebuilt and report healthy.
+These checks render captured synthetic application output; they do not automate decisions in a live user session or constitute comprehensive accessibility certification. The unreliable native Windows connector no longer blocks engineering rendering. Human new-design approval and the remaining MCP/browser session remain pending; all ten redesign CI checks passed at `c5d4739`. No final release is claimed. The 478-pass/one-skip full-suite result is unchanged; All 39 targeted API/UI/integration tests passed again after the final fixes. The local API, MCP and worker were rebuilt and report healthy.

@@ -1,5 +1,9 @@
 # Portfolio acceptance record
 
+## Published engineering verification
+
+All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
+
 Current primary audience: PE operating partners and portfolio-company executives. Technical reviewers retain access to assumptions, evidence, contracts and engineering diligence. This supersedes the earlier hiring-manager/applied-AI positioning. Showcase acceptance and production acceptance remain separate milestones.
 
 ## Current redesign acceptance (open)
@@ -24,7 +28,7 @@ Isolated Linux Chromium 153.0.8010.12 in Docker passed **18 checks: six pages at
 
 See [browser-checks.json](screenshots/browser-checks.json), [desktop workspace](screenshots/workspace-1440.png), [mobile workspace](screenshots/workspace-375.png), [plan memo](screenshots/memo-1440.png), [evidence detail](screenshots/memo-evidence-detail.png) and [operating performance](screenshots/performance-1440.png). These are rendered application captures, not mockups. They do not record a new human approval or a live browser decision.
 
-The native Windows connector remains unreliable, but it no longer blocks rendered testing. Human acceptance of the new design and the remaining MCP session are still pending. The new PR's ten CI checks are pending; no final release is recorded.
+The native Windows connector remains unreliable, but it no longer blocks rendered testing. Human acceptance of the new design and the remaining MCP session are still pending. All ten redesign CI checks passed at `c5d4739`; no final release is recorded.
 
 ## Historical exact-build engineering evidence
 
