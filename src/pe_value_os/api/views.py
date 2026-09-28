@@ -52,17 +52,22 @@ def page(title: str, body: str) -> str:
     )
 
 
-def login_page(csrf: str) -> str:
+def login_page(csrf: str, *, error: str | None = None) -> str:
+    error_html = f"<p id='login-error' class='bad' role='alert'>{escape(error)}</p>" if error else ""
+    described_by = "login-help login-error" if error else "login-help"
     return page(
         "Open the local showcase",
         "<h1>From evidence to an approved plan</h1>"
         "<p>Review a value case, inspect its evidence and decide what belongs in the 100-day plan.</p>"
         "<div class='card'><h2>Local showcase sign-in</h2>"
-        "<p>This development workspace uses fictional companies. Enter the local approver token "
-        "printed by the showcase setup command.</p><form method='post' action='/dev/login'>"
+        "<p id='login-help'>This development workspace uses fictional companies. Enter the local approver token "
+        "printed by setup, or copy only the token value from <code>var/local-showcase/settings.json</code>, "
+        "without quotes.</p>"
+        f"{error_html}<form method='post' action='/dev/login'>"
         f"<input type='hidden' name='csrf' value='{escape(csrf)}'>"
         "<label for='token'>Local approver token</label>"
-        "<input id='token' name='token' type='password' required autocomplete='off'>"
+        f"<input id='token' name='token' type='password' required autocomplete='off' "
+        f"aria-describedby='{described_by}'>"
         "<div><button type='submit'>Open workspace</button></div></form></div>"
         "<p class='muted'>No model can approve a plan. Production uses an identity provider; "
         "this local sign-in is available only in development mode.</p>",
