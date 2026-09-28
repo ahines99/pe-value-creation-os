@@ -69,7 +69,10 @@ describes mixed revenue models and channels. Our inference is to avoid an
 undifferentiated SaaS peer target and require a metric-level comparability rationale.
 This is a research-design choice, not a conclusion about achievable savings.
 
-## What exists versus what must change
+## Initial audit: capabilities and gaps
+
+This table preserves the initial research findings. The implementation ledger
+above records subsequent corrections and additions against these gaps.
 
 | Area | Already implemented | Material remaining gap |
 |---|---|---|

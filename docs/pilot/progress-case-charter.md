@@ -58,11 +58,16 @@ rows in the income statement. The differences remain explicit; derived measures
 for those periods are conservatively withheld until reviewed. This is a mapping
 and accounting-definition question, not evidence of an issuer error.
 
+The [constructed underwriting exercise](../../data/constructed/progress/README.md)
+now supplies typed operating assumptions and dated 24-month EBITDA/cash scenarios,
+cost commitments, collection reversals and illustrative incremental EV sensitivity.
+Its operating records are explicitly authored examples, not Progress data.
+
 Still required: quarterly facts, acquisition/growth bridge, metric-specific peer
-eligibility, typed thesis/assumption and immutable case revisions, monthly
-initiative P&L/cash scenarios, interactions, constrained execution, full decision
-memo and realization demonstration. This annual baseline does not complete S1
-or any later goal milestone by itself.
+eligibility, typed thesis and immutable case revisions, richer interactions,
+baseline/schedule integration, constrained execution, full decision memo and
+realization demonstration. These foundations do not complete S1 or any later goal
+milestone by themselves.
 
 Alex confirmed that no operating-company sponsor is available yet and requested
 the [permissioned pilot package](permissioned/README.md). Preparation proceeds;
