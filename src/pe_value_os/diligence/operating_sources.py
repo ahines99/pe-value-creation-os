@@ -166,6 +166,13 @@ class OperatingSourceBook(Record):
         return self
 
     def bind(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+        self.bind_scope(case, plan)
+        for scenario in case.scenarios:
+            if sorted(d.kind for d in scenario.drivers) != ["collections", "pricing", "service"]:
+                raise ValueError("this source adapter requires one pricing, service and collections driver")
+
+    def bind_scope(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+        """Shared scope checks; the v1 adapter additionally requires one driver of each kind."""
         plan.bind(case)
         case.require_public()
         if (self.case_id, self.company, self.currency, self.underwriting_sha256, self.plan_sha256) != (
@@ -186,15 +193,62 @@ class OperatingSourceBook(Record):
         if any(not case.start <= r.accelerated_on < r.counterfactual_on <= end for r in self.invoices):
             raise ValueError("both invoice cash dates must fit inside the explicit horizon")
         for scenario in case.scenarios:
-            if sorted(d.kind for d in scenario.drivers) != ["collections", "pricing", "service"]:
-                raise ValueError("this source adapter requires one pricing, service and collections driver")
             for driver in scenario.drivers:
                 references = [getattr(driver, field) for field in EXPECTED_UNITS if hasattr(driver, field)]
                 if len(set(references)) != len(references):
                     raise ValueError("source projection requires distinct assumption references within each driver")
-            service = next(d for d in scenario.drivers if isinstance(d, Service))
-            if service.cost_action not in {"none", "vendor_reduction"}:
-                raise ValueError("vendor records cannot support a different type of cost action")
+                if isinstance(driver, Service) and driver.cost_action not in {"none", "vendor_reduction"}:
+                    raise ValueError("vendor records cannot support a different type of cost action")
+
+
+class RecordAssignment(Record):
+    kind: Literal["renewal", "service_month", "invoice"]
+    record_id: str = Field(min_length=1)
+    record_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    initiative_id: str = Field(min_length=1)
+
+
+def operating_records(book: OperatingSourceBook) -> dict[tuple[str, str], Record]:
+    return {
+        **{("renewal", r.record_id): r for r in book.renewals},
+        **{("invoice", r.record_id): r for r in book.invoices},
+        **{("service_month", str(r.month)): r for r in book.service_months},
+    }
+
+
+class PartitionedSourceBook(Record):
+    """One owner per complete source record; no fractional duplication of vendor commitments."""
+
+    schema_version: Literal[2]
+    records: OperatingSourceBook
+    assignments: tuple[RecordAssignment, ...] = Field(min_length=1)
+    partition_rationale: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def complete_partition(self) -> Self:
+        rows = operating_records(self.records)
+        keys = [(a.kind, a.record_id) for a in self.assignments]
+        if len(set(keys)) != len(keys) or set(keys) != set(rows):
+            raise ValueError("partition must assign every source record exactly once")
+        if any(fingerprint(rows[(a.kind, a.record_id)]) != a.record_sha256 for a in self.assignments):
+            raise ValueError("partition must bind each exact source record")
+        return self
+
+    def bind(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+        self.records.bind_scope(case, plan)
+        kinds = {d.initiative_id: d.kind for d in case.scenarios[0].drivers}
+        expected = {"renewal": "pricing", "service_month": "service", "invoice": "collections"}
+        if {a.initiative_id for a in self.assignments} != set(kinds):
+            raise ValueError("partition requires source records for every current initiative and no unknown owners")
+        if any(kinds[a.initiative_id] != expected[a.kind] for a in self.assignments):
+            raise ValueError("partition source kind must match its initiative mechanism")
+
+
+OperatingBook = OperatingSourceBook | PartitionedSourceBook
+
+
+def source_records(book: OperatingBook) -> OperatingSourceBook:
+    return book.records if isinstance(book, PartitionedSourceBook) else book
 
 
 def _row_ledger(
@@ -226,8 +280,20 @@ def _row_ledger(
     return tuple(e.model_copy(update={"reference": reference}) for e in entries)
 
 
-def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: OperatingPlan) -> dict[str, Any]:
+def source_forecast(book: OperatingBook, case: UnderwritingCase, plan: OperatingPlan) -> dict[str, Any]:
     book.bind(case, plan)
+    records = source_records(book)
+    partitioned = isinstance(book, PartitionedSourceBook)
+    owners: dict[tuple[str, str], str] = (
+        {(a.kind, a.record_id): a.initiative_id for a in book.assignments}
+        if isinstance(book, PartitionedSourceBook)
+        else {}
+    )
+
+    def owns(driver: Driver, kind: str, record_id: str) -> bool:
+        return not partitioned or owners[(kind, record_id)] == driver.initiative_id
+
+    version = "operating-source-forecast/2" if partitioned else VERSION
     proposed = evaluate_plan(plan, case)
     tasks = {t["task_id"]: t for t in proposed["tasks"]}
     readiness = {g.initiative_id: tasks[g.task_id]["benefit_ready_on"] for g in plan.benefit_gates}
@@ -241,9 +307,12 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
         decisions: list[dict[str, Any]] = []
         for driver in scenario.drivers:
             ready = readiness[driver.initiative_id]
+            decision_start = len(decisions)
             if isinstance(driver, Pricing):
-                for row in book.renewals:
-                    notice = max(row.planned_notice_on, book.cutoff, ready) if ready is not None else None
+                for row in records.renewals:
+                    if not owns(driver, "renewal", row.record_id):
+                        continue
+                    notice = max(row.planned_notice_on, records.cutoff, ready) if ready is not None else None
                     deadline = row.renewal_on - timedelta(days=row.notice_days)
                     reason = (
                         "No feasible acceptance gate"
@@ -287,10 +356,12 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
                             )
                         )
             elif isinstance(driver, Service):
-                months = {item.month: item for item in book.service_months}
+                months = {item.month: item for item in records.service_months}
                 for index in range(case.months):
                     month = month_start(case.start, index)
                     service_row = months.get(month)
+                    if service_row is not None and not owns(driver, "service_month", str(month)):
+                        continue
                     if service_row is None or ready is None:
                         decisions.append(
                             {
@@ -376,7 +447,9 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
                         }
                     )
             else:
-                for invoice in book.invoices:
+                for invoice in records.invoices:
+                    if not owns(driver, "invoice", invoice.record_id):
+                        continue
                     first = max(ready, driver.effective_on, invoice.accelerated_on) if ready is not None else None
                     eligible_balance = invoice.open_amount - invoice.disputed
                     eligible = first is not None and first < invoice.counterfactual_on and eligible_balance > 0
@@ -410,6 +483,9 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
                                 invoice.record_id,
                             )
                         )
+            if partitioned:
+                for disposition in decisions[decision_start:]:
+                    disposition["initiative_id"] = driver.initiative_id
         dated = tuple(sorted(entries, key=lambda e: (e.day, e.initiative_id, e.component, e.reference)))
         result.append(
             {
@@ -435,14 +511,14 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
             }
         )
     return {
-        "version": VERSION,
-        "classification": book.classification,
+        "version": version,
+        "classification": records.classification,
         "book_sha256": fingerprint(book),
         "underwriting_sha256": fingerprint(case),
         "plan_sha256": fingerprint(plan),
         "report_sha256": hashlib.sha256(
             json.dumps(
-                {"book": fingerprint(book), "case": fingerprint(case), "plan": fingerprint(plan), "version": VERSION},
+                {"book": fingerprint(book), "case": fingerprint(case), "plan": fingerprint(plan), "version": version},
                 sort_keys=True,
             ).encode()
         ).hexdigest(),
@@ -455,7 +531,7 @@ def source_forecast(book: OperatingSourceBook, case: UnderwritingCase, plan: Ope
         "missing_service_months": [
             month_start(case.start, m)
             for m in range(case.months)
-            if month_start(case.start, m) not in {r.month for r in book.service_months}
+            if month_start(case.start, m) not in {r.month for r in records.service_months}
         ],
         "schedule": proposed,
         "actual_company_realized_value": None,

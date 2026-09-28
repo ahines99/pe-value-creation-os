@@ -12,7 +12,7 @@ has its own [quickstart](quickstart.md) and [historical storyboard](../pilot/dem
 | 1:00–2:00 | [Public baseline](progress-baseline.html), definitions and sources | Trace FY2025 calculated EBITDA of $304.202m. Why is this not normalized EBITDA? | Public components, locators, retained expenses and unresolved accounting differences |
 | 2:00–3:00 | [Operating proposal](operating-plan.html), capacity and dates | Identify a delayed package and its resource conflict. | Seven packages, four budgets; proposed rather than actual staffing |
 | 3:00–5:00 | [Source review](source-review.html), corrections | Trace 50% capture, source constraints and removal of vendor release. Why does sequencing not repair the case? | Base first-year EBITDA −$163,165 and cash −$181,890; original and frozen close survive |
-| 5:00–6:30 | [Exit lifecycle](exit-review.html), history; [execution](execution.html), claims | Compare the same five recorded periods, not a partial period with a full-year forecast. Inspect a claim's withdrawn support. | $61k EBITDA difference = $18k claims + $43k residual; $185k cash = $166k + $19k; all constructed |
+| 5:00–6:30 | [Ten-revision lifecycle](lineage-review.html), history and KPI definitions; [execution](execution.html), claims | Compare the same five recorded periods, not a partial period with a full-year forecast. Inspect a claim's withdrawn support and verify that split shares never allocate earlier claims. | $61k EBITDA difference = $18k claims + $43k residual; $185k cash = $166k + $19k; all constructed |
 | 6:30–8:00 | [Exit matrix and EV bridge](exit-review.html) | Select 0.9x earnings / 6x multiple. Why is the change not entirely operating value? | −$790.9252m EV change: −$243.3616m earnings, −$608.404m multiple, +$60.8404m interaction; no proceeds |
 | 8:00–9:00 | [Disclosure history](disclosure-history.html) | Show provisional/final allocations. What was publicly available at a historical instant? | Measurement-period adjustment retained; SEC acceptance does not establish first publication; point-in-time claim withheld |
 | 9:00–10:00 | [Pilot brief](../pilot/permissioned/sponsor-brief.md) | State what a sponsor must authorize. Invite stop, revise or further diligence. | One company, one lever, read-only scope; no pilot or promised impact |
@@ -44,7 +44,7 @@ capture steps and Docker browser checks are separate acceptance work. Each domai
 command exposes `--help`. Public mappings are checked-in inputs; replay does not
 redownload or independently reread the original filings.
 
-Generate `exit-review.json` before rebuilding the memo with `--case-review` set
+Generate `lineage-review.json` with `pvc lineage-demo` before rebuilding the memo with `--case-review` set
 to that file. Demo IDs and recorded-at times change across runs. Compare source
 fingerprints and economics across replays; within a single bundle, the memo and
 exit export must share the exact revision hash.

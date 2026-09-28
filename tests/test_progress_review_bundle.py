@@ -22,10 +22,10 @@ def bundle(tmp_path):
 
 def test_checked_in_bundle_reproduces_and_records_exact_files():
     result = check_bundle(ROOT / "docs/portfolio", ROOT / "data")
-    assert len(result["checks"]) == 13
+    assert len(result["checks"]) == 15
     assert all(c["status"] == "pass" for c in result["checks"])
     assert result["public_fact_count"] == 241
-    assert result["case_revision_count"] == 6
+    assert result["case_revision_count"] == 10
     assert result["pilot_started"] is False
     assert result["independent_practitioner_review"] == "not_performed"
     assert all(len(v) == 64 for v in result["files_sha256"].values())
@@ -40,7 +40,8 @@ def test_checked_in_bundle_reproduces_and_records_exact_files():
         ("historical-valuation", "proceeds", "historical-valuation"),
         ("case-history", "baseline", "frozen-close"),
         ("source-review", "accounting", "accounting-continuity"),
-        ("exit-review", "human", "authority-boundary"),
+        ("lineage-review", "human", "authority-boundary"),
+        ("lineage-review", "mapping", "lineage-boundary"),
     ],
 )
 def test_mixed_or_promoted_export_fails(bundle, name, change, expected):
@@ -60,6 +61,8 @@ def test_mixed_or_promoted_export_fails(bundle, name, change, expected):
         data["close_baseline"]["frozen_forecast"]["year_one"]["incremental_ebitda"] = "0"
     elif change == "accounting":
         data["aggregate_recorded_periods"]["measured_difference"]["incremental_ebitda"] = "90000"
+    elif change == "mapping":
+        data["initiative_comparability"]["frozen_to_current"][0]["current_ids"] = ["unrelated"]
     else:
         data["human_review_count"] = 1
     path.write_text(json.dumps(data), encoding="utf-8")
@@ -67,7 +70,7 @@ def test_mixed_or_promoted_export_fails(bundle, name, change, expected):
         check_bundle(bundle, ROOT / "data")
 
 
-@pytest.mark.parametrize("name", ["decision-memo", "exit-review"])
+@pytest.mark.parametrize("name", ["decision-memo", "exit-review", "lineage-review"])
 def test_stale_html_fails_even_when_all_json_is_valid(bundle, name):
     path = bundle / (name + ".html")
     path.write_text(path.read_text(encoding="utf-8") + "<p>Unverified claim</p>", encoding="utf-8")

@@ -103,6 +103,13 @@ class ExitReviewPayload(Record):
         return self
 
 
+def exit_payload(payload: Any) -> ExitReviewPayload | None:
+    if isinstance(payload, ExitReviewPayload):
+        return payload
+    nested = getattr(payload, "exit_basis", None)
+    return nested if isinstance(nested, ExitReviewPayload) else None
+
+
 def evaluate_exit(payload: ExitReviewPayload, financial: dict[str, Any]) -> dict[str, Any]:
     """Decompose the enterprise mark; retain historical claims and unavailable proceeds."""
     spec = payload.exit_assumptions

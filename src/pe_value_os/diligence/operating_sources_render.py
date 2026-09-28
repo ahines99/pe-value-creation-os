@@ -8,9 +8,11 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from pydantic import TypeAdapter
+
 from ..api.presentation import CSS
 from ..research.render import table as financial_table
-from .operating_sources import OperatingSourceBook, source_forecast
+from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan
 from .underwriting import UnderwritingCase
 
@@ -31,7 +33,8 @@ def table(headers: list[str], rows: list[list[str]], caption: str) -> str:
 def render_sources(report: dict[str, Any], download: str) -> str:
     base = next(s for s in report["scenarios"] if s["scenario_id"] == "base")
     reference = {s["scenario_id"]: s for s in report["reference_forecast"]["scenarios"]}
-    book = report["source_book"]
+    source_book = report["source_book"]
+    book = source_book["records"] if source_book["schema_version"] == 2 else source_book
     renewals = [d for d in base["decisions"] if d["kind"] == "renewal"]
     invoices = [d for d in base["decisions"] if d["kind"] == "invoice"]
     missed = sum((d["monthly_revenue"] for d in renewals if d["reason"] == "Notice deadline missed"), Decimal(0))
@@ -63,7 +66,20 @@ def render_sources(report: dict[str, Any], download: str) -> str:
         ("Peak funding need", base["maximum_dated_funding_need"], "Dated cash deficits · base assumptions"),
     ):
         body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{money(value)}</strong><span class='metric-note'>{escape(note)}</span></div>"
-    body += "</div><section class='panel' id='decision'><h2>What changed the decision</h2>"
+    body += "</div>"
+    if source_book["schema_version"] == 2:
+        body += "<section class='panel' id='ownership'><h2>Each source record has one initiative owner</h2>"
+        body += f"<p>{escape(source_book['partition_rationale'])}</p>"
+        body += table(
+            ["Record kind", "Record", "Initiative", "Source SHA-256"],
+            [
+                [escape(a[k]) for k in ("kind", "record_id", "initiative_id", "record_sha256")]
+                for a in source_book["assignments"]
+            ],
+            "Complete, disjoint ownership. A split cannot copy a contract, invoice or whole service/vendor month into two benefit claims.",
+        )
+        body += "</section>"
+    body += "<section class='panel' id='decision'><h2>What changed the decision</h2>"
     body += (
         table(
             ["Constraint", "Financial consequence", "Next evidence request"],
@@ -223,7 +239,7 @@ def build_sources_report(source: Path, underwriting: Path, plan: Path, output: P
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     if {p.resolve() for p in (source, underwriting, plan)} & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("source report must not overwrite an input")
-    book = OperatingSourceBook.model_validate_json(source.read_bytes())
+    book: OperatingBook = TypeAdapter(OperatingBook).validate_json(source.read_bytes())
     case = UnderwritingCase.model_validate_json(underwriting.read_bytes())
     proposed = OperatingPlan.model_validate_json(plan.read_bytes())
     report = source_forecast(book, case, proposed)

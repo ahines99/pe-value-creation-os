@@ -15,8 +15,10 @@ from typing import Any
 
 from pe_value_os.diligence.balances import BalanceBundle
 from pe_value_os.diligence.exit_demo import render_exit
-from pe_value_os.diligence.exit_review import ExitAssumptions, ExitReviewPayload
+from pe_value_os.diligence.exit_review import ExitAssumptions, ExitReviewPayload, exit_payload
 from pe_value_os.diligence.growth import GrowthContext
+from pe_value_os.diligence.lineage import LineageCasePayload
+from pe_value_os.diligence.lineage_demo import render_lineage
 from pe_value_os.diligence.memo import DecisionBrief, assemble_memo
 from pe_value_os.diligence.memo_render import render_memo
 from pe_value_os.diligence.memo_review import MemoReviewContext
@@ -60,9 +62,14 @@ def check_bundle(portfolio: Path, data: Path) -> dict[str, Any]:
     plan = OperatingPlan.model_validate_json(read(constructed / "operating-plan.json"))
     balances = BalanceBundle.model_validate_json(read(public / "balance-facts.json"))
     valuation = ValuationSpec.model_validate_json(read(constructed / "historical-valuation.json"))
-    exit_report, memo = artifact("exit-review"), artifact("decision-memo")
+    historical_exit = artifact("exit-review")
+    # Preserve verification of the earlier published exhibit as the current
+    # memo advances to a different, longer lifecycle.
+    historical_context = MemoReviewContext.from_export(historical_exit)
+    assemble_memo(brief, facts, growth, peers, underwriting, plan, balances, valuation, historical_context)
+    exit_report, memo = artifact("lineage-review"), artifact("decision-memo")
     context = MemoReviewContext.from_export(exit_report)
-    payload = context.revisions[-1].draft.payload
+    payload = exit_payload(context.revisions[-1].draft.payload)
     assumptions = ExitAssumptions.model_validate_json(read(constructed / "exit-assumptions.json"))
     require(
         isinstance(payload, ExitReviewPayload)
@@ -167,9 +174,41 @@ def check_bundle(portfolio: Path, data: Path) -> dict[str, Any]:
         "Rendered executive memo is exactly the output of its verified JSON packet.",
     )
     require(
-        read(portfolio / "exit-review.html") == render_exit(exit_report, "exit-review.json"),
+        read(portfolio / "exit-review.html") == render_exit(historical_exit, "exit-review.json")
+        and historical_exit["human_review_count"] == 0
+        and historical_exit["actual_company_realized_value"] is None,
         "exit-render",
         "Rendered exit exhibit is exactly the output of its verified lifecycle export.",
+    )
+    current = context.revisions[-1].draft.payload
+    frozen = next(
+        r for r in context.revisions if r.revision_id == exit_report["baseline"]["baseline"]["request"]["revision_id"]
+    )
+    families = {
+        identity: family for family in latest["lineage_review"]["families"] for identity in family["all_identities"]
+    }
+    expected_mapping = [
+        {
+            "frozen_initiative_id": identity,
+            "family_id": families[identity]["family_id"],
+            "current_ids": families[identity]["current_ids"],
+        }
+        for identity in json.loads(frozen.financial_result_json)["selected_initiatives"]
+    ]
+    require(
+        isinstance(current, LineageCasePayload)
+        and exit_report["initiative_comparability"]["historical_child_allocations"] is None
+        and exit_report["initiative_comparability"]["frozen_to_current"] == expected_mapping
+        and exit_report["initiative_comparability"]["current_revision_sha256"] == context.revisions[-1].content_sha256
+        and latest["lineage_review"]["kpis"]["financial_attribution"] is None
+        and all(c["preserved_accounting_and_claims"] for c in exit_report["source_review"]["lineage_checkpoints"]),
+        "lineage-boundary",
+        "Current initiative/KPI lineage preserves frozen accounting without inferring historical child claims.",
+    )
+    require(
+        read(portfolio / "lineage-review.html") == render_lineage(exit_report, "lineage-review.json"),
+        "lineage-render",
+        "Rendered lineage exhibit matches the verified ten-revision case export.",
     )
     return {
         "version": "progress-review-consistency/1",
