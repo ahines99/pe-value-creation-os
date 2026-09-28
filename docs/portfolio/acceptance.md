@@ -2,6 +2,14 @@
 
 ## Published engineering verification
 
+Current draft candidate **31ebfe9** passed all ten [main-branch CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767):
+499 tests on each supported Linux Python version, 39/39 evaluations, 18 rendered
+browser checks, package/Compose/infrastructure validation and security scans.
+Build-matched assets and checksums are attached to the draft release; see the
+[evidence index](../releases/0.1.0/evidence.md). This completes engineering evidence
+assembly, not the human acceptance steps below. Earlier redesign results are
+retained as dated history.
+
 All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
 
 Current primary audience: PE operating partners and portfolio-company executives. Technical reviewers retain access to assumptions, evidence, contracts and engineering diligence. This supersedes the earlier hiring-manager/applied-AI positioning. Showcase acceptance and production acceptance remain separate milestones.
@@ -18,7 +26,7 @@ The combined API, executive UI and independent portfolio integration suites pass
 - [x] Capture authentic screenshots of the six rendered pages; retain the page/viewport report.
 - [ ] Obtain Alex's acceptance of the new executive visual direction and complete the remaining human MCP/browser session.
 - [x] Complete the current-worktree local regression: 478 passed, one Windows symlink-privilege skip; PostgreSQL enabled.
-- [ ] Attach successful exact-build CI/release evidence before promotion.
+- [x] Attach successful exact-build CI/release evidence before promotion: draft candidate `31ebfe9`, with uploaded asset hashes verified.
 
 Read-only checks against the running local Docker stack returned HTTP 200 and `Cache-Control: no-store` for the portfolio, approved Beacon review, exact-run KPI page, Delta review and evidence preview. Local links and anchors were validated across 15 HTML captures. These captures are application output, not screenshots.
 

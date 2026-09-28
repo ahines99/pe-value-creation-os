@@ -2,6 +2,21 @@
 
 ## Published engineering verification
 
+**Current candidate:** `31ebfe9938d6fe92232749632eba5224c0eaffaa` passed all ten
+[main-branch CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767):
+499 tests on each Python version, 39 evaluations and 18 rendered browser checks,
+plus package, Compose, infrastructure and security checks. The draft release now
+contains matching packages, source, screenshots, reports, manifest and checksums.
+See the [current evidence index](releases/0.1.0/evidence.md). Human acceptance and
+final promotion remain open. Earlier verification below is retained as history.
+
+The [private public-company research pilot](pilot/public-company-research.md) is
+also implemented and tested. It adds source lineage, accounting reconciliation,
+peer context and a diligence memo without manufacturing monthly operating data.
+Licensed inputs and outputs stay private. Independent financial review, peer
+acceptance and period-aware LSEG cross-checks remain open; this study does not
+close the real operating-company production pilot.
+
 All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
 
 Prepared September 27, 2026 from the current worktree, [audit remediation](audit-remediation.md), [ticket roadmap](../ROADMAP.md), implementation, packaging and deployment configuration.
@@ -33,10 +48,10 @@ September 27, 2026: [PR #1](https://github.com/ahines99/pe-value-creation-os/pul
 
 | Step | My action | Your action | Completion evidence |
 |---|---|---|---|
-| 1. Finalize redesigned-build evidence | Preserve passing local full-suite/targeted/eval results, finish ongoing CSS/accessibility/release review, and recheck affected behavior after final changes. | None. | 478 passed/one Windows skip, 39 targeted tests, 39/39 evals; final candidate identifiers and new exact-SHA CI still required. |
+| 1. Finalize build evidence — complete | Retained exact-commit CI and refreshed the draft bundle for `31ebfe9`. | None. | 499 tests per Linux Python version, 39/39 evals, 18 browser checks; matching release assets and checksums. |
 | 2. Executive design acceptance (F05/F08) | Retain the 18 passing Linux Chromium checks and inspected screenshots; address human feedback and remaining live-form usability. | Review and accept the new executive visual direction. | Rendered screenshots/browser report now exist; human acceptance remains separate. |
 | 3. Human acceptance (F05/F06) | Support the seeded workflow, preserve prior human results accurately and repair new feedback. | Complete the remaining MCP/browser session and explicitly accept the redesign. | Dated client/build record, evidence inspection, Delta controlled failure and decision/KPI consequence. |
-| 4. P1 candidate and release (F07/F10) | Refresh public assets and case study for executive-first positioning; run exact-SHA CI/scans and attach checksums before final promotion. | Review the completed acceptance record; publication rights are already supplied. | Accepted, versioned showcase with build-matched evidence; no production claim. |
+| 4. P1 candidate and release (F07/F10) | Candidate assets and exact-commit CI are complete. Promote after the actual human acceptance record is complete. | Accept the executive journey and complete the human MCP/browser session; publication rights are already supplied. | Draft `v0.1.0` targets `31ebfe9` with verified assets; final human acceptance remains open. |
 | 5. Optional P2 | Prepare hosting/IdP/budget/teardown and an optional bounded live-model plan before execution. | Choose hosting and authorize specific costs/access if desired. | Deployed synthetic acceptance under F11/F12. |
 | 6. P3 production | Execute F13-F16 and applicable remaining acceptance tickets below. | Provide real-company owners/data, reviewers, operating targets, on-call and launch decisions. | Signed domain/security/pilot/operations acceptance. |
 
@@ -319,8 +334,8 @@ For each completed item, record owner, date, exact SHA/version, command or sessi
 
 - [x] Installed-wheel demo and fresh-clone instructions pass outside the development checkout.
 - [x] Historical candidate `9f9b95f` passed CI, strict release-image scan and Linux symlink coverage with retained reports.
-- [x] Current-worktree local full regression passes: 478 tests, one Windows symlink-privilege skip, with PostgreSQL enabled.
-- [ ] The final redesigned release candidate passes exact-SHA CI and current artifact scans.
+- [x] Local research-candidate regression passes: 498 tests, one Windows symlink-privilege skip, with PostgreSQL enabled.
+- [x] Candidate `31ebfe9` passes exact-SHA CI and artifact scans: 499 tests per Linux Python version, 39 evaluations, 18 browser checks and clean application/database scans.
 - [x] Clean Compose startup/migration/seed/approval/KPI/restart/shutdown sequence passes.
 - [x] Six captured pages pass rendered desktop/tablet/mobile, overflow, skip-link and disclosure checks in isolated Chromium.
 - [ ] The human accepts the redesigned executive workflow and completes the remaining MCP/browser session.
@@ -340,4 +355,4 @@ Suggested deliverables: `docs/portfolio/case-study.md`, `docs/portfolio/media/`,
 
 ## 8. Immediate next work
 
-Preserve passing current-worktree regression evidence, retain the passing rendered checks and screenshots, finish live usability/release review, obtain human new-design acceptance, refresh executive-first publication assets and promote only a verified final candidate. The old visuals were rejected; earlier human decisions and CI evidence do not close the redesign. Implementation and publication decisions are already supplied. Production work remains explicitly scheduled after the showcase and requires the owner inputs listed in sections 4-6.
+The verified candidate and release evidence are assembled. Alex next reviews the executive design, completes the remaining actual MCP/browser session and accepts the case study/walkthrough. Engineering addresses that feedback and promotes the existing verified draft after the acceptance record is complete. Earlier human decisions do not stand in for review of the redesigned flow. Publication rights and the implementation direction are already supplied. The separate research pilot needs independent financial review and peer acceptance. Production remains scheduled after the showcase with the owner inputs in sections 4-6.

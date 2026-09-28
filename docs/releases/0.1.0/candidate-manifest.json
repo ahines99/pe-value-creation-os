@@ -1,0 +1,28 @@
+{
+  "candidate_sha": "31ebfe9938d6fe92232749632eba5224c0eaffaa",
+  "ci_run": "https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767",
+  "status": "draft; human executive-design and MCP acceptance pending",
+  "license": "Apache-2.0",
+  "scope": "executive synthetic showcase and private research workflow; no production acceptance",
+  "checks": {
+    "tests": {
+      "test (3.13)": 499,
+      "test (3.12)": 499,
+      "test (3.14)": 499
+    },
+    "deterministic_cases": 39,
+    "rendered_browser_checks": 18,
+    "browser_version": "153.0.8010.12",
+    "core_image_high_critical": 0
+  },
+  "image_ids": {
+    "trivy-database": "sha256:d74198a5cbb89589307da3e22dcde60f46b90b8955b040bed1781df24d71dba0",
+    "trivy-image": "sha256:7f79850983c6d2e115d7e49ec72a8214fa3fd4ae73806867571c859e3117479d"
+  },
+  "notes": [
+    "Licensed vendor extracts, private reports and credentials are excluded.",
+    "Financial pilot acceptance is pending; LSEG values are not yet used.",
+    "Optional telemetry images retain separately documented historical findings.",
+    "Cloud deployment and paid model evaluation remain opt-in."
+  ]
+}

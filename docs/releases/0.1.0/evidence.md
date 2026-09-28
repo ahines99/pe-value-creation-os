@@ -1,6 +1,37 @@
 # 0.1.0 showcase candidate: evidence index
 
-## Executive workspace update
+## Current draft candidate: 31ebfe9
+
+The draft `v0.1.0` release now targets **31ebfe9938d6fe92232749632eba5224c0eaffaa**.
+All ten jobs in [the exact-commit CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767)
+passed: **499 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 deterministic
+evaluations**, **18 rendered browser checks**, installed-package and Compose
+acceptance, infrastructure checks, dependency/secret scans and zero HIGH/CRITICAL
+findings in the application and local PostgreSQL images.
+
+The draft assets were refreshed from that run: wheel, source distribution,
+source/plugin ZIP, CI evidence ZIP with browser screenshots, candidate manifest,
+release notes and SHA256SUMS. Distribution hashes were checked against CI;
+uploaded asset digests were checked against the local bundle. The manifest records
+the tested image IDs. See the [candidate manifest](candidate-manifest.json) and
+[asset checksums](SHA256SUMS). Draft assets are visible to repository maintainers;
+the CI run is the public evidence source until release promotion.
+
+The source archive and packages exclude local credentials, licensed vendor extracts
+and private research reports. The package includes the new financial-statement
+research workflow; the shipped operational examples remain synthetic. The research
+pilot is not independently accepted and LSEG values do not enter its calculations.
+
+**Remaining promotion gates:** Alex's acceptance of the executive visual direction,
+the actual human MCP/browser session and its dated acceptance record. Automated
+browser checks do not satisfy those gates. PE operating partners and executives
+are the primary audience, with technical diligence available throughout. This
+candidate is not a production release.
+
+The following sections preserve earlier verification history. Their commits and
+counts do not describe the current draft assets.
+
+## Historical executive workspace update
 
 All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
 
@@ -31,7 +62,7 @@ The live local recovery exercise stopped the worker, recorded an approval, resta
 
 Optional telemetry runtime checks confirmed application metrics in Prometheus, traces in Tempo, Grafana provisioning and Alertmanager discovery. A synthetic approval-age metric then fired the Prometheus rule, reached local Alertmanager and resolved after reset. These checks **do not certify the optional images**: Grafana, Tempo and Alertmanager retain HIGH/CRITICAL findings, documented in container acceptance. No external alert notification was sent.
 
-## Publication and acceptance boundaries
+## Historical publication and acceptance boundaries
 
 Alex confirmed ownership/publication rights and authorized a public Apache-2.0 showcase. The technical audience is hiring managers and applied-AI leaders. The [case study](../../portfolio/case-study.md), [static portfolio](../../index.html), captured review/evidence views, [walkthrough](../../portfolio/quickstart.md), license, notices and maintainer guides form the publication package.
 
