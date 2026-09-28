@@ -32,7 +32,9 @@ missing caps and nonpositive permitted uplift create no pricing credit.
 
 Eligible terms use the lower of assumed uplift and contractual cap. The existing
 capture, incremental churn and variable-cost formulas apply once to that row.
-Revenue accrues only through the stated term end. The ledger's optional benefit
+Revenue accrues only through the stated term end and within the forecast horizon.
+Longer contractual terms retain their original end date without extrapolating
+earnings past the 24 modeled months. The ledger's optional benefit
 end date limits accrual, while settlements retain their lagged dates. The default
 aggregate model is unchanged. A collection reversal cannot be truncated through
 this new option.

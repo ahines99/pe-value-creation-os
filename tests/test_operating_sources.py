@@ -269,3 +269,15 @@ def test_complete_months_day100_total_and_settlements_reconcile_to_same_entries(
         for component in ("incremental_ebitda", "pre_tax_cash_proxy", "working_capital_cash"):
             assert sum(month[component] for month in scenario["monthly"]) == scenario["total"][component]
         assert scenario["day_100"] == totals(entries, date(2026, 10, 1), date(2027, 1, 8))
+
+
+def test_contract_beyond_forecast_horizon_keeps_its_term_and_lagged_cash():
+    book = revise(example(), lambda r: r["renewals"][1].update(term_ends_on="2030-03-31"))
+    result = base(report(book))
+    decision = next(d for d in result["decisions"] if d.get("record_id") == "spring-capped")
+    assert decision["term_ends_on"] == date(2030, 3, 31)
+    entries = tuple(Entry.model_validate(e) for e in result["entries"] if e["reference"] == "spring-capped")
+    assert totals(entries, date(2028, 9, 1), date(2028, 9, 30))["incremental_ebitda"] == 4174
+    tail = totals(entries, date(2028, 10, 1), date(2030, 3, 31))
+    assert tail["incremental_ebitda"] == 0
+    assert tail["operating_cash"] == Decimal("5217.50")

@@ -179,8 +179,8 @@ class OperatingSourceBook(Record):
         if self.cutoff != case.start:
             raise ValueError("source cutoff must equal the constructed model start")
         end = month_end(case.start, case.months - 1)
-        if any(not case.start <= r.renewal_on <= r.term_ends_on <= end for r in self.renewals):
-            raise ValueError("renewal recognition term must fit inside the explicit horizon")
+        if any(not case.start <= r.renewal_on <= end for r in self.renewals):
+            raise ValueError("renewal must begin inside the explicit horizon")
         if any(not case.start <= r.month <= end for r in self.service_months):
             raise ValueError("service month lies outside the explicit horizon")
         if any(not case.start <= r.accelerated_on < r.counterfactual_on <= end for r in self.invoices):
