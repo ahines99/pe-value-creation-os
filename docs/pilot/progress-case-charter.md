@@ -72,7 +72,10 @@ capacity, enforces dependencies and supplies delayed dates to the same economics
 No actual assignment or accepted deliverable is represented. [Case history](../portfolio/case-history.html)
 now preserves original/current inputs and outputs, with separately classified
 simulated review receipts. Actual authenticated review is supported by the API
-but has not occurred for this public case.
+but has not occurred for this public case. A separate immutable hypothetical-close
+baseline now binds an accepted exact-version review and stored scenario, with
+explicit replacements and withdrawal invalidation (ADR 0018). The public baseline
+designation is simulated; observed actuals remain unavailable.
 
 The public baseline now includes the ShareFile contribution/residual bridge,
 three-year revenue mix and four typed research assessments with counterevidence.

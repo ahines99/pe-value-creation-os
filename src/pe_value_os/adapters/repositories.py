@@ -31,6 +31,7 @@ from ..diligence.cases import (
     prepare_review,
     prepare_revision,
 )
+from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ValueCase
@@ -94,6 +95,8 @@ class Repository(Protocol):
     def get_case_revision(self, revision_id: str) -> CaseRevision: ...
     def list_case_revisions(self, case_id: str) -> list[CaseRevision]: ...
     def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview: ...
+    def list_close_baselines(self, case_id: str) -> list[CloseBaseline]: ...
+    def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline: ...
     def list_case_reviews(self, case_id: str) -> list[CaseReview]: ...
 
     # companies
@@ -220,6 +223,7 @@ class InMemoryRepository:
         self.investment_cases: dict[str, InvestmentCase] = {}
         self.case_revisions: dict[str, CaseRevision] = {}
         self.case_reviews: dict[str, CaseReview] = {}
+        self.case_close_baselines: dict[str, CloseBaseline] = {}
 
     # Research-case review never routes through operating-plan approval or KPI activation.
     def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
@@ -282,6 +286,43 @@ class InMemoryRepository:
                     actor=record.author,
                     created_at=record.recorded_at,
                     payload={"case_id": case_id, "revision_id": record.revision_id, "sha256": record.content_sha256},
+                )
+            )
+            return record
+
+    def list_close_baselines(self, case_id: str) -> list[CloseBaseline]:
+        self.get_investment_case(case_id)
+        return sorted(
+            (b for b in self.case_close_baselines.values() if b.case_id == case_id),
+            key=lambda b: (b.request.mode, b.sequence),
+        )
+
+    def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            revision = self.get_case_revision(request.revision_id)
+            existing = [b for b in self.list_close_baselines(case_id) if b.request.mode == request.mode]
+            previous = existing[-1] if existing else None
+            if request.expected_previous_id != (previous.baseline_id if previous else None):
+                raise Conflict("Close baseline changed; bind the latest designation explicitly")
+            record = prepare_close_baseline(case, revision, self.list_case_reviews(case_id), request, previous)
+            self.case_close_baselines[record.baseline_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="close_baseline_designated",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "baseline_id": record.baseline_id,
+                        "revision_id": request.revision_id,
+                        "review_id": request.review_id,
+                        "mode": request.mode,
+                        "sha256": record.content_sha256,
+                    },
                 )
             )
             return record
@@ -602,6 +643,7 @@ class InMemoryRepository:
                 "investment_cases",
                 "case_revisions",
                 "case_reviews",
+                "case_close_baselines",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -837,7 +879,7 @@ class InMemoryRepository:
             self.kpi_obs = [o for o in self.kpi_obs if o.company_id != company_id]
             self.kpi_alerts = [a for a in self.kpi_alerts if a.company_id != company_id]
             self.notifications = [n for n in self.notifications if n.company_id != company_id]
-            for name in ("investment_cases", "case_revisions", "case_reviews"):
+            for name in ("investment_cases", "case_revisions", "case_reviews", "case_close_baselines"):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())
                 setattr(self, name, {key: row for key, row in rows.items() if row.company_id != company_id})

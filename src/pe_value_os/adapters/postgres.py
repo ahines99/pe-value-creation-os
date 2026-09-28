@@ -29,6 +29,7 @@ from ..diligence.cases import (
     prepare_review,
     prepare_revision,
 )
+from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ScenarioInputs, ValueCase
@@ -161,6 +162,66 @@ class PostgresRepository:
                     actor=record.author,
                     created_at=record.recorded_at,
                     payload={"case_id": case_id, "revision_id": record.revision_id, "sha256": record.content_sha256},
+                )
+            )
+            return record
+
+    def list_close_baselines(self, case_id: str) -> list[CloseBaseline]:
+        self.get_investment_case(case_id)
+        with self._tx() as cur:
+            return [
+                CloseBaseline.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from case_close_baselines where case_id=%s order by mode,sequence", (case_id,)
+                ).fetchall()
+            ]
+
+    def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline:
+        with self.approval_transaction(), self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            case = self._investment_case(row)
+            revision = self.get_case_revision(request.revision_id)
+            existing = [b for b in self.list_close_baselines(case_id) if b.request.mode == request.mode]
+            previous = existing[-1] if existing else None
+            if request.expected_previous_id != (previous.baseline_id if previous else None):
+                raise Conflict("Close baseline changed; bind the latest designation explicitly")
+            record = prepare_close_baseline(case, revision, self.list_case_reviews(case_id), request, previous)
+            cur.execute(
+                """insert into case_close_baselines(baseline_id,company_id,case_id,sequence,revision_id,revision_sha256,review_id,mode,previous_id,actor_type,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.baseline_id,
+                    record.company_id,
+                    case_id,
+                    record.sequence,
+                    request.revision_id,
+                    request.revision_sha256,
+                    request.review_id,
+                    request.mode,
+                    request.expected_previous_id,
+                    record.actor_type,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="close_baseline_designated",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "baseline_id": record.baseline_id,
+                        "revision_id": request.revision_id,
+                        "review_id": request.review_id,
+                        "mode": request.mode,
+                        "sha256": record.content_sha256,
+                    },
                 )
             )
             return record
@@ -1157,7 +1218,7 @@ class PostgresRepository:
         with self._tx() as cur:
             # Individual revisions/receipts cannot be deleted by pvc_app. Approved
             # whole-company offboarding cascades from the existing company deletion.
-            for table in ("investment_cases", "case_revisions", "case_reviews"):
+            for table in ("investment_cases", "case_revisions", "case_reviews", "case_close_baselines"):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)
                 ).fetchone()["n"]
