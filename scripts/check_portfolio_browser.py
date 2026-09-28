@@ -79,6 +79,12 @@ def main() -> None:
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
+                if name == "public-baseline":
+                    assert "Organic growth remains unavailable" in page.locator("#growth").inner_text()
+                    assert "Reject" in page.locator("#research-decisions").inner_text()
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#growth").screenshot(path=str(output / f"public-growth-{width}.png"))
                 findings.append(
                     {
                         "page": name,

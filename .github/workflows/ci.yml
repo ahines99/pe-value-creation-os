@@ -36,7 +36,7 @@ jobs:
         run: |
           uv run python scripts/capture_portfolio.py
           uv run python scripts/build_public_case.py
-          uv run pvc public-diligence --input data/public/progress/financial-facts.json --output docs/portfolio/progress-baseline
+          uv run pvc public-diligence --input data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --output docs/portfolio/progress-baseline
           uv run pvc underwriting --input data/constructed/progress/underwriting.json --output docs/portfolio/underwriting
           uv run pvc operating-plan --input data/constructed/progress/operating-plan.json --underwriting data/constructed/progress/underwriting.json --output docs/portfolio/operating-plan
           uv run pvc case-history-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --output docs/portfolio/case-history
@@ -161,7 +161,7 @@ jobs:
           mkdir /tmp/pvc-package-smoke
           cd /tmp/pvc-package-smoke
           /tmp/pvc-installed/bin/pvc demo --quiet
-          /tmp/pvc-installed/bin/pvc public-diligence --input "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --output public-baseline
+          /tmp/pvc-installed/bin/pvc public-diligence --input "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --growth "$GITHUB_WORKSPACE/data/public/progress/growth-context.json" --output public-baseline
           /tmp/pvc-installed/bin/pvc underwriting --input "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --output underwriting
           /tmp/pvc-installed/bin/pvc operating-plan --input "$GITHUB_WORKSPACE/data/constructed/progress/operating-plan.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --output operating-plan
           /tmp/pvc-installed/bin/pvc case-history-demo --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/operating-plan.json" --output case-history
