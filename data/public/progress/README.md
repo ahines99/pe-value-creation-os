@@ -24,7 +24,7 @@ Reproduce the baseline without a network or vendor account:
 
 ```powershell
 uv run python scripts/build_public_case.py
-uv run pvc public-diligence --input data/public/progress/financial-facts.json --output var/public-diligence/baseline
+uv run pvc public-diligence --input data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --output var/public-diligence/baseline
 ```
 
 To verify extraction, install the research extra, retrieve the public PDF linked
@@ -72,3 +72,36 @@ comparative amortization difference remains an explicit accounting question.
 The dated acquisition event is not folded into historical figures. No post-deal
 pro forma baseline, synergies or later-than-cutoff disclosure is inferred. See
 [ADR 0011](../../../docs/adr/0011-quarterly-source-and-perimeter.md).
+
+## Acquisition contribution and commercial research
+
+`growth-context.json` adds the approximate ShareFile contribution disclosures,
+nine reviewed disclosure notes and four authored research assessments. It also
+contains a separately extracted 15-fact revenue disaggregation from Note 12,
+using `revenue-mix-map.json`. The original 241-fact financial registry is unchanged;
+overlapping values and annual component sums must reconcile before export.
+
+The FY2025/FY2024 revenue increase is $224.422 million; the approximate ShareFile
+contribution increase is $240.5 million. The remaining change is approximately
+negative $16.1 million (negative 2.2%). This residual is not organic growth and
+retains FX, Nuclia, mix and timing. Unaudited pro forma revenue stays separate;
+ShareFile earnings and exact organic growth remain unavailable. SaaS revenue is
+not ARR. No public operating opportunity is sized from these disclosures.
+
+The assessments investigate growth quality, defer broad pricing and cost-out
+claims, and reject cancellation of the already terminated ShareFile TSA as a new
+saving. Each retains its supporting context, counterevidence, alternatives and the
+test that could change the judgment. These are research-author assessments, not
+management approvals or independent practitioner reviews.
+
+Verify against the same exact downloaded FY2025 PDF:
+
+```powershell
+uv run python scripts/verify_growth_source.py --pdf var/public-diligence/sources/progress-2025-10k.pdf
+```
+
+This checks the source hash, re-extracts the mix and verifies source anchors.
+Anchors locate manually reviewed paragraphs rather than validating their meaning.
+Pages 25, 26, 52, 53, 54 and 63 were visually inspected. See
+[ADR 0014](../../../docs/adr/0014-acquisition-growth-research.md) for precision,
+research authority and remaining work.

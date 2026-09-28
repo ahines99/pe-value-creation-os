@@ -24,6 +24,9 @@ The [functional audit](docs/portfolio/executive-functional-audit.md) and [screen
 **Public filing baseline (work in progress):** [Progress Software's historical
 financial baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html)
 replays from 241 issuer-sourced annual/interim facts without vendor credentials.
+It now adds a reconciled revenue-mix extraction, acquisition contribution bridge
+and sourced investigate/defer/reject research assessments; organic growth remains
+unavailable where the disclosures do not establish it.
 It separates quarterly and YTD periods, derives quarterly cash with source lineage,
 and flags the September 2026 acquisition as outside the historical financial
 perimeter. Earnings/cash definitions and unresolved accounting differences remain

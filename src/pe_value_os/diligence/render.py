@@ -11,6 +11,8 @@ from typing import Any
 from ..api.presentation import CSS
 from ..research.render import table
 from .financials import analyze_facts
+from .growth import GrowthContext, analyze_growth
+from .growth_render import render_growth
 from .models import FactBundle
 from .quarterly import derive_quarters
 
@@ -58,12 +60,14 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
             f"<p>{escape(event.reported_summary)}</p><p><strong>Implication for this analysis:</strong> {escape(event.analytical_implication)}</p>"
             f"<p><a href='{escape(str(doc.url), quote=True)}'>{escape(doc.title)}</a> · {escape(event.source_locator)}</p></section>"
         )
+    if "growth_analysis" in report:
+        body += render_growth(bundle, report["growth_analysis"])
     body += (
         "<section class='panel'><h2>What this case establishes</h2>"
         "<p>Reported financial periods, their source rows and explicit calculation bridges are reproducible "
         "without a vendor account. This is a public-company research case, not a client engagement. "
         "There are no customer records, operating interventions or independently validated savings in this baseline.</p>"
-        "<p>Peer eligibility, acquisition effects, contract economics, staffing capacity and implementation costs "
+        "<p>Peer eligibility, remaining perimeter effects, contract economics, staffing capacity and implementation costs "
         "must be examined before selecting a value-creation plan. Missing operating information remains a diligence request.</p></section>"
     )
     history = []
@@ -318,15 +322,19 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
     )
 
 
-def build_public_report(source: Path, output: Path) -> Path:
+def build_public_report(source: Path, output: Path, growth_source: Path | None = None) -> Path:
     bundle = FactBundle.model_validate_json(source.read_bytes())
     bundle.require_public()
     report = analyze_facts(bundle)
     report["quarterly_derivations"] = derive_quarters(bundle)
     report["context_events"] = [e.model_dump(mode="json") for e in bundle.events]
+    if growth_source is not None:
+        context = GrowthContext.model_validate_json(growth_source.read_bytes())
+        report["growth_analysis"] = analyze_growth(bundle, context)
     html = render_baseline(bundle, report)
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
-    if source.resolve() in {html_path.resolve(), json_path.resolve()}:
+    inputs = {source.resolve()} | ({growth_source.resolve()} if growth_source is not None else set())
+    if inputs & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("report must not overwrite the source fact bundle")
     # Validate and render before any filesystem mutation; private sources never create output.
     html_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,73 @@
+{
+  "company": "Progress Software Corporation",
+  "entity_id": "cik:0000876167",
+  "ticker": "PRGS",
+  "title": "Progress Software FY2025 Form 10-K",
+  "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+  "accession": "0000876167-26-000008",
+  "form": "10-K",
+  "filed_on": "2026-01-20",
+  "source_sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+  "currency": "USD",
+  "unit_scale": 1000,
+  "entity_heading": "PROGRESS SOFTWARE CORPORATION",
+  "tables": [
+    {
+      "pdf_page": 63,
+      "printed_page": "63",
+      "heading": "Timing of Revenue Recognition",
+      "unit_heading": "(in thousands)",
+      "columns": [
+        {
+          "label": "November 30, 2025",
+          "period": {
+            "start": "2024-12-01",
+            "end": "2025-11-30",
+            "basis": "annual"
+          },
+          "occurrence": 1
+        },
+        {
+          "label": "November 30, 2024",
+          "period": {
+            "start": "2023-12-01",
+            "end": "2024-11-30",
+            "basis": "annual"
+          },
+          "occurrence": 1
+        },
+        {
+          "label": "November 30, 2023",
+          "period": {
+            "start": "2022-12-01",
+            "end": "2023-11-30",
+            "basis": "annual"
+          },
+          "occurrence": 1
+        }
+      ],
+      "rows": [
+        {
+          "metric": "software_license_revenue",
+          "label": "Software licenses"
+        },
+        {
+          "metric": "maintenance_revenue",
+          "label": "Maintenance"
+        },
+        {
+          "metric": "saas_revenue",
+          "label": "SaaS"
+        },
+        {
+          "metric": "professional_services_revenue",
+          "label": "Professional services"
+        },
+        {
+          "metric": "revenue",
+          "label": "Total revenue"
+        }
+      ]
+    }
+  ]
+}

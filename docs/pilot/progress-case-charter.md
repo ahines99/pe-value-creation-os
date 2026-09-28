@@ -74,8 +74,14 @@ now preserves original/current inputs and outputs, with separately classified
 simulated review receipts. Actual authenticated review is supported by the API
 but has not occurred for this public case.
 
-Still required: acquisition/growth bridge, metric-specific peer
-eligibility, typed commercial thesis, richer interactions,
+The public baseline now includes the ShareFile contribution/residual bridge,
+three-year revenue mix and four typed research assessments with counterevidence.
+The residual is not organic growth; standalone acquired earnings remain unavailable.
+The disclosed TSA termination is rejected as a new saving because it already occurred.
+See [ADR 0014](../adr/0014-acquisition-growth-research.md).
+
+Still required: metric-specific peer eligibility, reviewed commercial conclusions,
+richer interactions,
 public-baseline integration, actual execution evidence, full decision memo and
 realization demonstration. These foundations do not complete S1 or any later goal
 milestone by themselves.

@@ -2814,5 +2814,685 @@
       "reported_summary": "Progress completed the Domo business asset acquisition on September 22, 2026 for USD 400 million, funded with cash and the existing revolving credit facility. The filing says transaction financial statements and pro forma information will follow by amendment.",
       "analytical_implication": "The FY2025 annual and May 2026 interim statements predate this acquisition. They are historical pre-acquisition anchors, not the current consolidated business. Refresh the business perimeter, leverage and peer comparison when the transaction disclosures are available; no synergy or post-acquisition EBITDA is inferred here."
     }
-  ]
+  ],
+  "growth_analysis": {
+    "analysis_version": "public-growth-bridge/1",
+    "financial_input_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
+    "context_sha256": "13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d",
+    "classification": "calculated_from_public_facts_and_rounded_disclosures",
+    "currency": "USD",
+    "prior_period": {
+      "start": "2023-12-01",
+      "end": "2024-11-30",
+      "basis": "annual"
+    },
+    "current_period": {
+      "start": "2024-12-01",
+      "end": "2025-11-30",
+      "basis": "annual"
+    },
+    "reported_prior": "753409000",
+    "reported_current": "977831000",
+    "reported_change": "224422000",
+    "reported_growth": "0.2978753903922039688933899117",
+    "acquired_prior": "21100000.0",
+    "acquired_current": "261600000.0",
+    "acquired_change": "240500000.0",
+    "residual_prior": "732309000.0",
+    "residual_current": "716231000.0",
+    "residual_change": "-16078000.0",
+    "residual_growth": "-0.02195521289510302345048333422",
+    "organic_growth": null,
+    "organic_growth_state": "unavailable: residual retains currency, other acquisitions, mix and timing",
+    "acquired_earnings": null,
+    "display_resolution": "100000.0",
+    "precision_note": "Arithmetic uses published rounded inputs. Extra arithmetic digits are not additional source precision or confidence bounds.",
+    "evidence_ids": [
+      "cik:0000876167:0000876167-26-000008:2024-11-30:revenue",
+      "cik:0000876167:0000876167-26-000008:2025-11-30:revenue",
+      "sharefile-contribution",
+      "sharefile-contribution"
+    ],
+    "revenue_mix": [
+      {
+        "start": "2022-12-01",
+        "end": "2023-11-30",
+        "basis": "annual",
+        "currency": "USD",
+        "total": "694439000",
+        "original_revenue_fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:revenue",
+        "components": {
+          "software_license_revenue": {
+            "amount": "220789000",
+            "share": "0.3179386526390366900476499736",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:software_license_revenue"
+          },
+          "maintenance_revenue": {
+            "amount": "401501000",
+            "share": "0.5781659728212269184190404053",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:maintenance_revenue"
+          },
+          "saas_revenue": {
+            "amount": "20693000",
+            "share": "0.02979815361752436139099330539",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:saas_revenue"
+          },
+          "professional_services_revenue": {
+            "amount": "51456000",
+            "share": "0.07409722092221203014231631576",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:professional_services_revenue"
+          }
+        }
+      },
+      {
+        "start": "2023-12-01",
+        "end": "2024-11-30",
+        "basis": "annual",
+        "currency": "USD",
+        "total": "753409000",
+        "original_revenue_fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:revenue",
+        "components": {
+          "software_license_revenue": {
+            "amount": "249331000",
+            "share": "0.3309371138385657723759604677",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:software_license_revenue"
+          },
+          "maintenance_revenue": {
+            "amount": "410556000",
+            "share": "0.5449311064773582476450374232",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:maintenance_revenue"
+          },
+          "saas_revenue": {
+            "amount": "44564000",
+            "share": "0.05914981105880073107701129134",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:saas_revenue"
+          },
+          "professional_services_revenue": {
+            "amount": "48958000",
+            "share": "0.06498196862527524890199081774",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:professional_services_revenue"
+          }
+        }
+      },
+      {
+        "start": "2024-12-01",
+        "end": "2025-11-30",
+        "basis": "annual",
+        "currency": "USD",
+        "total": "977831000",
+        "original_revenue_fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:revenue",
+        "components": {
+          "software_license_revenue": {
+            "amount": "237887000",
+            "share": "0.2432802805392751917253594946",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:software_license_revenue"
+          },
+          "maintenance_revenue": {
+            "amount": "410174000",
+            "share": "0.4194733036690389239040284057",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:maintenance_revenue"
+          },
+          "saas_revenue": {
+            "amount": "287928000",
+            "share": "0.2944557904177715781152366820",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:saas_revenue"
+          },
+          "professional_services_revenue": {
+            "amount": "41842000",
+            "share": "0.04279062537391430625537541763",
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:professional_services_revenue"
+          }
+        }
+      }
+    ],
+    "context": {
+      "schema_version": 1,
+      "financial_input_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "source_sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+      "acquired_business": "ShareFile",
+      "acquired_on": "2024-10-31",
+      "prior": {
+        "revenue_fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:revenue",
+        "evidence_id": "sharefile-contribution",
+        "reported_amount": "21.1",
+        "unit_scale": 1000000,
+        "currency": "USD",
+        "reported_resolution": "0.1",
+        "approximate": true
+      },
+      "current": {
+        "revenue_fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:revenue",
+        "evidence_id": "sharefile-contribution",
+        "reported_amount": "261.6",
+        "unit_scale": 1000000,
+        "currency": "USD",
+        "reported_resolution": "0.1",
+        "approximate": true
+      },
+      "revenue_mix": {
+        "schema_version": 1,
+        "company": "Progress Software Corporation",
+        "entity_id": "cik:0000876167",
+        "ticker": "PRGS",
+        "information_cutoff": "2026-09-28",
+        "documents": [
+          {
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "classification": "public_filing",
+            "entity_id": "cik:0000876167",
+            "title": "Progress Software FY2025 Form 10-K",
+            "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+            "accession": "0000876167-26-000008",
+            "form": "10-K",
+            "filed_on": "2026-01-20",
+            "retrieved_at": "2026-09-28T13:39:25.016566Z",
+            "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+            "mapping_sha256": "420be839fb484165a59d38643bb5aa5cc2928830c8ab8cf37f35ee711e04de38",
+            "extraction_version": "filing-pdf/2"
+          }
+        ],
+        "facts": [
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:software_license_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "software_license_revenue",
+            "period": {
+              "start": "2024-12-01",
+              "end": "2025-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "237887",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Software licenses",
+            "column_label": "November 30, 2025 [annual; occurrence 1]",
+            "source_row": "Software licenses $ 237,887 $ 249,331 $ 220,789"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:software_license_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "software_license_revenue",
+            "period": {
+              "start": "2023-12-01",
+              "end": "2024-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "249331",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Software licenses",
+            "column_label": "November 30, 2024 [annual; occurrence 1]",
+            "source_row": "Software licenses $ 237,887 $ 249,331 $ 220,789"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:software_license_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "software_license_revenue",
+            "period": {
+              "start": "2022-12-01",
+              "end": "2023-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "220789",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Software licenses",
+            "column_label": "November 30, 2023 [annual; occurrence 1]",
+            "source_row": "Software licenses $ 237,887 $ 249,331 $ 220,789"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:maintenance_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "maintenance_revenue",
+            "period": {
+              "start": "2024-12-01",
+              "end": "2025-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "410174",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Maintenance",
+            "column_label": "November 30, 2025 [annual; occurrence 1]",
+            "source_row": "Maintenance 410,174 410,556 401,501"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:maintenance_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "maintenance_revenue",
+            "period": {
+              "start": "2023-12-01",
+              "end": "2024-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "410556",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Maintenance",
+            "column_label": "November 30, 2024 [annual; occurrence 1]",
+            "source_row": "Maintenance 410,174 410,556 401,501"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:maintenance_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "maintenance_revenue",
+            "period": {
+              "start": "2022-12-01",
+              "end": "2023-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "401501",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Maintenance",
+            "column_label": "November 30, 2023 [annual; occurrence 1]",
+            "source_row": "Maintenance 410,174 410,556 401,501"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:saas_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "saas_revenue",
+            "period": {
+              "start": "2024-12-01",
+              "end": "2025-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "287928",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "SaaS",
+            "column_label": "November 30, 2025 [annual; occurrence 1]",
+            "source_row": "SaaS 287,928 44,564 20,693"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:saas_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "saas_revenue",
+            "period": {
+              "start": "2023-12-01",
+              "end": "2024-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "44564",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "SaaS",
+            "column_label": "November 30, 2024 [annual; occurrence 1]",
+            "source_row": "SaaS 287,928 44,564 20,693"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:saas_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "saas_revenue",
+            "period": {
+              "start": "2022-12-01",
+              "end": "2023-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "20693",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "SaaS",
+            "column_label": "November 30, 2023 [annual; occurrence 1]",
+            "source_row": "SaaS 287,928 44,564 20,693"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:professional_services_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "professional_services_revenue",
+            "period": {
+              "start": "2024-12-01",
+              "end": "2025-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "41842",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Professional services",
+            "column_label": "November 30, 2025 [annual; occurrence 1]",
+            "source_row": "Professional services 41,842 48,958 51,456"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:professional_services_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "professional_services_revenue",
+            "period": {
+              "start": "2023-12-01",
+              "end": "2024-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "48958",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Professional services",
+            "column_label": "November 30, 2024 [annual; occurrence 1]",
+            "source_row": "Professional services 41,842 48,958 51,456"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:professional_services_revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "professional_services_revenue",
+            "period": {
+              "start": "2022-12-01",
+              "end": "2023-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "51456",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Professional services",
+            "column_label": "November 30, 2023 [annual; occurrence 1]",
+            "source_row": "Professional services 41,842 48,958 51,456"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "revenue",
+            "period": {
+              "start": "2024-12-01",
+              "end": "2025-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "977831",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Total revenue",
+            "column_label": "November 30, 2025 [annual; occurrence 1]",
+            "source_row": "Total revenue $ 977,831 $ 753,409 $ 694,439"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "revenue",
+            "period": {
+              "start": "2023-12-01",
+              "end": "2024-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "753409",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Total revenue",
+            "column_label": "November 30, 2024 [annual; occurrence 1]",
+            "source_row": "Total revenue $ 977,831 $ 753,409 $ 694,439"
+          },
+          {
+            "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:revenue",
+            "document_id": "cik:0000876167:0000876167-26-000008",
+            "entity_id": "cik:0000876167",
+            "metric": "revenue",
+            "period": {
+              "start": "2022-12-01",
+              "end": "2023-11-30",
+              "basis": "annual"
+            },
+            "currency": "USD",
+            "reported_amount": "694439",
+            "unit_scale": 1000,
+            "accounting_basis": "US_GAAP",
+            "pdf_page": 63,
+            "printed_page": "63",
+            "row_label": "Total revenue",
+            "column_label": "November 30, 2023 [annual; occurrence 1]",
+            "source_row": "Total revenue $ 977,831 $ 753,409 $ 694,439"
+          }
+        ],
+        "events": []
+      },
+      "disclosures": [
+        {
+          "evidence_id": "sharefile-contribution",
+          "pdf_page": 53,
+          "locator": "Note 5 / ShareFile included revenue",
+          "source_anchor": "approximately $261.6 million and $21.1 million",
+          "classification": "reported_disclosure",
+          "reported_summary": "ShareFile contributed approximately $261.6 million in FY2025 and $21.1 million in FY2024. The latter covers only one month after acquisition.",
+          "analytical_limit": "Amounts are approximate to $0.1 million. A full-year versus one-month contribution change is not ShareFile organic growth."
+        },
+        {
+          "evidence_id": "renewal-timing",
+          "pdf_page": 25,
+          "locator": "MD&A / License and service revenue",
+          "source_anchor": "DataDirect product offering",
+          "classification": "reported_disclosure",
+          "reported_summary": "Management attributes the software-license decline primarily to timing of multi-year DataDirect subscription renewals, and the professional-services decline primarily to lower MarkLogic services revenue.",
+          "analytical_limit": "Management attribution is not a contract-level renewal, price, volume or churn bridge."
+        },
+        {
+          "evidence_id": "nuclia-perimeter",
+          "pdf_page": 52,
+          "locator": "Note 5 / Nuclia",
+          "source_anchor": "On June 30, 2025",
+          "classification": "reported_disclosure",
+          "reported_summary": "Progress acquired Nuclia on June 30, 2025. The filing omits its post-acquisition revenue, earnings and pro forma information on significance grounds.",
+          "analytical_limit": "Undisclosed is not zero. The non-ShareFile residual still includes this acquisition."
+        },
+        {
+          "evidence_id": "tsa-completed",
+          "pdf_page": 53,
+          "locator": "Note 5 / Transition services",
+          "source_anchor": "The TSA was terminated",
+          "classification": "reported_disclosure",
+          "reported_summary": "The ShareFile transition-services agreement ended in the second quarter of FY2025; its FY2025 and FY2024 expenses were described as not significant.",
+          "analytical_limit": "Canceling this agreement cannot be a new future savings initiative at this case cutoff."
+        },
+        {
+          "evidence_id": "earnings-unavailable",
+          "pdf_page": 53,
+          "locator": "Note 5 / ShareFile earnings",
+          "source_anchor": "is impracticable",
+          "classification": "reported_disclosure",
+          "reported_summary": "Progress does not separately disclose ShareFile earnings because its operations were integrated from acquisition.",
+          "analytical_limit": "Included revenue cannot be multiplied by an invented standalone margin to claim acquired EBITDA or synergies."
+        },
+        {
+          "evidence_id": "pro-forma-basis",
+          "pdf_page": 54,
+          "locator": "Note 5 / Unaudited pro forma results",
+          "source_anchor": "does not reflect any adjustments",
+          "classification": "unaudited_pro_forma_context",
+          "reported_summary": "The acquisition-as-if-completed-on-December-1-2022 presentation shows FY2024 revenue of $978.757 million and FY2023 revenue of $907.010 million. It excludes anticipated expense savings and is not necessarily indicative of results that would have occurred.",
+          "analytical_limit": "Keep this counterfactual presentation separate from reported consolidated revenue; it is not an organic-growth adjustment or a forecast."
+        },
+        {
+          "evidence_id": "revenue-definition",
+          "pdf_page": 63,
+          "locator": "Note 12 / Revenue recognition",
+          "source_anchor": "Timing of Revenue Recognition",
+          "classification": "reported_disclosure",
+          "reported_summary": "The filing disaggregates software-license revenue recognized at a point in time from maintenance, SaaS and professional-services revenue recognized over time.",
+          "analytical_limit": "Reported SaaS revenue is not an ARR balance. Recognition timing and product mix limit a uniform SaaS comparison."
+        },
+        {
+          "evidence_id": "cost-perimeter",
+          "pdf_page": 26,
+          "locator": "MD&A / Cost of revenue",
+          "source_anchor": "acquisition of ShareFile",
+          "classification": "reported_disclosure",
+          "reported_summary": "Management attributes increased maintenance, SaaS and professional-services cost primarily to ShareFile-related headcount and hosting costs, partly offset by lower contractor and outside-service costs.",
+          "analytical_limit": "Acquisition-related cost growth is not evidence that staffing or hosting spend is redundant, removable or eligible for automation."
+        },
+        {
+          "evidence_id": "currency-definition",
+          "pdf_page": 25,
+          "locator": "MD&A / Reported and constant-currency growth",
+          "source_anchor": "Constant",
+          "classification": "reported_disclosure",
+          "reported_summary": "The filing presents FY2025 revenue growth as 30% reported and 29% at constant currency, rounded to whole percentages.",
+          "analytical_limit": "Subtracting rounded percentages does not produce an exact dollar foreign-exchange bridge."
+        }
+      ],
+      "assessments": [
+        {
+          "assessment_id": "growth-quality",
+          "question": "Does reported growth demonstrate improvement in the pre-ShareFile business?",
+          "disposition": "investigate",
+          "rationale": "The disclosed ShareFile contribution increase exceeds consolidated revenue growth. The remaining decline merits explanation before a recovery thesis is underwritten.",
+          "mechanism": "Separate perimeter changes from price, volume, renewal timing and currency.",
+          "population": "Consolidated FY2024/FY2025 revenue, with ShareFile removed arithmetically.",
+          "supporting_evidence_ids": [
+            "sharefile-contribution"
+          ],
+          "counterevidence_ids": [
+            "renewal-timing",
+            "nuclia-perimeter",
+            "currency-definition"
+          ],
+          "alternative_explanations": [
+            "Renewal timing",
+            "Currency movement",
+            "Other acquisition contribution",
+            "Product and service mix"
+          ],
+          "evidence_needed": [
+            "Product-level revenue bridge on a constant perimeter",
+            "Renewal calendar and comparable quantities",
+            "Nuclia contribution and constant-currency amounts"
+          ],
+          "falsification_or_reopen_test": "Reject a structural deterioration or recovery claim if a reconciled timing/perimeter bridge explains the residual without an underlying change; retain any unresolved remainder.",
+          "review_by": "2026-10-31",
+          "author_role": "research_author",
+          "decision_scope": "research_assessment_only"
+        },
+        {
+          "assessment_id": "pricing-headroom",
+          "question": "Can the license decline justify a broad price-book migration?",
+          "disposition": "defer",
+          "rationale": "The public figures do not establish eligible contracts, enforceable uplifts or net retention economics.",
+          "mechanism": "Test price realization only within comparable, contractually eligible renewal cohorts.",
+          "population": "No verified customer cohort is available.",
+          "supporting_evidence_ids": [
+            "revenue-definition"
+          ],
+          "counterevidence_ids": [
+            "renewal-timing"
+          ],
+          "alternative_explanations": [
+            "Multi-year renewal timing",
+            "Quantity and product mix",
+            "Channel economics rather than underpricing"
+          ],
+          "evidence_needed": [
+            "Contracts, notice periods, caps and channel terms",
+            "Matched invoices, concessions, quantities and renewal outcomes",
+            "Churn and contribution margin by eligible cohort"
+          ],
+          "falsification_or_reopen_test": "Reject the price intervention if the apparent gap disappears after mix/quantity adjustments, contracts prohibit it, or lost contribution and implementation costs exceed the uplift.",
+          "review_by": "2026-10-31",
+          "author_role": "research_author",
+          "decision_scope": "research_assessment_only"
+        },
+        {
+          "assessment_id": "tsa-cancellation",
+          "question": "Can ending ShareFile transition services create new savings?",
+          "disposition": "reject",
+          "rationale": "The disclosed agreement already ended in Q2 FY2025. Treating its termination as a new intervention would count an existing action again.",
+          "mechanism": "Remove a continuing transition-service obligation only if it still exists.",
+          "population": "The disclosed ShareFile TSA.",
+          "supporting_evidence_ids": [
+            "cost-perimeter"
+          ],
+          "counterevidence_ids": [
+            "tsa-completed"
+          ],
+          "alternative_explanations": [
+            "Post-TSA replacement costs may continue under different arrangements"
+          ],
+          "evidence_needed": [
+            "A separately documented continuing obligation and current approved budget, if any"
+          ],
+          "falsification_or_reopen_test": "Reopen only for a distinct, documented remaining obligation with an owner, termination right and incremental cost action; never reuse the completed TSA termination.",
+          "review_by": "2026-10-31",
+          "author_role": "research_author",
+          "decision_scope": "research_assessment_only"
+        },
+        {
+          "assessment_id": "integration-cost-out",
+          "question": "Can acquisition costs establish an automation or integration savings pool?",
+          "disposition": "defer",
+          "rationale": "Consolidated cost growth and acquisition revenue do not identify removable operating costs or standalone acquired earnings.",
+          "mechanism": "Link a specific workflow or duplicate obligation to a safe operating change and an actual spend action.",
+          "population": "No verified ticket, staffing, vendor or duplicate-cost population is available.",
+          "supporting_evidence_ids": [
+            "cost-perimeter"
+          ],
+          "counterevidence_ids": [
+            "earnings-unavailable",
+            "tsa-completed"
+          ],
+          "alternative_explanations": [
+            "Costs may support a larger acquired business",
+            "Integrated shared costs may remain after process changes",
+            "Costs may already be removed in the baseline"
+          ],
+          "evidence_needed": [
+            "Reconciled cost center and vendor ledger",
+            "Ticket volumes, quality constraints and staffing commitments",
+            "Existing integration plan and actions already in the budget"
+          ],
+          "falsification_or_reopen_test": "Reject if safe capacity release does not permit a supported spend action, quality deteriorates, or the same cost is already removed or claimed elsewhere.",
+          "review_by": "2026-10-31",
+          "author_role": "research_author",
+          "decision_scope": "research_assessment_only"
+        }
+      ]
+    }
+  }
 }
