@@ -130,3 +130,13 @@ now demonstrated in the [execution review](../../portfolio/execution.html): late
 acceptance blocks whole-month credit, and withdrawal invalidates support while
 preserving source accounting. These are rehearsal receipts only. Do not relabel company records as constructed
 to bypass this boundary. Sponsor participation and authorization remain absent.
+
+
+The [operating source challenge](../../portfolio/operating-sources.html) now
+demonstrates the minimum record checks for pricing, vendor-service and collections
+work: scope reconciliation, notice/caps, bounded terms, evaluation and QA,
+vendor minimums/release evidence, credits/payments/disputes and cash reversals.
+Its base first-year result is adverse after all original costs. The source book
+is a mapping/design example only; its classification explicitly rejects private
+operating records. Codex will implement the authorized data lane against the
+sponsor's actual scope rather than disguising private records as constructed.

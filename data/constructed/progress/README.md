@@ -126,3 +126,22 @@ receipts, whose failed writes produce no audit mutation. Effective dates may be
 reported out of order across streams; each stream remains monotonic. This is an
 exercise using latest evidence corrections, not a historical knowledge-cutoff
 replay. See [ADR 0020](../../../docs/adr/0020-execution-acceptance.md).
+
+## Record-level source challenge
+
+`operating-sources.json` adds five authored contracts, 24 service/vendor monthly
+plans and five opening invoices. These reconcile to their own declared scope,
+not Progress consolidated accounts. The [source review](../../../docs/portfolio/operating-sources.html)
+uses the existing schedule and financial engine, but enforces notice deadlines,
+contract caps/term ends, quality exclusions, vendor minimums/releases, disputes
+and invoice-specific cash reversals. All original costs remain.
+
+```powershell
+uv run python -m scripts.build_operating_sources_example
+uv run pvc operating-sources --sources data/constructed/progress/operating-sources.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --output var/operating-sources/report
+```
+
+The base case becomes negative in year one: EBITDA −18,314.50 and pre-tax cash
+−38,532.00. This is a source-constrained analytical alternative, not an approved
+revision or observed outcome. The frozen original case and constructed realization
+exercise remain separate. See [ADR 0021](../../../docs/adr/0021-operating-source-schedules.md).

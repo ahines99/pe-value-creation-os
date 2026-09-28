@@ -175,3 +175,10 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | [.claude-plugin/](.claude-plugin/) | Claude Code plugin packaging for the skills and MCP server |
 
 All company data in this repository is synthetic.
+
+
+The [constructed operating-source challenge](https://ahines99.github.io/pe-value-creation-os/portfolio/operating-sources.html)
+shows how contract notice windows, bounded terms, vendor commitments and disputed
+invoices can overturn an initially positive forecast. It reuses the financial
+engine and retains original costs; it represents no actual company records or
+realized savings. [Method and replay](docs/adr/0021-operating-source-schedules.md).

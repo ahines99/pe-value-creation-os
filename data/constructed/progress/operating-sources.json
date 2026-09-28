@@ -1,0 +1,961 @@
+{
+  "schema_version": 1,
+  "classification": "constructed_operating_records",
+  "book_id": "progress-constructed-source-review-v1",
+  "case_id": "progress-constructed-underwriting-v1",
+  "company": "Progress Software reference case",
+  "currency": "USD",
+  "underwriting_sha256": "3dcca88ac16d5713123fde8557567a05ca63201ad66f7a7c5dc13809f0992328",
+  "plan_sha256": "683dbd498536f0ee37560efc14e1dd5f0abb8efbf150d782f6771f803691a682",
+  "cutoff": "2026-10-01",
+  "renewal_monthly_revenue_control": "1000000",
+  "invoice_open_balance_control": "1300000",
+  "scope_description": "Five authored renewal contracts, a single vendor pool with two queues in 24 authored monthly plans, and five opening invoices. These controls reconcile this exercise only, not any Progress account or segment.",
+  "renewals": [
+    {
+      "record_id": "early-90-day",
+      "contract_id": "constructed-early-90-day",
+      "monthly_revenue": "300000",
+      "renewal_on": "2027-01-01",
+      "term_ends_on": "2027-12-31",
+      "notice_days": 90,
+      "planned_notice_on": "2026-10-01",
+      "permitted": "yes",
+      "uplift_cap": "0.05",
+      "evidence_locator": "Authored contract term: early-90-day"
+    },
+    {
+      "record_id": "spring-capped",
+      "contract_id": "constructed-spring-capped",
+      "monthly_revenue": "250000",
+      "renewal_on": "2027-04-01",
+      "term_ends_on": "2028-03-31",
+      "notice_days": 90,
+      "planned_notice_on": "2026-10-01",
+      "permitted": "yes",
+      "uplift_cap": "0.04",
+      "evidence_locator": "Authored contract term: spring-capped"
+    },
+    {
+      "record_id": "short-term",
+      "contract_id": "constructed-short-term",
+      "monthly_revenue": "150000",
+      "renewal_on": "2027-02-01",
+      "term_ends_on": "2027-06-30",
+      "notice_days": 30,
+      "planned_notice_on": "2026-10-01",
+      "permitted": "yes",
+      "uplift_cap": "0.03",
+      "evidence_locator": "Authored contract term: short-term"
+    },
+    {
+      "record_id": "prohibited",
+      "contract_id": "constructed-prohibited",
+      "monthly_revenue": "200000",
+      "renewal_on": "2027-04-01",
+      "term_ends_on": "2028-03-31",
+      "notice_days": 30,
+      "planned_notice_on": "2026-10-01",
+      "permitted": "no",
+      "uplift_cap": "0",
+      "evidence_locator": "Authored contract term: prohibited"
+    },
+    {
+      "record_id": "unknown-rights",
+      "contract_id": "constructed-unknown-rights",
+      "monthly_revenue": "100000",
+      "renewal_on": "2027-04-01",
+      "term_ends_on": "2028-03-31",
+      "notice_days": 30,
+      "planned_notice_on": "2026-10-01",
+      "permitted": "unknown",
+      "uplift_cap": null,
+      "evidence_locator": "Authored contract term: unknown-rights"
+    }
+  ],
+  "service_months": [
+    {
+      "month": "2026-10-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2026-11-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2026-12-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-01-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-02-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-03-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-04-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-05-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-06-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-07-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-08-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-09-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-10-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-11-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2027-12-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-01-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-02-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-03-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-04-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-05-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-06-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-07-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-08-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    },
+    {
+      "month": "2028-09-01",
+      "contacts_control": 20000,
+      "queues": [
+        {
+          "queue_id": "standard",
+          "contacts": 12000,
+          "eligible_contacts": 8000,
+          "handling_minutes": "12",
+          "sample_count": 100,
+          "resolved_count": 90,
+          "recontact_count": 10,
+          "quality_review": "passed",
+          "evidence_locator": "Authored standard queue and 100-case evaluation"
+        },
+        {
+          "queue_id": "sensitive",
+          "contacts": 8000,
+          "eligible_contacts": 3000,
+          "handling_minutes": "18",
+          "sample_count": 100,
+          "resolved_count": 95,
+          "recontact_count": 5,
+          "quality_review": "failed",
+          "evidence_locator": "Authored quality challenge; high resolution does not clear safety review"
+        }
+      ],
+      "qa_hours": "80",
+      "vendor_spend": "100000",
+      "vendor_minimum": "82000",
+      "avoidable_hourly_rate": "35",
+      "release_on": "2027-02-15",
+      "release_evidence": "Constructed vendor amendment with February 15 effective date"
+    }
+  ],
+  "invoices": [
+    {
+      "record_id": "open",
+      "invoice_id": "constructed-open",
+      "issued_on": "2026-08-01",
+      "due_on": "2026-09-30",
+      "amount": "700000",
+      "credited": "0",
+      "paid_at_cutoff": "100000",
+      "disputed": "0",
+      "accelerated_on": "2026-10-01",
+      "counterfactual_on": "2027-03-15",
+      "evidence_locator": "Authored invoice and payment counterfactual: open"
+    },
+    {
+      "record_id": "partial-dispute",
+      "invoice_id": "constructed-partial-dispute",
+      "issued_on": "2026-08-01",
+      "due_on": "2026-09-30",
+      "amount": "400000",
+      "credited": "50000",
+      "paid_at_cutoff": "50000",
+      "disputed": "150000",
+      "accelerated_on": "2026-10-01",
+      "counterfactual_on": "2027-03-15",
+      "evidence_locator": "Authored invoice and payment counterfactual: partial-dispute"
+    },
+    {
+      "record_id": "full-dispute",
+      "invoice_id": "constructed-full-dispute",
+      "issued_on": "2026-08-01",
+      "due_on": "2026-09-30",
+      "amount": "300000",
+      "credited": "0",
+      "paid_at_cutoff": "0",
+      "disputed": "300000",
+      "accelerated_on": "2026-10-01",
+      "counterfactual_on": "2027-04-15",
+      "evidence_locator": "Authored invoice and payment counterfactual: full-dispute"
+    },
+    {
+      "record_id": "already-paid",
+      "invoice_id": "constructed-already-paid",
+      "issued_on": "2026-08-01",
+      "due_on": "2026-09-30",
+      "amount": "100000",
+      "credited": "0",
+      "paid_at_cutoff": "100000",
+      "disputed": "0",
+      "accelerated_on": "2026-10-01",
+      "counterfactual_on": "2027-03-15",
+      "evidence_locator": "Authored invoice and payment counterfactual: already-paid"
+    },
+    {
+      "record_id": "window-missed",
+      "invoice_id": "constructed-window-missed",
+      "issued_on": "2026-08-01",
+      "due_on": "2026-09-30",
+      "amount": "100000",
+      "credited": "0",
+      "paid_at_cutoff": "0",
+      "disputed": "0",
+      "accelerated_on": "2026-10-01",
+      "counterfactual_on": "2026-10-15",
+      "evidence_locator": "Authored invoice and payment counterfactual: window-missed"
+    }
+  ]
+}
