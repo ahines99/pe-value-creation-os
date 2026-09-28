@@ -38,6 +38,14 @@ engine uses typed case drafts and persisted immutable revisions. Constructed ass
 their full acceptance criteria. A prepared pilot package is not a performed pilot,
 and the annual baseline is not the completed public diligence case.
 
+OP-16 now has a [real disclosure-vintage comparison](portfolio/disclosure-history.html):
+18 acquisition-allocation facts from two annual filings, independently reconciled
+and bound to issuer PDFs, plus cutoff selection that excludes later accepted
+filings. Exact publication-time replay remains withheld: SEC acceptance does not
+establish first public availability. The revision is a measurement-period
+adjustment, so the accounting-error-restatement criterion also remains open.
+See [ADR 0024](adr/0024-disclosure-vintages.md).
+
 ## Recommended destination
 
 Build **one defensible investment and operating-review case**: a reviewer can

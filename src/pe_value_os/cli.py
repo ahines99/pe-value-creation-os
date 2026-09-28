@@ -455,9 +455,28 @@ def cmd_historical_valuation(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_disclosure_history(args: argparse.Namespace) -> int:
+    from .diligence.vintages_render import build_vintage_report
+
+    try:
+        result = build_vintage_report(Path(args.input), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(f"Disclosure history failed ({type(exc).__name__}); inspect source contracts.", file=sys.stderr)
+        return 2
+    print(f"Public filing vintage comparison: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    history = sub.add_parser(
+        "disclosure-history", help="compare public filing vintages with explicit publication limits"
+    )
+    history.add_argument("--input", required=True)
+    history.add_argument("--output", default="var/public-diligence/disclosure-history")
+    history.set_defaults(fn=cmd_disclosure_history)
 
     memo = sub.add_parser(
         "decision-memo", help="assemble a version-bound public research memo with constructed sequencing choices"

@@ -5,6 +5,27 @@ in place**. Alex confirmed this on September 28, 2026 and requested preparation.
 Codex owns technical preparation and all subsequent mapping, modeling, tests,
 analysis and reporting. No external message has been sent.
 
+Start with the shareable [sponsor brief](sponsor-brief.md). Use the
+[kickoff worksheet](kickoff-worksheet.md) once a prospective sponsor is identified.
+Both are discussion materials; neither represents authorization or participation.
+
+### Who does what next
+
+| Stage | Codex / project preparation | Alex | Sponsor / company |
+|---|---|---|---|
+| Now, without a sponsor | Maintain demonstration, brief, data specifications and review worksheets; continue public research and model validation | No immediate setup or data task | No participation assumed |
+| Sponsor introduction | Tailor the agenda and scope proposal; prepare introduction text if requested | Introduce an authorized contact when available | Identify decision, finance/data owner and operator |
+| Before private data | Implement and test the agreed private ingestion lane, access controls, mappings and retention workflow; assemble readiness evidence | Coordinate access to the authorized parties where needed | Authorize purpose, records, handling and reviewers; satisfy company-side entry gates |
+| Diagnostic and intervention | Prepare reconciliations, alternatives, plan, review packets, dispute log and outcome analysis | Coordinate only where the company requires the project owner | Validate records, approve or reject actions, perform authorized operations and assess results |
+| Closeout | Draft evidence-based findings and document data disposition | Decide whether to seek another pilot | Decide continuation and any publication permission |
+
+The existing operating pilot plan specifies a **six-week diagnostic trial**.
+The day-30/60/100 checkpoints below concern a **separately authorized intervention**,
+with its clock starting at intervention kickoff. Neither stage promises observed
+earnings or cash by a fixed date. Selecting a deterministic-only route would
+require an explicit amendment to the existing model-enabled pilot plan; this
+package does not silently change that requirement.
+
 The public Progress case is a research reference, not the presumed pilot company.
 A pilot needs an organization that actually controls the relevant operating and
 accounting records and agrees to a bounded activity. University market-data

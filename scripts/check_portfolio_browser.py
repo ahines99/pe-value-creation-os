@@ -41,6 +41,7 @@ def main() -> None:
         "source-review": "/portfolio/source-review.html",
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
+        "disclosure-history": "/portfolio/disclosure-history.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -223,6 +224,16 @@ def main() -> None:
                         page.locator("main").focus()
                         page.locator("#historical-valuation").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"equity-matrix-{width}.png"))
+                if name == "disclosure-history":
+                    assert "1.195" in page.locator("#allocation").inner_text()
+                    assert "withheld missing publication evidence" in page.locator("#timing").inner_text()
+                    assert "not a realized investment return" in page.locator("#judgment").inner_text()
+                    payload = page.request.get(base + "/portfolio/disclosure-history.json").json()
+                    assert payload["point_in_time_claim"] == "withheld"
+                    assert len(payload["comparison"]) == 9
+                    assert payload["cutoffs"][2]["acceptance_selection"]["selected"]["status"] == "preliminary"
+                    assert payload["cutoffs"][3]["acceptance_selection"]["selected"]["status"] == "final"
+                    assert all(row["publication_selection"]["selected"] is None for row in payload["cutoffs"])
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()
