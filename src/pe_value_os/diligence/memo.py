@@ -10,6 +10,7 @@ from pydantic import Field, model_validator
 from .balances import BalanceBundle
 from .financials import DERIVED, analyze_facts
 from .growth import GrowthContext, analyze_growth
+from .memo_review import MemoReviewContext, challenge_options
 from .models import FactBundle, Record
 from .peers import PeerContext, analyze_peers
 from .scheduling import OperatingPlan, evaluate_plan, fingerprint
@@ -83,6 +84,7 @@ def assemble_memo(
     plan: OperatingPlan,
     balances: BalanceBundle,
     valuation: ValuationSpec,
+    case_review: MemoReviewContext | None = None,
 ) -> dict[str, Any]:
     bindings = {
         "financial": facts,
@@ -178,11 +180,17 @@ def assemble_memo(
         )
     preferred = next(o for o in options if o["option_id"] == brief.preferred_constructed_option)
     status = "conditional_research_preference" if preferred["feasible"] else "reopen_blocked_preference"
+    review = challenge_options(case_review, underwriting, plan, options) if case_review is not None else None
+    if review is not None:
+        status = review["status"]
     # The reported and incremental layers are intentionally separate objects. No sum is emitted.
     return {
-        "memo_version": "executive-decision-packet/2",
+        "memo_version": "executive-decision-packet/3" if review else "executive-decision-packet/2",
         "brief_sha256": fingerprint(brief),
-        "input_hashes": {k: fingerprint(v) for k, v in bindings.items()},
+        "input_hashes": {
+            **{k: fingerprint(v) for k, v in bindings.items()},
+            **({"case_review": fingerprint(case_review)} if case_review else {}),
+        },
         "classification": brief.classification,
         "company": facts.company,
         "as_of": brief.as_of,
@@ -199,6 +207,7 @@ def assemble_memo(
         "historical_valuation": historical_valuation,
         "constructed_options": options,
         "preference_status": status,
+        "source_review": review,
         "execution_authorized": False,
         "actual_realized_value": None,
         "authority": "Research-author judgment and constructed operating exercise; no company participation, management approval, independent practitioner review or actual financial result.",

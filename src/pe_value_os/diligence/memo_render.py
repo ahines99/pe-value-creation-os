@@ -13,7 +13,9 @@ from ..research.render import table
 from .balances import BalanceBundle
 from .growth import GrowthContext
 from .memo import DecisionBrief, assemble_memo
+from .memo_review import MemoReviewContext
 from .models import FactBundle
+from .operating_sources_render import table as review_table
 from .peers import PeerContext
 from .scheduling import OperatingPlan
 from .underwriting import UnderwritingCase
@@ -33,6 +35,8 @@ MEMO_CSS = """
 .memo-choice{padding:22px;background:#edf4ef;border:1px solid #c7ddce;border-radius:8px;margin:20px 0}
 .memo-choice h3{margin-bottom:12px}.memo-note{font-size:12px;color:var(--muted)}
 .memo-sources a{display:inline-block;margin:5px 12px 5px 0}.memo-body{padding:20px}
+.waterfall-row{display:grid;grid-template-columns:165px minmax(0,1fr) 90px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.waterfall-track{position:relative;height:24px;background:#f4f5f2}.waterfall-bar{position:absolute;height:24px;border-radius:3px}.waterfall-zero{position:absolute;height:24px;border-left:1px solid #66777d}.waterfall-value{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:600px){.waterfall-row{grid-template-columns:100px minmax(0,1fr) 64px;gap:6px;font-size:11px}}
 @media(max-width:800px){.memo-grid,.memo-facts{grid-template-columns:minmax(0,1fr)}}
 @media print{.memo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.memo-grid article,.memo-choice{break-inside:avoid}.memo-facts strong{font-size:20pt}.topbar{display:none}}
 """
@@ -46,12 +50,95 @@ def _scenario(option: dict[str, Any], name: str) -> dict[str, Any]:
     return next(s for s in option["analysis"]["scheduled_financials"]["scenarios"] if s["scenario_id"] == name)
 
 
+def incremental_waterfall(year: dict[str, Any]) -> str:
+    parts = [
+        ("Gross pricing", Decimal(str(year["gross_price_benefit"]))),
+        ("Revenue leakage", Decimal(str(year["revenue_leakage"]))),
+        ("Variable cost", Decimal(str(year["variable_cost"]))),
+        ("Vendor savings", Decimal(str(year["cost_removed"]))),
+        ("Recurring costs", Decimal(str(year["recurring_cost"]))),
+        ("Implementation", Decimal(str(year["implementation_expense"]))),
+    ]
+    cumulative = [Decimal(0)]
+    for _, value in parts:
+        cumulative.append(cumulative[-1] + value)
+    if cumulative[-1] != Decimal(str(year["incremental_ebitda"])):
+        raise ValueError("incremental earnings waterfall must reconcile exactly")
+    low, high = min(cumulative), max(cumulative)
+    width = max(high - low, Decimal(1))
+    zero = (0 - low) / width * 100
+    visual = "<div class='earnings-waterfall' aria-hidden='true'>"
+    rows = []
+    for i, (label, value) in enumerate(parts):
+        left = (min(cumulative[i], cumulative[i + 1]) - low) / width * 100
+        size = abs(value) / width * 100
+        color = "#347c73" if value >= 0 else "#a55e3f"
+        visual += f"<div class='waterfall-row'><span>{escape(label)}</span><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{left:.3f}%;width:{size:.3f}%;background:{color}'></span></div><span class='waterfall-value'>{amount(value)}</span></div>"
+        rows.append([escape(label), amount(value, places=3), amount(cumulative[i + 1], places=3)])
+    net = cumulative[-1]
+    net_left = (min(Decimal(0), net) - low) / width * 100
+    net_width = abs(net) / width * 100
+    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:#132f3d'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div>"
+    rows.append(["Incremental EBITDA", amount(cumulative[-1], places=3), "Reconciled"])
+    return visual + review_table(
+        ["Component", "Change, USD thousands", "Cumulative"],
+        rows,
+        "Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.",
+    )
+
+
+def source_challenge_summary(report: dict[str, Any]) -> str:
+    review = report["source_review"]
+    original = {o["option_id"]: o for o in report["constructed_options"]}
+    preferred = next(o for o in review["options"] if o["option_id"] == report["brief"]["preferred_constructed_option"])
+    base = _scenario(preferred, "base")
+    body = "<section class='panel' id='evidence-update'><p class='eyebrow'>Latest constructed evidence / Decision reopened</p><h2>Task order cannot substitute for a supported cost action.</h2>"
+    body += f"<p><strong>{escape(review['recommendation'])}</strong></p><p>Authored exercise review {escape(str(review['exercise_effective_on']))}. The public research cutoff above remains unchanged; these future-dated operating records are fictional.</p>"
+    body += review_table(
+        ["Sequence", "Original base EBITDA", "Corrected base EBITDA", "Corrected cash", "Peak funding"],
+        [
+            [
+                escape(o["label"]),
+                amount(_scenario(original[o["option_id"]], "base")["year_one"]["incremental_ebitda"]),
+                amount(_scenario(o, "base")["year_one"]["incremental_ebitda"]),
+                amount(_scenario(o, "base")["year_one"]["pre_tax_cash_proxy"]),
+                amount(_scenario(o, "base")["maximum_dated_funding_need"]),
+            ]
+            for o in review["options"]
+        ],
+        "USD thousands. Original and corrected columns use different evidence/assumptions. Within each column, only task sequencing varies; all implementation costs remain.",
+    )
+    body += f"<p>Each alternative keeps the latest operating assumptions, source records, resources, work packages and costs. Only task order and resulting dates change.</p><p>Latest stored-case review: <strong>{escape(review['review_state'].replace('_', ' '))}</strong>. That receipt does not approve the alternatives displayed here.</p>"
+    body += "<h3>Why the previously preferred sequence no longer supports its commitment</h3>"
+    body += incremental_waterfall(base["year_one"])
+    body += review_table(
+        ["Corrected service-first scenario", "Year-one EBITDA", "Year-one cash", "Day-100 cash", "Peak funding"],
+        [
+            [
+                escape(s["scenario_id"].title()),
+                amount(s["year_one"]["incremental_ebitda"]),
+                amount(s["year_one"]["pre_tax_cash_proxy"]),
+                amount(s["day_100"]["pre_tax_cash_proxy"]),
+                amount(s["maximum_dated_funding_need"]),
+            ]
+            for s in preferred["analysis"]["scheduled_financials"]["scenarios"]
+        ],
+        "USD thousands. These scenarios are not probabilities. Capacity released without a spend action is not a saving; bounded source terms do not establish maintainable exit value.",
+    )
+    y = base["year_one"]
+    body += f"<p><strong>Cash bridge:</strong> {amount(y['incremental_ebitda'])} EBITDA + {amount(y['operating_accrual_to_cash'])} accrual-to-cash + {amount(y['working_capital_cash'])} net collection timing + {amount(y['capex_cash'])} capex = {amount(y['pre_tax_cash_proxy'])} pre-tax cash, USD thousands. It omits tax, financing and other full-free-cash-flow requirements.</p>"
+    body += "<p><strong>Decision now:</strong> revise the intervention scope and cost commitments, or defer it. Verify contract rights and vendor-release evidence before requesting a new first-wave selection. No revised alternative is automatically selected.</p>"
+    body += f"<details><summary>Inspect the latest case binding and review boundary</summary><div class='memo-body'><p>{escape(review['authority'])}</p><p>Revision <code>{escape(review['current_revision_id'])}</code> · hash <code>{escape(review['current_revision_sha256'])}</code></p><p>Review context <code>{escape(review['context_sha256'])}</code></p></div></details><p><a href='source-review.html'>Trace the source correction and unchanged accounting history</a></p></section>"
+    return body
+
+
 def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -> str:
     brief = report["brief"]
     base = report["public_baseline"]
     growth = report["public_growth"]
     options = report["constructed_options"]
     preferred = next(o for o in options if o["option_id"] == brief["preferred_constructed_option"])
+    review = report.get("source_review")
     docs = {d["document_id"]: d for d in report["source_documents"]}
 
     def source_link(fact_id: str) -> str:
@@ -64,10 +151,12 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         f"<h1>{escape(report['company'])}</h1><p class='page-subtitle'>Advance the evidence. Hold the value commitment.</p>"
         f"<p>Information cutoff {report['as_of']} · Historical anchor {base['end']}</p></div>"
         "<aside class='hero-aside'><span class='metric-label'>Research recommendation</span>"
-        f"<p>{escape(brief['recommendation'])}</p></aside></section>"
+        f"<p>{escape(review['recommendation'] if review else brief['recommendation'])}</p></aside></section>"
         "<p class='layer-banner'>Public issuer research informs the diligence questions. The operating alternatives below use authored, fictional inputs; they are not Progress customer records or company forecasts.</p>"
-        "<section class='panel' id='thesis'><h2>Judgments that shape the next decision</h2><div class='memo-grid'>"
     )
+    if review:
+        body += source_challenge_summary(report)
+    body += "<section class='panel' id='thesis'><h2>Judgments that shape the next decision</h2><div class='memo-grid'>"
     for point in brief["thesis"]:
         body += (
             f"<article><h3>{escape(point['conclusion'])}</h3><p><strong>Counterargument:</strong> {escape(point['counterargument'])}</p>"
@@ -175,7 +264,15 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
     body += "<p>Normalized EBITDA remains unavailable. Earlier-year amortization scope differences remain explicit; this memo does not force comparability or replace the original facts.</p></div></details></section>"
     body += valuation_summary(report["historical_valuation"])
     body += "<p><a href='historical-valuation.html'>Inspect the historical equity bridge, all assumptions and source rows</a>.</p>"
-    body += "<section class='panel' id='choices'><p class='eyebrow'>Constructed operating exercise / USD thousands</p><h2>Choose the sequence, then test its assumptions</h2><p>All alternatives retain the same scope, proposed resources, economic assumptions and dated costs. Only task priority changes. These are authored alternatives, not an optimization result.</p>"
+    body += (
+        "<section class='panel' id='choices'><p class='eyebrow'>Original constructed alternatives / USD thousands</p>"
+    )
+    body += (
+        "<h2>Original preference — reopened by the source challenge</h2><p>These earlier figures preserve the initial reasoning. They are not the current source-constrained forecast.</p><details><summary>Inspect the original sequence comparison and conditional preference</summary><div class='memo-body'>"
+        if review
+        else "<h2>Choose the sequence, then test its assumptions</h2>"
+    )
+    body += "<p>All alternatives retain the same scope, proposed resources, economic assumptions and dated costs. Only task priority changes. These are authored alternatives, not an optimization result.</p>"
     rows = []
     for option in options:
         s = _scenario(option, "base")
@@ -196,7 +293,7 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         "Same committed costs and scope; funding is measured across the full 24-month modeled horizon. No actual assignments or approvals.",
     )
     body += (
-        f"<div class='memo-choice'><h3>{'Conditional preference' if report['preference_status'] == 'conditional_research_preference' else 'Reopen blocked preference'}: {escape(preferred['label'])}</h3>"
+        f"<div class='memo-choice'><h3>{'Original conditional preference — now reopened' if review else 'Conditional preference' if report['preference_status'] == 'conditional_research_preference' else 'Reopen blocked preference'}: {escape(preferred['label'])}</h3>"
         f"<p>{escape(brief['conditional_choice_reason'])}</p><ul>"
         + "".join(f"<li>{escape(t)}</li>" for t in brief["reopen_choice_if"])
         + "</ul></div>"
@@ -266,6 +363,8 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
             "Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.",
         )
         body += f"<p class='memo-note'>Schedule report <code>{option['analysis']['report_sha256']}</code> · financial calculation <code>{option['analysis']['scheduled_financials']['calculation_sha256']}</code></p></div></details>"
+    if review:
+        body += "</div></details>"
     body += "</section><section class='panel' id='next-decision'><h2>Next decision and evidence request</h2><p>Authorize a bounded data-discovery exercise only when an actual sponsor and data owner exist. No operating intervention is authorized by this memo.</p>"
     body += table(
         ["Decision gate", "Required evidence", "Who must validate"],
@@ -304,7 +403,14 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         "Current status: no sponsor or authorized operating records; the pilot package is prepared, not performed.",
     )
     body += "<p><a href='../pilot/permissioned/README.md'>Pilot preparation package</a> · <a href='case-history.html'>Original/current constructed revision history</a></p></section>"
-    body += f"<section class='panel' id='technical'><h2>Technical evidence and review limits</h2><p>{escape(report['authority'])}</p><p><a href='{escape(json_name, quote=True)}' download>Download the complete JSON decision packet</a>. It preserves all option schedule analyses, monthly financials, assumptions, source references and input hashes. Original/current case history is a separate constructed walkthrough; this conditional option comparison does not create an approved revision.</p><details><summary>Inspect bound inputs and calculation lineage</summary><div class='memo-body'>"
+    context_note = (
+        "The packet includes the exact imported case history and recomputed source-constrained alternatives; the original comparisons preserve the prior reasoning."
+        if review
+        else "Original/current case history is a separate constructed walkthrough."
+    )
+    body += f"<section class='panel' id='technical'><h2>Technical evidence and review limits</h2><p>{escape(report['authority'])}</p><p><a href='{escape(json_name, quote=True)}' download>Download the complete JSON decision packet</a>. It preserves all option schedule analyses, monthly financials, assumptions, source references and input hashes. {context_note} This comparison does not create an approved revision.</p><details><summary>Inspect bound inputs and calculation lineage</summary><div class='memo-body'>"
+    if review:
+        body += f"<p>{escape(review['source_treatment'])}</p>"
     body += table(
         ["Input", "SHA-256"],
         [[escape(k), f"<code>{v}</code>"] for k, v in report["input_hashes"].items()],
@@ -330,8 +436,11 @@ def build_decision_memo(
     balances: Path,
     valuation: Path,
     output: Path,
+    case_review: Path | None = None,
 ) -> Path:
     inputs = [brief, facts, growth, peers, underwriting, plan, balances, valuation]
+    if case_review is not None:
+        inputs.append(case_review)
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     if {p.resolve() for p in inputs} & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("memo must not overwrite an input")
@@ -344,6 +453,7 @@ def build_decision_memo(
         OperatingPlan.model_validate_json(plan.read_bytes()),
         BalanceBundle.model_validate_json(balances.read_bytes()),
         ValuationSpec.model_validate_json(valuation.read_bytes()),
+        MemoReviewContext.from_export(json.loads(case_review.read_bytes())) if case_review is not None else None,
     )
     html = render_memo(report, json_path.name)
     # Complete public-source and exact-revision validation before writing either artifact.

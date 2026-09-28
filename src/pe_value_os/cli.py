@@ -428,6 +428,7 @@ def cmd_decision_memo(args: argparse.Namespace) -> int:
             Path(args.balances),
             Path(args.valuation),
             Path(args.output),
+            Path(args.case_review) if args.case_review else None,
         )
     except (ValueError, OSError) as exc:
         print(
@@ -464,6 +465,7 @@ def build_parser() -> argparse.ArgumentParser:
     for flag in ("brief", "facts", "growth", "peers", "underwriting", "operating-plan", "balances", "valuation"):
         memo.add_argument(f"--{flag}", required=True)
     memo.add_argument("--output", default="var/executive-memo/decision-memo")
+    memo.add_argument("--case-review", help="reopen the original preference using a constructed source-review export")
     memo.set_defaults(fn=cmd_decision_memo)
 
     valuation = sub.add_parser("historical-valuation", help="reconcile a dated public company EV-to-equity sensitivity")

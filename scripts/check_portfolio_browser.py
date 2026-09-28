@@ -182,6 +182,9 @@ def main() -> None:
                         page.locator("#close-baseline").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"close-baseline-{width}.png"))
                 if name == "decision-memo":
+                    assert "Task order cannot substitute" in page.locator("#evidence-update").inner_text()
+                    assert "every tested sequence" in page.locator(".hero").inner_text()
+                    assert "Original preference — reopened" in page.locator("#choices").inner_text()
                     assert "-98.385" in page.locator("#historical-valuation").inner_text()
                     assert "Service first" in page.locator("#choices").inner_text()
                     assert "No operating intervention is authorized" in page.locator("#next-decision").inner_text()
@@ -190,6 +193,13 @@ def main() -> None:
                     assert download.count() == 1
                     payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
                     assert payload["execution_authorized"] is False
+                    assert payload["preference_status"] == "reopen_source_constrained_preference"
+                    assert payload["source_review"]["all_base_year_one_nonpositive"]
+                    assert len(payload["source_review"]["options"]) == 3
+                    if width in (1440, 375):
+                        page.locator("#evidence-update .earnings-waterfall").screenshot(
+                            path=str(output / f"memo-waterfall-{width}.png")
+                        )
                     assert payload["actual_realized_value"] is None
                     assert payload["historical_valuation"]["current_equity_value"] is None
                     if width in (1440, 375):
