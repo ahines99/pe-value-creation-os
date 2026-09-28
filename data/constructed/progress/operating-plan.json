@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "plan_id": "progress-constructed-100-day-plan",
+  "revision_id": "capacity-draft-v1",
+  "case_id": "progress-constructed-underwriting-v1",
+  "underwriting_sha256": "3dcca88ac16d5713123fde8557567a05ca63201ad66f7a7c5dc13809f0992328",
+  "classification": "constructed_operating_exercise",
+  "start": "2026-10-01",
+  "days": 100,
+  "maximum_active_workstreams": 3,
+  "sequencing_rationale": "Baseline first; validate the temporary cash mechanism before the higher-judgment renewal and service cases. This analyst-authored order demonstrates constrained sequencing, not a company priority decision or optimal schedule.",
+  "resources": [
+    {
+      "resource_id": "finance",
+      "proposed_operator": "Proposed finance lead",
+      "assignment": "proposed",
+      "weekly_hours": [
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "0"
+      ],
+      "basis": "Authored net change capacity after normal duties; no actual assignment or staff availability verified."
+    },
+    {
+      "resource_id": "data",
+      "proposed_operator": "Proposed data engineer",
+      "assignment": "proposed",
+      "weekly_hours": [
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "0"
+      ],
+      "basis": "Authored net change capacity after normal duties; no actual assignment or staff availability verified."
+    },
+    {
+      "resource_id": "commercial",
+      "proposed_operator": "Proposed commercial operations lead",
+      "assignment": "proposed",
+      "weekly_hours": [
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "24",
+        "0"
+      ],
+      "basis": "Authored net change capacity after normal duties; no actual assignment or staff availability verified."
+    },
+    {
+      "resource_id": "service",
+      "proposed_operator": "Proposed service operations lead",
+      "assignment": "proposed",
+      "weekly_hours": [
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "20",
+        "0"
+      ],
+      "basis": "Authored net change capacity after normal duties; no actual assignment or staff availability verified."
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "foundation",
+      "title": "Reconcile scope and freeze baseline",
+      "workstream_id": "foundation",
+      "initiative_id": null,
+      "accountable_resource": "finance",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 2,
+      "prerequisites": [],
+      "demands": [
+        {
+          "resource_id": "finance",
+          "hours_per_week": "16"
+        },
+        {
+          "resource_id": "data",
+          "hours_per_week": "24"
+        }
+      ],
+      "deliverable": "Versioned source manifest and reconciliation exceptions",
+      "acceptance_evidence": "Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch",
+      "acceptance_reviewer": "Proposed finance reviewer"
+    },
+    {
+      "task_id": "collections-review",
+      "title": "Confirm collectible cohort and terms",
+      "workstream_id": "collections",
+      "initiative_id": "collections-timing",
+      "accountable_resource": "finance",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 2,
+      "prerequisites": [
+        "foundation"
+      ],
+      "demands": [
+        {
+          "resource_id": "finance",
+          "hours_per_week": "16"
+        },
+        {
+          "resource_id": "data",
+          "hours_per_week": "8"
+        }
+      ],
+      "deliverable": "Eligible invoice cohort with original payment-date counterfactual",
+      "acceptance_evidence": "Aging reconciles to ledger; disputes and credits excluded; no term override",
+      "acceptance_reviewer": "Proposed controller"
+    },
+    {
+      "task_id": "collections-gate",
+      "title": "Review bounded collection action",
+      "workstream_id": "collections",
+      "initiative_id": "collections-timing",
+      "accountable_resource": "finance",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 2,
+      "prerequisites": [
+        "collections-review"
+      ],
+      "demands": [
+        {
+          "resource_id": "finance",
+          "hours_per_week": "16"
+        },
+        {
+          "resource_id": "data",
+          "hours_per_week": "8"
+        }
+      ],
+      "deliverable": "Contained intervention and harm-monitoring worksheet",
+      "acceptance_evidence": "Manager reviews cohort, communication, quality stop and original collection dates",
+      "acceptance_reviewer": "Proposed company sponsor"
+    },
+    {
+      "task_id": "pricing-review",
+      "title": "Test enforceability and retention downside",
+      "workstream_id": "pricing",
+      "initiative_id": "pricing-renewals",
+      "accountable_resource": "commercial",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 3,
+      "prerequisites": [
+        "foundation"
+      ],
+      "demands": [
+        {
+          "resource_id": "finance",
+          "hours_per_week": "16"
+        },
+        {
+          "resource_id": "commercial",
+          "hours_per_week": "20"
+        }
+      ],
+      "deliverable": "Contract eligibility and combined price/churn challenge",
+      "acceptance_evidence": "Notice dates, caps, channel terms and concessions reconciled; downside retained",
+      "acceptance_reviewer": "Proposed finance and commercial reviewers"
+    },
+    {
+      "task_id": "pricing-gate",
+      "title": "Review renewal wave",
+      "workstream_id": "pricing",
+      "initiative_id": "pricing-renewals",
+      "accountable_resource": "commercial",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 2,
+      "prerequisites": [
+        "pricing-review"
+      ],
+      "demands": [
+        {
+          "resource_id": "finance",
+          "hours_per_week": "8"
+        },
+        {
+          "resource_id": "commercial",
+          "hours_per_week": "20"
+        }
+      ],
+      "deliverable": "Proposed renewal cohort and monitoring plan",
+      "acceptance_evidence": "Human decision on exact cohort; retention stop and contract notice checks complete",
+      "acceptance_reviewer": "Proposed commercial executive"
+    },
+    {
+      "task_id": "service-trial",
+      "title": "Evaluate service quality and cost action",
+      "workstream_id": "service",
+      "initiative_id": "service-automation",
+      "accountable_resource": "service",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 4,
+      "prerequisites": [
+        "foundation"
+      ],
+      "demands": [
+        {
+          "resource_id": "data",
+          "hours_per_week": "24"
+        },
+        {
+          "resource_id": "finance",
+          "hours_per_week": "4"
+        },
+        {
+          "resource_id": "service",
+          "hours_per_week": "16"
+        }
+      ],
+      "deliverable": "Evaluation set, recontact results and vendor-spend hypothesis",
+      "acceptance_evidence": "Safe resolution/reopens assessed; removable cost confirmed separately from freed hours",
+      "acceptance_reviewer": "Proposed service and finance reviewers"
+    },
+    {
+      "task_id": "service-gate",
+      "title": "Review rollout and vendor commitment",
+      "workstream_id": "service",
+      "initiative_id": "service-automation",
+      "accountable_resource": "service",
+      "earliest_start": "2026-10-01",
+      "duration_weeks": 3,
+      "prerequisites": [
+        "service-trial"
+      ],
+      "demands": [
+        {
+          "resource_id": "data",
+          "hours_per_week": "16"
+        },
+        {
+          "resource_id": "finance",
+          "hours_per_week": "8"
+        },
+        {
+          "resource_id": "service",
+          "hours_per_week": "16"
+        }
+      ],
+      "deliverable": "Bounded rollout, vendor action and rollback plan",
+      "acceptance_evidence": "Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed",
+      "acceptance_reviewer": "Proposed operations executive"
+    }
+  ],
+  "priority_order": [
+    "foundation",
+    "collections-review",
+    "collections-gate",
+    "pricing-review",
+    "pricing-gate",
+    "service-trial",
+    "service-gate"
+  ],
+  "benefit_gates": [
+    {
+      "initiative_id": "pricing-renewals",
+      "task_id": "pricing-gate"
+    },
+    {
+      "initiative_id": "service-automation",
+      "task_id": "service-gate"
+    },
+    {
+      "initiative_id": "collections-timing",
+      "task_id": "collections-gate"
+    }
+  ]
+}

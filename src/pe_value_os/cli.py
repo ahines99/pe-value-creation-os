@@ -305,9 +305,30 @@ def cmd_underwriting(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_operating_plan(args: argparse.Namespace) -> int:
+    from .diligence.scheduling_render import build_operating_report
+
+    try:
+        result = build_operating_report(Path(args.input), Path(args.underwriting), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(
+            f"Operating plan failed ({type(exc).__name__}); inspect capacity, dependencies and exact-case binding.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed operating plan: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    operating = sub.add_parser("operating-plan", help="schedule a constructed 100-day plan and recalculate economics")
+    operating.add_argument("--input", required=True, help="typed proposed operating plan JSON")
+    operating.add_argument("--underwriting", required=True, help="exact underwriting case bound by the plan")
+    operating.add_argument("--output", default="var/operating-plan/report", help="output stem for HTML and JSON")
+    operating.set_defaults(fn=cmd_operating_plan)
 
     underwriting = sub.add_parser("underwriting", help="evaluate a constructed monthly EBITDA/cash/valuation exercise")
     underwriting.add_argument("--input", required=True, help="typed constructed operating case JSON")

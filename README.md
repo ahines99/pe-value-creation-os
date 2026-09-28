@@ -37,7 +37,11 @@ separate 24-month EBITDA, pre-tax cash, funding need and incremental EV sensitiv
 They retain adverse scenarios, collection reversals and committed costs after scope
 exclusions. [Replay instructions and source boundaries](data/constructed/progress/README.md)
 make clear that these are assumed operating records, not actual Progress results.
-Capacity scheduling, durable case revisions and realization comparisons remain open.
+The [100-day operating proposal](https://ahines99.github.io/pe-value-creation-os/portfolio/operating-plan.html)
+now sequences dependencies against explicit weekly resource budgets and recalculates
+the same financial model. Capacity conflicts delay benefits while original costs
+remain. Assignments and acceptance gates are proposed and constructed; durable
+case revisions, human review receipts and realization comparisons remain open.
 
 ## Try it
 

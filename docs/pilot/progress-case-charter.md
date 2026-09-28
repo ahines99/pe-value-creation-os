@@ -66,11 +66,14 @@ historical statements are not represented as post-acquisition pro forma results.
 The [constructed underwriting exercise](../../data/constructed/progress/README.md)
 now supplies typed operating assumptions and dated 24-month EBITDA/cash scenarios,
 cost commitments, collection reversals and illustrative incremental EV sensitivity.
-Its operating records are explicitly authored examples, not Progress data.
+Its operating records are explicitly authored examples, not Progress data. The
+[constructed 100-day plan](../portfolio/operating-plan.html) now reserves weekly
+capacity, enforces dependencies and supplies delayed dates to the same economics.
+No actual assignment or accepted deliverable is represented.
 
 Still required: acquisition/growth bridge, metric-specific peer
 eligibility, typed thesis and immutable case revisions, richer interactions,
-baseline/schedule integration, constrained execution, full decision memo and
+public-baseline integration, persisted execution/review state, full decision memo and
 realization demonstration. These foundations do not complete S1 or any later goal
 milestone by themselves.
 

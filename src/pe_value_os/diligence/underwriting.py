@@ -19,7 +19,7 @@ from pydantic import Field, model_validator
 
 from .models import Record, SourceClass
 
-VERSION = "monthly-underwriting/1"
+VERSION = "monthly-underwriting/2"
 ZERO = Decimal(0)
 CENT = Decimal("0.01")
 
@@ -268,11 +268,16 @@ def _accrue(entries: list[Entry], driver: Driver, component: str, monthly: Decim
     return total
 
 
-def ledger(case: UnderwritingCase, scenario: Scenario, selected: frozenset[str]) -> tuple[Entry, ...]:
+def ledger(
+    case: UnderwritingCase,
+    scenario: Scenario,
+    selected: frozenset[str],
+    suppressed_benefits: frozenset[str] = frozenset(),
+) -> tuple[Entry, ...]:
     values = {a.assumption_id: a.value for a in scenario.assumptions}
     entries: list[Entry] = []
     for driver in scenario.drivers:
-        if driver.initiative_id not in selected:
+        if driver.initiative_id not in selected or driver.initiative_id in suppressed_benefits:
             continue
         if isinstance(driver, Collections):
             amount = money(values[driver.receivables_balance] * values[driver.accelerated_fraction])
@@ -425,17 +430,27 @@ def cash_profile(entries: tuple[Entry, ...], start: date, end: date) -> dict[str
     }
 
 
-def evaluate(case: UnderwritingCase, selected: frozenset[str] | None = None) -> dict[str, Any]:
+def evaluate(
+    case: UnderwritingCase,
+    selected: frozenset[str] | None = None,
+    *,
+    benefit_blocks: dict[str, frozenset[str]] | None = None,
+) -> dict[str, Any]:
     case.require_public()
     ids = frozenset(d.initiative_id for d in case.scenarios[0].drivers)
     if selected is None:
         selected = ids
     if not selected <= ids:
         raise ValueError("selection contains an unknown initiative")
+    benefit_blocks = benefit_blocks or {}
+    if not set(benefit_blocks) <= {s.scenario_id for s in case.scenarios} or any(
+        not blocked <= ids for blocked in benefit_blocks.values()
+    ):
+        raise ValueError("benefit block references an unknown scenario or initiative")
     end = month_end(case.start, case.months - 1)
     scenarios = []
     for scenario in case.scenarios:
-        entries = ledger(case, scenario, selected)
+        entries = ledger(case, scenario, selected, benefit_blocks.get(scenario.scenario_id, frozenset()))
         monthly: list[dict[str, Any]] = [
             {
                 "start": month_start(case.start, m),
@@ -449,6 +464,7 @@ def evaluate(case: UnderwritingCase, selected: frozenset[str] | None = None) -> 
         scenarios.append(
             {
                 "scenario_id": scenario.scenario_id,
+                "suppressed_benefits": sorted(benefit_blocks.get(scenario.scenario_id, frozenset())),
                 "monthly": monthly,
                 "day_100": totals(entries, case.start, case.start + timedelta(days=99)),
                 "year_one": totals(entries, case.start, month_end(case.start, 11)),
@@ -478,7 +494,13 @@ def evaluate(case: UnderwritingCase, selected: frozenset[str] | None = None) -> 
         "selected_initiatives": sorted(selected),
         "calculation_sha256": hashlib.sha256(
             json.dumps(
-                {"case": case.model_dump(mode="json"), "selected": sorted(selected), "version": VERSION}, sort_keys=True
+                {
+                    "case": case.model_dump(mode="json"),
+                    "selected": sorted(selected),
+                    "benefit_blocks": {key: sorted(value) for key, value in benefit_blocks.items()},
+                    "version": VERSION,
+                },
+                sort_keys=True,
             ).encode()
         ).hexdigest(),
         "cash_definition": "Incremental pre-tax operating cash proxy; excludes tax, financing, nonmodeled working-capital accounts and terminal settlements shown separately.",
