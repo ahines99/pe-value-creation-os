@@ -21,10 +21,13 @@ The [functional audit](docs/portfolio/executive-functional-audit.md) and [screen
 
 **Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
 
-**Public filing baseline (new work in progress):** [Progress Software's annual
+**Public filing baseline (work in progress):** [Progress Software's historical
 financial baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html)
-replays from 81 issuer-sourced facts without vendor credentials. It shows explicit
-earnings/cash definitions and unresolved accounting differences. The full company
+replays from 241 issuer-sourced annual/interim facts without vendor credentials.
+It separates quarterly and YTD periods, derives quarterly cash with source lineage,
+and flags the September 2026 acquisition as outside the historical financial
+perimeter. Earnings/cash definitions and unresolved accounting differences remain
+visible. The full company
 thesis and permissioned pilot remain in implementation;
 see the [case charter](docs/pilot/progress-case-charter.md) and
 [prepared pilot package](docs/pilot/permissioned/README.md).

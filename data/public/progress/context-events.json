@@ -1,0 +1,25 @@
+{
+  "document": {
+    "document_id": "cik:0000876167:0001552781-26-000497",
+    "classification": "public_filing",
+    "entity_id": "cik:0000876167",
+    "title": "Progress September 22, 2026 Domo acquisition Form 8-K",
+    "url": "https://investors.progress.com/node/28981/html",
+    "accession": "0001552781-26-000497",
+    "form": "8-K",
+    "filed_on": "2026-09-22",
+    "retrieved_at": "2026-09-28T14:45:27.260072Z",
+    "sha256": "fd2e7dd5eaacc8a82cb0acc44c12839860b421e23cb3e0b45a97b48f0debc69f",
+    "mapping_sha256": "24e596410236427d8a620d58a69cf5538578ddb5728ba605fdcb89fdd1a9d1dc",
+    "extraction_version": "reviewed-context/1"
+  },
+  "event": {
+    "event_id": "domo-business-close-2026-09-22",
+    "document_id": "cik:0000876167:0001552781-26-000497",
+    "occurred_on": "2026-09-22",
+    "title": "Domo business acquisition completed",
+    "source_locator": "Item 2.01; acquisition completion and consideration",
+    "reported_summary": "Progress completed the Domo business asset acquisition on September 22, 2026 for USD 400 million, funded with cash and the existing revolving credit facility. The filing says transaction financial statements and pro forma information will follow by amendment.",
+    "analytical_implication": "The FY2025 annual and May 2026 interim statements predate this acquisition. They are historical pre-acquisition anchors, not the current consolidated business. Refresh the business perimeter, leverage and peer comparison when the transaction disclosures are available; no synergy or post-acquisition EBITDA is inferred here."
+  }
+}

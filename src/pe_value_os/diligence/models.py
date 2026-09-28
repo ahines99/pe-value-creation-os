@@ -28,7 +28,7 @@ class SourceDocument(Record):
     title: str
     url: HttpUrl
     accession: str = Field(pattern=r"^\d{10}-\d{2}-\d{6}$")
-    form: Literal["10-K", "10-Q"]
+    form: Literal["10-K", "10-Q", "8-K"]
     filed_on: date
     retrieved_at: datetime
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -81,6 +81,16 @@ class FinancialFact(Record):
         return self.reported_amount * self.unit_scale
 
 
+class ContextEvent(Record):
+    event_id: str = Field(min_length=1)
+    document_id: str
+    occurred_on: date
+    title: str = Field(min_length=1)
+    source_locator: str = Field(min_length=1)
+    reported_summary: str = Field(min_length=1)
+    analytical_implication: str = Field(min_length=1)
+
+
 class FactBundle(Record):
     schema_version: Literal[1] = 1
     company: str
@@ -89,6 +99,7 @@ class FactBundle(Record):
     information_cutoff: date
     documents: tuple[SourceDocument, ...]
     facts: tuple[FinancialFact, ...]
+    events: tuple[ContextEvent, ...] = ()
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
@@ -111,6 +122,11 @@ class FactBundle(Record):
             ids.add(fact.fact_id)
         if not self.facts:
             raise ValueError("at least one sourced fact is required")
+        if len({e.event_id for e in self.events}) != len(self.events):
+            raise ValueError("context event IDs must be unique")
+        for event in self.events:
+            if event.document_id not in documents or event.occurred_on > documents[event.document_id].filed_on:
+                raise ValueError("context event needs a registered source and cannot occur after its filing")
         return self
 
     def require_public(self) -> None:
