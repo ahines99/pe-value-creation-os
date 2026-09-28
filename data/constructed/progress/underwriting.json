@@ -1,0 +1,2492 @@
+{
+  "schema_version": 1,
+  "case_id": "progress-constructed-underwriting-v1",
+  "company": "Progress Software reference case",
+  "currency": "USD",
+  "exercise": "constructed_operating_exercise",
+  "start": "2026-10-01",
+  "months": 24,
+  "evidence": [
+    {
+      "evidence_id": "constructed-inputs",
+      "classification": "constructed",
+      "locator": "scripts/build_underwriting_example.py: analyst-authored inputs; no actual operating records"
+    },
+    {
+      "evidence_id": "public-context",
+      "classification": "public_filing",
+      "locator": "data/public/progress/annual-facts.json: context only; no operating cohort derived from consolidated accounts"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "downside",
+      "assumptions": [
+        {
+          "assumption_id": "eligible-revenue",
+          "value": "1000000",
+          "unit": "currency",
+          "rationale": "Illustrative monthly renewal cohort; not extracted or inferred from Progress contracts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Contract-level eligibility and revenue reconciliation differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "uplift",
+          "value": "0.03",
+          "unit": "fraction",
+          "rationale": "Assumed permissible price uplift before capture and incremental churn.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Notice periods, caps or competitor pricing prevent the uplift.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capture",
+          "value": "0.25",
+          "unit": "fraction",
+          "rationale": "Assumed share of the uplift captured after concessions; not a success probability.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed renewal economics show lower net capture.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "churn",
+          "value": "0.02",
+          "unit": "fraction",
+          "rationale": "Incremental lost revenue relative to the otherwise unchanged counterfactual cohort.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Retention/mix evidence cannot isolate this loss or shows a larger loss.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "variable-cost-rate",
+          "value": "0.20",
+          "unit": "fraction",
+          "rationale": "Assumed genuinely variable servicing cost, including the symmetric cost reduction on lost revenue.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Costs are fixed or cannot adjust with cohort revenue.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "contacts",
+          "value": "20000",
+          "unit": "count",
+          "rationale": "Illustrative monthly contact population; no actual Progress ticket data.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Ticket scope, seasonality or data quality differs.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "coverage",
+          "value": "0.20",
+          "unit": "fraction",
+          "rationale": "Eligible share of constructed contacts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Safety or complexity exclusions reduce the eligible population.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "resolution",
+          "value": "0.35",
+          "unit": "fraction",
+          "rationale": "Assumed successful resolution after recontacts; not raw chatbot containment.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Evaluation or repeat-contact measurement fails.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "hours-per-contact",
+          "value": "0.20",
+          "unit": "hours",
+          "rationale": "Twelve net handling minutes per eligible successful contact.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Time study shows shifted work or less net time avoided.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-per-hour",
+          "value": "35",
+          "unit": "currency_per_hour",
+          "rationale": "Assumed avoidable vendor cost per hour, not salary converted automatically to savings.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor commitments or minimums prevent expense removal.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-action",
+          "value": "0",
+          "unit": "currency",
+          "rationale": "Explicit monthly vendor-spend action, capped by avoided work and addressable spend; zero in downside.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "No approved contract reduction or spend reduction is available.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "addressable-spend",
+          "value": "100000",
+          "unit": "currency",
+          "rationale": "Constructed monthly expense pool bounding modeled cost removal.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Reconciled eligible spend is lower.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "receivables",
+          "value": "1200000",
+          "unit": "currency",
+          "rationale": "Constructed existing receivables; no new sales or bad-debt recovery assumed.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Subledger reconciliation, terms or disputes do not support the balance.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "accelerated",
+          "value": "0.05",
+          "unit": "fraction",
+          "rationale": "Share collected early; incremental cash reverses on the counterfactual collection date.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Balances are uncollectible or would already have been paid.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "setup",
+          "value": "100000",
+          "unit": "currency",
+          "rationale": "Temporary implementation expense paid before benefits; scenario-specific overrun included.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor scope or implementation staffing changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "service-fee",
+          "value": "9000",
+          "unit": "currency",
+          "rationale": "Monthly platform, QA and vendor fee from kickoff, including delayed/failed benefit months.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed fees, usage or QA requirements differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "pricing-fee",
+          "value": "2000",
+          "unit": "currency",
+          "rationale": "Monthly governance and analysis expense from kickoff.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Required operator effort or tooling changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "foundation",
+          "value": "25000",
+          "unit": "currency",
+          "rationale": "Committed shared data foundation expense retained even if all initiatives are excluded.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Commitment can actually be canceled before payment.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capex",
+          "value": "15000",
+          "unit": "currency",
+          "rationale": "Illustrative capitalized implementation outlay; not deducted again in EBITDA.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Accounting review requires expense classification or a different asset amount.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        }
+      ],
+      "drivers": [
+        {
+          "initiative_id": "pricing-renewals",
+          "title": "Constructed eligible renewal cohort",
+          "benefit_pool": "renewal-cohort",
+          "effective_on": "2027-03-01",
+          "kind": "pricing",
+          "monthly_eligible_revenue": "eligible-revenue",
+          "uplift": "uplift",
+          "capture": "capture",
+          "incremental_churn": "churn",
+          "variable_cost_rate": "variable-cost-rate",
+          "collection_lag_months": 1,
+          "variable_cost_payment_lag_months": 0
+        },
+        {
+          "initiative_id": "service-automation",
+          "title": "Constructed support/vendor intervention",
+          "benefit_pool": "support-vendor-spend",
+          "effective_on": "2027-04-01",
+          "kind": "service",
+          "monthly_contacts": "contacts",
+          "coverage": "coverage",
+          "resolution": "resolution",
+          "hours_per_contact": "hours-per-contact",
+          "avoidable_cost_per_hour": "cost-per-hour",
+          "monthly_cost_action": "cost-action",
+          "monthly_addressable_spend": "addressable-spend",
+          "cost_action": "none",
+          "payment_lag_months": 0
+        },
+        {
+          "initiative_id": "collections-timing",
+          "title": "Constructed receivables timing exercise",
+          "benefit_pool": "existing-receivables",
+          "effective_on": "2027-01-05",
+          "kind": "collections",
+          "receivables_balance": "receivables",
+          "accelerated_fraction": "accelerated",
+          "counterfactual_collection_on": "2027-03-15"
+        }
+      ],
+      "costs": [
+        {
+          "cost_id": "shared-foundation",
+          "initiative_ids": [
+            "pricing-renewals",
+            "service-automation",
+            "collections-timing"
+          ],
+          "kind": "implementation",
+          "amount": "foundation",
+          "recognized_on": "2026-10-05",
+          "paid_on": "2026-10-05",
+          "retained_if_excluded": true
+        },
+        {
+          "cost_id": "service-setup",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "implementation",
+          "amount": "setup",
+          "recognized_on": "2026-10-20",
+          "paid_on": "2026-11-20",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-capex",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "capex",
+          "amount": "capex",
+          "recognized_on": "2026-11-15",
+          "paid_on": "2026-11-15",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-01",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-01",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-02",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-02",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-03",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-03",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-04",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-04",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-05",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-05",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-06",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-06",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-07",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-07",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-08",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-08",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-09",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-09",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-10",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-10",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-11",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-11",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-12",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-12",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-13",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-13",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-14",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-14",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-15",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-15",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-16",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-16",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-17",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-17",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-18",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-18",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-19",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-19",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-20",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-20",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-21",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-21",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-22",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-22",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-23",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-23",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-24",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-24",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "base",
+      "assumptions": [
+        {
+          "assumption_id": "eligible-revenue",
+          "value": "1000000",
+          "unit": "currency",
+          "rationale": "Illustrative monthly renewal cohort; not extracted or inferred from Progress contracts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Contract-level eligibility and revenue reconciliation differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "uplift",
+          "value": "0.06",
+          "unit": "fraction",
+          "rationale": "Assumed permissible price uplift before capture and incremental churn.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Notice periods, caps or competitor pricing prevent the uplift.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capture",
+          "value": "0.65",
+          "unit": "fraction",
+          "rationale": "Assumed share of the uplift captured after concessions; not a success probability.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed renewal economics show lower net capture.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "churn",
+          "value": "0.005",
+          "unit": "fraction",
+          "rationale": "Incremental lost revenue relative to the otherwise unchanged counterfactual cohort.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Retention/mix evidence cannot isolate this loss or shows a larger loss.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "variable-cost-rate",
+          "value": "0.20",
+          "unit": "fraction",
+          "rationale": "Assumed genuinely variable servicing cost, including the symmetric cost reduction on lost revenue.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Costs are fixed or cannot adjust with cohort revenue.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "contacts",
+          "value": "20000",
+          "unit": "count",
+          "rationale": "Illustrative monthly contact population; no actual Progress ticket data.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Ticket scope, seasonality or data quality differs.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "coverage",
+          "value": "0.35",
+          "unit": "fraction",
+          "rationale": "Eligible share of constructed contacts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Safety or complexity exclusions reduce the eligible population.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "resolution",
+          "value": "0.60",
+          "unit": "fraction",
+          "rationale": "Assumed successful resolution after recontacts; not raw chatbot containment.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Evaluation or repeat-contact measurement fails.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "hours-per-contact",
+          "value": "0.20",
+          "unit": "hours",
+          "rationale": "Twelve net handling minutes per eligible successful contact.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Time study shows shifted work or less net time avoided.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-per-hour",
+          "value": "35",
+          "unit": "currency_per_hour",
+          "rationale": "Assumed avoidable vendor cost per hour, not salary converted automatically to savings.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor commitments or minimums prevent expense removal.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-action",
+          "value": "18000",
+          "unit": "currency",
+          "rationale": "Explicit monthly vendor-spend action, capped by avoided work and addressable spend; zero in downside.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "No approved contract reduction or spend reduction is available.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "addressable-spend",
+          "value": "100000",
+          "unit": "currency",
+          "rationale": "Constructed monthly expense pool bounding modeled cost removal.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Reconciled eligible spend is lower.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "receivables",
+          "value": "1200000",
+          "unit": "currency",
+          "rationale": "Constructed existing receivables; no new sales or bad-debt recovery assumed.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Subledger reconciliation, terms or disputes do not support the balance.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "accelerated",
+          "value": "0.15",
+          "unit": "fraction",
+          "rationale": "Share collected early; incremental cash reverses on the counterfactual collection date.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Balances are uncollectible or would already have been paid.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "setup",
+          "value": "60000",
+          "unit": "currency",
+          "rationale": "Temporary implementation expense paid before benefits; scenario-specific overrun included.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor scope or implementation staffing changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "service-fee",
+          "value": "6500",
+          "unit": "currency",
+          "rationale": "Monthly platform, QA and vendor fee from kickoff, including delayed/failed benefit months.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed fees, usage or QA requirements differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "pricing-fee",
+          "value": "2000",
+          "unit": "currency",
+          "rationale": "Monthly governance and analysis expense from kickoff.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Required operator effort or tooling changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "foundation",
+          "value": "25000",
+          "unit": "currency",
+          "rationale": "Committed shared data foundation expense retained even if all initiatives are excluded.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Commitment can actually be canceled before payment.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capex",
+          "value": "15000",
+          "unit": "currency",
+          "rationale": "Illustrative capitalized implementation outlay; not deducted again in EBITDA.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Accounting review requires expense classification or a different asset amount.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        }
+      ],
+      "drivers": [
+        {
+          "initiative_id": "pricing-renewals",
+          "title": "Constructed eligible renewal cohort",
+          "benefit_pool": "renewal-cohort",
+          "effective_on": "2027-01-01",
+          "kind": "pricing",
+          "monthly_eligible_revenue": "eligible-revenue",
+          "uplift": "uplift",
+          "capture": "capture",
+          "incremental_churn": "churn",
+          "variable_cost_rate": "variable-cost-rate",
+          "collection_lag_months": 1,
+          "variable_cost_payment_lag_months": 0
+        },
+        {
+          "initiative_id": "service-automation",
+          "title": "Constructed support/vendor intervention",
+          "benefit_pool": "support-vendor-spend",
+          "effective_on": "2026-12-15",
+          "kind": "service",
+          "monthly_contacts": "contacts",
+          "coverage": "coverage",
+          "resolution": "resolution",
+          "hours_per_contact": "hours-per-contact",
+          "avoidable_cost_per_hour": "cost-per-hour",
+          "monthly_cost_action": "cost-action",
+          "monthly_addressable_spend": "addressable-spend",
+          "cost_action": "vendor_reduction",
+          "payment_lag_months": 0
+        },
+        {
+          "initiative_id": "collections-timing",
+          "title": "Constructed receivables timing exercise",
+          "benefit_pool": "existing-receivables",
+          "effective_on": "2027-01-05",
+          "kind": "collections",
+          "receivables_balance": "receivables",
+          "accelerated_fraction": "accelerated",
+          "counterfactual_collection_on": "2027-03-15"
+        }
+      ],
+      "costs": [
+        {
+          "cost_id": "shared-foundation",
+          "initiative_ids": [
+            "pricing-renewals",
+            "service-automation",
+            "collections-timing"
+          ],
+          "kind": "implementation",
+          "amount": "foundation",
+          "recognized_on": "2026-10-05",
+          "paid_on": "2026-10-05",
+          "retained_if_excluded": true
+        },
+        {
+          "cost_id": "service-setup",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "implementation",
+          "amount": "setup",
+          "recognized_on": "2026-10-20",
+          "paid_on": "2026-11-20",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-capex",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "capex",
+          "amount": "capex",
+          "recognized_on": "2026-11-15",
+          "paid_on": "2026-11-15",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-01",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-01",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-02",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-02",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-03",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-03",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-04",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-04",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-05",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-05",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-06",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-06",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-07",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-07",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-08",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-08",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-09",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-09",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-10",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-10",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-11",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-11",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-12",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-12",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-13",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-13",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-14",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-14",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-15",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-15",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-16",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-16",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-17",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-17",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-18",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-18",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-19",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-19",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-20",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-20",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-21",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-21",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-22",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-22",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-23",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-23",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-24",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-24",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        }
+      ]
+    },
+    {
+      "scenario_id": "upside",
+      "assumptions": [
+        {
+          "assumption_id": "eligible-revenue",
+          "value": "1000000",
+          "unit": "currency",
+          "rationale": "Illustrative monthly renewal cohort; not extracted or inferred from Progress contracts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Contract-level eligibility and revenue reconciliation differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "uplift",
+          "value": "0.08",
+          "unit": "fraction",
+          "rationale": "Assumed permissible price uplift before capture and incremental churn.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Notice periods, caps or competitor pricing prevent the uplift.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capture",
+          "value": "0.80",
+          "unit": "fraction",
+          "rationale": "Assumed share of the uplift captured after concessions; not a success probability.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed renewal economics show lower net capture.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "churn",
+          "value": "0.002",
+          "unit": "fraction",
+          "rationale": "Incremental lost revenue relative to the otherwise unchanged counterfactual cohort.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Retention/mix evidence cannot isolate this loss or shows a larger loss.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "variable-cost-rate",
+          "value": "0.20",
+          "unit": "fraction",
+          "rationale": "Assumed genuinely variable servicing cost, including the symmetric cost reduction on lost revenue.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Costs are fixed or cannot adjust with cohort revenue.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "contacts",
+          "value": "20000",
+          "unit": "count",
+          "rationale": "Illustrative monthly contact population; no actual Progress ticket data.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Ticket scope, seasonality or data quality differs.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "coverage",
+          "value": "0.50",
+          "unit": "fraction",
+          "rationale": "Eligible share of constructed contacts.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Safety or complexity exclusions reduce the eligible population.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "resolution",
+          "value": "0.80",
+          "unit": "fraction",
+          "rationale": "Assumed successful resolution after recontacts; not raw chatbot containment.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Evaluation or repeat-contact measurement fails.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "hours-per-contact",
+          "value": "0.20",
+          "unit": "hours",
+          "rationale": "Twelve net handling minutes per eligible successful contact.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Time study shows shifted work or less net time avoided.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-per-hour",
+          "value": "35",
+          "unit": "currency_per_hour",
+          "rationale": "Assumed avoidable vendor cost per hour, not salary converted automatically to savings.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor commitments or minimums prevent expense removal.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "cost-action",
+          "value": "30000",
+          "unit": "currency",
+          "rationale": "Explicit monthly vendor-spend action, capped by avoided work and addressable spend; zero in downside.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "No approved contract reduction or spend reduction is available.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "addressable-spend",
+          "value": "100000",
+          "unit": "currency",
+          "rationale": "Constructed monthly expense pool bounding modeled cost removal.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Reconciled eligible spend is lower.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "receivables",
+          "value": "1200000",
+          "unit": "currency",
+          "rationale": "Constructed existing receivables; no new sales or bad-debt recovery assumed.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Subledger reconciliation, terms or disputes do not support the balance.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "accelerated",
+          "value": "0.25",
+          "unit": "fraction",
+          "rationale": "Share collected early; incremental cash reverses on the counterfactual collection date.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Balances are uncollectible or would already have been paid.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "setup",
+          "value": "55000",
+          "unit": "currency",
+          "rationale": "Temporary implementation expense paid before benefits; scenario-specific overrun included.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Vendor scope or implementation staffing changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "service-fee",
+          "value": "6500",
+          "unit": "currency",
+          "rationale": "Monthly platform, QA and vendor fee from kickoff, including delayed/failed benefit months.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Signed fees, usage or QA requirements differ.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "pricing-fee",
+          "value": "2000",
+          "unit": "currency",
+          "rationale": "Monthly governance and analysis expense from kickoff.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Required operator effort or tooling changes.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "foundation",
+          "value": "25000",
+          "unit": "currency",
+          "rationale": "Committed shared data foundation expense retained even if all initiatives are excluded.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Commitment can actually be canceled before payment.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        },
+        {
+          "assumption_id": "capex",
+          "value": "15000",
+          "unit": "currency",
+          "rationale": "Illustrative capitalized implementation outlay; not deducted again in EBITDA.",
+          "owner": "Analyst-authored exercise",
+          "invalidated_by": "Accounting review requires expense classification or a different asset amount.",
+          "evidence_ids": [
+            "constructed-inputs"
+          ]
+        }
+      ],
+      "drivers": [
+        {
+          "initiative_id": "pricing-renewals",
+          "title": "Constructed eligible renewal cohort",
+          "benefit_pool": "renewal-cohort",
+          "effective_on": "2026-12-01",
+          "kind": "pricing",
+          "monthly_eligible_revenue": "eligible-revenue",
+          "uplift": "uplift",
+          "capture": "capture",
+          "incremental_churn": "churn",
+          "variable_cost_rate": "variable-cost-rate",
+          "collection_lag_months": 1,
+          "variable_cost_payment_lag_months": 0
+        },
+        {
+          "initiative_id": "service-automation",
+          "title": "Constructed support/vendor intervention",
+          "benefit_pool": "support-vendor-spend",
+          "effective_on": "2026-12-01",
+          "kind": "service",
+          "monthly_contacts": "contacts",
+          "coverage": "coverage",
+          "resolution": "resolution",
+          "hours_per_contact": "hours-per-contact",
+          "avoidable_cost_per_hour": "cost-per-hour",
+          "monthly_cost_action": "cost-action",
+          "monthly_addressable_spend": "addressable-spend",
+          "cost_action": "vendor_reduction",
+          "payment_lag_months": 0
+        },
+        {
+          "initiative_id": "collections-timing",
+          "title": "Constructed receivables timing exercise",
+          "benefit_pool": "existing-receivables",
+          "effective_on": "2027-01-05",
+          "kind": "collections",
+          "receivables_balance": "receivables",
+          "accelerated_fraction": "accelerated",
+          "counterfactual_collection_on": "2027-03-15"
+        }
+      ],
+      "costs": [
+        {
+          "cost_id": "shared-foundation",
+          "initiative_ids": [
+            "pricing-renewals",
+            "service-automation",
+            "collections-timing"
+          ],
+          "kind": "implementation",
+          "amount": "foundation",
+          "recognized_on": "2026-10-05",
+          "paid_on": "2026-10-05",
+          "retained_if_excluded": true
+        },
+        {
+          "cost_id": "service-setup",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "implementation",
+          "amount": "setup",
+          "recognized_on": "2026-10-20",
+          "paid_on": "2026-11-20",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-capex",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "capex",
+          "amount": "capex",
+          "recognized_on": "2026-11-15",
+          "paid_on": "2026-11-15",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-01",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-01",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-10-01",
+          "paid_on": "2026-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-02",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-02",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-11-01",
+          "paid_on": "2026-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-03",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-03",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2026-12-01",
+          "paid_on": "2026-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-04",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-04",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-01-01",
+          "paid_on": "2027-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-05",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-05",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-02-01",
+          "paid_on": "2027-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-06",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-06",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-03-01",
+          "paid_on": "2027-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-07",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-07",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-04-01",
+          "paid_on": "2027-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-08",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-08",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-05-01",
+          "paid_on": "2027-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-09",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-09",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-06-01",
+          "paid_on": "2027-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-10",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-10",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-07-01",
+          "paid_on": "2027-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-11",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-11",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-08-01",
+          "paid_on": "2027-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-12",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-12",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-09-01",
+          "paid_on": "2027-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-13",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-13",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-10-01",
+          "paid_on": "2027-10-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-14",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-14",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-11-01",
+          "paid_on": "2027-11-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-15",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-15",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2027-12-01",
+          "paid_on": "2027-12-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-16",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-16",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-01-01",
+          "paid_on": "2028-01-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-17",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-17",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-02-01",
+          "paid_on": "2028-02-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-18",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-18",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-03-01",
+          "paid_on": "2028-03-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-19",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-19",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-04-01",
+          "paid_on": "2028-04-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-20",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-20",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-05-01",
+          "paid_on": "2028-05-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-21",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-21",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-06-01",
+          "paid_on": "2028-06-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-22",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-22",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-07-01",
+          "paid_on": "2028-07-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-23",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-23",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-08-01",
+          "paid_on": "2028-08-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "pricing-renewals-fee-24",
+          "initiative_ids": [
+            "pricing-renewals"
+          ],
+          "kind": "recurring",
+          "amount": "pricing-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        },
+        {
+          "cost_id": "service-automation-fee-24",
+          "initiative_ids": [
+            "service-automation"
+          ],
+          "kind": "recurring",
+          "amount": "service-fee",
+          "recognized_on": "2028-09-01",
+          "paid_on": "2028-09-01",
+          "retained_if_excluded": false
+        }
+      ]
+    }
+  ],
+  "multiples": [
+    "6",
+    "8",
+    "10"
+  ],
+  "multiple_rationale": "Arbitrary 6x/8x/10x sensitivity grid to demonstrate valuation dependence; not sourced comparable-company multiples or a fair-value range."
+}

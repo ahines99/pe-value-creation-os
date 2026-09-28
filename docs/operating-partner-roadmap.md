@@ -15,13 +15,15 @@ public research and the constructed demonstration continue independently.
 | Outcome / tickets | Delivered increment | Still required |
 |---|---|---|
 | Public Progress case / OP-01, 02, 09 | [Case charter](pilot/progress-case-charter.md), reviewed FY2025 10-K extraction mapping, 81 annual facts covering FY2023–25, source hashes/page anchors and [public baseline](portfolio/progress-baseline.html) | Quarterly facts, acquisition/perimeter analysis, metric-specific peer eligibility, sourced thesis and counterevidence decisions |
-| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected nonpositive-contribution wording; separate FY2025 EBITDA, operating-income-plus-D&A and CFO-less-PP&E bridges | Historical amortization exceptions; adjustment register; monthly drivers/costs/cash, overlaps and valuation scenarios |
+| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; separate FY2025 baseline measures; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity | Historical amortization exceptions; adjustment/maintainability register; richer pool allocations/exclusivity; full valuation bridge and schedule integration |
 | Capacity-aware plan / OP-03, 08, 10–11 | Existing screening plan and new source-fact contracts only | Case revisions and review persistence, constructed operating records, dependency/capacity constraints and schedule-linked economics |
-| Executive memo / OP-12–13 | Source-linked financial-baseline page and responsive browser coverage | Decision thesis, alternatives, first-wave choices, assumption challenges and complete memo acceptance |
+| Executive memo / OP-12–13 | Source-linked financial-baseline and constructed underwriting exhibits with assumption challenges and responsive browser coverage | Decision thesis, alternatives, feasible first-wave choices and complete memo acceptance |
 | Underwriting-to-realization and pilot / OP-14–17 | Sponsor brief, authorization record, minimum data request, intervention and reviewer worksheets prepared | Immutable lifecycle revisions, actuals/attribution demonstration; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
 
 OP-04's current screening corrections are implemented. OP-01 has a working
-charter/source policy; OP-02/03/05/12 have partial foundations. Other tickets retain
+charter/source policy; OP-02/03/05–08/12 have partial foundations. The monthly
+engine uses typed local case drafts; database revision/review persistence and
+actual scheduling remain unimplemented. Other tickets retain
 their full acceptance criteria. A prepared pilot package is not a performed pilot,
 and the annual baseline is not the completed public diligence case.
 

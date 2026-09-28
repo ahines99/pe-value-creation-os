@@ -291,9 +291,31 @@ def cmd_public_diligence(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_underwriting(args: argparse.Namespace) -> int:
+    from .diligence.underwriting_render import build_underwriting_report
+
+    try:
+        result = build_underwriting_report(Path(args.input), Path(args.output), frozenset(args.exclude))
+    except (ValueError, OSError) as exc:
+        print(
+            f"Underwriting failed ({type(exc).__name__}); inspect model contracts and source policy.", file=sys.stderr
+        )
+        return 2
+    print(f"Constructed underwriting report: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    underwriting = sub.add_parser("underwriting", help="evaluate a constructed monthly EBITDA/cash/valuation exercise")
+    underwriting.add_argument("--input", required=True, help="typed constructed operating case JSON")
+    underwriting.add_argument("--output", default="var/underwriting/report", help="output stem for HTML and JSON")
+    underwriting.add_argument(
+        "--exclude", action="append", default=[], help="exclude an initiative; retain committed costs"
+    )
+    underwriting.set_defaults(fn=cmd_underwriting)
 
     public = sub.add_parser("public-diligence", help="reconcile public filing facts and render a sourced baseline")
     public.add_argument("--input", required=True, help="public fact bundle JSON (private sources rejected)")
