@@ -116,7 +116,8 @@ class PostgresRepository:
 
     def list_case_revisions(self, case_id: str) -> list[CaseRevision]:
         with self._tx() as cur:
-            self.get_investment_case(case_id)
+            if cur.execute("select 1 from investment_cases where case_id=%s", (case_id,)).fetchone() is None:
+                raise NotFound(case_id)
             return [
                 CaseRevision.model_validate(row["record"])
                 for row in cur.execute(
@@ -166,7 +167,8 @@ class PostgresRepository:
 
     def list_case_reviews(self, case_id: str) -> list[CaseReview]:
         with self._tx() as cur:
-            self.get_investment_case(case_id)
+            if cur.execute("select 1 from investment_cases where case_id=%s", (case_id,)).fetchone() is None:
+                raise NotFound(case_id)
             return [
                 CaseReview.model_validate(row["record"])
                 for row in cur.execute(

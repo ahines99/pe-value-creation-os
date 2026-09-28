@@ -481,3 +481,19 @@ def test_private_sources_rejected_before_revision_capture():
     raw["payload"]["underwriting"]["evidence"][1]["classification"] = "licensed_private"
     with pytest.raises(ValueError, match="private"):
         RevisionDraft.model_validate(raw)
+
+
+def test_case_history_reads_work_with_a_single_database_connection(pg_repo, pg_database):
+    from pe_value_os.adapters.postgres import PostgresRepository
+
+    single = PostgresRepository(pg_database[1], pg_repo.evidence_store, min_size=1, max_size=1)
+    single.pool.timeout = 0.5
+    try:
+        with security.principal_scope(principal()):
+            case = setup(single)
+            revision = single.append_case_revision(case.case_id, None, draft())
+            receipt = single.review_case_revision(revision.revision_id, request(revision))
+            assert single.list_case_revisions(case.case_id) == [revision]
+            assert single.list_case_reviews(case.case_id) == [receipt]
+    finally:
+        single.close()
