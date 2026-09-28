@@ -39,6 +39,7 @@ jobs:
           uv run pvc public-diligence --input data/public/progress/financial-facts.json --output docs/portfolio/progress-baseline
           uv run pvc underwriting --input data/constructed/progress/underwriting.json --output docs/portfolio/underwriting
           uv run pvc operating-plan --input data/constructed/progress/operating-plan.json --underwriting data/constructed/progress/underwriting.json --output docs/portfolio/operating-plan
+          uv run pvc case-history-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --output docs/portfolio/case-history
           docker build -f infra/Dockerfile.browser -t pvc-browser-check .
           mkdir -p var/browser-checks
           docker run --rm --network none -v "$PWD/docs:/site:ro" -v "$PWD/var/browser-checks:/artifacts" pvc-browser-check /site /artifacts
@@ -163,6 +164,7 @@ jobs:
           /tmp/pvc-installed/bin/pvc public-diligence --input "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --output public-baseline
           /tmp/pvc-installed/bin/pvc underwriting --input "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --output underwriting
           /tmp/pvc-installed/bin/pvc operating-plan --input "$GITHUB_WORKSPACE/data/constructed/progress/operating-plan.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --output operating-plan
+          /tmp/pvc-installed/bin/pvc case-history-demo --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/operating-plan.json" --output case-history
           /tmp/pvc-installed/bin/pvc eval --suite all --gate --report eval-report.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

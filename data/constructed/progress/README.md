@@ -30,8 +30,8 @@ These are analytical selection changes, not approvals or source-system actions.
 
 The [method and limitations](../../../docs/adr/0010-monthly-underwriting.md) define
 the cash proxy, rounding/timing, overlap guard and arbitrary 6×/8×/10× sensitivity
-grid. The exercise does not yet persist case revisions, compare actual results,
-or complete the executive decision memo. It is not a recommendation that Progress
+grid. The exercise does not yet compare actual results or complete the executive
+decision memo. It is not a recommendation that Progress
 execute these levers.
 
 ## Capacity-aware operating proposal
@@ -56,3 +56,21 @@ while keeping original costs. A collections gate that misses the original paymen
 date cannot create an acceleration advantage. The input files and original
 forecast remain unchanged. See [ADR 0012](../../../docs/adr/0012-capacity-aware-operating-plan.md)
 for full-week conventions, priority behavior, limitations and worked verification.
+
+## Revision and review history
+
+The [case-history walkthrough](../../../docs/portfolio/case-history.html) freezes
+the original underwriting, records a simulated request for capacity evidence,
+then stores a capacity-aware revision and a second simulated review. Neither
+receipt represents an actual person's review, operating authorization or result.
+
+```powershell
+uv run pvc case-history-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --output var/case-history/report
+```
+
+Replay uses isolated memory storage and does not migrate or modify the running
+showcase. The same repository contracts have PostgreSQL persistence, forced RLS,
+exact-parent conflicts, immutable snapshots and authenticated review endpoints;
+see [ADR 0013](../../../docs/adr/0013-immutable-case-reviews.md). Receipt IDs and
+actual recording timestamps change with each replay; financial results remain
+reproducible. Actuals and financial attribution remain unavailable.

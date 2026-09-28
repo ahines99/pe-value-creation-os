@@ -19,6 +19,16 @@ from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from .. import security
+from ..diligence.cases import (
+    CaseReview,
+    CaseRevision,
+    InvestmentCase,
+    ReviewRequest,
+    RevisionDraft,
+    new_case,
+    prepare_review,
+    prepare_revision,
+)
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ScenarioInputs, ValueCase
@@ -51,6 +61,191 @@ class PostgresRepository:
 
     def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
         return FencedRepository(self, run_id, owner)
+
+    def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
+        with self.approval_transaction(), self._tx() as cur:
+            self.get_company(company_id)
+            record = new_case(company_id, case_id, label, currency)
+            row = cur.execute(
+                """insert into investment_cases(case_id,company_id,label,currency,classification,created_by,created_at,version)
+                values (%s,%s,%s,%s,%s,%s,%s,0) on conflict (case_id) do nothing returning case_id""",
+                (case_id, company_id, label, currency, record.classification, record.created_by, record.created_at),
+            ).fetchone()
+            if row is None:
+                raise Conflict("Case identity already exists")
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="case_review",
+                    event_type="case_created",
+                    actor=record.created_by,
+                    created_at=record.created_at,
+                    payload={"case_id": case_id},
+                )
+            )
+            return record
+
+    @staticmethod
+    def _investment_case(row: Any) -> InvestmentCase:
+        return InvestmentCase.model_validate(
+            {
+                **row,
+                "current_revision_id": _s(row["current_revision_id"]),
+                "original_revision_id": _s(row["original_revision_id"]),
+            }
+        )
+
+    def get_investment_case(self, case_id: str) -> InvestmentCase:
+        with self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id = %s", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            return self._investment_case(row)
+
+    def get_case_revision(self, revision_id: str) -> CaseRevision:
+        try:
+            uuid.UUID(revision_id)
+        except ValueError as exc:
+            raise NotFound(revision_id) from exc
+        with self._tx() as cur:
+            row = cur.execute("select record from case_revisions where revision_id = %s", (revision_id,)).fetchone()
+            if row is None:
+                raise NotFound(revision_id)
+            return CaseRevision.model_validate(row["record"])
+
+    def list_case_revisions(self, case_id: str) -> list[CaseRevision]:
+        with self._tx() as cur:
+            self.get_investment_case(case_id)
+            return [
+                CaseRevision.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from case_revisions where case_id = %s order by sequence", (case_id,)
+                ).fetchall()
+            ]
+
+    def append_case_revision(self, case_id: str, expected_parent: str | None, draft: RevisionDraft) -> CaseRevision:
+        with self.approval_transaction(), self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id = %s for update", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            case = self._investment_case(row)
+            if expected_parent != case.current_revision_id:
+                raise Conflict("Case changed; reload the current revision before appending")
+            parent = self.get_case_revision(expected_parent) if expected_parent else None
+            record = prepare_revision(case, draft, parent)
+            cur.execute(
+                """insert into case_revisions(revision_id,company_id,case_id,sequence,parent_revision_id,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.revision_id,
+                    record.company_id,
+                    case_id,
+                    record.sequence,
+                    record.parent_revision_id,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            cur.execute(
+                "update investment_cases set version=%s,current_revision_id=%s,original_revision_id=coalesce(original_revision_id,%s) where case_id=%s",
+                (record.sequence, record.revision_id, record.revision_id, case_id),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="case_revision_appended",
+                    actor=record.author,
+                    created_at=record.recorded_at,
+                    payload={"case_id": case_id, "revision_id": record.revision_id, "sha256": record.content_sha256},
+                )
+            )
+            return record
+
+    def list_case_reviews(self, case_id: str) -> list[CaseReview]:
+        with self._tx() as cur:
+            self.get_investment_case(case_id)
+            return [
+                CaseReview.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from case_reviews where case_id=%s order by recorded_at,review_id", (case_id,)
+                ).fetchall()
+            ]
+
+    def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview:
+        with self.approval_transaction(), self._tx() as cur:
+            revision = self.get_case_revision(revision_id)
+            row = cur.execute(
+                "select * from investment_cases where case_id=%s for update", (revision.case_id,)
+            ).fetchone()
+            if row is None:
+                raise NotFound(revision.case_id)
+            case = self._investment_case(row)
+            if case.current_revision_id != revision_id and request.decision != "withdraw":
+                raise Conflict("Cannot review a stale case revision")
+            previous = None
+            if request.supersedes_review_id:
+                prior = cur.execute(
+                    "select record from case_reviews where review_id=%s", (request.supersedes_review_id,)
+                ).fetchone()
+                if prior is None:
+                    raise NotFound(request.supersedes_review_id)
+                previous = CaseReview.model_validate(prior["record"])
+            record = prepare_review(case, revision, request, previous)
+            # The case row lock serializes review and revision writes, including corrections.
+            if (
+                previous is None
+                and cur.execute(
+                    "select 1 from case_reviews where revision_id=%s and mode=%s and actor=%s and supersedes_review_id is null",
+                    (revision_id, record.mode, record.actor),
+                ).fetchone()
+            ):
+                raise Conflict("Reviewer already recorded a receipt; append a correction explicitly")
+            if (
+                previous is not None
+                and cur.execute(
+                    "select 1 from case_reviews where supersedes_review_id=%s", (previous.review_id,)
+                ).fetchone()
+            ):
+                raise Conflict("Receipt already superseded; correct the latest receipt")
+            cur.execute(
+                """insert into case_reviews(review_id,company_id,case_id,revision_id,revision_sha256,mode,decision,actor,actor_type,recorded_at,supersedes_review_id,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.review_id,
+                    record.company_id,
+                    record.case_id,
+                    record.revision_id,
+                    record.revision_sha256,
+                    record.mode,
+                    record.decision,
+                    record.actor,
+                    record.actor_type,
+                    record.recorded_at,
+                    record.supersedes_review_id,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="case_review_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case.case_id,
+                        "revision_id": revision_id,
+                        "review_id": record.review_id,
+                        "mode": record.mode,
+                        "decision": record.decision,
+                    },
+                )
+            )
+            return record
 
     def close(self) -> None:
         self.pool.close()
@@ -958,6 +1153,12 @@ class PostgresRepository:
         # (both deletions are idempotent). The reverse order could leave orphaned evidence with no record of it.
         counts: dict[str, int] = {"evidence_objects": self.evidence_store.delete_company(company_id)}
         with self._tx() as cur:
+            # Individual revisions/receipts cannot be deleted by pvc_app. Approved
+            # whole-company offboarding cascades from the existing company deletion.
+            for table in ("investment_cases", "case_revisions", "case_reviews"):
+                counts[table] = cur.execute(
+                    f"select count(*) as n from {table} where company_id=%s", (company_id,)
+                ).fetchone()["n"]
             for table in (
                 "kpi_alerts",
                 "kpi_observations",

@@ -41,7 +41,11 @@ The [100-day operating proposal](https://ahines99.github.io/pe-value-creation-os
 now sequences dependencies against explicit weekly resource budgets and recalculates
 the same financial model. Capacity conflicts delay benefits while original costs
 remain. Assignments and acceptance gates are proposed and constructed; durable
-case revisions, human review receipts and realization comparisons remain open.
+case revisions and exact-version research reviews are now stored separately from
+operating approvals. The [case-history walkthrough](https://ahines99.github.io/pe-value-creation-os/portfolio/case-history.html)
+preserves original/current forecasts and labels its two service-authored reviews
+as simulated. Actual human review, observed results and realization attribution
+remain unperformed.
 
 ## Try it
 
