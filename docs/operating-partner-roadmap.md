@@ -54,6 +54,14 @@ remain intact. Proceeds, actual exit and investment returns remain unavailable.
 Initiative/KPI split lineage and independently reviewed maintainability are still
 open; see [ADR 0025](adr/0025-constructed-exit-review.md).
 
+OP-13 now has a [current case study](portfolio/case-study.md),
+[guided demonstration](portfolio/progress-demo.md), [practitioner worksheet](portfolio/practitioner-review.md)
+and [requirement-level acceptance map](portfolio/progress-acceptance.md).
+The offline review consistency command checks source bindings, linked forecasts,
+frozen baseline, accounting residuals and rendered memo/exit output. These are
+internal engineering and presentation artifacts; no external score or pilot
+participation is inferred. The original OP-01?17 scope remains open where recorded.
+
 ## Recommended destination
 
 Build **one defensible investment and operating-review case**: a reviewer can

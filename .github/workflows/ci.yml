@@ -48,6 +48,7 @@ jobs:
           uv run pvc disclosure-history --input data/public/progress/sharefile-allocation-history.json --output docs/portfolio/disclosure-history
           uv run pvc historical-valuation --facts data/public/progress/financial-facts.json --balances data/public/progress/balance-facts.json --spec data/constructed/progress/historical-valuation.json --output docs/portfolio/historical-valuation
           uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --balances data/public/progress/balance-facts.json --valuation data/constructed/progress/historical-valuation.json --output docs/portfolio/decision-memo --case-review docs/portfolio/exit-review.json
+          uv run python scripts/check_progress_review.py --output var/browser-checks/progress-review.json
           docker build -f infra/Dockerfile.browser -t pvc-browser-check .
           mkdir -p var/browser-checks
           docker run --rm --network none -v "$PWD/docs:/site:ro" -v "$PWD/var/browser-checks:/artifacts" pvc-browser-check /site /artifacts

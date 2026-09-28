@@ -1,4 +1,8 @@
-# Portfolio acceptance record
+# Historical application showcase acceptance record
+
+For the current Progress case, use the [acceptance matrix](progress-acceptance.md).
+The entries below retain their original dates and scope; they do not describe
+the later public-research and constructed-lifecycle implementation.
 
 ## Current closeout decision
 

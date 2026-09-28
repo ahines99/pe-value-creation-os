@@ -1,76 +1,113 @@
-# From an investment hypothesis to an executable value-creation plan
+# When better evidence overturns the value case
 
-**Value Creation OS** is an operating partner workspace for reviewing a portfolio company's opportunities, challenging the financial case and authorizing a 100-day plan. Its executive surface is backed by inspectable engineering: evidence provenance, deterministic calculations, durable workflows and explicit human authority.
+**Value Creation OS · Progress Software public reference case and constructed operating exercise**
 
-The primary audience is **PE operating partners, investment professionals and portfolio-company executives**. Technical hiring managers, applied-AI leaders and implementation teams can follow the same case into its architecture, contracts and verification evidence.
+The central result is a changed decision. An initially positive operating case
+becomes negative when contract constraints and corrected vendor evidence are
+applied. The executive memo reopens the proposed first wave while preserving the
+original assumptions, hypothetical close, accounting comparisons and review history.
 
-[Portfolio overview](examples/workspace.html) | [Investment memo](examples/beacon-pricing.html) | [Execution KPIs](examples/beacon-kpis.html) | [Run the workspace](quickstart.md) | [Architecture](../architecture.md) | [Acceptance record](acceptance.md)
+[Executive memo](decision-memo.html) · [10-minute demo](progress-demo.md) · [Acceptance and remaining gaps](progress-acceptance.md)
 
-## The operating question
+## The decision
 
-Where should the management team act, what is the value at stake, and what must be true for that value to materialize?
+A PE operating partner needs to know which improvement merits scarce management
+capacity, what its earnings and cash consequences are, and what would invalidate
+it. A large modeled opportunity is insufficient if contracts prevent repricing,
+freed hours do not remove spend, or costs arrive before benefits.
 
-A useful answer connects fragmented billing, financial, customer and support records to a small set of accountable workstreams. The reviewer needs a clear base case and downside, the assumptions driving each opportunity, any evidence gaps, the owner of execution, and the decision required. A plausible recommendation by itself does not satisfy that review.
-
-Value Creation OS organizes the journey around those questions. The portfolio overview surfaces company status and decision needs. The investment memo brings the value thesis, financial sizing and workstream ownership together. Supporting evidence and technical calculation detail remain accessible. Human decisions govern which initiatives proceed to monitoring.
-
-## Beacon: a concrete, synthetic investment case
-
-Beacon Scheduling Systems is fictional. Its scenario produces a modeled base-case annual run-rate EBITDA opportunity of **1,148,309**, with **739,200** modeled in-year impact across **three workstreams and five initiatives**. These are outputs in the fixture's financial units, not realized savings, audited forecasts or customer results.
-
-| Initiative | Modeled base annual run-rate EBITDA | Executive question |
-|---|---:|---|
-| Migrate legacy price-book customers | 380,650 | Which customers can move, under what notice periods and caps? |
-| Enforce contracted renewal uplifts | 351,942 | Why are contracted uplifts not being realized? |
-| Discount governance in mid-market | 215,006 | How much discount leakage is addressable without impairing conversion? |
-| Improve sales and marketing efficiency | 191,160 | What efficiency is plausible given the current acquisition economics? |
-| Deflect tier-1 support with AI self-service | 9,552 | Does automation remain attractive after implementation and operating cost? |
-
-Initiative values are rounded for this narrative; the aggregate is computed from the underlying deterministic amounts. Pricing opportunities dominate this scenario. The support automation case remains modest and uncertain: **-31,020 low / 9,552 base / 61,716 high**. The downside is visible rather than discarded. Its calculator version is `value-case/1`; two evidence items support that case. Pricing cases retain six evidence items each. The [generated scenario report](demo-report.md) supplies the reproducible context.
-
-This creates an executive discussion, rather than a blanket recommendation to deploy AI. Contract review precedes customer communication, operating-model changes require their own review, and unquantified candidates remain explicitly unsized.
-
-## The review and decision journey
-
-1. **Diagnose.** Review the company's operating evidence and the sufficiency of the fact base.
-2. **Underwrite.** Challenge the baseline, improvement, realization, flow-through, cost and timing assumptions in the investment memo. Follow the evidence links before accepting a number.
-3. **Decide.** Approve the scoped plan, request changes with a rationale, or reject. The system records the decision separately from any model output.
-4. **Monitor.** Inspect approved KPI definitions and observations in the context of the relevant run. A definition or seeded observation is not evidence of realized business performance.
-
-Alex has completed local browser sign-in and a Beacon approval. The worker's completion and resulting KPI records were separately verified. Remaining client, evidence-review and usability acceptance are tracked in [the acceptance record](acceptance.md); this case study does not imply that every human session gate has passed.
-
-Delta is the counterexample. Only one of four analyses has sufficient evidence, while policy requires two. Missing financial months, stale invoices and incomplete contracts produce a named `needs_evidence` pause. Planted instruction text produces suspicious-content findings. A separate Cedar fault injection demonstrates partial failure and retry without re-executing completed steps.
-
-## Technical diligence behind the memo
-
-```mermaid
-flowchart LR
-    A[Operating evidence] --> B[Scoped typed tools]
-    B --> C[Deterministic low/base/high sizing]
-    C --> D[Investment memo and 100-day plan]
-    D --> E{Human decision}
-    E -->|Approve| F[KPI monitoring]
-    E -->|Request changes| D
-    E -->|Reject| G[Recorded decision]
-    B -->|Insufficient evidence| H[Pause with named gaps]
-```
-
-| Engineering decision | Operating implication | Implementation evidence |
+| Layer | What it contains | What it supports |
 |---|---|---|
-| Deterministic financial core | A reviewer can reproduce the same assumptions and amounts | Domain calculators, policy snapshots, versioned value cases |
-| Server-issued quantity references | Model prose must use a fact with a valid company, unit, period and evidence reference | Proposer/narrator validation and quantity registry |
-| Typed MCP contracts | Client and agent behavior have inspectable interfaces | Tool schemas and procedural skills |
-| Separate human approval authority | A model or ordinary MCP credential cannot authorize a plan | Separate API audience, human role/scope checks and audited decisions |
-| Durable checkpoints and leases | A worker interruption preserves the business record | PostgreSQL state, claims, idempotency and resume |
-| Company isolation and immutable evidence | Access and provenance are enforced beyond the prompt | Repository checks, PostgreSQL row-level security and evidence storage |
-| Artifact-specific release gates | Published packages and images must match verified artifacts | Installed-package, evaluation, Compose and scan evidence |
+| Public Progress filings | 241 annual/interim financial facts, acquisition and peer context, historical balance-sheet facts | Reproducible definitions and research questions |
+| Constructed operating exercise | Authored contracts, service/vendor records, invoices, capacity and accounting observations | How evidence changes economics, sequencing and review |
+| Actual company pilot | No sponsor, authorized operating records or intervention | No company savings, participation or investment-return claim |
 
-The default showcase uses rules and synthetic data, so reviewers need no provider key. Optional model components propose opportunities and narrative; typed tools retain ownership of facts and calculations. Source integration paths exist for warehouse/CSV/HubSpot/Zendesk, but no real-pilot reconciliation is claimed.
+University LSEG/WRDS research remains a separate private lane. The public case
+rebuilds without vendor credentials or licensed extracts. Apache-2.0 licenses the
+code; third-party data rights remain separate.
 
-## Verification and boundaries
+## What changed, and why
 
-Use [the versioned evidence index](../releases/0.1.0/evidence.md) for exact reviewed commits, test counts, evaluation outcomes, package checks, live Compose journeys and application/database scans. These links distinguish verified historical builds from changes still undergoing review. [Load-test methodology](../load_test.md) separates local synthetic measurements from staging SLO acceptance. [The recording storyboard](../pilot/demo-script.md) follows the actual operating journey and labels scripted versus human evidence.
+The six-revision lifecycle retains these **constructed base-case USD forecasts
+for October 2026 through September 2027**. They are successive versions, not
+values to add together.
 
-The interface is server-rendered HTML with no third-party frontend assets. PostgreSQL and immutable evidence retain the system of record. AWS Terraform describes a future deployment; a local showcase does not establish AWS, production browser OIDC, customer readiness or on-call acceptance. Optional observability images have their own disclosed scan findings.
+| Revision | Incremental EBITDA | Pre-tax cash proxy | Decision implication |
+|---|---:|---:|---|
+| Original underwriting | 228,266.97 | 179,461.97 | Initial hypothesis, before source-level challenge |
+| Hypothetical close | 218,976.65 | 170,171.65 | Freeze reviewed comparison basis; retain original |
+| Ownership assumption review | 154,500.65 | 114,650.65 | Reduce assumed capture from 65% to 50% |
+| Contract/service/invoice challenge | −28,165.00 | −46,890.00 | Eligibility, notice, quality and timing constrain value |
+| Vendor-evidence correction | −163,165.00 | −181,890.00 | Remove unsupported vendor release; retain costs |
+| Constructed exit review | −163,165.00 | −181,890.00 | Preserve operating forecast; evaluate exit sensitivity separately |
 
-The project uses AI-assisted implementation and audit workflows. Its claim is an inspectable implementation with reproducible evidence, not independent human certification. Approved policy and benchmarks, real-source reconciliation, domain/security/legal review, recovery and SLO evidence, staffed operations and pilot/launch decisions remain in the [production roadmap](../portfolio-finalization-roadmap.md).
+The [source-review history](source-review.html) shows the corrections. The
+[memo](decision-memo.html) recomputes three competing first-wave sequences under
+latest evidence. All three remain negative in the base first year. Moving tasks
+does not repair the business case; the earlier service-first preference is
+reopened. No operating action is authorized.
+
+The [capacity plan](operating-plan.html) has seven work packages and four resource
+budgets. Dependencies and weekly conflicts change proposed dates and the shared
+monthly forecast. Capacity and assignments are authored assumptions, not management
+commitments. The scheduler establishes feasibility under them, not an optimal plan.
+
+## Three financial questions
+
+**Earnings:** FY2025 public calculated EBITDA is $304.202 million: a defined
+net-income-based bridge, not issuer-adjusted EBITDA or independently reviewed
+normalized earnings. Fictional operating uplift is never added to company earnings.
+
+**Cash:** collection timing, reversals, accruals, implementation and capital
+spending are modeled separately. The result is a pre-tax cash proxy with explicit
+omissions, not complete free cash flow.
+
+**Valuation:** the [exit review](exit-review.html) applies authored earnings
+factors and multiples to a historical public anchor with explicit debt/cash/claim
+assumptions. Earnings, multiple and interaction effects reconcile. Actual proceeds,
+distributions, current company value and investment returns remain unavailable.
+The September 2026 acquisition is outside the historical FY2025 perimeter.
+
+## Demonstrating measurement without inventing a result
+
+Across five constructed accounting periods, measured differences are $61,000 of
+EBITDA and $185,000 of cash. Recorded initiative claims explain $18,000 and
+$166,000; $43,000 and $19,000 remain unassigned. These period totals are not the
+first-year forecasts above, and the claims do not establish causal impact.
+
+[Execution receipts](execution.html) distinguish assignment, delivery, acceptance
+and steering. Withdrawing evidence changes claim support without deleting history.
+All lifecycle reviews are simulated. No real Progress operator, finance reviewer
+or management decision is represented.
+
+## Engineering a reviewable decision
+
+- Pydantic contracts and Decimal calculations bind facts, assumptions, units and periods.
+- Immutable PostgreSQL revisions preserve original/current comparisons and exact-version review receipts.
+- Tenant checks, row-level security and separate human authority protect the existing application workflow.
+- The executive packet reproduces the latest source and exit calculations before accepting stored results.
+- An offline [review consistency check](../../scripts/check_progress_review.py) detects stale or mixed exhibits and memo/JSON disagreement.
+
+The optional model layer proposes and explains; deterministic tools own facts and
+arithmetic. This exercise runs without a live model. AI-assisted implementation
+and internal checks are not independent certification.
+
+## What a reviewer can claim
+
+The implemented result is an inspectable workflow that changes its recommendation
+when evidence deteriorates. [Exact-build evidence and remaining requirements](progress-acceptance.md)
+remain separate from external finance/commercial review and observed executive
+comprehension, which have not been performed. Initiative/KPI split lineage, richer
+overlap allocations and exact publication-time reconstruction remain open.
+
+A [practitioner worksheet](practitioner-review.md) and [sponsor package](../pilot/permissioned/README.md)
+are ready. A real pilot needs authorized records, management participation, an
+approved intervention and observed outcomes. No positive outcome is promised.
+
+Resume framing: **Built an evidence-linked PE value-creation research platform
+using public filings and constructed operating records, with deterministic
+EBITDA/cash models, capacity-aware planning, immutable revisions and executive review.**
+Do not describe modeled values as generated savings or imply a Progress client engagement.
+
+The earlier [Beacon case study](beacon-case-study.md) remains a fictional
+application and human-approval demonstration.
