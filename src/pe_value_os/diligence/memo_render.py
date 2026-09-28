@@ -75,7 +75,10 @@ def incremental_waterfall(year: dict[str, Any]) -> str:
         color = "#347c73" if value >= 0 else "#a55e3f"
         visual += f"<div class='waterfall-row'><span>{escape(label)}</span><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{left:.3f}%;width:{size:.3f}%;background:{color}'></span></div><span class='waterfall-value'>{amount(value)}</span></div>"
         rows.append([escape(label), amount(value, places=3), amount(cumulative[i + 1], places=3)])
-    visual += "</div>"
+    net = cumulative[-1]
+    net_left = (min(Decimal(0), net) - low) / width * 100
+    net_width = abs(net) / width * 100
+    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:#132f3d'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div>"
     rows.append(["Incremental EBITDA", amount(cumulative[-1], places=3), "Reconciled"])
     return visual + review_table(
         ["Component", "Change, USD thousands", "Cumulative"],
