@@ -35,6 +35,7 @@ def main() -> None:
         "underwriting": "/portfolio/underwriting.html",
         "operating-plan": "/portfolio/operating-plan.html",
         "case-history": "/portfolio/case-history.html",
+        "decision-memo": "/portfolio/decision-memo.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -79,6 +80,19 @@ def main() -> None:
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
+                if name == "decision-memo":
+                    assert "Service first" in page.locator("#choices").inner_text()
+                    assert "No operating intervention is authorized" in page.locator("#next-decision").inner_text()
+                    assert "583.6" in page.locator("#choices").inner_text()
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert payload["execution_authorized"] is False
+                    assert payload["actual_realized_value"] is None
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#choices").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"decision-choices-{width}.png"))
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()

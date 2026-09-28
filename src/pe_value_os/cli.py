@@ -340,9 +340,40 @@ def cmd_case_history_demo(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_decision_memo(args: argparse.Namespace) -> int:
+    from .diligence.memo_render import build_decision_memo
+
+    try:
+        result = build_decision_memo(
+            Path(args.brief),
+            Path(args.facts),
+            Path(args.growth),
+            Path(args.peers),
+            Path(args.underwriting),
+            Path(args.operating_plan),
+            Path(args.output),
+        )
+    except (ValueError, OSError) as exc:
+        print(
+            f"Decision memo failed ({type(exc).__name__}); inspect exact-input bindings and source contracts.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Executive decision memo (public research / constructed alternatives): {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    memo = sub.add_parser(
+        "decision-memo", help="assemble a version-bound public research memo with constructed sequencing choices"
+    )
+    for flag in ("brief", "facts", "growth", "peers", "underwriting", "operating-plan"):
+        memo.add_argument(f"--{flag}", required=True)
+    memo.add_argument("--output", default="var/executive-memo/decision-memo")
+    memo.set_defaults(fn=cmd_decision_memo)
 
     case_demo = sub.add_parser(
         "case-history-demo", help="replay constructed revisions and simulated review receipts in isolated memory"

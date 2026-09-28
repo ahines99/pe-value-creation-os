@@ -86,8 +86,11 @@ reported differences do not become savings targets (ADR 0015).
 
 Still required: wider candidate/definition review, reviewed commercial conclusions,
 richer interactions,
-public-baseline integration, actual execution evidence, full decision memo and
-realization demonstration. These foundations do not complete S1 or any later goal
+public-baseline integration, actual execution evidence, full valuation/equity integration and
+realization demonstration. The [executive decision memo](../portfolio/decision-memo.html)
+now integrates the public thesis, accounting review register and three constructed
+first-wave comparisons. Its preference is conditional research judgment, not a
+management decision. These foundations do not complete S1 or any later goal
 milestone by themselves.
 
 Alex confirmed that no operating-company sponsor is available yet and requested

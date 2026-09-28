@@ -21,6 +21,11 @@ The [functional audit](docs/portfolio/executive-functional-audit.md) and [screen
 
 **Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
 
+**Executive decision packet:** [Read the Progress memo](https://ahines99.github.io/pe-value-creation-os/portfolio/decision-memo.html)
+for the public thesis, accounting review, competing capacity-tested first waves,
+adverse case and next evidence request. Public facts and constructed operating
+scenarios remain separate; no company approval or realized result is claimed.
+
 **Public filing baseline (work in progress):** [Progress Software's historical
 financial baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html)
 replays from 241 issuer-sourced annual/interim facts without vendor credentials.
