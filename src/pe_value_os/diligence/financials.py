@@ -9,7 +9,7 @@ from typing import Any, TypedDict
 
 from .models import FactBundle, FinancialFact
 
-ANALYSIS_VERSION = "public-financial-baseline/1"
+ANALYSIS_VERSION = "public-financial-baseline/2"
 
 # Signs are the filing's displayed signs. Interest expense and PP&E purchases are negative.
 RECONCILIATIONS = {
@@ -26,10 +26,21 @@ class MeasureSpec(TypedDict):
     label: str
     formula: dict[str, int]
     definition: str
+    blocking_checks: tuple[str, ...]
 
 
 DERIVED: dict[str, MeasureSpec] = {
     "ebitda": {
+        "blocking_checks": (
+            "revenue",
+            "gross_profit",
+            "operating_income",
+            "pretax_income",
+            "net_income",
+            "other_expense_net",
+            "intangible_amortization",
+            "cash_flow_net_income",
+        ),
         "label": "Calculated EBITDA (not issuer-adjusted EBITDA)",
         "formula": {
             "net_income": 1,
@@ -41,11 +52,13 @@ DERIVED: dict[str, MeasureSpec] = {
         "definition": "Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.",
     },
     "operating_income_before_da": {
+        "blocking_checks": ("revenue", "gross_profit", "operating_income", "intangible_amortization"),
         "label": "Operating income plus operating D&A",
         "formula": {"operating_income": 1, "ppe_depreciation": 1, "intangible_amortization": 1},
         "definition": "A separate operating earnings bridge; differs from the net-income-based EBITDA measure by non-interest, non-tax non-operating items.",
     },
     "cfo_less_ppe": {
+        "blocking_checks": ("cash_flow_net_income",),
         "label": "Reported operating cash flow less PP&E purchases",
         "formula": {"operating_cash_flow": 1, "ppe_purchases": 1},
         "definition": "Historical reported CFO plus the signed PP&E cash outflow. Excludes acquisitions and financing; not a complete discretionary-cash or initiative-savings measure.",
@@ -67,7 +80,12 @@ def analyze_facts(bundle: FactBundle) -> dict[str, Any]:
             if metric in by_metric and by_metric[metric].amount > 0:
                 raise ValueError(f"{metric} requires a signed nonpositive outflow; review source mapping")
         checks = []
-        for target, operands in RECONCILIATIONS.items():
+        rules = dict(RECONCILIATIONS)
+        if "cash_flow_net_income" in by_metric:
+            rules["cash_flow_net_income"] = {"net_income": 1}
+        if {"software_license_revenue", "maintenance_saas_services_revenue"} <= by_metric.keys():
+            rules["revenue"] = {"software_license_revenue": 1, "maintenance_saas_services_revenue": 1}
+        for target, operands in rules.items():
             missing = sorted(({target} | set(operands)) - by_metric.keys())
             delta = (
                 None
@@ -82,23 +100,22 @@ def analyze_facts(bundle: FactBundle) -> dict[str, Any]:
                     "status": "unavailable" if missing else "matched" if delta == 0 else "mismatch",
                 }
             )
-        # A source mismatch blocks every derived headline; reported facts remain inspectable.
+        # Block dependent measures; an amortization definition dispute is not a cash-flow dispute.
         mismatches = [c["target"] for c in checks if c["status"] == "mismatch"]
         derived = {}
         for name, spec in DERIVED.items():
             operands = spec["formula"]
             missing = sorted(set(operands) - by_metric.keys())
+            blocked = [m for m in mismatches if m in spec["blocking_checks"]]
             value = (
-                None
-                if missing or mismatches
-                else sum((by_metric[m].amount * s for m, s in operands.items()), Decimal(0))
+                None if missing or blocked else sum((by_metric[m].amount * s for m, s in operands.items()), Decimal(0))
             )
             derived[name] = {
                 **spec,
                 "value": value,
                 "classification": "calculated_from_public_facts",
                 "missing": missing,
-                "blocked_by": mismatches,
+                "blocked_by": blocked,
                 "evidence_ids": [by_metric[m].fact_id for m in operands if m in by_metric],
             }
         periods.append(

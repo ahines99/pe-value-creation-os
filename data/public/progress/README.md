@@ -10,11 +10,21 @@ No WRDS/LSEG extract or private operating schedule is included.
   printed page numbers and expected source SHA-256.
 - `annual-facts.json`: 81 facts, preserving original amounts and signed cash
   outflows; source thousands are explicitly separate from normalized dollars.
+- `fy2026-q1-map.json` / `fy2026-q1-facts.json`: 58 reported facts from the
+  [March 31, 2026 10-Q](https://investors.progress.com/static-files/d9d7dc10-3cea-4b4d-a5af-52d5505eff81).
+- `fy2026-q2-map.json` / `fy2026-q2-facts.json`: 102 reported facts from the
+  [June 30, 2026 10-Q](https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5).
+- `context-events.json`: a reviewed, source-hashed event from the
+  [September 22, 2026 acquisition 8-K](https://investors.progress.com/node/28981/html),
+  with reported facts and analytical implications in separate fields.
+- `financial-facts.json`: assembled case inputs preserving all 241 source facts
+  and their versions. Calculated quarters are not fabricated as reported facts.
 
 Reproduce the baseline without a network or vendor account:
 
 ```powershell
-uv run pvc public-diligence --input data/public/progress/annual-facts.json --output var/public-diligence/baseline
+uv run python scripts/build_public_case.py
+uv run pvc public-diligence --input data/public/progress/financial-facts.json --output var/public-diligence/baseline
 ```
 
 To verify extraction, install the research extra, retrieve the public PDF linked
@@ -37,8 +47,28 @@ depreciation/amortization. It is not issuer-adjusted EBITDA or a maintainable
 earnings opinion. Debt amortization is already part of interest expense and is
 not added again. Operating income plus D&A and CFO less PP&E purchases are
 separately named measures. Historical amortization differences block dependent
-headlines rather than being silently plugged. No operating savings are claimed.
+earnings measures rather than being silently plugged. Independently supported
+cash measures remain available. No operating savings are claimed.
 
 These are comparative facts as presented in this filing. They are not a claim
 that the same facts were known in 2023 or 2024. The original publication date,
 retrieval time, extraction version and mapping hash remain distinct.
+
+Quarter mappings use explicit repeated-header occurrences and period groups.
+Extraction v2 IDs contain start, end and basis. The original annual v1 records
+remain unchanged; re-extracting with v2 creates versioned provenance rather than
+claiming byte-identical v1 output. Q1 and Q2 income/cash pages were rendered and
+visually reviewed. Their source SHA-256 values are:
+
+- Q1: `8311992f98a337a4c7ba5af9d4709837fce9f7e08c09c791ff84c77f06fd0d78`
+- Q2: `0b9e73fba989801c4d734a2e032026bd4d3235d0799ff8aecf4d878cf45db9c6`
+
+Q2 cash/D&A is a separately labeled YTD-minus-Q1 calculation with both fact IDs.
+The source income statements must reconcile and reproduce the separately reported
+quarter before subtraction is accepted. Missing inputs, restatement differences,
+wrong signs and mixed currencies block the affected calculation. The 2025
+comparative amortization difference remains an explicit accounting question.
+
+The dated acquisition event is not folded into historical figures. No post-deal
+pro forma baseline, synergies or later-than-cutoff disclosure is inferred. See
+[ADR 0011](../../../docs/adr/0011-quarterly-source-and-perimeter.md).

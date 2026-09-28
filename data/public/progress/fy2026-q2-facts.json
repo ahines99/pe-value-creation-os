@@ -1,0 +1,2065 @@
+{
+  "schema_version": 1,
+  "company": "Progress Software Corporation",
+  "entity_id": "cik:0000876167",
+  "ticker": "PRGS",
+  "information_cutoff": "2026-09-28",
+  "documents": [
+    {
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "classification": "public_filing",
+      "entity_id": "cik:0000876167",
+      "title": "Progress Software FY2026 Q2 Form 10-Q",
+      "url": "https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5",
+      "accession": "0000876167-26-000078",
+      "form": "10-Q",
+      "filed_on": "2026-06-30",
+      "retrieved_at": "2026-09-28T14:33:27.432080Z",
+      "sha256": "0b9e73fba989801c4d734a2e032026bd4d3235d0799ff8aecf4d878cf45db9c6",
+      "mapping_sha256": "14d5609bc76c9b6dadc73aba483cad5ea4c1952f2afc6c49a26155d58f240a45",
+      "extraction_version": "filing-pdf/2"
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "revenue",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "253465",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total revenue",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Total revenue 253,465 237,355 501,264 475,370"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "revenue",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "237355",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total revenue",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Total revenue 253,465 237,355 501,264 475,370"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "revenue",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "501264",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total revenue",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Total revenue 253,465 237,355 501,264 475,370"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "revenue",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "475370",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total revenue",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Total revenue 253,465 237,355 501,264 475,370"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "44872",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total costs of revenue",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Total costs of revenue 44,872 47,288 88,736 93,519"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "47288",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total costs of revenue",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Total costs of revenue 44,872 47,288 88,736 93,519"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "88736",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total costs of revenue",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Total costs of revenue 44,872 47,288 88,736 93,519"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "93519",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total costs of revenue",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Total costs of revenue 44,872 47,288 88,736 93,519"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:gross_profit",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "208593",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Gross profit",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Gross profit 208,593 190,067 412,528 381,851"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:gross_profit",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "190067",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Gross profit",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Gross profit 208,593 190,067 412,528 381,851"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:gross_profit",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "412528",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Gross profit",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Gross profit 208,593 190,067 412,528 381,851"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:gross_profit",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "381851",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Gross profit",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Gross profit 208,593 190,067 412,528 381,851"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:sales_marketing",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "sales_marketing",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "54341",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Sales and marketing",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Sales and marketing 54,341 49,677 106,338 100,973"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:sales_marketing",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "sales_marketing",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "49677",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Sales and marketing",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Sales and marketing 54,341 49,677 106,338 100,973"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:sales_marketing",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "sales_marketing",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "106338",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Sales and marketing",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Sales and marketing 54,341 49,677 106,338 100,973"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:sales_marketing",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "sales_marketing",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "100973",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Sales and marketing",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Sales and marketing 54,341 49,677 106,338 100,973"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:research_development",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "research_development",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "48840",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Product development",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Product development 48,840 46,570 99,314 92,945"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:research_development",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "research_development",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "46570",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Product development",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Product development 48,840 46,570 99,314 92,945"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:research_development",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "research_development",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "99314",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Product development",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Product development 48,840 46,570 99,314 92,945"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:research_development",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "research_development",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "92945",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Product development",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Product development 48,840 46,570 99,314 92,945"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:general_administrative",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "general_administrative",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "32236",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "General and administrative",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "General and administrative 32,236 25,637 58,740 51,260"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:general_administrative",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "general_administrative",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "25637",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "General and administrative",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "General and administrative 32,236 25,637 58,740 51,260"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:general_administrative",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "general_administrative",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "58740",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "General and administrative",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "General and administrative 32,236 25,637 58,740 51,260"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:general_administrative",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "general_administrative",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "51260",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "General and administrative",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "General and administrative 32,236 25,637 58,740 51,260"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:amortization_cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_cost_of_revenue",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "8938",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles 8,938 10,537 17,689 20,959"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:amortization_cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_cost_of_revenue",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "10537",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles 8,938 10,537 17,689 20,959"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:amortization_cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_cost_of_revenue",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "17689",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Amortization of acquired intangibles 8,938 10,537 17,689 20,959"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:amortization_cost_of_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_cost_of_revenue",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "20959",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Amortization of acquired intangibles 8,938 10,537 17,689 20,959"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:amortization_operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_operating_expense",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "26167",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles 26,167 26,063 51,784 51,871"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:amortization_operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_operating_expense",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "26063",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles 26,167 26,063 51,784 51,871"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:amortization_operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_operating_expense",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "51784",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Amortization of acquired intangibles 26,167 26,063 51,784 51,871"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:amortization_operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "amortization_operating_expense",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "51871",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Amortization of acquired intangibles",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Amortization of acquired intangibles 26,167 26,063 51,784 51,871"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:restructuring",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "restructuring",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "1480",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Restructuring expenses",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Restructuring expenses 1,480 1,043 2,186 8,072"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:restructuring",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "restructuring",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "1043",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Restructuring expenses",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Restructuring expenses 1,480 1,043 2,186 8,072"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:restructuring",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "restructuring",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "2186",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Restructuring expenses",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Restructuring expenses 1,480 1,043 2,186 8,072"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:restructuring",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "restructuring",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "8072",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Restructuring expenses",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Restructuring expenses 1,480 1,043 2,186 8,072"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:acquisition_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "acquisition_expense",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-939",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Acquisition-related expenses",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Acquisition-related expenses (939) 1,731 (125) 4,221"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:acquisition_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "acquisition_expense",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "1731",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Acquisition-related expenses",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Acquisition-related expenses (939) 1,731 (125) 4,221"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:acquisition_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "acquisition_expense",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-125",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Acquisition-related expenses",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Acquisition-related expenses (939) 1,731 (125) 4,221"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:acquisition_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "acquisition_expense",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "4221",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Acquisition-related expenses",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Acquisition-related expenses (939) 1,731 (125) 4,221"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:cyber_response",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cyber_response",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "1266",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Cyber vulnerability response expenses, net",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Cyber vulnerability response expenses, net 1,266 730 2,624 1,467"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:cyber_response",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cyber_response",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "730",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Cyber vulnerability response expenses, net",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Cyber vulnerability response expenses, net 1,266 730 2,624 1,467"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:cyber_response",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cyber_response",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "2624",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Cyber vulnerability response expenses, net",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Cyber vulnerability response expenses, net 1,266 730 2,624 1,467"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:cyber_response",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cyber_response",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "1467",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Cyber vulnerability response expenses, net",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Cyber vulnerability response expenses, net 1,266 730 2,624 1,467"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "163391",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total operating expenses",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Total operating expenses 163,391 151,451 320,861 310,809"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "151451",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total operating expenses",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Total operating expenses 163,391 151,451 320,861 310,809"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "320861",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total operating expenses",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Total operating expenses 163,391 151,451 320,861 310,809"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:operating_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "310809",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total operating expenses",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Total operating expenses 163,391 151,451 320,861 310,809"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:operating_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_income",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "45202",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income from operations",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Income from operations 45,202 38,616 91,667 71,042"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:operating_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_income",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "38616",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income from operations",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Income from operations 45,202 38,616 91,667 71,042"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:operating_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_income",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "91667",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income from operations",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Income from operations 45,202 38,616 91,667 71,042"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:operating_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_income",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "71042",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income from operations",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Income from operations 45,202 38,616 91,667 71,042"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:interest_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_expense",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-15911",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest expense",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Interest expense (15,911) (18,138) (31,157) (36,567)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:interest_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_expense",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-18138",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest expense",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Interest expense (15,911) (18,138) (31,157) (36,567)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:interest_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_expense",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-31157",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest expense",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Interest expense (15,911) (18,138) (31,157) (36,567)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:interest_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_expense",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-36567",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest expense",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Interest expense (15,911) (18,138) (31,157) (36,567)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:interest_income_other",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_income_other",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "233",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest income and other, net",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Interest income and other, net 233 294 550 781"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:interest_income_other",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_income_other",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "294",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest income and other, net",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Interest income and other, net 233 294 550 781"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:interest_income_other",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_income_other",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "550",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest income and other, net",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Interest income and other, net 233 294 550 781"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:interest_income_other",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "interest_income_other",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "781",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Interest income and other, net",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Interest income and other, net 233 294 550 781"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:fx_loss",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "fx_loss",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-684",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Foreign currency loss, net",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Foreign currency loss, net (684) (908) (1,928) (2,090)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:fx_loss",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "fx_loss",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-908",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Foreign currency loss, net",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Foreign currency loss, net (684) (908) (1,928) (2,090)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:fx_loss",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "fx_loss",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-1928",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Foreign currency loss, net",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Foreign currency loss, net (684) (908) (1,928) (2,090)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:fx_loss",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "fx_loss",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-2090",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Foreign currency loss, net",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Foreign currency loss, net (684) (908) (1,928) (2,090)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:other_expense_net",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "other_expense_net",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-16362",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total other expense, net",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Total other expense, net (16,362) (18,752) (32,535) (37,876)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:other_expense_net",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "other_expense_net",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "-18752",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total other expense, net",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Total other expense, net (16,362) (18,752) (32,535) (37,876)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:other_expense_net",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "other_expense_net",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-32535",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total other expense, net",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Total other expense, net (16,362) (18,752) (32,535) (37,876)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:other_expense_net",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "other_expense_net",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-37876",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Total other expense, net",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Total other expense, net (16,362) (18,752) (32,535) (37,876)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:pretax_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "pretax_income",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "28840",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income before income taxes",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Income before income taxes 28,840 19,864 59,132 33,166"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:pretax_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "pretax_income",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "19864",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income before income taxes",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Income before income taxes 28,840 19,864 59,132 33,166"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:pretax_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "pretax_income",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "59132",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income before income taxes",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Income before income taxes 28,840 19,864 59,132 33,166"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:pretax_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "pretax_income",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "33166",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Income before income taxes",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Income before income taxes 28,840 19,864 59,132 33,166"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:income_tax_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "income_tax_expense",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "7767",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Provision for income taxes",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Provision for income taxes 7,767 2,835 15,246 5,191"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:income_tax_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "income_tax_expense",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "2835",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Provision for income taxes",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Provision for income taxes 7,767 2,835 15,246 5,191"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:income_tax_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "income_tax_expense",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "15246",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Provision for income taxes",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Provision for income taxes 7,767 2,835 15,246 5,191"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:income_tax_expense",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "income_tax_expense",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "5191",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Provision for income taxes",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Provision for income taxes 7,767 2,835 15,246 5,191"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "net_income",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "21073",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Net income",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Net income $ 21,073 $ 17,029 $ 43,886 $ 27,975"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "net_income",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "17029",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Net income",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Net income $ 21,073 $ 17,029 $ 43,886 $ 27,975"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "net_income",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "43886",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Net income",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Net income $ 21,073 $ 17,029 $ 43,886 $ 27,975"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "net_income",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "27975",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Net income",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Net income $ 21,073 $ 17,029 $ 43,886 $ 27,975"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:software_license_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "software_license_revenue",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "68979",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Software licenses",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Software licenses $ 68,979 $ 50,795 $ 136,560 $ 109,240"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:software_license_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "software_license_revenue",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "50795",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Software licenses",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Software licenses $ 68,979 $ 50,795 $ 136,560 $ 109,240"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:software_license_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "software_license_revenue",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "136560",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Software licenses",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Software licenses $ 68,979 $ 50,795 $ 136,560 $ 109,240"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:software_license_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "software_license_revenue",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "109240",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Software licenses",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Software licenses $ 68,979 $ 50,795 $ 136,560 $ 109,240"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2026-03-01:2026-05-31:discrete_quarter:maintenance_saas_services_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "maintenance_saas_services_revenue",
+      "period": {
+        "start": "2026-03-01",
+        "end": "2026-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "184486",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Maintenance, SaaS, and professional services",
+      "column_label": "May 31, 2026 [discrete_quarter; occurrence 0]",
+      "source_row": "Maintenance, SaaS, and professional services 184,486 186,560 364,704 366,130"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-03-01:2025-05-31:discrete_quarter:maintenance_saas_services_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "maintenance_saas_services_revenue",
+      "period": {
+        "start": "2025-03-01",
+        "end": "2025-05-31",
+        "basis": "discrete_quarter"
+      },
+      "currency": "USD",
+      "reported_amount": "186560",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Maintenance, SaaS, and professional services",
+      "column_label": "May 31, 2025 [discrete_quarter; occurrence 0]",
+      "source_row": "Maintenance, SaaS, and professional services 184,486 186,560 364,704 366,130"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:maintenance_saas_services_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "maintenance_saas_services_revenue",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "364704",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Maintenance, SaaS, and professional services",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 1]",
+      "source_row": "Maintenance, SaaS, and professional services 184,486 186,560 364,704 366,130"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:maintenance_saas_services_revenue",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "maintenance_saas_services_revenue",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "366130",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 4,
+      "printed_page": "4",
+      "row_label": "Maintenance, SaaS, and professional services",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 1]",
+      "source_row": "Maintenance, SaaS, and professional services 184,486 186,560 364,704 366,130"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:ppe_depreciation",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "ppe_depreciation",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "3258",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Depreciation and amortization of property and equipment",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Depreciation and amortization of property and equipment 3,258 3,217"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:ppe_depreciation",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "ppe_depreciation",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "3217",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Depreciation and amortization of property and equipment",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Depreciation and amortization of property and equipment 3,258 3,217"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:intangible_amortization",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "intangible_amortization",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "69473",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Amortization of acquired intangibles and other",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles and other 69,473 73,532"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:intangible_amortization",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "intangible_amortization",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "73532",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Amortization of acquired intangibles and other",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Amortization of acquired intangibles and other 69,473 73,532"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:debt_amortization",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "debt_amortization",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "2915",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Amortization of debt discount and issuance costs",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Amortization of debt discount and issuance costs 2,915 2,028"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:debt_amortization",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "debt_amortization",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "2028",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Amortization of debt discount and issuance costs",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Amortization of debt discount and issuance costs 2,915 2,028"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:stock_compensation",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "stock_compensation",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "38983",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Stock-based compensation",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Stock-based compensation 38,983 31,424"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:stock_compensation",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "stock_compensation",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "31424",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Stock-based compensation",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Stock-based compensation 38,983 31,424"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:operating_cash_flow",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_cash_flow",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "177463",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Net cash flows provided by operating activities",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Net cash flows provided by operating activities 177,463 98,943"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:operating_cash_flow",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "operating_cash_flow",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "98943",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Net cash flows provided by operating activities",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Net cash flows provided by operating activities 177,463 98,943"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:ppe_purchases",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "ppe_purchases",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-4569",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Purchases of property and equipment",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Purchases of property and equipment (4,569) (1,785)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:ppe_purchases",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "ppe_purchases",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "-1785",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Purchases of property and equipment",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Purchases of property and equipment (4,569) (1,785)"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2025-12-01:2026-05-31:year_to_date:cash_flow_net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2025-12-01",
+        "end": "2026-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "43886",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Net income",
+      "column_label": "May 31, 2026 [year_to_date; occurrence 0]",
+      "source_row": "Net income $ 43,886 $ 27,975"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:cash_flow_net_income",
+      "document_id": "cik:0000876167:0000876167-26-000078",
+      "entity_id": "cik:0000876167",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "currency": "USD",
+      "reported_amount": "27975",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 8,
+      "printed_page": "8",
+      "row_label": "Net income",
+      "column_label": "May 31, 2025 [year_to_date; occurrence 0]",
+      "source_row": "Net income $ 43,886 $ 27,975"
+    }
+  ]
+}

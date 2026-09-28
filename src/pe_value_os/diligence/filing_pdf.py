@@ -18,11 +18,12 @@ from pydantic import Field, HttpUrl, model_validator
 
 from .models import FactBundle, FinancialFact, FiscalPeriod, Record, SourceClass, SourceDocument
 
-EXTRACTION_VERSION = "filing-pdf/1"
+EXTRACTION_VERSION = "filing-pdf/2"
 
 
 class Column(Record):
-    label: str
+    label: str = Field(min_length=1)
+    occurrence: int = Field(default=0, ge=0)
     period: FiscalPeriod
 
 
@@ -37,6 +38,7 @@ class Table(Record):
     printed_page: str
     heading: str
     unit_heading: str
+    period_heading: str | None = None
     columns: tuple[Column, ...] = Field(min_length=1)
     rows: tuple[Row, ...] = Field(min_length=1)
 
@@ -53,18 +55,26 @@ class FilingMap(Record):
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     unit_scale: Literal[1, 1000, 1000000]
-    entity_heading: str
+    entity_heading: str = Field(min_length=1)
+    entity_page: int = Field(default=1, ge=1)
     tables: tuple[Table, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
     def table_identity(self) -> Self:
+        if not self.entity_heading.strip():
+            raise ValueError("entity identity heading cannot be blank")
         for table in self.tables:
             unit_text = table.unit_heading.lower()
             if "thousands" in unit_text and self.unit_scale != 1000:
                 raise ValueError("source heading in thousands requires a scale of 1000")
             if "millions" in unit_text and self.unit_scale != 1000000:
                 raise ValueError("source heading in millions requires a scale of 1000000")
-        keys = [(r.metric, c.period.start, c.period.end) for t in self.tables for r in t.rows for c in t.columns]
+        keys = [
+            (r.metric, c.period.start, c.period.end, c.period.basis)
+            for t in self.tables
+            for r in t.rows
+            for c in t.columns
+        ]
         if len(keys) != len(set(keys)):
             raise ValueError("a mapping must not emit duplicate facts")
         return self
@@ -75,7 +85,18 @@ def table_values(text: str, table: Table) -> dict[str, tuple[Decimal, ...]]:
     normalized = "\n".join(" ".join(line.split()) for line in text.splitlines())
     if table.heading not in normalized or table.unit_heading not in normalized:
         raise ValueError("statement heading or unit heading does not match the reviewed mapping")
-    positions = [normalized.find(column.label) for column in table.columns]
+    if table.period_heading and table.period_heading not in normalized:
+        raise ValueError("period group heading does not match the reviewed mapping")
+    # Search the reviewed header only; a matching date in a footnote is not a column.
+    first_row = min(
+        (normalized.find(r.label + " ") for r in table.rows if normalized.find(r.label + " ") >= 0),
+        default=len(normalized),
+    )
+    header = normalized[:first_row]
+    positions = []
+    for column in table.columns:
+        header_matches = list(re.finditer(re.escape(column.label), header))
+        positions.append(header_matches[column.occurrence].start() if len(header_matches) > column.occurrence else -1)
     if any(p < 0 for p in positions) or positions != sorted(set(positions)):
         raise ValueError("period columns missing, duplicated or reordered")
     result = {}
@@ -106,6 +127,11 @@ def extract_filing(pdf: Path, mapping: FilingMap, retrieved_at: datetime, cutoff
     if hashlib.sha256(raw).hexdigest() != mapping.source_sha256:
         raise ValueError("source PDF hash differs from the reviewed mapping")
     reader = PdfReader(pdf)
+    if (
+        mapping.entity_page > len(reader.pages)
+        or mapping.entity_heading not in reader.pages[mapping.entity_page - 1].extract_text()
+    ):
+        raise ValueError("entity identity page does not match the reviewed mapping")
     document_id = f"{mapping.entity_id}:{mapping.accession}"
     source = SourceDocument(
         document_id=document_id,
@@ -126,8 +152,8 @@ def extract_filing(pdf: Path, mapping: FilingMap, retrieved_at: datetime, cutoff
         if table.pdf_page > len(reader.pages):
             raise ValueError("mapped page does not exist")
         text = reader.pages[table.pdf_page - 1].extract_text()
-        if mapping.entity_heading not in text or text.rstrip().splitlines()[-1] != table.printed_page:
-            raise ValueError("entity or printed page does not match the reviewed mapping")
+        if not text.strip() or text.rstrip().splitlines()[-1] != table.printed_page:
+            raise ValueError("printed page does not match the reviewed mapping")
         values = table_values(text, table)
         lines = [" ".join(line.split()) for line in text.splitlines()]
         for row in table.rows:
@@ -135,7 +161,7 @@ def extract_filing(pdf: Path, mapping: FilingMap, retrieved_at: datetime, cutoff
             for column, amount in zip(table.columns, values[row.metric], strict=True):
                 facts.append(
                     FinancialFact(
-                        fact_id=f"{document_id}:{column.period.end}:{row.metric}",
+                        fact_id=f"{document_id}:{column.period.start}:{column.period.end}:{column.period.basis}:{row.metric}",
                         document_id=document_id,
                         entity_id=mapping.entity_id,
                         metric=row.metric,
@@ -146,7 +172,7 @@ def extract_filing(pdf: Path, mapping: FilingMap, retrieved_at: datetime, cutoff
                         pdf_page=table.pdf_page,
                         printed_page=table.printed_page,
                         row_label=row.label,
-                        column_label=column.label,
+                        column_label=f"{column.label} [{column.period.basis}; occurrence {column.occurrence}]",
                         source_row=source_row,
                     )
                 )

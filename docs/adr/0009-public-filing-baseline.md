@@ -3,6 +3,11 @@
 Status: accepted for the annual financial baseline implementation; case revision
 persistence and monthly initiative modeling remain subsequent work.
 
+Subsequent extensions: [ADR 0010](0010-monthly-underwriting.md) implements the
+constructed monthly model. [ADR 0011](0011-quarterly-source-and-perimeter.md) adds
+quarterly extraction/derivation and replaces the period-wide reconciliation block
+below with dependency-aware gates. Original annual source records remain intact.
+
 ## Context
 
 The existing research lane is deliberately private and expects Compustat fields.
