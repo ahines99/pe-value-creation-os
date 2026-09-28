@@ -1,5 +1,10 @@
 # Roadmap to Production
 
+Current portfolio next phase: [operating-partner capability roadmap](docs/operating-partner-roadmap.md).
+The [delegated showcase closeout](docs/portfolio/showcase-closeout.md) completes
+the portfolio engineering milestone; it does not close the human or production
+acceptance tickets below.
+
 Ticketed plan that takes the PE Portfolio Value Creation Operating System from the current scaffold to a production service. The design it implements is in [IMPLEMENTATION_HANDOFF.md](IMPLEMENTATION_HANDOFF.md).
 
 ## Conventions
