@@ -105,3 +105,24 @@ Anchors locate manually reviewed paragraphs rather than validating their meaning
 Pages 25, 26, 52, 53, 54 and 63 were visually inspected. See
 [ADR 0014](../../../docs/adr/0014-acquisition-growth-research.md) for precision,
 research authority and remaining work.
+
+## Point-in-time cash, debt and lease facts
+
+`fy2025-balance-map.json` and `balance-facts.json` add 13 facts as of November 30,
+2025, from the same exact FY2025 10-K, PDF/printed pages 37 and 55. They are
+point-in-time records, separate from the 241 duration facts. The mapping retains
+the original document identity and records its own extraction hash. Both source
+pages were visually inspected; comparative dashes are not interpreted as zero.
+
+```powershell
+uv run python scripts/verify_balance_source.py --pdf var/public-diligence/sources/progress-2025-10k.pdf
+uv run pvc historical-valuation --facts data/public/progress/financial-facts.json --balances data/public/progress/balance-facts.json --spec data/constructed/progress/historical-valuation.json --output docs/portfolio/historical-valuation
+uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --balances data/public/progress/balance-facts.json --valuation data/constructed/progress/historical-valuation.json --output docs/portfolio/decision-memo
+```
+
+Cash is 94.807 million; total debt principal is 1,410.000 million, versus net
+carrying value of 1,400.349 million. Five debt checks must reconcile. Assumed
+multiples, available cash, lease treatment, other claims and fees live in the
+separate constructed specification. The historical equity sensitivity is not
+current value, a post-Domo capital structure, per-share pricing or transaction
+proceeds. See [ADR 0017](../../../docs/adr/0017-historical-equity-bridge.md).

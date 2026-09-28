@@ -10,14 +10,18 @@ from typing import Any
 
 from ..api.presentation import CSS
 from ..research.render import table
+from .balances import BalanceBundle
 from .growth import GrowthContext
 from .memo import DecisionBrief, assemble_memo
 from .models import FactBundle
 from .peers import PeerContext
 from .scheduling import OperatingPlan
 from .underwriting import UnderwritingCase
+from .valuation import ValuationSpec
+from .valuation_render import valuation_summary
 
 MEMO_CSS = """
+.primary-nav{flex-wrap:wrap}
 .memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .memo-grid>article{border-top:3px solid var(--teal);padding:18px;background:#fafbf8;min-width:0}
 .memo-grid h3{font-size:18px;line-height:1.4;margin-bottom:14px}
@@ -169,6 +173,8 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         "No incremental accounting addback is accepted. A register of review issues is not a normalized-earnings opinion.",
     )
     body += "<p>Normalized EBITDA remains unavailable. Earlier-year amortization scope differences remain explicit; this memo does not force comparability or replace the original facts.</p></div></details></section>"
+    body += valuation_summary(report["historical_valuation"])
+    body += "<p><a href='historical-valuation.html'>Inspect the historical equity bridge, all assumptions and source rows</a>.</p>"
     body += "<section class='panel' id='choices'><p class='eyebrow'>Constructed operating exercise / USD thousands</p><h2>Choose the sequence, then test its assumptions</h2><p>All alternatives retain the same scope, proposed resources, economic assumptions and dated costs. Only task priority changes. These are authored alternatives, not an optimization result.</p>"
     rows = []
     for option in options:
@@ -308,16 +314,24 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
     return (
         "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
         f"<title>{escape(report['company'])} — executive decision memo</title><style>{CSS}{MEMO_CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
+        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#historical-valuation'>Valuation</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
         + body
         + "</main></body></html>"
     )
 
 
 def build_decision_memo(
-    brief: Path, facts: Path, growth: Path, peers: Path, underwriting: Path, plan: Path, output: Path
+    brief: Path,
+    facts: Path,
+    growth: Path,
+    peers: Path,
+    underwriting: Path,
+    plan: Path,
+    balances: Path,
+    valuation: Path,
+    output: Path,
 ) -> Path:
-    inputs = [brief, facts, growth, peers, underwriting, plan]
+    inputs = [brief, facts, growth, peers, underwriting, plan, balances, valuation]
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     if {p.resolve() for p in inputs} & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("memo must not overwrite an input")
@@ -328,6 +342,8 @@ def build_decision_memo(
         PeerContext.model_validate_json(peers.read_bytes()),
         UnderwritingCase.model_validate_json(underwriting.read_bytes()),
         OperatingPlan.model_validate_json(plan.read_bytes()),
+        BalanceBundle.model_validate_json(balances.read_bytes()),
+        ValuationSpec.model_validate_json(valuation.read_bytes()),
     )
     html = render_memo(report, json_path.name)
     # Complete public-source and exact-revision validation before writing either artifact.

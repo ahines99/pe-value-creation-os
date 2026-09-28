@@ -78,8 +78,12 @@ an independently labeled walkthrough.
 
 ## Replay and verification
 
+The current replay uses brief schema 2 and packet version 2, adding exact balance
+and valuation bindings under [ADR 0017](0017-historical-equity-bridge.md). The
+original packet version 1 described above remains part of repository history.
+
 ```sh
-uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --output docs/portfolio/decision-memo
+uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --balances data/public/progress/balance-facts.json --valuation data/constructed/progress/historical-valuation.json --output docs/portfolio/decision-memo
 ```
 
 The HTML links to its complete JSON companion, source appendix, original plan and
@@ -94,6 +98,6 @@ and input preservation. Installed-package smoke invokes the new command. Browser
 checks cover desktop, tablet and phone, keyboard navigation, disclosure expansion,
 overflow, the conditional preference and the JSON's non-approval/absent-actuals flags.
 
-This is an executive research packet, not completion of the whole goal. Full
-valuation/equity integration, constructed actuals and attribution, reviewed close
+This is an executive research packet, not completion of the whole goal. Independent
+valuation review, constructed actuals and attribution, reviewed close
 designation and a genuinely permissioned operating pilot still require further work.

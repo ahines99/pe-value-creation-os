@@ -23,7 +23,7 @@ The [functional audit](docs/portfolio/executive-functional-audit.md) and [screen
 
 **Executive decision packet:** [Read the Progress memo](https://ahines99.github.io/pe-value-creation-os/portfolio/decision-memo.html)
 for the public thesis, accounting review, competing capacity-tested first waves,
-adverse case and next evidence request. Public facts and constructed operating
+adverse case, historical company equity bridge and next evidence request. Public facts and constructed operating
 scenarios remain separate; no company approval or realized result is claimed.
 
 **Public filing baseline (work in progress):** [Progress Software's historical

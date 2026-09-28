@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "classification": "historical_public_facts_with_analyst_assumptions",
+  "financial_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
+  "balances_sha256": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
+  "historical_date": "2025-11-30",
+  "information_cutoff": "2026-09-28",
+  "currency": "USD",
+  "earnings_measure": "calculated_ebitda",
+  "multiples": [
+    "4",
+    "6",
+    "8",
+    "10"
+  ],
+  "multiple_rationale": "Author-selected 4x/6x/8x/10x mechanical sensitivities, not sourced market comparables, investment recommendations or fair-value estimates.",
+  "convertible_settlement": "cash_principal_only",
+  "settlement_rationale": "Assume both convertible note issues settle at cash principal without conversion, premium or accrued interest. Actual conversion rights, capped calls, dilution and transaction settlement terms require separate work; no per-share value or proceeds is calculated.",
+  "unresolved_items": [
+    "No transaction date, payoff letter, accrued-interest schedule or verified conversion/capped-call treatment.",
+    "No verified split between unrestricted surplus cash, required operating cash and restricted or trapped balances.",
+    "No complete debt-like item, nonoperating asset, tax or fee diligence; explicit zero assumptions do not establish absence.",
+    "Historical November 30, 2025 balances and annual earnings predate the September 2026 Domo acquisition. They do not represent the current capital structure.",
+    "Calculated EBITDA is not normalized or issuer-adjusted EBITDA; reported recurring expenses remain and no constructed operating uplift is added."
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "all-cash",
+      "label": "All reported cash available",
+      "available_cash_fraction": "1",
+      "cash_rationale": "Illustrative upper availability assumption; restricted, trapped or required operating cash has not been verified.",
+      "lease_treatment": "exclude_after_rent_earnings",
+      "lease_rationale": "The calculated EBITDA retains operating rent. Exclude operating lease liabilities for this after-rent earnings convention; no lease-adjusted comparable multiple is asserted.",
+      "nonoperating_assets": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "No separately verified realizable nonoperating asset is credited; this is an explicit assumption, not proof that none exist."
+      },
+      "other_claims": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "Illustration assumes no incremental debt-like claims. Accrued interest, change-of-control terms, taxes, contingent obligations and all other claims require diligence."
+      },
+      "transaction_costs": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "No transaction has been proposed; fees and payoff costs are unknown. Zero is an explicit sensitivity input, not a transaction estimate."
+      }
+    },
+    {
+      "scenario_id": "half-cash",
+      "label": "Half of reported cash available",
+      "available_cash_fraction": "0.5",
+      "cash_rationale": "Authored stress retains half the reported cash for operations or restrictions; not a management cash estimate.",
+      "lease_treatment": "exclude_after_rent_earnings",
+      "lease_rationale": "The calculated EBITDA retains operating rent. Exclude operating lease liabilities for this after-rent earnings convention; no lease-adjusted comparable multiple is asserted.",
+      "nonoperating_assets": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "No separately verified realizable nonoperating asset is credited; this is an explicit assumption, not proof that none exist."
+      },
+      "other_claims": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "Illustration assumes no incremental debt-like claims. Accrued interest, change-of-control terms, taxes, contingent obligations and all other claims require diligence."
+      },
+      "transaction_costs": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "No transaction has been proposed; fees and payoff costs are unknown. Zero is an explicit sensitivity input, not a transaction estimate."
+      }
+    },
+    {
+      "scenario_id": "claims-stress",
+      "label": "No cash credit + claims stress",
+      "available_cash_fraction": "0",
+      "cash_rationale": "Conservative authored stress gives no credit to reported cash.",
+      "lease_treatment": "deduct_as_sensitivity",
+      "lease_rationale": "Deduct all reported operating lease liabilities as an additional punitive claim stress while retaining after-rent EBITDA. This is not a lease-adjusted market multiple convention.",
+      "nonoperating_assets": {
+        "amount": "0",
+        "classification": "analyst_assumption",
+        "rationale": "No separately verified realizable nonoperating asset is credited; this is an explicit assumption, not proof that none exist."
+      },
+      "other_claims": {
+        "amount": "25000000",
+        "classification": "analyst_assumption",
+        "rationale": "Authored USD 25 million stress allowance, not a sourced obligation or transaction estimate."
+      },
+      "transaction_costs": {
+        "amount": "15000000",
+        "classification": "analyst_assumption",
+        "rationale": "Authored USD 15 million fee/payoff-cost stress allowance, not a sourced quotation."
+      }
+    }
+  ]
+}

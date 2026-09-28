@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "classification": "public_research_with_constructed_exercise",
   "author_role": "research_author",
   "as_of": "2026-09-28",
@@ -147,5 +147,7 @@
     "No committed vendor reduction or quality-safe service mechanism: withdraw the service benefit and reforecast with committed costs retained.",
     "Resource availability differs from the proposed budgets: re-run scheduling and reconsider the sequence.",
     "Contract eligibility, retention response or original collection dates differ: revise the economic assumptions, not just the task order."
-  ]
+  ],
+  "balances_sha256": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
+  "valuation_sha256": "0f3b379be1b0883640209be9be6e10efa322276cd6811c24f1a9676bf7c2918c"
 }
