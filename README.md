@@ -8,16 +8,21 @@ Turns portfolio-company operating data into evidence-backed value-creation initi
 
 **Showcase status:** the executive workspace is implemented and tested. Explore portfolio priorities, investment memos, workstream contributions, source evidence and operating scorecards. Financial assumptions and audit details remain available within each workflow.
 
-All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
+**Progress review package:** start with the [current case study](docs/portfolio/case-study.md),
+[10-minute demonstration](docs/portfolio/progress-demo.md), [practitioner challenge packet](docs/portfolio/practitioner-review.md)
+and [requirement-by-requirement acceptance record](docs/portfolio/progress-acceptance.md).
+The constructed case becomes adverse when operating evidence changes. The latest
+memo reopens the first-wave preference and preserves original, close, accounting
+and exit-review history. No company sponsor, actual intervention or realized result is claimed.
 
-The `v0.1.0` showcase release at `31ebfe9` also includes the private research workflow.
-All ten [candidate checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767)
-passed, with **499 tests per Python version**, 39 evaluations and 18 browser checks.
-Its [release evidence and checksums](docs/releases/0.1.0/evidence.md) are assembled.
-Alex authorized [delegated showcase closeout](docs/portfolio/showcase-closeout.md);
-full human client/usability and independent finance validation remain unperformed.
-
-The [functional audit](docs/portfolio/executive-functional-audit.md) and [screenshots](docs/portfolio/screenshots/memo-1440.png) document the verified scope. The next priority is the [five-agent operating-partner roadmap](docs/operating-partner-roadmap.md): one grounded company case, explicit financial bridges, constrained execution and honest realization evidence. Real-company deployment and optional observability findings retain separate gates in the [production roadmap](docs/portfolio-finalization-roadmap.md).
+The financial/lifecycle implementation through [PR #32](https://github.com/ahines99/pe-value-creation-os/pull/32)
+passed all ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36493440351):
+1,047 tests per supported Python version, 39 evaluations and 54 browser checks.
+Those results are bound to that implementation; the acceptance record gives exact hashes and limits.
+[Historical v0.1.0 release evidence](docs/releases/0.1.0/evidence.md) and the
+[delegated showcase closeout](docs/portfolio/showcase-closeout.md) remain available.
+The [capability roadmap](docs/operating-partner-roadmap.md) retains open lifecycle,
+commercial-review and pilot work. Production acceptance remains separate.
 
 **Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
 
@@ -149,8 +154,8 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | Area | State |
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
-| Current executive redesign | Local Windows suite: 478 passed, one symlink-privilege skip, with PostgreSQL enabled. Targeted API/UI: 39 passed; deterministic evaluations: 39/39. Read-only Docker HTTP and 18 isolated Chromium page/viewport checks passed. All ten CI checks passed at `c5d4739`; human acceptance remains open. |
-| CI (GitHub Actions) | Ten successful checks at historical candidate `9f9b95f` are retained in the release evidence index. That result does not certify current UI changes. HIGH and CRITICAL image findings fail regardless of fix availability. |
+| Public Progress case and constructed lifecycle | Six case revisions, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
+| CI (GitHub Actions) | Exact PR #32 evidence: ten successful jobs, 1,047 tests per Python version, 39 evaluations and 54 browser checks. Later changes require their own successful CI. HIGH and CRITICAL image findings fail regardless of fix availability. |
 | Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
 | Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
 | Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |
