@@ -99,10 +99,19 @@ class SourceCasePayload(Record):
                 raise ValueError("lesson source kind does not match its initiative mechanism")
 
 
+def source_payload(payload: Any) -> SourceCasePayload | None:
+    """Obtain the unchanged source contract from a source or composed exit payload."""
+    if isinstance(payload, SourceCasePayload):
+        return payload
+    nested = getattr(payload, "source_basis", None)
+    return nested if isinstance(nested, SourceCasePayload) else None
+
+
 def learning_context(payload: SourceCasePayload, parent: CaseRevision) -> list[dict[str, Any]]:
     payload.bind_parent(parent)
     previous = parent.draft.payload
-    old_rows = source_rows(previous.operating_sources) if isinstance(previous, SourceCasePayload) else {}
+    previous_source = source_payload(previous)
+    old_rows = source_rows(previous_source.operating_sources) if previous_source else {}
     new_rows = source_rows(payload.operating_sources)
     lessons = []
     for lesson in payload.lessons:

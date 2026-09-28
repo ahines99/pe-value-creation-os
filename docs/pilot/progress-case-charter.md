@@ -120,3 +120,10 @@ from an accounting-error restatement. Missing public-availability timestamps
 withhold exact point-in-time selection; acceptance-only selection is labeled
 separately. Intermediate disclosures have not been comprehensively surveyed
 ([ADR 0024](../adr/0024-disclosure-vintages.md)).
+
+The [constructed exit review](../portfolio/exit-review.html) extends the case
+through a sixth immutable revision and simulated review. It shows explicit
+earnings/multiple/interaction and equity sensitivities while preserving the
+scoped operating forecast and accounting. No company transaction, proceeds or
+investment return is established. Split initiative/KPI lineage and independent
+review remain open ([ADR 0025](../adr/0025-constructed-exit-review.md)).

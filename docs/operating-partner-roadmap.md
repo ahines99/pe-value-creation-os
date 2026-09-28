@@ -46,6 +46,14 @@ establish first public availability. The revision is a measurement-period
 adjustment, so the accounting-error-restatement criterion also remains open.
 See [ADR 0024](adr/0024-disclosure-vintages.md).
 
+OP-15 now includes a [constructed exit review](portfolio/exit-review.html) saved
+as a sixth case revision. It reconciles earnings, multiple and interaction effects
+and an explicitly assumed equity bridge. Historical public company anchors stay
+separate from scoped operating forecasts; accounting, claims and the frozen close
+remain intact. Proceeds, actual exit and investment returns remain unavailable.
+Initiative/KPI split lineage and independently reviewed maintainability are still
+open; see [ADR 0025](adr/0025-constructed-exit-review.md).
+
 ## Recommended destination
 
 Build **one defensible investment and operating-review case**: a reviewer can

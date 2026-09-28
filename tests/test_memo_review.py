@@ -15,6 +15,39 @@ from pe_value_os.diligence.scheduling import fingerprint
 from .test_decision_memo import PATHS, inputs, scenario
 
 SOURCE = Path("docs/portfolio/source-review.json")
+EXIT = Path("docs/portfolio/exit-review.json")
+
+
+def test_exit_context_reproduces_both_scopes_without_changing_the_operating_choice():
+    ctx = MemoReviewContext.from_export(json.loads(EXIT.read_text(encoding="utf-8")))
+    report = assemble_memo(*inputs(), ctx)
+    assert report["memo_version"] == "executive-decision-packet/4"
+    assert ctx.revisions[-1].draft.stage == "exit_review"
+    review = report["source_review"]
+    assert review["current_revision_sha256"] == ctx.revisions[-1].content_sha256
+    assert review["all_base_year_one_nonpositive"]
+    assert review["latest_financials"]["exit_review"]["transaction_proceeds"] is None
+    assert len(review["latest_financials"]["exit_review"]["rows"]) == 12
+    for option in review["options"]:
+        assert scenario(option)["year_one"]["incremental_ebitda"] == Decimal("-163165")
+        assert scenario(option)["year_one"]["pre_tax_cash_proxy"] == Decimal("-181890")
+    original = assemble_memo(*inputs())
+    for key in ("public_baseline", "historical_valuation", "constructed_options"):
+        assert report[key] == original[key]
+
+
+def test_rehashed_exit_tampering_fails_memo_reproduction():
+    raw = MemoReviewContext.from_export(json.loads(EXIT.read_text(encoding="utf-8"))).model_dump(mode="json")
+    last = raw["revisions"][-1]
+    financial = json.loads(last["financial_result_json"])
+    financial["exit_review"]["rows"][0]["enterprise_value_sensitivity"] = "999999999"
+    last["financial_result_json"] = json.dumps(financial, sort_keys=True)
+    last["content_sha256"] = digest(
+        json.dumps({k: v for k, v in last.items() if k != "content_sha256"}, sort_keys=True)
+    )
+    raw["reviews"][-1]["revision_sha256"] = last["content_sha256"]
+    with pytest.raises(ValueError, match="reproduced"):
+        assemble_memo(*inputs(), MemoReviewContext.model_validate(raw))
 
 
 def context():

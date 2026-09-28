@@ -8,10 +8,11 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .cases import CaseReview, CaseRevision
+from .exit_review import ExitReviewPayload, evaluate_exit
 from .models import Record
 from .operating_sources import OperatingSourceBook, source_forecast
 from .scheduling import OperatingPlan, fingerprint
-from .source_revisions import SourceCasePayload, financial_snapshot
+from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
 from .underwriting import UnderwritingCase
 
 
@@ -44,10 +45,15 @@ class MemoReviewContext(Record):
                 != {(d.initiative_id, d.kind, d.benefit_pool) for d in b.scenarios[0].drivers}
             ):
                 raise ValueError("memo review requires a contiguous same-case comparison history")
-            if isinstance(current.draft.payload, SourceCasePayload):
-                current.draft.payload.bind_parent(prior)
-            elif isinstance(prior.draft.payload, SourceCasePayload):
+            basis = source_payload(current.draft.payload)
+            if basis is not None:
+                basis.bind_parent(prior)
+            elif source_payload(prior.draft.payload) is not None:
                 raise ValueError("source basis cannot be discarded")
+            if isinstance(prior.draft.payload, ExitReviewPayload) and not isinstance(
+                current.draft.payload, ExitReviewPayload
+            ):
+                raise ValueError("exit valuation basis cannot be discarded")
         seen: dict[str, CaseReview] = {}
         superseded: set[str] = set()
         for receipt in self.reviews:
@@ -75,7 +81,7 @@ class MemoReviewContext(Record):
             elif receipt.decision == "withdraw":
                 raise ValueError("withdrawal requires its original review receipt")
             seen[receipt.review_id] = receipt
-        if not isinstance(self.revisions[-1].draft.payload, SourceCasePayload):
+        if source_payload(self.revisions[-1].draft.payload) is None:
             raise ValueError("latest memo context must contain a source-backed revision")
         return self
 
@@ -100,11 +106,13 @@ def challenge_options(
         for r in context.revisions
     ):
         raise ValueError("memo source review must descend from its exact original underwriting and plan")
-    payload = latest.draft.payload
-    assert isinstance(payload, SourceCasePayload)
+    payload = source_payload(latest.draft.payload)
+    assert payload is not None
     computed = financial_snapshot(
         payload, parent, source_forecast(payload.operating_sources, payload.underwriting, payload.operating_plan)
     )
+    if isinstance(latest.draft.payload, ExitReviewPayload):
+        computed["exit_review"] = evaluate_exit(latest.draft.payload, computed)
     normalized = json.loads(json.dumps(computed, default=str, sort_keys=True))
     if normalized != json.loads(latest.financial_result_json):
         raise ValueError("stored source forecast differs from its reproduced inputs and calculator")

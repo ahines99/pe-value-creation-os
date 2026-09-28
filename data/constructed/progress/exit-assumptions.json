@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "classification": "constructed_exit_sensitivity",
+  "case_id": "progress-constructed-underwriting-v1",
+  "reference_company_label": "Progress Software reference case",
+  "public_entity_id": "cik:0000876167",
+  "financial_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
+  "balances_sha256": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
+  "historical_valuation_sha256": "0f3b379be1b0883640209be9be6e10efa322276cd6811c24f1a9676bf7c2918c",
+  "exit_on": "2028-09-30",
+  "entry_multiple": "8",
+  "terminal_multiples": [
+    "4",
+    "6",
+    "8",
+    "10"
+  ],
+  "terminal_earnings_factors": [
+    "0.9",
+    "1",
+    "1.1"
+  ],
+  "historical_claim_scenario": "half-cash",
+  "multiple_rationale": "Author-selected 4x/6x/8x/10x multiples around an assumed 8x starting mark. These are mechanical scenarios, not market comparables or a fair-value opinion.",
+  "earnings_rationale": "Apply -10%, unchanged and +10% to the historical calculated EBITDA solely to inspect sensitivity. No consolidated forward forecast, post-Domo perimeter or normalized maintainable earnings is established. These factors are not estimated probabilities.",
+  "capital_structure_treatment": "hold_historical_claims_constant",
+  "capital_structure_rationale": "Carry the selected historical half-cash convention, debt principal and other claim assumptions unchanged into every sensitivity. No debt paydown, retained cash generation, post-Domo financing, ownership allocation or settlement is inferred; this deliberately incomplete capital bridge cannot establish proceeds.",
+  "operating_scope_treatment": "do_not_add_scoped_operating_forecast",
+  "operating_scope_rationale": "The constructed renewal/service/collections records cover scoped economic pools, not consolidated accounts. Keep their monthly economics separate; no mapping establishes a maintainable company earnings increment. Expired contracts, missing vendor release and continuing costs remain visible."
+}
