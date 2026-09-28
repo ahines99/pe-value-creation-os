@@ -53,17 +53,19 @@ def test_recompute_is_audited_and_keeps_history(approved, monkeypatch):
     same = ops.recompute_run(ctx, run_id, "human:op", reason="INC-1")
     assert same["changed"] == [] and same["unchanged"] > 0
     original = services.size_value_case
+    prior_version = services.CALC_VERSION
+    next_version = "value-case/test-next"
 
     def buggy_fixed(opp, ev=None):  # simulate a new calculation version producing different numbers
         vc = original(opp, ev)
-        return vc.model_copy(update={"calc_version": "value-case/2", "annual_ebitda_base": vc.annual_ebitda_base + 1})
+        return vc.model_copy(update={"calc_version": next_version, "annual_ebitda_base": vc.annual_ebitda_base + 1})
 
     monkeypatch.setattr(ops, "size_value_case", buggy_fixed)
-    monkeypatch.setattr(ops, "CALC_VERSION", "value-case/2")
+    monkeypatch.setattr(ops, "CALC_VERSION", next_version)
     out = ops.recompute_run(ctx, run_id, "human:op", reason="INC-2")
-    assert out["changed"] and all(c["calc_version_before"] == "value-case/1" for c in out["changed"])
+    assert out["changed"] and all(c["calc_version_before"] == prior_version for c in out["changed"])
     opp_id = out["changed"][0]["opportunity_id"]
-    assert ctx.repo.get_value_case(CID, opp_id).calc_version == "value-case/2"
+    assert ctx.repo.get_value_case(CID, opp_id).calc_version == next_version
     assert len(ctx.repo.value_cases[opp_id]) == 2  # history kept
     ev = [e for e in ctx.repo.list_audit(run_id=run_id) if e.event_type == "value_cases_recomputed"]
     assert ev[-1].payload["reason_code"] == "INC-2" and ev[-1].actor == "human:op"

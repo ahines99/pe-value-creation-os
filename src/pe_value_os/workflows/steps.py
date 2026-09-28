@@ -450,7 +450,7 @@ def roadmap_100_day(ctx: RunContext, state: RunState) -> dict[str, Any]:
             "opportunity_id": o.opportunity_id,
             "title": o.title,
             "lever": o.lever.value,
-            "reason": f"Base case does not pay back (annual run-rate EBITDA {vc.annual_ebitda_base})",
+            "reason": f"Nonpositive modeled annual contribution (annual run-rate EBITDA {vc.annual_ebitda_base})",
         }
         for o, vc in candidates
         if vc.annual_ebitda_base <= 0

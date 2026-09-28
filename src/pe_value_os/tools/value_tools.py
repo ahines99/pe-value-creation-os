@@ -311,7 +311,7 @@ def register_value_model(mcp: MCPServer) -> None:
             {
                 "opportunity_id": o.opportunity_id,
                 "title": o.title,
-                "reason": f"Base case does not pay back ({vc.annual_ebitda_base})",
+                "reason": f"Nonpositive modeled annual contribution ({vc.annual_ebitda_base})",
             }
             for o, vc in items
             if vc.annual_ebitda_base <= 0

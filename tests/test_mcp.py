@@ -248,7 +248,7 @@ async def _golden_pricing_flow(c) -> str:
         "size_value_case",
         {"company_id": "beacon-pricing", "opportunity_id": opp["opportunity_id"], "ev_multiple": "10"},
     )
-    assert vc.is_error is False and vc.structured_content["calc_version"] == "value-case/1"
+    assert vc.is_error is False and vc.structured_content["calc_version"] == "value-case/2"
     ev_list = await c.call_tool(
         "list_evidence", {"company_id": "beacon-pricing", "opportunity_id": opp["opportunity_id"]}
     )

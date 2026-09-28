@@ -276,9 +276,29 @@ def cmd_research_pilot(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_public_diligence(args: argparse.Namespace) -> int:
+    from .diligence.render import build_public_report
+
+    try:
+        result = build_public_report(Path(args.input), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(
+            f"Public diligence failed ({type(exc).__name__}); inspect source classification and fact contracts.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Public financial baseline: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    public = sub.add_parser("public-diligence", help="reconcile public filing facts and render a sourced baseline")
+    public.add_argument("--input", required=True, help="public fact bundle JSON (private sources rejected)")
+    public.add_argument("--output", default="var/public-diligence/baseline", help="output stem for HTML and JSON")
+    public.set_defaults(fn=cmd_public_diligence)
 
     pilot = sub.add_parser("research-pilot", help="build a private public-company research memo")
     pilot.add_argument("--input", required=True, help="normalized financial-statement bundle JSON")

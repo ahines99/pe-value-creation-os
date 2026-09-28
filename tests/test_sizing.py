@@ -99,3 +99,23 @@ def test_inputs_hash_stable_and_sensitive():
 def test_one_time_cost_reported_not_subtracted():
     vc = size_value_case(opp(one="75000"))
     assert vc.one_time_cost == Decimal("75000") and vc.annual_ebitda_base == Decimal("10000")
+
+
+def test_valuation_provenance_changes_without_changing_operating_case():
+    opportunity = opp()
+    before = opportunity.model_dump_json()
+    without = size_value_case(opportunity)
+    eight = size_value_case(opportunity, Decimal("8"))
+    ten = size_value_case(opportunity, Decimal("10"))
+    assert len({without.inputs_hash, eight.inputs_hash, ten.inputs_hash}) == 3
+    assert eight.ev_impact_base == Decimal("80000")
+    assert ten.ev_impact_base == Decimal("100000")
+    assert without.annual_ebitda_base == eight.annual_ebitda_base == ten.annual_ebitda_base == Decimal("10000")
+    assert opportunity.model_dump_json() == before
+    assert size_value_case(opportunity, Decimal("8.00")).inputs_hash == eight.inputs_hash
+
+
+@pytest.mark.parametrize("multiple", ["0", "-1", "NaN", "Infinity"])
+def test_invalid_valuation_assumption_rejected(multiple):
+    with pytest.raises(ValueError, match="finite and positive"):
+        size_value_case(opp(), Decimal(multiple))

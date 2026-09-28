@@ -1,0 +1,677 @@
+{
+  "analysis_version": "public-financial-baseline/1",
+  "input_sha256": "acfeec1ad3fbb278e33a86eada442873c2c5837906073b6268f4cbff36950564",
+  "company": "Progress Software Corporation",
+  "ticker": "PRGS",
+  "entity_id": "cik:0000876167",
+  "information_cutoff": "2026-09-28",
+  "mode": "public_filing_diligence",
+  "financial_review": "not independently reviewed",
+  "operating_opportunities": "not sized from consolidated statements",
+  "periods": [
+    {
+      "start": "2022-12-01",
+      "end": "2023-11-30",
+      "basis": "annual",
+      "currency": "USD",
+      "reported": {
+        "revenue": {
+          "value": "694439000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:revenue"
+        },
+        "cost_of_revenue": {
+          "value": "126577000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:cost_of_revenue"
+        },
+        "gross_profit": {
+          "value": "567862000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:gross_profit"
+        },
+        "sales_marketing": {
+          "value": "156076000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:sales_marketing"
+        },
+        "research_development": {
+          "value": "132401000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:research_development"
+        },
+        "general_administrative": {
+          "value": "83157000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:general_administrative"
+        },
+        "amortization_cost_of_revenue": {
+          "value": "30169000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:amortization_cost_of_revenue"
+        },
+        "amortization_operating_expense": {
+          "value": "66430000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:amortization_operating_expense"
+        },
+        "restructuring": {
+          "value": "8407000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:restructuring"
+        },
+        "acquisition_expense": {
+          "value": "4704000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:acquisition_expense"
+        },
+        "cyber_response": {
+          "value": "6164000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:cyber_response"
+        },
+        "operating_expense": {
+          "value": "457339000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:operating_expense"
+        },
+        "operating_income": {
+          "value": "110523000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:operating_income"
+        },
+        "interest_expense": {
+          "value": "-30780000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:interest_expense"
+        },
+        "interest_income_other": {
+          "value": "2538000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:interest_income_other"
+        },
+        "fx_loss": {
+          "value": "-2624000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:fx_loss"
+        },
+        "other_expense_net": {
+          "value": "-30866000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:other_expense_net"
+        },
+        "pretax_income": {
+          "value": "79657000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:pretax_income"
+        },
+        "income_tax_expense": {
+          "value": "9460000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:income_tax_expense"
+        },
+        "net_income": {
+          "value": "70197000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:net_income"
+        },
+        "ppe_depreciation": {
+          "value": "6345000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:ppe_depreciation"
+        },
+        "intangible_amortization": {
+          "value": "96802000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization"
+        },
+        "debt_amortization": {
+          "value": "2147000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:debt_amortization"
+        },
+        "stock_compensation": {
+          "value": "40529000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:stock_compensation"
+        },
+        "operating_cash_flow": {
+          "value": "173920000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:operating_cash_flow"
+        },
+        "ppe_purchases": {
+          "value": "-5570000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:ppe_purchases"
+        },
+        "acquisition_cash": {
+          "value": "-355250000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:acquisition_cash"
+        }
+      },
+      "reconciliations": [
+        {
+          "target": "gross_profit",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "operating_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "pretax_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "net_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "other_expense_net",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "intangible_amortization",
+          "missing": [],
+          "difference": "203000",
+          "status": "mismatch"
+        }
+      ],
+      "derived": {
+        "ebitda": {
+          "label": "Calculated EBITDA (not issuer-adjusted EBITDA)",
+          "formula": {
+            "net_income": 1,
+            "income_tax_expense": 1,
+            "interest_expense": -1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2023-11-30:net_income",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:income_tax_expense",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:interest_expense",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization"
+          ]
+        },
+        "operating_income_before_da": {
+          "label": "Operating income plus operating D&A",
+          "formula": {
+            "operating_income": 1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "A separate operating earnings bridge; differs from the net-income-based EBITDA measure by non-interest, non-tax non-operating items.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2023-11-30:operating_income",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization"
+          ]
+        },
+        "cfo_less_ppe": {
+          "label": "Reported operating cash flow less PP&E purchases",
+          "formula": {
+            "operating_cash_flow": 1,
+            "ppe_purchases": 1
+          },
+          "definition": "Historical reported CFO plus the signed PP&E cash outflow. Excludes acquisitions and financing; not a complete discretionary-cash or initiative-savings measure.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2023-11-30:operating_cash_flow",
+            "cik:0000876167:0000876167-26-000008:2023-11-30:ppe_purchases"
+          ]
+        }
+      }
+    },
+    {
+      "start": "2023-12-01",
+      "end": "2024-11-30",
+      "basis": "annual",
+      "currency": "USD",
+      "reported": {
+        "revenue": {
+          "value": "753409000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:revenue"
+        },
+        "cost_of_revenue": {
+          "value": "130482000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:cost_of_revenue"
+        },
+        "gross_profit": {
+          "value": "622927000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:gross_profit"
+        },
+        "sales_marketing": {
+          "value": "164570000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:sales_marketing"
+        },
+        "research_development": {
+          "value": "146342000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:research_development"
+        },
+        "general_administrative": {
+          "value": "89518000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:general_administrative"
+        },
+        "amortization_cost_of_revenue": {
+          "value": "29222000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:amortization_cost_of_revenue"
+        },
+        "amortization_operating_expense": {
+          "value": "65290000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:amortization_operating_expense"
+        },
+        "restructuring": {
+          "value": "10454000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:restructuring"
+        },
+        "acquisition_expense": {
+          "value": "17109000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:acquisition_expense"
+        },
+        "cyber_response": {
+          "value": "5641000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:cyber_response"
+        },
+        "operating_expense": {
+          "value": "498924000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:operating_expense"
+        },
+        "operating_income": {
+          "value": "124003000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:operating_income"
+        },
+        "interest_expense": {
+          "value": "-32012000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:interest_expense"
+        },
+        "interest_income_other": {
+          "value": "4734000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:interest_income_other"
+        },
+        "fx_loss": {
+          "value": "-2461000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:fx_loss"
+        },
+        "other_expense_net": {
+          "value": "-29739000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:other_expense_net"
+        },
+        "pretax_income": {
+          "value": "94264000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:pretax_income"
+        },
+        "income_tax_expense": {
+          "value": "25826000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:income_tax_expense"
+        },
+        "net_income": {
+          "value": "68438000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:net_income"
+        },
+        "ppe_depreciation": {
+          "value": "6426000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:ppe_depreciation"
+        },
+        "intangible_amortization": {
+          "value": "96618000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization"
+        },
+        "debt_amortization": {
+          "value": "3525000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:debt_amortization"
+        },
+        "stock_compensation": {
+          "value": "46756000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:stock_compensation"
+        },
+        "operating_cash_flow": {
+          "value": "211494000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:operating_cash_flow"
+        },
+        "ppe_purchases": {
+          "value": "-5206000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:ppe_purchases"
+        },
+        "acquisition_cash": {
+          "value": "-852702000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:acquisition_cash"
+        }
+      },
+      "reconciliations": [
+        {
+          "target": "gross_profit",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "operating_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "pretax_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "net_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "other_expense_net",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "intangible_amortization",
+          "missing": [],
+          "difference": "2106000",
+          "status": "mismatch"
+        }
+      ],
+      "derived": {
+        "ebitda": {
+          "label": "Calculated EBITDA (not issuer-adjusted EBITDA)",
+          "formula": {
+            "net_income": 1,
+            "income_tax_expense": 1,
+            "interest_expense": -1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2024-11-30:net_income",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:income_tax_expense",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:interest_expense",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization"
+          ]
+        },
+        "operating_income_before_da": {
+          "label": "Operating income plus operating D&A",
+          "formula": {
+            "operating_income": 1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "A separate operating earnings bridge; differs from the net-income-based EBITDA measure by non-interest, non-tax non-operating items.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2024-11-30:operating_income",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization"
+          ]
+        },
+        "cfo_less_ppe": {
+          "label": "Reported operating cash flow less PP&E purchases",
+          "formula": {
+            "operating_cash_flow": 1,
+            "ppe_purchases": 1
+          },
+          "definition": "Historical reported CFO plus the signed PP&E cash outflow. Excludes acquisitions and financing; not a complete discretionary-cash or initiative-savings measure.",
+          "value": null,
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [
+            "intangible_amortization"
+          ],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2024-11-30:operating_cash_flow",
+            "cik:0000876167:0000876167-26-000008:2024-11-30:ppe_purchases"
+          ]
+        }
+      }
+    },
+    {
+      "start": "2024-12-01",
+      "end": "2025-11-30",
+      "basis": "annual",
+      "currency": "USD",
+      "reported": {
+        "revenue": {
+          "value": "977831000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:revenue"
+        },
+        "cost_of_revenue": {
+          "value": "187581000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:cost_of_revenue"
+        },
+        "gross_profit": {
+          "value": "790250000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:gross_profit"
+        },
+        "sales_marketing": {
+          "value": "211013000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:sales_marketing"
+        },
+        "research_development": {
+          "value": "192265000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:research_development"
+        },
+        "general_administrative": {
+          "value": "108215000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:general_administrative"
+        },
+        "amortization_cost_of_revenue": {
+          "value": "41226000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:amortization_cost_of_revenue"
+        },
+        "amortization_operating_expense": {
+          "value": "104266000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:amortization_operating_expense"
+        },
+        "restructuring": {
+          "value": "13109000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:restructuring"
+        },
+        "acquisition_expense": {
+          "value": "5317000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:acquisition_expense"
+        },
+        "cyber_response": {
+          "value": "2775000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:cyber_response"
+        },
+        "operating_expense": {
+          "value": "636960000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:operating_expense"
+        },
+        "operating_income": {
+          "value": "153290000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:operating_income"
+        },
+        "interest_expense": {
+          "value": "-70850000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:interest_expense"
+        },
+        "interest_income_other": {
+          "value": "1759000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:interest_income_other"
+        },
+        "fx_loss": {
+          "value": "-2571000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:fx_loss"
+        },
+        "other_expense_net": {
+          "value": "-71662000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:other_expense_net"
+        },
+        "pretax_income": {
+          "value": "81628000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:pretax_income"
+        },
+        "income_tax_expense": {
+          "value": "8495000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:income_tax_expense"
+        },
+        "net_income": {
+          "value": "73133000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:net_income"
+        },
+        "ppe_depreciation": {
+          "value": "6232000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:ppe_depreciation"
+        },
+        "intangible_amortization": {
+          "value": "145492000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:intangible_amortization"
+        },
+        "debt_amortization": {
+          "value": "5831000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:debt_amortization"
+        },
+        "stock_compensation": {
+          "value": "64768000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:stock_compensation"
+        },
+        "operating_cash_flow": {
+          "value": "235187000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:operating_cash_flow"
+        },
+        "ppe_purchases": {
+          "value": "-5702000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:ppe_purchases"
+        },
+        "acquisition_cash": {
+          "value": "-21217000",
+          "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:acquisition_cash"
+        }
+      },
+      "reconciliations": [
+        {
+          "target": "gross_profit",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "operating_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "pretax_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "net_income",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "other_expense_net",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        },
+        {
+          "target": "intangible_amortization",
+          "missing": [],
+          "difference": "0",
+          "status": "matched"
+        }
+      ],
+      "derived": {
+        "ebitda": {
+          "label": "Calculated EBITDA (not issuer-adjusted EBITDA)",
+          "formula": {
+            "net_income": 1,
+            "income_tax_expense": 1,
+            "interest_expense": -1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.",
+          "value": "304202000",
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2025-11-30:net_income",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:income_tax_expense",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:interest_expense",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:intangible_amortization"
+          ]
+        },
+        "operating_income_before_da": {
+          "label": "Operating income plus operating D&A",
+          "formula": {
+            "operating_income": 1,
+            "ppe_depreciation": 1,
+            "intangible_amortization": 1
+          },
+          "definition": "A separate operating earnings bridge; differs from the net-income-based EBITDA measure by non-interest, non-tax non-operating items.",
+          "value": "305014000",
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2025-11-30:operating_income",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:ppe_depreciation",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:intangible_amortization"
+          ]
+        },
+        "cfo_less_ppe": {
+          "label": "Reported operating cash flow less PP&E purchases",
+          "formula": {
+            "operating_cash_flow": 1,
+            "ppe_purchases": 1
+          },
+          "definition": "Historical reported CFO plus the signed PP&E cash outflow. Excludes acquisitions and financing; not a complete discretionary-cash or initiative-savings measure.",
+          "value": "229485000",
+          "classification": "calculated_from_public_facts",
+          "missing": [],
+          "blocked_by": [],
+          "evidence_ids": [
+            "cik:0000876167:0000876167-26-000008:2025-11-30:operating_cash_flow",
+            "cik:0000876167:0000876167-26-000008:2025-11-30:ppe_purchases"
+          ]
+        }
+      }
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "classification": "public_filing",
+      "entity_id": "cik:0000876167",
+      "title": "Progress Software FY2025 Form 10-K",
+      "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+      "accession": "0000876167-26-000008",
+      "form": "10-K",
+      "filed_on": "2026-01-20",
+      "retrieved_at": "2026-09-28T13:39:25.016566Z",
+      "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+      "mapping_sha256": "54fc41a81cb5e6242ceaa9ff9507842d1d466a557eacebe410a67d6ed1188845",
+      "extraction_version": "filing-pdf/1"
+    }
+  ]
+}
