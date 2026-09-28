@@ -55,8 +55,10 @@ operating approvals. The [case-history walkthrough](https://ahines99.github.io/p
 preserves original/current forecasts and labels its two service-authored reviews
 as simulated. The [constructed realization review](https://ahines99.github.io/pe-value-creation-os/portfolio/realization.html)
 adds three monthly accounting comparisons, explicit claims, unassigned residuals
-and preserved source corrections. Actual human review, observed company results
-and validated causal attribution remain unperformed.
+and preserved source corrections. The [execution review](https://ahines99.github.io/pe-value-creation-os/portfolio/execution.html)
+adds simulated assignments, completion/acceptance receipts, steering holds and
+claim links that lose support when evidence is withdrawn. Actual human review,
+observed company results and validated causal attribution remain unperformed.
 
 ## Try it
 

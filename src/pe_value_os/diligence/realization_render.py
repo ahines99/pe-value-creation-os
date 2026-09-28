@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from decimal import Decimal
 from html import escape
 from pathlib import Path
@@ -13,12 +14,12 @@ from pydantic import Field, model_validator
 
 from .. import security
 from ..adapters.evidence_store import FileSystemEvidenceStore
-from ..adapters.repositories import InMemoryRepository
+from ..adapters.repositories import InMemoryRepository, Repository
 from ..api.presentation import CSS
 from ..domain.source_models import CompanyProfile
 from ..research.render import table
-from .cases import CasePayload, ReviewRequest, RevisionDraft
-from .close_baseline import CloseBaselineRequest
+from .cases import CasePayload, InvestmentCase, ReviewRequest, RevisionDraft
+from .close_baseline import CloseBaseline, CloseBaselineRequest
 from .models import Record
 from .realization import Allocation, AttributionRequest, ClaimEvidence, ObservationRequest, SourceBook
 from .scheduling import OperatingPlan, fingerprint
@@ -53,7 +54,10 @@ class RealizationExercise(Record):
 
 
 def demonstrate_realization(
-    case: UnderwritingCase, plan: OperatingPlan, exercise: RealizationExercise
+    case: UnderwritingCase,
+    plan: OperatingPlan,
+    exercise: RealizationExercise,
+    execution_replay: Callable[[Repository, InvestmentCase, CloseBaseline], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     if (exercise.underwriting_sha256, exercise.operating_plan_sha256) != (fingerprint(case), fingerprint(plan)):
         raise ValueError("exercise must bind the exact underwriting and operating plan")
@@ -205,7 +209,14 @@ def demonstrate_realization(
                     payload=current_payload,
                 ),
             )
+            execution = (
+                execution_replay(repo, repo.get_investment_case(registered.case_id), baseline)
+                if execution_replay
+                else None
+            )
             report = repo.case_realization(registered.case_id, baseline.baseline_id)
+            if execution is not None:
+                report["execution"] = execution
             report.update(
                 revisions=[r.model_dump(mode="json") for r in repo.list_case_revisions(registered.case_id)],
                 audit=[a.model_dump(mode="json") for a in repo.list_audit(company_id=company_id)],

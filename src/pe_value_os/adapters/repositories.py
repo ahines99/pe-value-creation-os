@@ -33,6 +33,13 @@ from ..diligence.cases import (
     writer,
 )
 from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
+from ..diligence.execution import (
+    ExecutionEvent,
+    ExecutionRequest,
+    execution_report,
+    prepare_execution,
+    stream_key,
+)
 from ..diligence.realization import (
     Attribution,
     AttributionRequest,
@@ -105,6 +112,9 @@ class Repository(Protocol):
     def get_case_revision(self, revision_id: str) -> CaseRevision: ...
     def list_case_revisions(self, case_id: str) -> list[CaseRevision]: ...
     def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview: ...
+    def list_execution_events(self, case_id: str) -> list[ExecutionEvent]: ...
+    def record_execution_event(self, case_id: str, request: ExecutionRequest) -> ExecutionEvent: ...
+    def case_execution(self, case_id: str, baseline_id: str, as_of: date) -> dict[str, Any]: ...
     def list_case_observations(self, case_id: str) -> list[Observation]: ...
     def list_case_attributions(self, case_id: str) -> list[Attribution]: ...
     def record_case_observation(self, case_id: str, request: ObservationRequest) -> Observation: ...
@@ -241,6 +251,7 @@ class InMemoryRepository:
         self.case_close_baselines: dict[str, CloseBaseline] = {}
         self.case_observations: dict[str, Observation] = {}
         self.case_attributions: dict[str, Attribution] = {}
+        self.case_execution_events: dict[str, ExecutionEvent] = {}
 
     # Research-case review never routes through operating-plan approval or KPI activation.
     def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
@@ -313,6 +324,86 @@ class InMemoryRepository:
             (b for b in self.case_close_baselines.values() if b.case_id == case_id),
             key=lambda b: (b.request.mode, b.sequence),
         )
+
+    def list_execution_events(self, case_id: str) -> list[ExecutionEvent]:
+        self.get_investment_case(case_id)
+        return sorted(
+            (r for r in self.case_execution_events.values() if r.case_id == case_id),
+            key=lambda r: (r.recorded_at, r.event_id),
+        )
+
+    def record_execution_event(self, case_id: str, request: ExecutionRequest) -> ExecutionEvent:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            principal = writer(case.company_id)
+            events = self.list_execution_events(case_id)
+            replay = next((e for e in events if e.request.ingestion_key == request.ingestion_key), None)
+            if replay is not None:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Execution ingestion key belongs to different content or author")
+                return replay
+            baselines = self.list_close_baselines(case_id)
+            baseline = next((b for b in baselines if b.baseline_id == request.baseline_id), None)
+            if baseline is None:
+                raise NotFound(request.baseline_id)
+            chain = [
+                e
+                for e in events
+                if e.request.baseline_id == request.baseline_id and e.stream_key == stream_key(request.payload)
+            ]
+            previous = max(chain, key=lambda e: e.sequence) if chain else None
+            if request.expected_previous_id != (previous.event_id if previous else None):
+                raise Conflict("Execution stream changed; bind its latest receipt")
+            record = prepare_execution(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                events,
+                self.list_case_observations(case_id),
+                self.list_case_attributions(case_id),
+                request,
+                previous,
+            )
+            self.case_execution_events[record.event_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_execution",
+                    event_type="execution_" + request.payload.kind + "_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "event_id": record.event_id,
+                        "sha256": record.content_sha256,
+                        "previous_id": request.expected_previous_id,
+                        "mode": request.mode,
+                    },
+                )
+            )
+            return record
+
+    def case_execution(self, case_id: str, baseline_id: str, as_of: date) -> dict[str, Any]:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            baselines = self.list_close_baselines(case_id)
+            baseline = next((b for b in baselines if b.baseline_id == baseline_id), None)
+            if baseline is None:
+                raise NotFound(baseline_id)
+            return execution_report(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                self.list_execution_events(case_id),
+                self.list_case_observations(case_id),
+                self.list_case_attributions(case_id),
+                as_of,
+            )
 
     def list_case_observations(self, case_id: str) -> list[Observation]:
         self.get_investment_case(case_id)
@@ -795,6 +886,7 @@ class InMemoryRepository:
                 "case_close_baselines",
                 "case_observations",
                 "case_attributions",
+                "case_execution_events",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -1037,6 +1129,7 @@ class InMemoryRepository:
                 "case_close_baselines",
                 "case_observations",
                 "case_attributions",
+                "case_execution_events",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())
