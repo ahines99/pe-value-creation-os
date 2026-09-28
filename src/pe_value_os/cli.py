@@ -260,9 +260,30 @@ def cmd_mcp_stdio(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_research_pilot(args: argparse.Namespace) -> int:
+    from .research.pilot import build_report
+
+    try:
+        result = build_report(Path(args.input), args.name)
+    except (ValueError, OSError) as exc:
+        # Validation errors can contain licensed input values; keep the console minimal.
+        print(
+            f"Research pilot failed ({type(exc).__name__}); check input schema and private output name.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Private research memo: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    pilot = sub.add_parser("research-pilot", help="build a private public-company research memo")
+    pilot.add_argument("--input", required=True, help="normalized financial-statement bundle JSON")
+    pilot.add_argument("--name", default="pilot", help="output name within var/research-pilot")
+    pilot.set_defaults(fn=cmd_research_pilot)
 
     f = sub.add_parser("fixtures")
     f.add_argument("action", choices=["generate"])

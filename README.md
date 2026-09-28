@@ -12,6 +12,8 @@ All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/ac
 
 The [functional audit](docs/portfolio/executive-functional-audit.md) and [screenshots](docs/portfolio/screenshots/memo-1440.png) document the verified scope. Human acceptance of the new design and MCP client journey remains open. Real-company deployment and optional observability findings have separate gates in the [roadmap](docs/portfolio-finalization-roadmap.md).
 
+**Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
+
 ## Try it
 
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.
