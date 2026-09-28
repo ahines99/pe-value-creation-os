@@ -1,0 +1,18 @@
+title = "Value Creation OS secret scanning"
+
+[extend]
+useDefault = true
+
+# These identifiers are SHA-256 digests of an execution event kind and identity,
+# never credentials. Keep every default detector, and require BOTH the exact
+# generated artifact path and the complete JSON stream-key line to match.
+# Syntax: https://github.com/gitleaks/gitleaks/blob/v8.24.3/README.md#configuration
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Public constructed execution stream SHA-256 identifiers"
+condition = "AND"
+paths = ['''^docs/portfolio/execution\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"stream_key": "[0-9a-f]{64}",?\s*$''']
