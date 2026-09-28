@@ -35,6 +35,7 @@ jobs:
       - name: Check rendered portfolio across desktop, tablet and phone widths
         run: |
           uv run python scripts/capture_portfolio.py
+          uv run pvc public-diligence --input data/public/progress/annual-facts.json --output docs/portfolio/progress-baseline
           docker build -f infra/Dockerfile.browser -t pvc-browser-check .
           mkdir -p var/browser-checks
           docker run --rm --network none -v "$PWD/docs:/site:ro" -v "$PWD/var/browser-checks:/artifacts" pvc-browser-check /site /artifacts
@@ -110,7 +111,7 @@ jobs:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Dependency audit
-        run: uv export --frozen --no-hashes --extra server --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
+        run: uv export --frozen --no-hashes --extra server --extra research --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
       - name: Secret scan
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
@@ -156,6 +157,7 @@ jobs:
           mkdir /tmp/pvc-package-smoke
           cd /tmp/pvc-package-smoke
           /tmp/pvc-installed/bin/pvc demo --quiet
+          /tmp/pvc-installed/bin/pvc public-diligence --input "$GITHUB_WORKSPACE/data/public/progress/annual-facts.json" --output public-baseline
           /tmp/pvc-installed/bin/pvc eval --suite all --gate --report eval-report.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

@@ -1,0 +1,219 @@
+{
+  "company": "Progress Software Corporation",
+  "entity_id": "cik:0000876167",
+  "ticker": "PRGS",
+  "title": "Progress Software FY2025 Form 10-K",
+  "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+  "accession": "0000876167-26-000008",
+  "form": "10-K",
+  "filed_on": "2026-01-20",
+  "source_sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+  "currency": "USD",
+  "unit_scale": 1000,
+  "entity_heading": "PROGRESS SOFTWARE CORPORATION",
+  "tables": [
+    {
+      "pdf_page": 38,
+      "printed_page": "38",
+      "heading": "Consolidated Statements of Operations",
+      "unit_heading": "(in thousands, except per share data)",
+      "columns": [
+        {
+          "label": "November 30, 2025",
+          "period": {
+            "start": "2024-12-01",
+            "end": "2025-11-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "November 30, 2024",
+          "period": {
+            "start": "2023-12-01",
+            "end": "2024-11-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "November 30, 2023",
+          "period": {
+            "start": "2022-12-01",
+            "end": "2023-11-30",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "Total revenue",
+          "occurrence": 0
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "Total costs of revenue",
+          "occurrence": 0
+        },
+        {
+          "metric": "gross_profit",
+          "label": "Gross profit",
+          "occurrence": 0
+        },
+        {
+          "metric": "sales_marketing",
+          "label": "Sales and marketing",
+          "occurrence": 0
+        },
+        {
+          "metric": "research_development",
+          "label": "Product development",
+          "occurrence": 0
+        },
+        {
+          "metric": "general_administrative",
+          "label": "General and administrative",
+          "occurrence": 0
+        },
+        {
+          "metric": "amortization_cost_of_revenue",
+          "label": "Amortization of acquired intangibles",
+          "occurrence": 0
+        },
+        {
+          "metric": "amortization_operating_expense",
+          "label": "Amortization of acquired intangibles",
+          "occurrence": 1
+        },
+        {
+          "metric": "restructuring",
+          "label": "Restructuring expenses",
+          "occurrence": 0
+        },
+        {
+          "metric": "acquisition_expense",
+          "label": "Acquisition-related expenses",
+          "occurrence": 0
+        },
+        {
+          "metric": "cyber_response",
+          "label": "Cyber incident and vulnerability response expenses, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_expense",
+          "label": "Total operating expenses",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_income",
+          "label": "Income from operations",
+          "occurrence": 0
+        },
+        {
+          "metric": "interest_expense",
+          "label": "Interest expense",
+          "occurrence": 0
+        },
+        {
+          "metric": "interest_income_other",
+          "label": "Interest income and other, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "fx_loss",
+          "label": "Foreign currency loss, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "other_expense_net",
+          "label": "Total other expense, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "pretax_income",
+          "label": "Income before income taxes",
+          "occurrence": 0
+        },
+        {
+          "metric": "income_tax_expense",
+          "label": "Provision for income taxes",
+          "occurrence": 0
+        },
+        {
+          "metric": "net_income",
+          "label": "Net income",
+          "occurrence": 0
+        }
+      ]
+    },
+    {
+      "pdf_page": 41,
+      "printed_page": "41",
+      "heading": "Consolidated Statements of Cash Flows",
+      "unit_heading": "(in thousands)",
+      "columns": [
+        {
+          "label": "November 30, 2025",
+          "period": {
+            "start": "2024-12-01",
+            "end": "2025-11-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "November 30, 2024",
+          "period": {
+            "start": "2023-12-01",
+            "end": "2024-11-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "November 30, 2023",
+          "period": {
+            "start": "2022-12-01",
+            "end": "2023-11-30",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "ppe_depreciation",
+          "label": "Depreciation and amortization of property and equipment",
+          "occurrence": 0
+        },
+        {
+          "metric": "intangible_amortization",
+          "label": "Amortization of acquired intangibles and other",
+          "occurrence": 0
+        },
+        {
+          "metric": "debt_amortization",
+          "label": "Amortization of debt discount and issuance costs",
+          "occurrence": 0
+        },
+        {
+          "metric": "stock_compensation",
+          "label": "Stock-based compensation",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Net cash flows from operating activities",
+          "occurrence": 0
+        },
+        {
+          "metric": "ppe_purchases",
+          "label": "Purchases of property and equipment",
+          "occurrence": 0
+        },
+        {
+          "metric": "acquisition_cash",
+          "label": "Payments for acquisitions, net of cash acquired",
+          "occurrence": 0
+        }
+      ]
+    }
+  ]
+}

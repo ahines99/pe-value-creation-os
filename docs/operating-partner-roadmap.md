@@ -3,7 +3,27 @@
 Prepared September 27, 2026 (America/New_York). Five research agents audited the
 repository and consulted primary sources; the coordinator consolidated their
 recommendations. Reviewed code: `8a6a540`; released application code: `31ebfe9`.
-This is the next implementation plan, not a claim that its features already exist.
+Implementation began September 28, 2026. The progress ledger below distinguishes
+delivered increments from the remaining acceptance criteria.
+
+## Implementation progress — September 28, 2026
+
+The five-outcome goal remains active. No sponsor is available yet; Alex requested
+the [permissioned pilot package](pilot/permissioned/README.md). Engineering,
+public research and the constructed demonstration continue independently.
+
+| Outcome / tickets | Delivered increment | Still required |
+|---|---|---|
+| Public Progress case / OP-01, 02, 09 | [Case charter](pilot/progress-case-charter.md), reviewed FY2025 10-K extraction mapping, 81 annual facts covering FY2023–25, source hashes/page anchors and [public baseline](portfolio/progress-baseline.html) | Quarterly facts, acquisition/perimeter analysis, metric-specific peer eligibility, sourced thesis and counterevidence decisions |
+| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected nonpositive-contribution wording; separate FY2025 EBITDA, operating-income-plus-D&A and CFO-less-PP&E bridges | Historical amortization exceptions; adjustment register; monthly drivers/costs/cash, overlaps and valuation scenarios |
+| Capacity-aware plan / OP-03, 08, 10–11 | Existing screening plan and new source-fact contracts only | Case revisions and review persistence, constructed operating records, dependency/capacity constraints and schedule-linked economics |
+| Executive memo / OP-12–13 | Source-linked financial-baseline page and responsive browser coverage | Decision thesis, alternatives, first-wave choices, assumption challenges and complete memo acceptance |
+| Underwriting-to-realization and pilot / OP-14–17 | Sponsor brief, authorization record, minimum data request, intervention and reviewer worksheets prepared | Immutable lifecycle revisions, actuals/attribution demonstration; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
+
+OP-04's current screening corrections are implemented. OP-01 has a working
+charter/source policy; OP-02/03/05/12 have partial foundations. Other tickets retain
+their full acceptance criteria. A prepared pilot package is not a performed pilot,
+and the annual baseline is not the completed public diligence case.
 
 ## Recommended destination
 
@@ -42,7 +62,7 @@ building an explicitly constructed demonstration.
 | Valuation | Show transparent multiple sensitivities only after defining the earnings measure | No investment recommendation, fair-value opinion or realized proceeds claim |
 | User participation | Proceed with recommendations; request only newly necessary rights, inaccessible management facts, actual participation or bounded spending decisions | Routine engineering and methodological choices stay with Codex |
 
-The [Progress FY2025 filing](https://investors.progress.com/static-files/3c6bd027-e443-4977-9b29-b55ee2530013)
+The [Progress FY2025 filing](https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c)
 describes mixed revenue models and channels. Our inference is to avoid an
 undifferentiated SaaS peer target and require a metric-level comparability rationale.
 This is a research-design choice, not a conclusion about achievable savings.
@@ -65,12 +85,12 @@ Evidence for these findings is in the five linked reports below, including sourc
 paths and actual symbols. The existing `complete` workflow status means the
 diagnostic finished; it is not a realized-value status.
 
-Three concrete financial issues should be handled early: the value-case input
-hash omits the separately supplied EV multiple; nonpositive annual contribution
-is described as "does not pay back" without a cash-payback calculation; and the
-current phasing factor scales net benefit and ongoing costs together. These are
-next-version corrections, not claims that the released code already implements
-the richer financial model.
+The initial financial audit found three concrete issues. Calculation v2 now
+includes the separately supplied EV multiple in the input hash and describes
+nonpositive annual contribution without claiming a cash-payback result. The
+current screening phasing factor still scales net benefit and ongoing costs
+together; independent cost timing remains OP-06 work. The v0.1.0 release retains
+its original calculation version and does not contain these later corrections.
 
 ## Financial and evidence rules
 
@@ -137,9 +157,9 @@ the OP-09/12 totals, not additional work charged again in S2.
 
 ## Consolidated implementation tickets
 
-All tickets are **planned**, owned by **Codex**, unless explicitly marked as a
-later external dependency. Implementation starts with OP-01, OP-03 and OP-04;
-the present deliverable is the researched roadmap. Effort includes meaningful
+All tickets are owned by **Codex**, unless explicitly marked as a later external
+dependency. Consult the implementation ledger above for partial and completed
+work; the table retains each ticket's full scope. Effort includes meaningful
 tests and documentation. Agent ticket mappings prevent duplicated work.
 
 | Ticket / priority / effort | Codex actions and deliverable | Dependencies | Done when |
