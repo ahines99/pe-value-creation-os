@@ -38,6 +38,7 @@ def main() -> None:
         "realization": "/portfolio/realization.html",
         "execution": "/portfolio/execution.html",
         "operating-sources": "/portfolio/operating-sources.html",
+        "source-review": "/portfolio/source-review.html",
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
     }
@@ -124,6 +125,32 @@ def main() -> None:
                         page.locator("main").focus()
                         page.locator("#comparison").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"realization-comparison-{width}.png"))
+                if name == "source-review":
+                    assert "-163,165.00" in page.locator(".metrics-grid").inner_text()
+                    assert "-181,890.00" in page.locator(".metrics-grid").inner_text()
+                    assert "Simulated request changes" in page.locator("#revisions").inner_text()
+                    assert "50" in page.locator("#learning").inner_text()
+                    assert "61,000.00" in page.locator("#preserved").inner_text()
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert len(payload["revisions"]) == 5 and payload["human_review_count"] == 0
+                    assert payload["actual_company_realized_value"] is None
+                    for key in (
+                        "original_forecast",
+                        "close_forecast",
+                        "measured_difference",
+                        "attributed_difference",
+                        "unassigned_residual",
+                    ):
+                        assert (
+                            payload["source_review"]["before_aggregate_recorded_periods"][key]
+                            == payload["aggregate_recorded_periods"][key]
+                        )
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#revisions").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"source-review-revisions-{width}.png"))
                 if name == "operating-sources":
                     assert "-18,314.50" in page.locator(".metrics-grid").inner_text()
                     assert "-38,532.00" in page.locator(".metrics-grid").inner_text()

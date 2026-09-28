@@ -174,7 +174,8 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | [ops/observability/](ops/observability/) | Grafana dashboard, Prometheus alerts, OpenTelemetry collector |
 | [.claude-plugin/](.claude-plugin/) | Claude Code plugin packaging for the skills and MCP server |
 
-All company data in this repository is synthetic.
+Operating company records and outcomes in the demonstration are synthetic. The
+separate public Progress diligence case cites published issuer financial facts.
 
 
 The [constructed operating-source challenge](https://ahines99.github.io/pe-value-creation-os/portfolio/operating-sources.html)
@@ -182,3 +183,10 @@ shows how contract notice windows, bounded terms, vendor commitments and dispute
 invoices can overturn an initially positive forecast. It reuses the financial
 engine and retains original costs; it represents no actual company records or
 realized savings. [Method and replay](docs/adr/0021-operating-source-schedules.md).
+
+The [integrated case review](https://ahines99.github.io/pe-value-creation-os/portfolio/source-review.html)
+persists that challenge and a vendor-evidence correction as immutable revisions,
+with structured lessons and simulated exact-version reviews. It preserves the
+frozen close and constructed accounting/attribution history. The
+[pilot sponsor package](docs/pilot/permissioned/README.md) is prepared; no sponsor
+or actual operating pilot is in place.
