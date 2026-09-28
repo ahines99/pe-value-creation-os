@@ -15,10 +15,11 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .. import security
+from .exit_review import ExitReviewPayload, evaluate_exit
 from .models import Record
 from .operating_sources import source_forecast
 from .scheduling import OperatingPlan, evaluate_plan
-from .source_revisions import SourceCasePayload, financial_snapshot
+from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
 from .underwriting import UnderwritingCase, evaluate
 
 
@@ -46,7 +47,15 @@ class RevisionDraft(Record):
     stage: Literal["underwriting", "close_validation", "ownership_review", "exit_review"]
     effective_on: date
     reason: str = Field(min_length=1)
-    payload: CasePayload | SourceCasePayload
+    payload: CasePayload | SourceCasePayload | ExitReviewPayload
+
+    @model_validator(mode="after")
+    def exit_stage(self) -> Self:
+        if isinstance(self.payload, ExitReviewPayload) and self.stage != "exit_review":
+            raise ValueError("exit-review stage requires its explicit exit payload and assumptions")
+        if isinstance(self.payload, ExitReviewPayload) and self.effective_on != self.payload.exit_assumptions.exit_on:
+            raise ValueError("exit effective date must match the authored scenario date")
+        return self
 
 
 class InvestmentCase(Record):
@@ -136,6 +145,10 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
         raise ValueError("revision must retain its case identity and currency")
     if parent is None and draft.stage != "underwriting":
         raise ValueError("first revision must be original underwriting")
+    # Old v1/v2 stage markers remain readable under their original signed schema.
+    # New writes must provide the actual exit assumptions rather than an empty marker.
+    if draft.stage == "exit_review" and not isinstance(draft.payload, ExitReviewPayload):
+        raise ValueError("new exit review requires its explicit exit payload and assumptions")
     if parent is not None:
         old = parent.draft.payload.underwriting
         new = draft.payload.underwriting
@@ -149,17 +162,27 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
             (d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers
         }:
             raise ValueError("initiative lineage changes require an explicit mapping; title matching is insufficient")
-        if isinstance(parent.draft.payload, SourceCasePayload) and not isinstance(draft.payload, SourceCasePayload):
+        if source_payload(parent.draft.payload) and not source_payload(draft.payload):
             raise ValueError("a source-backed revision cannot silently discard its operating-source basis")
+        if isinstance(parent.draft.payload, ExitReviewPayload) and not isinstance(draft.payload, ExitReviewPayload):
+            raise ValueError("an exit review cannot silently discard its valuation basis")
+        if isinstance(draft.payload, ExitReviewPayload) and (
+            source_payload(parent.draft.payload) is None
+            or parent.draft.stage not in {"ownership_review", "exit_review"}
+        ):
+            raise ValueError("exit review requires a saved source-backed ownership or exit revision")
     schedule_json = None
-    if isinstance(draft.payload, SourceCasePayload):
+    source_basis = source_payload(draft.payload)
+    if source_basis is not None:
         if parent is None:
             raise ValueError("source challenge requires an existing original revision")
-        payload = SourceCasePayload.model_validate(draft.payload.model_dump(mode="json"))
+        payload = SourceCasePayload.model_validate(source_basis.model_dump(mode="json"))
         payload.bind_parent(parent)
         source = source_forecast(payload.operating_sources, payload.underwriting, payload.operating_plan)
         financial = financial_snapshot(payload, parent, source)
         report = source["schedule"]
+        if isinstance(draft.payload, ExitReviewPayload):
+            financial["exit_review"] = evaluate_exit(draft.payload, financial)
     elif draft.payload.operating_plan is None:
         financial = evaluate(draft.payload.underwriting)
     else:

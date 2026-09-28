@@ -42,6 +42,7 @@ def main() -> None:
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
         "disclosure-history": "/portfolio/disclosure-history.html",
+        "exit-review": "/portfolio/exit-review.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -234,6 +235,21 @@ def main() -> None:
                     assert payload["cutoffs"][2]["acceptance_selection"]["selected"]["status"] == "preliminary"
                     assert payload["cutoffs"][3]["acceptance_selection"]["selected"]["status"] == "final"
                     assert all(row["publication_selection"]["selected"] is None for row in payload["cutoffs"])
+                if name == "exit-review":
+                    assert "Unavailable" in page.locator(".hero-aside").inner_text()
+                    assert "304.202" in page.locator("#matrix").inner_text()
+                    assert "-8,500.00" in page.locator("#operating").inner_text()
+                    assert "interaction" in page.locator("#bridge").inner_text().lower()
+                    payload = page.request.get(base + "/portfolio/exit-review.json").json()
+                    assert len(payload["revisions"]) == 6
+                    latest = json.loads(payload["revisions"][-1]["financial_result_json"])
+                    assert len(latest["exit_review"]["rows"]) == 12
+                    assert latest["exit_review"]["transaction_proceeds"] is None
+                    assert payload["source_review"]["exit_checkpoint"]["preserved_accounting_and_claims"]
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#bridge").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"exit-bridge-{width}.png"))
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()

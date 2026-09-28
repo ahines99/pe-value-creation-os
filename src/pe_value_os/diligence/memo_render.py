@@ -264,6 +264,7 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
     body += "<p>Normalized EBITDA remains unavailable. Earlier-year amortization scope differences remain explicit; this memo does not force comparability or replace the original facts.</p></div></details></section>"
     body += valuation_summary(report["historical_valuation"])
     body += "<p><a href='historical-valuation.html'>Inspect the historical equity bridge, all assumptions and source rows</a>.</p>"
+    body += "<p><a href='exit-review.html'>Review the constructed exit sensitivity and its separate operating-evidence limits</a>.</p>"
     body += (
         "<section class='panel' id='choices'><p class='eyebrow'>Original constructed alternatives / USD thousands</p>"
     )

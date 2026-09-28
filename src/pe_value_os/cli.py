@@ -467,9 +467,55 @@ def cmd_disclosure_history(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_exit_review(args: argparse.Namespace) -> int:
+    from .diligence.exit_demo import build_exit_demo
+
+    try:
+        result = build_exit_demo(
+            *(
+                Path(getattr(args, key))
+                for key in (
+                    "underwriting",
+                    "operating_plan",
+                    "realization",
+                    "execution",
+                    "sources",
+                    "facts",
+                    "balances",
+                    "valuation",
+                    "assumptions",
+                    "output",
+                )
+            )
+        )
+    except (ValueError, OSError) as exc:
+        print(f"Exit review failed ({type(exc).__name__}); inspect source and scenario contracts.", file=sys.stderr)
+        return 2
+    print(f"Constructed exit review: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    exit_review = sub.add_parser(
+        "exit-review-demo", help="extend the constructed lifecycle through an explicit exit sensitivity"
+    )
+    for flag in (
+        "underwriting",
+        "operating-plan",
+        "realization",
+        "execution",
+        "sources",
+        "facts",
+        "balances",
+        "valuation",
+        "assumptions",
+    ):
+        exit_review.add_argument(f"--{flag}", required=True)
+    exit_review.add_argument("--output", default="var/exit-review/exit-review")
+    exit_review.set_defaults(fn=cmd_exit_review)
 
     history = sub.add_parser(
         "disclosure-history", help="compare public filing vintages with explicit publication limits"

@@ -199,3 +199,9 @@ revision is a measurement-period adjustment, not an accounting-error restatement
 The [sponsor brief](docs/pilot/permissioned/sponsor-brief.md) and
 [kickoff worksheet](docs/pilot/permissioned/kickoff-worksheet.md) are ready for a
 prospective pilot discussion; no company pilot has started.
+
+The [constructed exit review](https://ahines99.github.io/pe-value-creation-os/portfolio/exit-review.html)
+adds a sixth saved revision, an earnings/multiple/interaction decomposition and
+a hypothetical equity bridge. Scoped operating forecasts remain separate from
+company-level sensitivities. Actual proceeds, distributions and investment
+returns remain unavailable.
