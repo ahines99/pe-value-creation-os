@@ -58,6 +58,7 @@ def demonstrate_realization(
     plan: OperatingPlan,
     exercise: RealizationExercise,
     execution_replay: Callable[[Repository, InvestmentCase, CloseBaseline], dict[str, Any]] | None = None,
+    revision_replay: Callable[[Repository, InvestmentCase, CloseBaseline], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     if (exercise.underwriting_sha256, exercise.operating_plan_sha256) != (fingerprint(case), fingerprint(plan)):
         raise ValueError("exercise must bind the exact underwriting and operating plan")
@@ -214,9 +215,16 @@ def demonstrate_realization(
                 if execution_replay
                 else None
             )
+            source_review = (
+                revision_replay(repo, repo.get_investment_case(registered.case_id), baseline)
+                if revision_replay
+                else None
+            )
             report = repo.case_realization(registered.case_id, baseline.baseline_id)
             if execution is not None:
                 report["execution"] = execution
+            if source_review is not None:
+                report["source_review"] = source_review
             report.update(
                 revisions=[r.model_dump(mode="json") for r in repo.list_case_revisions(registered.case_id)],
                 audit=[a.model_dump(mode="json") for a in repo.list_audit(company_id=company_id)],

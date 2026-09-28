@@ -145,3 +145,23 @@ The base case becomes negative in year one: EBITDA −18,314.50 and pre-tax cash
 −38,532.00. This is a source-constrained analytical alternative, not an approved
 revision or observed outcome. The frozen original case and constructed realization
 exercise remain separate. See [ADR 0021](../../../docs/adr/0021-operating-source-schedules.md).
+
+## Integrated source-backed case review
+
+The [combined review](../../../docs/portfolio/source-review.html) now replays the
+accounting and execution exercise, then persists two source-backed revisions in
+the existing case ledger. It retains the latest 50% base capture assumption, so
+the first source challenge has year-one EBITDA −28,165 and cash −46,890. Removing
+unsupported vendor-release evidence produces EBITDA −163,165 and cash −181,890;
+all original costs remain. Simulation requests changes and then accepts the
+corrected adverse model. This is research acceptance, never operating authority.
+
+```powershell
+uv run pvc source-review-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --realization data/constructed/progress/realization.json --execution data/constructed/progress/execution.json --sources data/constructed/progress/operating-sources.json --output var/source-review/report
+```
+
+The original revision, frozen close, five accounting periods, signed claims and
+withdrawn delivery receipt remain intact. Lessons bind prior assumptions and
+exact previous/current source rows. This is a retrospective whole-horizon
+re-estimate, not a historical knowledge-cutoff replay or actuals-plus-remaining
+forecast. See [ADR 0022](../../../docs/adr/0022-source-backed-case-revisions.md).

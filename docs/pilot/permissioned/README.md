@@ -140,3 +140,24 @@ Its base first-year result is adverse after all original costs. The source book
 is a mapping/design example only; its classification explicitly rejects private
 operating records. Codex will implement the authorized data lane against the
 sponsor's actual scope rather than disguising private records as constructed.
+
+## Sponsor demonstration and immediate ownership
+
+Use the [integrated case review](../../portfolio/source-review.html) to show how
+an evidence challenge becomes a saved forecast revision, how a reviewer requests
+a correction, and how an adverse corrected model can be accepted without approving
+an intervention. The frozen close, accounting sources and attribution claims
+remain unchanged. All receipts in this demonstration are simulated.
+
+Codex owns the technical preparation, source mapping templates, reconciliation,
+model changes, test evidence, review materials and final reporting. No additional
+input from Alex is required to continue those preparations. When a prospective
+sponsor exists, Alex's necessary action is an introduction to someone authorized
+to scope the pilot and identify a finance/data owner and accountable operator.
+No contact has been made and no sponsor commitment is implied.
+
+For a first meeting, open the integrated review and discuss three questions:
+which single lever matters, who can validate its records and approve its action,
+and what evidence would justify stopping. Complete the scoping record above
+before receiving private records; then Codex adapts the data request and produces
+a dated workplan for the agreed scope.

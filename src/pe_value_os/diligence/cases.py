@@ -16,7 +16,9 @@ from pydantic import Field, model_validator
 
 from .. import security
 from .models import Record
+from .operating_sources import source_forecast
 from .scheduling import OperatingPlan, evaluate_plan
+from .source_revisions import SourceCasePayload, financial_snapshot
 from .underwriting import UnderwritingCase, evaluate
 
 
@@ -44,7 +46,7 @@ class RevisionDraft(Record):
     stage: Literal["underwriting", "close_validation", "ownership_review", "exit_review"]
     effective_on: date
     reason: str = Field(min_length=1)
-    payload: CasePayload
+    payload: CasePayload | SourceCasePayload
 
 
 class InvestmentCase(Record):
@@ -147,12 +149,23 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
             (d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers
         }:
             raise ValueError("initiative lineage changes require an explicit mapping; title matching is insufficient")
+        if isinstance(parent.draft.payload, SourceCasePayload) and not isinstance(draft.payload, SourceCasePayload):
+            raise ValueError("a source-backed revision cannot silently discard its operating-source basis")
     schedule_json = None
-    if draft.payload.operating_plan is None:
+    if isinstance(draft.payload, SourceCasePayload):
+        if parent is None:
+            raise ValueError("source challenge requires an existing original revision")
+        payload = SourceCasePayload.model_validate(draft.payload.model_dump(mode="json"))
+        payload.bind_parent(parent)
+        source = source_forecast(payload.operating_sources, payload.underwriting, payload.operating_plan)
+        financial = financial_snapshot(payload, parent, source)
+        report = source["schedule"]
+    elif draft.payload.operating_plan is None:
         financial = evaluate(draft.payload.underwriting)
     else:
         report = evaluate_plan(draft.payload.operating_plan, draft.payload.underwriting)
         financial = report["scheduled_financials"]
+    if draft.payload.operating_plan is not None:
         schedule_json = json.dumps(
             {
                 key: report[key]

@@ -26,7 +26,11 @@ deadlines, contract expiry, quality failures, vendor release dates, disputes and
 missed payment windows change the forecast using the shared financial engine.
 Its base first-year EBITDA is −18,314.50 and cash is −38,532.00; original inputs,
 costs and frozen cases remain intact. This is an analytical alternative pending
-review, not a promoted case revision or company evidence. See ADR 0021.
+review, not company evidence. See ADR 0021. The subsequent
+[integrated case review](portfolio/source-review.html) persists the source challenge
+and a vendor-evidence correction with simulated reviews (ADR 0022), retains the
+latest 50% capture assumption, and preserves the frozen close and accounting
+history. Its corrected year-one EBITDA is −163,165 and cash is −181,890.
 
 OP-04's current screening corrections are implemented. OP-01 has a working
 charter/source policy; OP-02/03/05–08/12 have partial foundations. The monthly
@@ -318,3 +322,22 @@ Each report distinguishes researched recommendations from implemented behavior,
 lists repository references, cites primary sources and proposes acceptance tests.
 The consolidated tickets above govern implementation order and effort; retain
 the reports as the reasoning behind those decisions.
+
+
+## Source-backed revision increment — September 28, 2026
+
+Implemented the [integrated case review](portfolio/source-review.html): exact
+source books, prior-assumption lessons and simulated reviews now persist in the
+existing case ledger. A correction removes unsupported vendor release evidence
+while retaining the latest capture assumption. The source challenge and adverse
+correction change the current forecast, preserving the original, frozen close,
+five constructed accounting periods, claims and residuals. Existing v1 signed
+records remain readable without hash changes; no live database migration is needed.
+See [ADR 0022](adr/0022-source-backed-case-revisions.md).
+
+Codex next owns initiative/KPI lineage, exit-value boundaries, publication-vintage
+replay and the final executive/practitioner acceptance packet. Real pilot work
+still requires a sponsor, authorization, a tested private-data lane and actual
+management participation. Alex has no sponsor yet and requested the
+[prepared pilot package](pilot/permissioned/README.md); preparation and simulation
+do not count as a company pilot or realized results.

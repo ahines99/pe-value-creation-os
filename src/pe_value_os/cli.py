@@ -342,6 +342,25 @@ def cmd_operating_sources(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_source_review_demo(args: argparse.Namespace) -> int:
+    from .diligence.source_review_demo import build_source_review_demo
+
+    try:
+        result = build_source_review_demo(
+            Path(args.underwriting),
+            Path(args.operating_plan),
+            Path(args.realization),
+            Path(args.execution),
+            Path(args.sources),
+            Path(args.output),
+        )
+    except (ValueError, OSError) as exc:
+        print(f"Source review replay failed ({type(exc).__name__}); inspect exact input bindings.", file=sys.stderr)
+        return 2
+    print(f"Constructed source review: {result}")
+    return 0
+
+
 def cmd_execution_demo(args: argparse.Namespace) -> int:
     from .diligence.execution_demo import build_execution_demo
 
@@ -460,6 +479,12 @@ def build_parser() -> argparse.ArgumentParser:
         sources.add_argument(f"--{flag}", required=True)
     sources.add_argument("--output", default="var/operating-sources/report")
     sources.set_defaults(fn=cmd_operating_sources)
+
+    source_review = sub.add_parser("source-review-demo", help="persist a constructed source challenge and correction")
+    for flag in ("underwriting", "operating-plan", "realization", "execution", "sources"):
+        source_review.add_argument(f"--{flag}", required=True)
+    source_review.add_argument("--output", default="var/source-review/report")
+    source_review.set_defaults(fn=cmd_source_review_demo)
 
     execution = sub.add_parser(
         "execution-demo", help="replay constructed delivery, acceptance, steering and financial claim links"
