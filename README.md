@@ -25,9 +25,16 @@ The [functional audit](docs/portfolio/executive-functional-audit.md) and [screen
 financial baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html)
 replays from 81 issuer-sourced facts without vendor credentials. It shows explicit
 earnings/cash definitions and unresolved accounting differences. The full company
-thesis, monthly operating model and permissioned pilot remain in implementation;
+thesis and permissioned pilot remain in implementation;
 see the [case charter](docs/pilot/progress-case-charter.md) and
 [prepared pilot package](docs/pilot/permissioned/README.md).
+
+**Monthly economics (constructed exercise):** the [underwriting exhibits](https://ahines99.github.io/pe-value-creation-os/portfolio/underwriting.html)
+separate 24-month EBITDA, pre-tax cash, funding need and incremental EV sensitivity.
+They retain adverse scenarios, collection reversals and committed costs after scope
+exclusions. [Replay instructions and source boundaries](data/constructed/progress/README.md)
+make clear that these are assumed operating records, not actual Progress results.
+Capacity scheduling, durable case revisions and realization comparisons remain open.
 
 ## Try it
 
