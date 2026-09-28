@@ -99,3 +99,30 @@ Replay uses isolated memory and does not modify the running showcase. See
 [ADR 0019](../../../docs/adr/0019-constructed-realization-ledger.md) for persistence,
 correction, authority, API and reconciliation contracts. Record IDs/timestamps
 change on replay; the numeric example is reproducible.
+
+## Execution acceptance rehearsal
+
+`execution.json` binds the initial realization fixture and adds January/February
+constructed source books, declared operators/sponsor, steering events, completed
+work, review receipts and exact delivery-to-claim links. It preserves the original
+100-day schedule. Service completion is corrected from December 30 to January 3;
+January full-month support is rejected, February can qualify, and a later withdrawn
+vendor review invalidates that support without changing the accounting books.
+
+```powershell
+uv run pvc execution-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --realization data/constructed/progress/realization.json --execution data/constructed/progress/execution.json --output var/execution/report
+```
+
+The five recorded months have a measured EBITDA difference of 61,000 and pre-tax
+cash of 185,000; explicit financial claims total 18,000 and 166,000. These figures
+are authored source comparisons, not validated savings. At the exercise review,
+six of seven work packages retain acceptance; two pricing claims have delivery
+support, while the February service link is invalidated. All identities,
+work records, evidence and decisions are explicitly simulated. Actual capacity
+consumption, human acceptance, causal impact and company intervention are absent.
+
+The replay manifest preserves rejected challenges separately from persisted
+receipts, whose failed writes produce no audit mutation. Effective dates may be
+reported out of order across streams; each stream remains monotonic. This is an
+exercise using latest evidence corrections, not a historical knowledge-cutoff
+replay. See [ADR 0020](../../../docs/adr/0020-execution-acceptance.md).

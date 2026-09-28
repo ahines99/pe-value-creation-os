@@ -90,7 +90,7 @@ reported differences do not become savings targets (ADR 0015).
 Still required: wider candidate/definition review, reviewed commercial conclusions,
 richer interactions,
 actual execution evidence, independent review of valuation assumptions and
-a fuller realization demonstration with execution acceptance. The [three-month constructed comparison](../portfolio/realization.html) now separates measured differences, explicit claims and unassigned residuals and preserves corrections (ADR 0019). The [executive decision memo](../portfolio/decision-memo.html)
+a fuller lifecycle and learning demonstration with independent execution challenge. Constructed execution receipts and delivery-to-claim links are now available in the [execution review](../portfolio/execution.html); actual company work remains unperformed. The [three-month constructed comparison](../portfolio/realization.html) now separates measured differences, explicit claims and unassigned residuals and preserves corrections (ADR 0019). The [executive decision memo](../portfolio/decision-memo.html)
 now integrates the public thesis, accounting review register and three constructed
 first-wave comparisons. Its preference is conditional research judgment, not a
 management decision. These foundations do not complete S1 or any later goal

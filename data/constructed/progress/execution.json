@@ -1,0 +1,1135 @@
+{
+  "schema_version": 1,
+  "classification": "constructed_operating_exercise",
+  "realization_sha256": "5fd77482845490a0e2a089c888f0a153341a2134869f08231dced70f849c0b5e",
+  "exercise_as_of": "2027-03-02",
+  "observation_extensions": [
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "jan-close",
+        "locator": "data/constructed/progress/execution.json#jan-close/observed",
+        "case_id": "progress-constructed-underwriting-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2027-01-01",
+        "end": "2027-01-31",
+        "scope_explanation": "Same three first-wave initiatives as the frozen forecast: monthly renewal revenue pool of USD 1,000,000; scoped variable servicing/vendor expense pool of USD 340,000; separately identified implementation expense, collections timing and capex. Not consolidated company accounts.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1030000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-334000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-1000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "690000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1030000",
+          "operating_expense": "-334000",
+          "implementation_expense": "-1000",
+          "operating_cash": "690000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "695000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "jan-close-counterfactual",
+        "locator": "data/constructed/progress/execution.json#jan-close/counterfactual",
+        "case_id": "progress-constructed-underwriting-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2027-01-01",
+        "end": "2027-01-31",
+        "scope_explanation": "Same three first-wave initiatives as the frozen forecast: monthly renewal revenue pool of USD 1,000,000; scoped variable servicing/vendor expense pool of USD 340,000; separately identified implementation expense, collections timing and capex. Not consolidated company accounts.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": null,
+      "evidence": [
+        {
+          "evidence_id": "jan-close-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed jan-close support: authored renewal and vendor-cost comparison, implementation cost and operating settlement. No company records, observed intervention or validated counterfactual. Financial claims are not promoted by recording work acceptance.",
+          "sha256": "707de0d49c174cbabc91cc67997a46ef24f93e17df47748f49ab89d593e85112"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "20000",
+          "evidence_ids": [
+            "jan-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "4000",
+          "evidence_ids": [
+            "jan-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-1000",
+          "evidence_ids": [
+            "jan-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "24000",
+          "evidence_ids": [
+            "jan-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Extend the explicitly constructed accounting exercise through 2027-01-31 without deriving benefits from acceptance receipts."
+    },
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "feb-close",
+        "locator": "data/constructed/progress/execution.json#feb-close/observed",
+        "case_id": "progress-constructed-underwriting-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2027-02-01",
+        "end": "2027-02-28",
+        "scope_explanation": "Same three first-wave initiatives as the frozen forecast: monthly renewal revenue pool of USD 1,000,000; scoped variable servicing/vendor expense pool of USD 340,000; separately identified implementation expense, collections timing and capex. Not consolidated company accounts.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1035000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-332000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-1000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "697000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1035000",
+          "operating_expense": "-332000",
+          "implementation_expense": "-1000",
+          "operating_cash": "697000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "702000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "feb-close-counterfactual",
+        "locator": "data/constructed/progress/execution.json#feb-close/counterfactual",
+        "case_id": "progress-constructed-underwriting-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2027-02-01",
+        "end": "2027-02-28",
+        "scope_explanation": "Same three first-wave initiatives as the frozen forecast: monthly renewal revenue pool of USD 1,000,000; scoped variable servicing/vendor expense pool of USD 340,000; separately identified implementation expense, collections timing and capex. Not consolidated company accounts.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": null,
+      "evidence": [
+        {
+          "evidence_id": "feb-close-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed feb-close support: authored renewal and vendor-cost comparison, implementation cost and operating settlement. No company records, observed intervention or validated counterfactual. Financial claims are not promoted by recording work acceptance.",
+          "sha256": "b07f19f37a1de6c1f59f014b520029ebf495c581615c385eecbfa475d821ed59"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "22000",
+          "evidence_ids": [
+            "feb-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "6000",
+          "evidence_ids": [
+            "feb-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-1000",
+          "evidence_ids": [
+            "feb-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "30000",
+          "evidence_ids": [
+            "feb-close-support"
+          ],
+          "rationale": "Author-assigned signed contribution; delivery support must be assessed separately.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Extend the explicitly constructed accounting exercise through 2027-02-28 without deriving benefits from acceptance receipts."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "assign-finance",
+      "label": "Nominate finance operator",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "assignment",
+        "resource_id": "finance",
+        "status": "assigned",
+        "operator_subject": "simulated:finance-operator",
+        "sponsor_subject": "simulated:operating-sponsor"
+      },
+      "evidence": [
+        {
+          "evidence_id": "assign-finance-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Nominate one accountable operator and a sponsor; actual capacity usage is not measured. No actual employee, reviewer or company result is represented.",
+          "sha256": "b35e9436b1654b3f84c14ab715134d1887024a0a6dfeb61e2ad4eefa638601c2"
+        }
+      ],
+      "rationale": "Nominate one accountable operator and a sponsor; actual capacity usage is not measured.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "assign-data",
+      "label": "Nominate data operator",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "assignment",
+        "resource_id": "data",
+        "status": "assigned",
+        "operator_subject": "simulated:data-operator",
+        "sponsor_subject": "simulated:operating-sponsor"
+      },
+      "evidence": [
+        {
+          "evidence_id": "assign-data-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Nominate one accountable operator and a sponsor; actual capacity usage is not measured. No actual employee, reviewer or company result is represented.",
+          "sha256": "b35e9436b1654b3f84c14ab715134d1887024a0a6dfeb61e2ad4eefa638601c2"
+        }
+      ],
+      "rationale": "Nominate one accountable operator and a sponsor; actual capacity usage is not measured.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "assign-commercial",
+      "label": "Nominate commercial operator",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "assignment",
+        "resource_id": "commercial",
+        "status": "assigned",
+        "operator_subject": "simulated:commercial-operator",
+        "sponsor_subject": "simulated:operating-sponsor"
+      },
+      "evidence": [
+        {
+          "evidence_id": "assign-commercial-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Nominate one accountable operator and a sponsor; actual capacity usage is not measured. No actual employee, reviewer or company result is represented.",
+          "sha256": "b35e9436b1654b3f84c14ab715134d1887024a0a6dfeb61e2ad4eefa638601c2"
+        }
+      ],
+      "rationale": "Nominate one accountable operator and a sponsor; actual capacity usage is not measured.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "assign-service",
+      "label": "Nominate service operator",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "assignment",
+        "resource_id": "service",
+        "status": "assigned",
+        "operator_subject": "simulated:service-operator",
+        "sponsor_subject": "simulated:operating-sponsor"
+      },
+      "evidence": [
+        {
+          "evidence_id": "assign-service-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Nominate one accountable operator and a sponsor; actual capacity usage is not measured. No actual employee, reviewer or company result is represented.",
+          "sha256": "b35e9436b1654b3f84c14ab715134d1887024a0a6dfeb61e2ad4eefa638601c2"
+        }
+      ],
+      "rationale": "Nominate one accountable operator and a sponsor; actual capacity usage is not measured.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "go-pricing-renewals",
+      "label": "Proceed with pricing-renewals",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "pricing-renewals",
+        "decision": "proceed"
+      },
+      "evidence": [
+        {
+          "evidence_id": "go-pricing-renewals-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization. No actual employee, reviewer or company result is represented.",
+          "sha256": "bfe0fe08d2b5c2a4fcebe10f4591aea525e89a0e1363a8365d29a4c6c3c0a307"
+        }
+      ],
+      "rationale": "Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "go-service-automation",
+      "label": "Proceed with service-automation",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "service-automation",
+        "decision": "proceed"
+      },
+      "evidence": [
+        {
+          "evidence_id": "go-service-automation-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization. No actual employee, reviewer or company result is represented.",
+          "sha256": "bfe0fe08d2b5c2a4fcebe10f4591aea525e89a0e1363a8365d29a4c6c3c0a307"
+        }
+      ],
+      "rationale": "Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "go-collections-timing",
+      "label": "Proceed with collections-timing",
+      "effective_on": "2026-10-01",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "collections-timing",
+        "decision": "proceed"
+      },
+      "evidence": [
+        {
+          "evidence_id": "go-collections-timing-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization. No actual employee, reviewer or company result is represented.",
+          "sha256": "bfe0fe08d2b5c2a4fcebe10f4591aea525e89a0e1363a8365d29a4c6c3c0a307"
+        }
+      ],
+      "rationale": "Simulated direction to proceed within the exercise; this is neither delivery acceptance nor company authorization.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "foundation-submit",
+      "label": "Submit foundation",
+      "effective_on": "2026-10-14",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "foundation",
+        "assignment": "assign-finance",
+        "state": "completed",
+        "started_on": "2026-10-01",
+        "completed_on": "2026-10-14"
+      },
+      "evidence": [
+        {
+          "evidence_id": "foundation-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Scope, cohort definitions and source-to-control mapping authored and checked; missing private records explicitly listed. No actual employee, reviewer or company result is represented.",
+          "sha256": "db779e3f1b0be614150391644f030cf1d931ce6881ff153aa558f00c2de9eca7"
+        }
+      ],
+      "rationale": "Scope, cohort definitions and source-to-control mapping authored and checked; missing private records explicitly listed.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "foundation-accept",
+      "label": "Accept foundation",
+      "effective_on": "2026-10-14",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "foundation",
+        "delivery": "foundation-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": []
+      },
+      "evidence": [
+        {
+          "evidence_id": "foundation-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Scope, cohort definitions and source-to-control mapping authored and checked; missing private records explicitly listed. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "55abb08257a0aa83b10a325f67d1127125473f03588feff72024cd8fc9fec9e6"
+        }
+      ],
+      "rationale": "Scope, cohort definitions and source-to-control mapping authored and checked; missing private records explicitly listed. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "collections-review-submit",
+      "label": "Submit collections-review",
+      "effective_on": "2026-10-28",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "collections-review",
+        "assignment": "assign-finance",
+        "state": "completed",
+        "started_on": "2026-10-15",
+        "completed_on": "2026-10-28"
+      },
+      "evidence": [
+        {
+          "evidence_id": "collections-review-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Aging cohort and payment timing reviewed; collections movement is cash-only and temporary. No actual employee, reviewer or company result is represented.",
+          "sha256": "22bfbba9a1013f929dc5ddd2570a21d8c6d7e4e1e4193e4015878278b4fd2da7"
+        }
+      ],
+      "rationale": "Aging cohort and payment timing reviewed; collections movement is cash-only and temporary.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "collections-review-accept",
+      "label": "Accept collections-review",
+      "effective_on": "2026-10-28",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "collections-review",
+        "delivery": "collections-review-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "foundation-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "collections-review-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Aging cohort and payment timing reviewed; collections movement is cash-only and temporary. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "63138bb30379efe79ead7a4446b4e70a1b2193639cc0cc02601bfa6f579f4c8f"
+        }
+      ],
+      "rationale": "Aging cohort and payment timing reviewed; collections movement is cash-only and temporary. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "collections-gate-submit",
+      "label": "Submit collections-gate",
+      "effective_on": "2026-11-11",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "collections-gate",
+        "assignment": "assign-finance",
+        "state": "completed",
+        "started_on": "2026-10-29",
+        "completed_on": "2026-11-11"
+      },
+      "evidence": [
+        {
+          "evidence_id": "collections-gate-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Cash collection and reversal dates checked; no EBITDA uplift represented. No actual employee, reviewer or company result is represented.",
+          "sha256": "72700fd0dab8a85422dfcc2db3488ad27367a1b9afd11ca043f1955f5f820649"
+        }
+      ],
+      "rationale": "Cash collection and reversal dates checked; no EBITDA uplift represented.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "collections-gate-accept",
+      "label": "Accept collections-gate",
+      "effective_on": "2026-11-11",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "collections-gate",
+        "delivery": "collections-gate-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "collections-review-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "collections-gate-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Cash collection and reversal dates checked; no EBITDA uplift represented. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "1ebcd646fef485a829b0a2abf1a97554ee9b99b4d4506622d45967e7ef51c3e6"
+        }
+      ],
+      "rationale": "Cash collection and reversal dates checked; no EBITDA uplift represented. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "link-october-collections",
+      "label": "Reject October cash credit from a later gate",
+      "effective_on": "2026-11-30",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "oct-close",
+        "row_id": "working_capital_cash",
+        "initiative_id": "collections-timing",
+        "acceptance": "collections-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-october-collections-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. The October collections claim predates the November gate; financial records remain unchanged. No actual employee, reviewer or company result is represented.",
+          "sha256": "fbdc7ed3e6793674bd5500fdb2d8475c132414cf749189929998102163da4150"
+        }
+      ],
+      "rationale": "The October collections claim predates the November gate; financial records remain unchanged.",
+      "previous_step": null,
+      "expected_error": "whole-month support requires gate acceptance"
+    },
+    {
+      "step_id": "pricing-review-submit",
+      "label": "Submit pricing-review",
+      "effective_on": "2026-12-02",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "pricing-review",
+        "assignment": "assign-commercial",
+        "state": "completed",
+        "started_on": "2026-11-12",
+        "completed_on": "2026-12-02"
+      },
+      "evidence": [
+        {
+          "evidence_id": "pricing-review-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Authored contract cohort, caps, notice and retention thresholds reviewed; price and churn effects remain combined. No actual employee, reviewer or company result is represented.",
+          "sha256": "5b148925d8c24c3e60b323eb5068d904c94de548361b2702868d2fd37ec3546b"
+        }
+      ],
+      "rationale": "Authored contract cohort, caps, notice and retention thresholds reviewed; price and churn effects remain combined.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "pricing-review-accept",
+      "label": "Accept pricing-review",
+      "effective_on": "2026-12-02",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "pricing-review",
+        "delivery": "pricing-review-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "foundation-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "pricing-review-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Authored contract cohort, caps, notice and retention thresholds reviewed; price and churn effects remain combined. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "f145bab74c39ad4be57a0a127a649e934dd5027be87b8861e25bd8a16f78db15"
+        }
+      ],
+      "rationale": "Authored contract cohort, caps, notice and retention thresholds reviewed; price and churn effects remain combined. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-trial-submit",
+      "label": "Submit service-trial",
+      "effective_on": "2026-12-09",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "service-trial",
+        "assignment": "assign-service",
+        "state": "completed",
+        "started_on": "2026-11-12",
+        "completed_on": "2026-12-09"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-trial-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Authored safe-resolution/recontact results and removable vendor-cost hypothesis reviewed separately from freed hours. No actual employee, reviewer or company result is represented.",
+          "sha256": "6369a6219739ca54c563f24223eaa33bb48c725c01fa7ea08b5b2451b2aae148"
+        }
+      ],
+      "rationale": "Authored safe-resolution/recontact results and removable vendor-cost hypothesis reviewed separately from freed hours.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-trial-accept",
+      "label": "Accept service-trial",
+      "effective_on": "2026-12-09",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "service-trial",
+        "delivery": "service-trial-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "foundation-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-trial-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Authored safe-resolution/recontact results and removable vendor-cost hypothesis reviewed separately from freed hours. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "81e584615e9f81ec44a9908c15c109437dc93c2630ac43b368e1bc90a2026b88"
+        }
+      ],
+      "rationale": "Authored safe-resolution/recontact results and removable vendor-cost hypothesis reviewed separately from freed hours. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-hold",
+      "label": "Hold service rollout",
+      "effective_on": "2026-12-15",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "service-automation",
+        "decision": "hold"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-hold-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Hold rollout pending vendor terms and rollback evidence; technical review may continue. No actual employee, reviewer or company result is represented.",
+          "sha256": "501b7d86eb347ec3ecc372ea371614d7d9548fa56fa79e6825c1dcbdf8d09a4b"
+        }
+      ],
+      "rationale": "Hold rollout pending vendor terms and rollback evidence; technical review may continue.",
+      "previous_step": "go-service-automation",
+      "expected_error": null
+    },
+    {
+      "step_id": "pricing-gate-submit",
+      "label": "Submit pricing-gate",
+      "effective_on": "2026-12-16",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "pricing-gate",
+        "assignment": "assign-commercial",
+        "state": "completed",
+        "started_on": "2026-12-03",
+        "completed_on": "2026-12-16"
+      },
+      "evidence": [
+        {
+          "evidence_id": "pricing-gate-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Constructed exact renewal cohort and monitoring/stop conditions accepted for the exercise. No actual employee, reviewer or company result is represented.",
+          "sha256": "77fec5db8df6b364bb3d59d8eaaeafb26a745c63571fdc32865d5cb117fadc26"
+        }
+      ],
+      "rationale": "Constructed exact renewal cohort and monitoring/stop conditions accepted for the exercise.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "pricing-gate-accept",
+      "label": "Accept pricing-gate",
+      "effective_on": "2026-12-16",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "pricing-gate",
+        "delivery": "pricing-gate-submit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "pricing-review-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "pricing-gate-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Constructed exact renewal cohort and monitoring/stop conditions accepted for the exercise. Reviewer accepts this exact submission and prerequisite chain in simulation. No actual employee, reviewer or company result is represented.",
+          "sha256": "00988161adab57bae0eb7c9563e3caf6b023856091ee1d9a077bddcfa8cac388"
+        }
+      ],
+      "rationale": "Constructed exact renewal cohort and monitoring/stop conditions accepted for the exercise. Reviewer accepts this exact submission and prerequisite chain in simulation.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-gate-submit",
+      "label": "Submit initial service gate",
+      "effective_on": "2026-12-30",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "service-gate",
+        "assignment": "assign-service",
+        "state": "completed",
+        "started_on": "2026-12-10",
+        "completed_on": "2026-12-30"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-gate-submit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Operator reports completion; review still needs to assess the vendor and rollback conditions. No actual employee, reviewer or company result is represented.",
+          "sha256": "1f7d9ea499abae83a10e201e7c0562dd94a411bf9a2c60367f7568f03a1c5333"
+        }
+      ],
+      "rationale": "Operator reports completion; review still needs to assess the vendor and rollback conditions.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-gate-changes",
+      "label": "Request missing vendor evidence",
+      "effective_on": "2026-12-30",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "service-gate",
+        "delivery": "service-gate-submit",
+        "decision": "request_changes"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-gate-changes-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Request changes: vendor minimum-spend release and rollback-owner acknowledgement are absent. No actual employee, reviewer or company result is represented.",
+          "sha256": "d75ed4d4bb8cbe8aceff7d6f719f7f30923603097f76f58a5a9cebb110e5d07a"
+        }
+      ],
+      "rationale": "Request changes: vendor minimum-spend release and rollback-owner acknowledgement are absent.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-gate-resubmit",
+      "label": "Submit corrected service package",
+      "effective_on": "2027-01-03",
+      "payload": {
+        "kind": "delivery",
+        "task_id": "service-gate",
+        "assignment": "assign-service",
+        "state": "completed",
+        "started_on": "2026-12-10",
+        "completed_on": "2027-01-03"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-gate-resubmit-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Correct completion after authored vendor-release and rollback evidence arrives; retain the earlier submission. No actual employee, reviewer or company result is represented.",
+          "sha256": "e6c3805c73be4787e6b6fb25e81484fb5bee6e993bb7a822ece25bf691fe3542"
+        }
+      ],
+      "rationale": "Correct completion after authored vendor-release and rollback evidence arrives; retain the earlier submission.",
+      "previous_step": "service-gate-submit",
+      "expected_error": null
+    },
+    {
+      "step_id": "service-gate-accept",
+      "label": "Accept corrected service gate",
+      "effective_on": "2027-01-03",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "service-gate",
+        "delivery": "service-gate-resubmit",
+        "decision": "accept",
+        "prerequisite_acceptances": [
+          "service-trial-accept"
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-gate-accept-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Accept exact corrected submission; technical readiness does not itself lift the steering hold. No actual employee, reviewer or company result is represented.",
+          "sha256": "e41d7a59488a8c2b9320e745447a00f2f20bb63e7b9227ffd658465abbbe00ee"
+        }
+      ],
+      "rationale": "Accept exact corrected submission; technical readiness does not itself lift the steering hold.",
+      "previous_step": "service-gate-changes",
+      "expected_error": null
+    },
+    {
+      "step_id": "service-resume",
+      "label": "Resume service exercise",
+      "effective_on": "2027-01-04",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "service-automation",
+        "decision": "proceed"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-resume-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Explicitly resume after acceptance; no retroactive January full-month credit. No actual employee, reviewer or company result is represented.",
+          "sha256": "b7b93aa71ce0b1496912445b1858855b764dd1592615500d93e759818ffa00d5"
+        }
+      ],
+      "rationale": "Explicitly resume after acceptance; no retroactive January full-month credit.",
+      "previous_step": "service-hold",
+      "expected_error": null
+    },
+    {
+      "step_id": "link-january-service",
+      "label": "Reject partial-month January support",
+      "effective_on": "2027-01-31",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "jan-close",
+        "row_id": "operating_expense",
+        "initiative_id": "service-automation",
+        "acceptance": "service-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-january-service-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. The gate was accepted on January 3; a monthly source cannot establish full-month support. No actual employee, reviewer or company result is represented.",
+          "sha256": "187c67daa5227879034debc025b330f6d1bfc07db41bd8bbdcc7d1d47a6c6fd9"
+        }
+      ],
+      "rationale": "The gate was accepted on January 3; a monthly source cannot establish full-month support.",
+      "previous_step": null,
+      "expected_error": "whole-month support requires gate acceptance"
+    },
+    {
+      "step_id": "link-jan-pricing",
+      "label": "Link January pricing claim",
+      "effective_on": "2027-01-31",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "jan-close",
+        "row_id": "revenue",
+        "initiative_id": "pricing-renewals",
+        "acceptance": "pricing-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-jan-pricing-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Delivery timing supports this whole-month claim; volume, mix and counterfactual quality still require attribution challenge. No actual employee, reviewer or company result is represented.",
+          "sha256": "6b16cd812c100363187c9d3e487ef42d235d18fb927a681c011889806f02f7a0"
+        }
+      ],
+      "rationale": "Delivery timing supports this whole-month claim; volume, mix and counterfactual quality still require attribution challenge.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "link-feb-pricing",
+      "label": "Link February pricing claim",
+      "effective_on": "2027-02-28",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "feb-close",
+        "row_id": "revenue",
+        "initiative_id": "pricing-renewals",
+        "acceptance": "pricing-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-feb-pricing-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Delivery timing supports this whole-month claim; volume, mix and counterfactual quality still require attribution challenge. No actual employee, reviewer or company result is represented.",
+          "sha256": "6b16cd812c100363187c9d3e487ef42d235d18fb927a681c011889806f02f7a0"
+        }
+      ],
+      "rationale": "Delivery timing supports this whole-month claim; volume, mix and counterfactual quality still require attribution challenge.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "link-feb-service",
+      "label": "Link February service claim",
+      "effective_on": "2027-02-28",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "feb-close",
+        "row_id": "operating_expense",
+        "initiative_id": "service-automation",
+        "acceptance": "service-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-feb-service-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Gate acceptance and proceed authority cover February; this does not prove incremental causal savings. No actual employee, reviewer or company result is represented.",
+          "sha256": "b0603381c4d3f0969f6ec557b7eaf80c88748190081c896949b8708871e8c4e5"
+        }
+      ],
+      "rationale": "Gate acceptance and proceed authority cover February; this does not prove incremental causal savings.",
+      "previous_step": null,
+      "expected_error": null
+    },
+    {
+      "step_id": "service-march-hold",
+      "label": "Hold service after February",
+      "effective_on": "2027-03-01",
+      "payload": {
+        "kind": "steering",
+        "initiative_id": "service-automation",
+        "decision": "hold"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-march-hold-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Hold future activity after a vendor evidence challenge. A March hold does not erase February authority. No actual employee, reviewer or company result is represented.",
+          "sha256": "2385b5ea991fd11d8c9fe5b7fc61e0c5234abd0e8856a9a8d8c552faea8e07b7"
+        }
+      ],
+      "rationale": "Hold future activity after a vendor evidence challenge. A March hold does not erase February authority.",
+      "previous_step": "service-resume",
+      "expected_error": null
+    },
+    {
+      "step_id": "service-acceptance-withdraw",
+      "label": "Withdraw unsupported vendor acceptance",
+      "effective_on": "2027-03-02",
+      "payload": {
+        "kind": "acceptance",
+        "task_id": "service-gate",
+        "delivery": "service-gate-resubmit",
+        "decision": "withdraw"
+      },
+      "evidence": [
+        {
+          "evidence_id": "service-acceptance-withdraw-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. Withdraw acceptance: the authored vendor release did not cover the asserted minimum-spend removal. The linked February claim loses delivery support; source accounting and claimed amounts are preserved. No actual employee, reviewer or company result is represented.",
+          "sha256": "e6a1f48e840617dc4f2abd081e7177b2ba54e3a83a52b3ec04fe2c9136be09a6"
+        }
+      ],
+      "rationale": "Withdraw acceptance: the authored vendor release did not cover the asserted minimum-spend removal. The linked February claim loses delivery support; source accounting and claimed amounts are preserved.",
+      "previous_step": "service-gate-accept",
+      "expected_error": null
+    },
+    {
+      "step_id": "link-stale-service",
+      "label": "Reject the withdrawn service acceptance",
+      "effective_on": "2027-03-02",
+      "payload": {
+        "kind": "claim_link",
+        "attribution_source_id": "feb-close",
+        "row_id": "operating_expense",
+        "initiative_id": "service-automation",
+        "acceptance": "service-gate-accept"
+      },
+      "evidence": [
+        {
+          "evidence_id": "link-stale-service-evidence",
+          "classification": "constructed_execution_evidence",
+          "content": "Constructed exercise evidence. An old acceptance cannot be reused after the reviewer withdraws it; the earlier link stays recorded but invalidated. No actual employee, reviewer or company result is represented.",
+          "sha256": "515d36eaa4c928579d5f8ecb67cec9afa02fd23c076a5b60814939b90ef9cb02"
+        }
+      ],
+      "rationale": "An old acceptance cannot be reused after the reviewer withdraws it; the earlier link stays recorded but invalidated.",
+      "previous_step": "link-feb-service",
+      "expected_error": "supporting execution receipt has been superseded"
+    }
+  ]
+}

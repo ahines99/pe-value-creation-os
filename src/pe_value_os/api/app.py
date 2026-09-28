@@ -14,6 +14,7 @@ import os
 import secrets
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import date
 from typing import Annotated, Any, Literal
 from urllib.parse import quote
 
@@ -28,6 +29,7 @@ from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
+from ..diligence.execution import ExecutionRequest
 from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
@@ -192,6 +194,18 @@ def case_history(case_id: str, request: Request, p: Principal) -> dict[str, Any]
             "reviews": [r.model_dump(mode="json") for r in reviews],
             "comparison": compare_revisions(revisions[0], revisions[-1]) if revisions else None,
         }
+
+
+@app.post("/cases/{case_id}/execution-events", status_code=201)
+def record_execution_event(case_id: str, body: ExecutionRequest, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.record_execution_event(case_id, body).model_dump(mode="json")
+
+
+@app.get("/cases/{case_id}/execution/{baseline_id}")
+def case_execution(case_id: str, baseline_id: str, as_of: date, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return get_ctx().repo.case_execution(case_id, baseline_id, as_of)
 
 
 @app.post("/cases/{case_id}/observations", status_code=201)

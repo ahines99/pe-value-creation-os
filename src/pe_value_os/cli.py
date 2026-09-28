@@ -325,6 +325,27 @@ def cmd_operating_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_execution_demo(args: argparse.Namespace) -> int:
+    from .diligence.execution_demo import build_execution_demo
+
+    try:
+        result = build_execution_demo(
+            Path(args.underwriting),
+            Path(args.operating_plan),
+            Path(args.realization),
+            Path(args.execution),
+            Path(args.output),
+        )
+    except (ValueError, OSError) as exc:
+        print(
+            f"Constructed execution replay failed ({type(exc).__name__}); inspect receipt and source bindings.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed execution review (simulated receipts): {result}")
+    return 0
+
+
 def cmd_realization_demo(args: argparse.Namespace) -> int:
     from .diligence.realization_render import build_realization_demo
 
@@ -414,6 +435,14 @@ def build_parser() -> argparse.ArgumentParser:
         valuation.add_argument(f"--{flag}", required=True)
     valuation.add_argument("--output", default="var/equity-bridge/historical-valuation")
     valuation.set_defaults(fn=cmd_historical_valuation)
+
+    execution = sub.add_parser(
+        "execution-demo", help="replay constructed delivery, acceptance, steering and financial claim links"
+    )
+    for flag in ("underwriting", "operating-plan", "realization", "execution"):
+        execution.add_argument(f"--{flag}", required=True)
+    execution.add_argument("--output", default="var/execution/report")
+    execution.set_defaults(fn=cmd_execution_demo)
 
     realization = sub.add_parser(
         "realization-demo", help="replay constructed monthly accounting and explicit attribution in isolated memory"

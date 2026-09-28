@@ -125,5 +125,8 @@ company ledger, validated counterfactual, accepted intervention or causal result
 The current ingestion contracts deliberately accept only constructed records.
 Before a permissioned pilot uses private records, Codex must implement and test
 the authorized private-data lane, agreed source mappings, retention controls and
-actual work-acceptance linkage. Do not relabel company records as constructed
+permissioned work-acceptance evidence. Constructed delivery-to-claim links are
+now demonstrated in the [execution review](../../portfolio/execution.html): late
+acceptance blocks whole-month credit, and withdrawal invalidates support while
+preserving source accounting. These are rehearsal receipts only. Do not relabel company records as constructed
 to bypass this boundary. Sponsor participation and authorization remain absent.

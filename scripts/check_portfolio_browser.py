@@ -36,6 +36,7 @@ def main() -> None:
         "operating-plan": "/portfolio/operating-plan.html",
         "case-history": "/portfolio/case-history.html",
         "realization": "/portfolio/realization.html",
+        "execution": "/portfolio/execution.html",
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
     }
@@ -82,6 +83,28 @@ def main() -> None:
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
+                if name == "execution":
+                    assert (
+                        "Completed, accepted and permitted are different states"
+                        in page.locator("#decision").inner_text()
+                    )
+                    assert "whole-month support" in page.locator("#challenge").inner_text()
+                    assert "Withdraw unsupported vendor acceptance" in page.locator("#challenge").inner_text()
+                    assert "delivery support invalidated" in page.locator("#claims").inner_text()
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert sum(t["acceptance_valid"] for t in payload["execution"]["final"]["tasks"]) == 6
+                    assert [c["delivery_support_valid"] for c in payload["execution"]["final"]["claim_links"]] == [
+                        True,
+                        True,
+                        False,
+                    ]
+                    assert payload["submitted_periods"] == 5 and payload["actual_company_realized_value"] is None
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#challenge").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"execution-challenges-{width}.png"))
                 if name == "realization":
                     assert "Cash improvement is not earnings delivery" in page.locator("#decision").inner_text()
                     assert "-16,000" in page.locator("#comparison").inner_text()

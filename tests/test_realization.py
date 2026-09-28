@@ -397,7 +397,7 @@ def test_api_uses_bearer_and_preserves_scope_claims_and_retry_semantics(repo, mo
 def test_postgres_ledger_is_immutable_forced_rls_and_downgrade_safe(pg_repo, pg_database):
     import psycopg
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     with security.principal_scope(principal()):
         case, _, _, _, req = ready(pg_repo)
@@ -412,9 +412,12 @@ def test_postgres_ledger_is_immutable_forced_rls_and_downgrade_safe(pg_repo, pg_
             for statement in ("update " + table + " set sequence=99", "delete from " + table):
                 with pytest.raises(psycopg.errors.InsufficientPrivilege):
                     conn.execute(statement)
-    with pytest.raises(RuntimeError, match="Realization history"):
-        downgrade(pg_database[0], "0005")
-    assert current(pg_database[0]) == "0006"
+    try:
+        with pytest.raises(RuntimeError, match="Realization history"):
+            downgrade(pg_database[0], "0005")
+        assert current(pg_database[0]) == "0006"
+    finally:
+        upgrade(pg_database[0])
 
 
 def test_signed_adverse_costs_and_collections_remain_separate(repo):
@@ -560,7 +563,9 @@ def test_realization_downgrade_guard_sees_unscoped_owner_records(pg_repo, pg_dat
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import downgrade
+    from pe_value_os.db.migrate import downgrade, upgrade
+
+    downgrade(pg_database[0], "0006")
 
     with security.principal_scope(principal()):
         case, _, _, _, req = ready(pg_repo)
@@ -585,3 +590,4 @@ def test_realization_downgrade_guard_sees_unscoped_owner_records(pg_repo, pg_dat
             ).fetchone()[0]
         finally:
             conn.execute(sql.SQL("alter table case_observations owner to {}").format(sql.Identifier(owner)))
+            upgrade(pg_database[0])
