@@ -1,7 +1,8 @@
 # ADR 0010: dated incremental underwriting model
 
 Status: accepted for the constructed exercise. This extends the financial model;
-durable case revisions, human review receipts and capacity scheduling remain open.
+durable case revisions and human review receipts remain open. Capacity scheduling
+and version 2 benefit-availability masks are defined in [ADR 0012](0012-capacity-aware-operating-plan.md).
 
 ## Decision
 
@@ -11,8 +12,8 @@ assumptions and explicit invalidating conditions. Preserve the existing screenin
 calculator and its approved historical plans. This module creates neither an
 operating approval nor a realization claim.
 
-The financial engine owns dated accrual and cash entries. A future scheduler will
-supply effective dates; it must not independently calculate financial totals.
+The financial engine owns dated accrual and cash entries. The constructed scheduler
+supplies effective dates and availability masks; it does not calculate financial totals.
 Scenario assumptions reference stable IDs and declare units. Driver references,
 cost references, source references, scenario identities and horizon dates are
 validated before calculation. The public exercise rejects private source classes.

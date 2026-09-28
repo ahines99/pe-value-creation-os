@@ -30,6 +30,29 @@ These are analytical selection changes, not approvals or source-system actions.
 
 The [method and limitations](../../../docs/adr/0010-monthly-underwriting.md) define
 the cash proxy, rounding/timing, overlap guard and arbitrary 6×/8×/10× sensitivity
-grid. The exercise does not yet impose resource capacity, persist case revisions,
-compare actual results, or complete the executive decision memo. It is an input to
-those later integrations, not a recommendation that Progress execute these levers.
+grid. The exercise does not yet persist case revisions, compare actual results,
+or complete the executive decision memo. It is not a recommendation that Progress
+execute these levers.
+
+## Capacity-aware operating proposal
+
+`operating-plan.json` is an explicitly constructed seven-package first-wave plan,
+bound to the underwriting input hash. Four proposed resources have net weekly
+change budgets. The scheduler reserves their hours, follows dependencies and
+records why earlier slots fail. It supplies dates to the same financial engine:
+
+```powershell
+uv run python -m scripts.build_operating_plan_example
+uv run pvc operating-plan --input data/constructed/progress/operating-plan.json --underwriting data/constructed/progress/underwriting.json --output var/operating-plan/report
+```
+
+The [published plan](../../../docs/portfolio/operating-plan.html) shows original
+versus scheduled economics and expandable weekly capacity. All assignments,
+capacity and acceptance conditions are proposals. Scheduled acceptance is a
+forecast assumption, not evidence that a person accepted a deliverable.
+
+An unknown budget cannot authorize allocation. A blocked gate suppresses benefit
+while keeping original costs. A collections gate that misses the original payment
+date cannot create an acceleration advantage. The input files and original
+forecast remain unchanged. See [ADR 0012](../../../docs/adr/0012-capacity-aware-operating-plan.md)
+for full-week conventions, priority behavior, limitations and worked verification.
