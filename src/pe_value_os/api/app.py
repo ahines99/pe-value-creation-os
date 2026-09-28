@@ -160,6 +160,13 @@ def _decide(run_id: str, p: security.Principal, body: DecisionIn) -> dict[str, A
     return rec.model_dump(mode="json")
 
 
+def _demo_login_response(*, error: str | None = None, status_code: int = 200) -> HTMLResponse:
+    csrf = secrets.token_urlsafe(24)
+    response = HTMLResponse(views.login_page(csrf, error=error), status_code=status_code)
+    response.set_cookie("pvc_login_csrf", csrf, httponly=True, samesite="strict", max_age=600)
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request) -> Response:
     try:
@@ -167,10 +174,7 @@ def home(request: Request) -> Response:
     except HTTPException as exc:
         if exc.status_code != 401 or os.environ.get("PVC_ENV") != "dev":
             raise
-        csrf = secrets.token_urlsafe(24)
-        response = HTMLResponse(views.login_page(csrf))
-        response.set_cookie("pvc_login_csrf", csrf, httponly=True, samesite="strict", max_age=600)
-        return response
+        return _demo_login_response()
     with scoped(principal):
         runs = get_ctx().repo.list_runs()
     return HTMLResponse(views.home_page(runs, dev=os.environ.get("PVC_ENV") == "dev"))
@@ -182,14 +186,21 @@ def dev_login(request: Request, token: Annotated[str, Form()], csrf: Annotated[s
         raise HTTPException(404, "Not found")
     expected = request.cookies.get("pvc_login_csrf", "")
     if not expected or not secrets.compare_digest(csrf, expected):
-        raise HTTPException(403, "CSRF check failed")
+        return _demo_login_response(
+            error="This sign-in page expired. Enter the local approver token and try again.", status_code=403
+        )
+    token = token.strip()
     claims = _dev_tokens().get(token)
     if not claims:
-        raise HTTPException(401, "Invalid demo token")
+        return _demo_login_response(
+            error="That token was not recognized. Copy the current token and try again.", status_code=401
+        )
     try:
         principal_from_claims(claims)
-    except (TypeError, ValueError, PyJWTError) as exc:
-        raise HTTPException(401, "Invalid demo token") from exc
+    except (TypeError, ValueError, PyJWTError):
+        return _demo_login_response(
+            error="That token was not recognized. Copy the current token and try again.", status_code=401
+        )
     response = RedirectResponse("/", status_code=303)
     response.set_cookie("pvc_dev_session", token, httponly=True, samesite="strict", max_age=3600)
     response.delete_cookie("pvc_login_csrf")

@@ -12,7 +12,8 @@ Do not mark this complete based on automated tests or an agent-authored walkthro
 
 | Field | Actual result to record |
 |---|---|
-| Participant / date | Pending |
+| Participant / date | Alex, September 27, 2026: browser sign-in confirmed; full MCP/review session pending |
+| Local browser sign-in | Passed: Alex confirmed the saved token worked and supplied the authenticated workspace output showing Beacon awaiting approval and Delta needing evidence |
 | Reviewed commit / client version | Pending |
 | Install plugin from detached checkout | Pending |
 | Run diagnostic skill against Beacon | Pending |
@@ -25,6 +26,8 @@ Do not mark this complete based on automated tests or an agent-authored walkthro
 | Feedback and repairs | Pending |
 
 Suggested client prompt: “Use the PE value creation diagnostic skill for beacon-pricing. Cite tool evidence, distinguish modeled opportunity from realized results, and stop at human approval.” Then repeat for `delta-broken` to inspect missing-data handling.
+
+Initial human feedback exposed an unhelpful raw JSON response for an invalid local token. The saved token matched the running API and succeeded in an HTTP check; Alex subsequently confirmed successful browser sign-in. The fix keeps unsuccessful sign-in on the HTML form, renews its CSRF challenge, explains token retrieval and ignores surrounding paste whitespace. Browser text supplied by Alex confirms sign-in, but is not a screenshot or proof of the remaining review/approval/MCP steps.
 
 ## Publication and ownership
 

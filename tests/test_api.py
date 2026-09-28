@@ -72,7 +72,9 @@ def test_browser_demo_login_scoping_and_csrf(env):
     assert "Local showcase sign-in" in landing.text
     csrf = client.cookies["pvc_login_csrf"]
     assert client.post("/dev/login", data={"token": "approver-beacon", "csrf": "wrong"}).status_code == 403
+    csrf = client.cookies["pvc_login_csrf"]
     assert client.post("/dev/login", data={"token": "invalid", "csrf": csrf}).status_code == 401
+    csrf = client.cookies["pvc_login_csrf"]
     login = client.post("/dev/login", data={"token": "approver-beacon", "csrf": csrf}, follow_redirects=False)
     assert login.status_code == 303
     assert "HttpOnly" in login.headers["set-cookie"]
@@ -93,6 +95,28 @@ def test_development_cookie_is_not_production_auth(env, monkeypatch):
     monkeypatch.setenv("PVC_ENV", "prod")
     assert client.get("/").status_code == 401
     assert client.post("/dev/login", data={"token": "approver-beacon", "csrf": "x"}).status_code == 404
+
+
+def test_demo_login_recovers_from_bad_token_and_expired_form(env):
+    _, run_id, client = env
+    client.get("/")
+    original_csrf = client.cookies["pvc_login_csrf"]
+    bad = client.post("/dev/login", data={"token": "do-not-echo-this-secret", "csrf": original_csrf})
+    assert bad.status_code == 401
+    assert bad.headers["content-type"].startswith("text/html")
+    assert "role='alert'" in bad.text and "not recognized" in bad.text
+    assert "settings.json" in bad.text and "do-not-echo-this-secret" not in bad.text
+    assert "pvc_dev_session" not in client.cookies
+    assert client.cookies["pvc_login_csrf"] != original_csrf
+    expired = client.post("/dev/login", data={"token": "approver-beacon", "csrf": original_csrf})
+    assert expired.status_code == 403 and "sign-in page expired" in expired.text
+    assert "pvc_dev_session" not in client.cookies
+    recovered = client.post(
+        "/dev/login",
+        data={"token": " \tapprover-beacon\r\n", "csrf": client.cookies["pvc_login_csrf"]},
+    )
+    assert recovered.status_code == 200 and run_id in recovered.text
+    assert client.cookies["pvc_dev_session"] == "approver-beacon"
 
 
 @pytest.fixture

@@ -29,6 +29,7 @@ def main() -> None:
         assert landing.status_code == 200 and "Local showcase sign-in" in landing.text
         csrf = client.cookies["pvc_login_csrf"]
         assert client.post("/dev/login", data={"token": token, "csrf": "wrong"}).status_code == 403
+        csrf = client.cookies["pvc_login_csrf"]
         signed_in = client.post("/dev/login", data={"token": token, "csrf": csrf})
         signed_in.raise_for_status()
         assert run_id in signed_in.text
