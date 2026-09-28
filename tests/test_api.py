@@ -217,6 +217,7 @@ def test_review_page_and_csrf_form(env):
         f"/runs/{run_id}/approvals/form", headers=H("approver-beacon"), data={"decision": "approved", "csrf": "wrong"}
     )
     assert bad.status_code == 403
+    csrf = client.cookies["pvc_csrf"]
     ok = client.post(
         f"/runs/{run_id}/approvals/form",
         headers=H("approver-beacon"),
@@ -226,7 +227,7 @@ def test_review_page_and_csrf_form(env):
     assert ok.status_code == 303
     assert resume(ctx, run_id).status == Status.REJECTED
     viewer = client.get(f"/runs/{run_id}/review", headers=H("analyst-beacon"))
-    assert "Decided <b>rejected</b>" in viewer.text
+    assert "data-status='rejected'" in viewer.text and "not now" in viewer.text
 
 
 def test_review_page_escapes_untrusted_text(env):

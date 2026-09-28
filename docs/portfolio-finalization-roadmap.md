@@ -2,33 +2,39 @@
 
 Prepared September 27, 2026 from the current worktree, [audit remediation](audit-remediation.md), [ticket roadmap](../ROADMAP.md), implementation, packaging and deployment configuration.
 
-**Assessment:** the public Apache-2.0 showcase candidate is implemented and reproducibly tested. The remaining P1 gates are actual human MCP/browser acceptance, rendered visual evidence and final release promotion. Production remains a separate, unaccepted milestone.
+**Assessment:** the executive UI redesign is implemented and undergoing renewed acceptance. Alex rejected the earlier visuals. The current worktree passed 478 tests with one Windows symlink-privilege skip, 39 targeted API/UI tests and 39/39 deterministic evaluations. PostgreSQL was enabled in a disposable test database; these are local results, not new CI. Rendered engineering checks and authentic screenshots now exist for six pages at desktop/tablet/mobile widths. Human new-design/MCP acceptance and the new PR's ten exact-build CI checks remain open. Production remains a separate, unaccepted milestone.
 
-**Your selected priority: polished showcase first, production roadmap afterward.** The immediate target is P1: a project you can confidently show to a hiring manager, technical reviewer, investor or prospective customer. Alex selected technical hiring managers and applied-AI leaders as the audience and authorized public Apache-2.0 publication after confirming rights. P2 is an optional intermediate demonstration; P3 retains all real-company production gaps. Public source publication is now authorized; purchases, paid model runs and cloud deployment remain separately gated. No ticket is closed merely by appearing here.
+**Your selected priority: polished showcase first, production roadmap afterward.** The immediate target is P1: an executive-facing PE value-creation workspace that operating partners and portfolio-company leaders can evaluate through decisions, economics, evidence and execution. The current audience direction supersedes the earlier hiring-manager/applied-AI positioning. Technical diligence remains available. Alex previously authorized public Apache-2.0 publication after confirming rights. P2 is an optional intermediate demonstration; P3 retains all real-company production gaps. Public source publication is now authorized; purchases, paid model runs and cloud deployment remain separately gated. No ticket is closed merely by appearing here.
 
 “My actions” means implementation, analysis, automation, configuration and evidence collection I can carry out. “Your actions” means choices, account access, spending authorization, publication rights, actual human use, and obtaining accountable specialist sign-offs. Once access and decisions are supplied, technical execution remains my responsibility.
 
-## Execution update: public showcase candidate
+## Current execution update: executive redesign
+
+The redesign adds an executive portfolio overview with one current assessment per company, separate currency totals and historical links; plan briefs with modeled EBITDA and workstream contributions; technical value-case/source disclosures; decision forms with preserved input and HTML error recovery; and run-specific operating scorecards. Functional repairs include authoritative edited-plan totals before and after worker processing, request-change exclusions, forged-selection rejection, permission-aligned controls, escaped evidence previews and metric-specific units.
+
+[Functional evidence](portfolio/executive-functional-audit.md): **39 targeted tests passed**, including real fixture workflows and an independent portfolio integration review; **39/39 deterministic evaluations passed**. The local Windows full suite passed **478 tests, one symlink-privilege skip, in 176.21 seconds**, with PostgreSQL enabled. Ruff checked 135 files and mypy checked 90 source files successfully. Read-only local Docker HTTP checks returned 200/no-store for the portfolio, approved Beacon review, exact-run KPIs, Delta and evidence preview; local links/anchors passed across 15 HTML captures. These are current-worktree results, not an exact-release CI certificate or rendered screenshots. Isolated Linux Chromium in Docker subsequently passed 18 rendered checks across six pages at 1440/768/375 pixels, including collapsed/expanded overflow, skip-link focus and keyboard disclosures. [Screenshots and browser results](portfolio/acceptance.md#rendered-evidence) are retained and were inspected by the coordinator. Native Windows capture no longer blocks engineering rendering. Human new-design approval/MCP acceptance and the new PR's ten CI checks remain pending; no final release or production launch is claimed.
+
+### Historical public showcase candidate
 
 September 27, 2026: [PR #1](https://github.com/ahines99/pe-value-creation-os/pull/1) merged after all ten checks passed on `9f9b95f`. The repository is public under Apache-2.0, and [GitHub Pages](https://ahines99.github.io/pe-value-creation-os/) serves the static portfolio. Main requires all ten checks with administrator enforcement; force pushes/deletion are disabled. Private vulnerability reporting is enabled. No independent peer approval is claimed.
 
 - **G01/G02/G04/G05 repaired:** committed candidate, installed wheel/fresh checkout, loopback-only Compose and expanded CI. Linux Python 3.12/3.13/3.14 each passed 453 tests; 39/39 deterministic evaluations passed. Evidence is linked in the [versioned index](releases/0.1.0/evidence.md).
 - **F04 core complete:** fresh startup, migrations, synthetic seeds, approvals, evidence, worker/KPI consequence, shutdown and restart recovery pass. A PostgreSQL stale-pool recovery defect was found and fixed. Application and local database scans report zero HIGH/CRITICAL findings.
 - **Optional telemetry verified with limitations:** metrics, traces, dashboard provisioning and a synthetic Prometheus alert reaching local Alertmanager and resolving were exercised. Optional Grafana (104 HIGH), Tempo (12 HIGH) and Alertmanager (2 HIGH) findings remain; Collector and Prometheus scans were clean. These optional images are not production-approved.
-- **F05/F07/F08/F09 implemented:** browser entry/login/review flow, actual captured synthetic HTML/evidence, static portfolio, case study, walkthrough, Apache license/notices, contribution/security policy and changelog exist. Rendered screenshots and keyboard/narrow-screen review remain pending.
-- **Your decisions complete:** technical hiring/applied-AI audience, public Apache-2.0 rights, Docker and repository access. Your remaining P1 action is the actual human client/browser session; I handle resulting fixes, visuals when supported browser access is available, and final release promotion.
+- **F05/F07/F08/F09 implemented:** browser entry/login/review flow, actual captured synthetic HTML/evidence, static portfolio, case study, walkthrough, Apache license/notices, contribution/security policy and changelog exist. Rendered screenshots and keyboard/narrow-screen review were pending at that historical stage; the current rendered evidence is recorded above.
+- **Decisions at that stage:** public Apache-2.0 rights, Docker and repository access were supplied; the audience was then technical hiring/applied-AI. The current executive audience and rejection of the former visuals reopen design acceptance. Engineering handles implementation, regression and rendered verification; Alex performs and accepts the human journey.
 - **Cloud/paid-model delivery stays opt-in:** the first main CD run skipped. No AWS deployment or paid provider run is required for P1.
 
 ### Remaining actions, in execution order
 
 | Step | My action | Your action | Completion evidence |
 |---|---|---|---|
-| 1. Candidate publication | Verify public site and main CI; retain distributions/reports/checksums and draft release. | None; publication already authorized. | Public links, successful exact-SHA checks, downloadable evidence. |
-| 2. Human acceptance (F05/F06) | Keep seeded local workspace available; support and repair feedback. | Perform 30-60 minute MCP/browser session using [acceptance checklist](portfolio/acceptance.md), record client/version/date and actual results. | Honest human session record, including Delta controlled failure and Beacon approval/KPI consequence. |
-| 3. Visual evidence (F07) | Inspect rendered desktop/narrow/keyboard flows and capture authentic screenshots/walkthrough when browser tooling works. | Review narration/claims; supply observations from your session. | Actual rendered assets and accessibility observations; captured HTML alone does not close this. |
-| 4. P1 final release (F10) | Repair findings, verify the final SHA, promote the release, attach checksums/evidence and record acceptance. | Confirm the completed human results. | Versioned accepted showcase; no production claims. |
-| 5. Optional P2 | Prepare hosting/IdP/budget/teardown and optional bounded live-model plan before execution. | Choose hosting and authorize specific costs/access if desired. | Deployed synthetic acceptance under F11/F12. |
-| 6. P3 production | Execute F13-F16 and all 33 open acceptance tickets below. | Provide real-company owners/data, reviewers, operating targets, on-call and launch decisions. | Signed domain/security/pilot/operations acceptance. |
+| 1. Finalize redesigned-build evidence | Preserve passing local full-suite/targeted/eval results, finish ongoing CSS/accessibility/release review, and recheck affected behavior after final changes. | None. | 478 passed/one Windows skip, 39 targeted tests, 39/39 evals; final candidate identifiers and new exact-SHA CI still required. |
+| 2. Executive design acceptance (F05/F08) | Retain the 18 passing Linux Chromium checks and inspected screenshots; address human feedback and remaining live-form usability. | Review and accept the new executive visual direction. | Rendered screenshots/browser report now exist; human acceptance remains separate. |
+| 3. Human acceptance (F05/F06) | Support the seeded workflow, preserve prior human results accurately and repair new feedback. | Complete the remaining MCP/browser session and explicitly accept the redesign. | Dated client/build record, evidence inspection, Delta controlled failure and decision/KPI consequence. |
+| 4. P1 candidate and release (F07/F10) | Refresh public assets and case study for executive-first positioning; run exact-SHA CI/scans and attach checksums before final promotion. | Review the completed acceptance record; publication rights are already supplied. | Accepted, versioned showcase with build-matched evidence; no production claim. |
+| 5. Optional P2 | Prepare hosting/IdP/budget/teardown and an optional bounded live-model plan before execution. | Choose hosting and authorize specific costs/access if desired. | Deployed synthetic acceptance under F11/F12. |
+| 6. P3 production | Execute F13-F16 and applicable remaining acceptance tickets below. | Provide real-company owners/data, reviewers, operating targets, on-call and launch decisions. | Signed domain/security/pilot/operations acceptance. |
 
 The initial gap table below is preserved as audit history; this execution update supersedes its original descriptions of missing implementation and access. The detailed F01-F16 specifications remain the acceptance contract.
 
@@ -44,7 +50,7 @@ P1 is a legitimate completed portfolio project. P1 does not mean the existing R0
 
 ## 2. Verified baseline and newly identified gaps
 
-The preceding remediation recorded **449 passing tests, one Windows symlink-privilege skip, 39/39 deterministic eval cases, clean lint/types, a wheel/source build, local authenticated multi-process smoke, load tests and a full-table restore drill**. These are local September 27 results, not fresh GitHub checks on a committed release. Existing roadmap: **111 tickets: 78 Done, 14 Built, 19 Blocked**. That was the initial audit baseline; the remediation is now committed and the current CI evidence is linked above.
+The preceding remediation recorded **449 passing tests, one Windows symlink-privilege skip, 39/39 deterministic eval cases, clean lint/types, a wheel/source build, local authenticated multi-process smoke, load tests and a full-table restore drill**. These were local September 27 results preceding the historical candidate CI above. They are not verification of the executive redesign. At that planning point the roadmap contained: **111 tickets: 78 Done, 14 Built, 19 Blocked**. This is the initial audit baseline; candidate remediation subsequently passed the exact-build CI linked above. The new UI requires its own acceptance.
 
 | Gap | Evidence found in this review | Consequence / planned work |
 |---|---|---|
@@ -74,7 +80,7 @@ The work-package descriptions below preserve the original plan; current completi
 
 **My actions:** inventory and preserve the existing uncommitted changes; group implementation, infrastructure and docs for review; check tracked/untracked assets; draft a coherent PR description and release checklist. Inspect actual repository/environment permissions when account access is available. Prepare a main-merge strategy that prevents an unconfigured CD run: the current workflow attempts staging and then production on main pushes, so make deployment opt-in/fail-closed before a showcase-only merge. Correct the GitHub entitlement guidance.
 
-**Your actions:** P1-first is already selected. Identify the primary audience; choose public source versus private source/shared case study; confirm you own or can publish the code and synthetic materials. Choose a supported repository-protection route when presented with actual capability evidence.
+**Your actions:** P1-first, the PE executive audience, public Apache-2.0 rights and repository access are already selected. Provide feedback on the new executive journey; no repeat publication-rights or audience decision is required.
 
 **Done when:** scope and publication decision are recorded; no existing work is lost; a concrete change set is reviewable; merging a portfolio release cannot accidentally initiate an unapproved cloud release.
 
@@ -108,13 +114,13 @@ The work-package descriptions below preserve the original plan; current completi
 
 **Done when:** documented commands bring a clean system up, complete the synthetic journey, survive the tested restarts and shut it down. No undocumented terminal edits, missing tokens or hidden fixture files are required.
 
-### F05 — Make the demonstration understandable in a browser
+### F05 - Deliver the executive decision workflow and technical diligence
 
 **Required for:** P1/P2/P3. **Depends on:** F04 for service path; can design earlier. **Effort:** medium, roughly 0.5–1.5 workdays.
 
-**My actions:** add a small demo entry page or generated index linking the seeded run, evidence, review and KPI pages; use existing application views. Inspect rendered pages in a browser at desktop and narrow widths; check keyboard navigation, labels, empty/error states, long evidence/numeric-reference text and successful/failed form submissions. Make synthetic data and dev authentication clear. Keep technical metadata available without dominating the reviewer journey. Verify that the model cannot approve, unauthenticated approval is rejected and the authorized human path is understandable.
+**My actions:** implement the requested executive portfolio, plan, evidence and KPI redesign; preserve deeper technical diligence and truthful modeled-value labels. Exercise all existing decision paths and fix financial-scope, history, authorization and error-recovery gaps. Inspect rendered pages in a browser at desktop and narrow widths; check keyboard navigation, labels, empty/error states, long evidence/numeric-reference text and successful/failed form submissions. Make synthetic data and dev authentication clear. Keep technical metadata available without dominating the reviewer journey. Verify that the model cannot approve, unauthenticated approval is rejected and the authorized human path is understandable.
 
-**Your actions:** try the flow once as an unfamiliar reviewer and tell me where you become confused. Choose any personal branding or title preferences; I can propose defaults.
+**Your actions:** review the redesigned flow as a PE operating partner or executive, identify confusing decisions or evidence, and explicitly accept or reject the new visual direction.
 
 **Done when:** a reviewer can find a run, understand one evidence-backed value case, make a decision and inspect its KPI consequence without source-code knowledge.
 
@@ -128,13 +134,13 @@ The work-package descriptions below preserve the original plan; current completi
 
 **Done when:** a dated human session meets the output contract, including one controlled failure, and the record accurately attributes who performed it. This closes PVC-070 only when its criterion is met.
 
-### F07 — Build the technical case study and portable evidence pack
+### F07 - Build the executive case study and technical evidence pack
 
 **Required for:** P1/P2/P3. **Depends on:** baseline results now; final artifacts after F03–F06. **Effort:** medium, roughly 0.5–1 workday.
 
-**My actions:** write a concise case study covering the PE operating problem, intended user, inputs/outputs, deterministic/model boundary, tenancy and approval design, tradeoffs, corrected audit defects and limitations. Show one complete synthetic value case with evidence and one failure/recovery example. Publish reproducible test/eval/load methodology alongside measurements; identify hardware/environment and synthetic costs. Build a release evidence index with commit, package version, image digest, commands and reports. Link detailed internals rather than forcing a reviewer through the handoff first.
+**My actions:** lead the case study with the PE operating problem, modeled value, approval decisions and accountable execution. Provide inputs/outputs, deterministic/model boundary, tenancy, tradeoffs, corrected defects and limitations as technical diligence. Show one complete synthetic value case with evidence and one failure/recovery example. Publish reproducible test/eval/load methodology alongside measurements; identify hardware/environment and synthetic costs. Build a release evidence index with commit, package version, image digest, commands and reports. Link detailed internals rather than forcing a reviewer through the handoff first.
 
-**Your actions:** confirm your role/contributions and intended audience; approve the wording about collaboration and outcomes. Supply any real impact evidence you want to claim. Without it, outputs remain simulated opportunities, not realized customer EBITDA or pilot success.
+**Your actions:** confirm your role/contributions and review the wording about collaboration and outcomes. The PE executive audience is already selected. Supply any real impact evidence you want to claim. Without it, outputs remain simulated opportunities, not realized customer EBITDA or pilot success.
 
 **Done when:** an unfamiliar reviewer can understand the problem and inspect both implementation and measured evidence in a few minutes; all claims have a source and scope.
 
@@ -228,11 +234,11 @@ The work-package descriptions below preserve the original plan; current completi
 
 **Done when:** production conditions and second-company onboarding pass, launch is signed, and ongoing access/dependency/eval/restore reviews have owners. This is the point at which P3 and the applicable R1.0 gate can close.
 
-## 4. Complete crosswalk of the 33 open repository tickets
+## 4. Original crosswalk of the 33 open repository tickets
 
-These are the existing ticket gaps, distinct from the new portfolio work above. “You” can designate an accountable specialist; it does not mean you must personally be the legal, finance and security reviewer.
+This crosswalk preserves the ticket gaps when the plan was created; subsequent candidate evidence and the current execution update above supersede completed publication/container/CI tasks. It is not a freshly counted list of open tickets. These ticket scopes are distinct from the new executive design acceptance. “You” can designate an accountable specialist; it does not mean you must personally be the legal, finance and security reviewer.
 
-| PVC | Current state | My remaining action | Your required action | Plan / gate |
+| PVC | State at original planning | Original remaining action | Original owner input | Plan / gate |
 |---|---|---|---|---|
 | 001 | Blocked | Configure and verify main protection. | Visibility/plan/access decision. | F01/F03; P1 |
 | 006 | Blocked | Run current CI and enforce required checks. | Settings access; accept review rules. | F03; P1 |
@@ -274,7 +280,7 @@ Additional conditional scope: a pilot using Salesforce or an unsupported finance
 
 | When needed | What you supply or decide | What I prepare/do with it |
 |---|---|---|
-| Start | P1-first is confirmed; identify the primary audience. | Freeze showcase scope and preserve P2/P3 as follow-on gates. |
+| Current direction | P1-first; PE operating partners and executives primary, technical diligence available. | Implement and verify the redesign; preserve P2/P3 as follow-on gates. |
 | Before publication | Public/private source, license/ownership, name/contact and destination. | Produce reviewable notices, release, case study and publishing changes. |
 | For current release CI | Repository/settings access and chosen protection route. | Configure/check CI, required checks and safe CD activation. |
 | For local runtime | Docker-capable host/runner. | Install/configure where permitted, run the stack, fix integration and retain evidence. |
@@ -308,10 +314,14 @@ For each completed item, record owner, date, exact SHA/version, command or sessi
 **P1 portfolio release:**
 
 - [x] Installed-wheel demo and fresh-clone instructions pass outside the development checkout.
-- [x] Current CI, strict release-image scan and Linux symlink coverage pass with retained reports.
+- [x] Historical candidate `9f9b95f` passed CI, strict release-image scan and Linux symlink coverage with retained reports.
+- [x] Current-worktree local full regression passes: 478 tests, one Windows symlink-privilege skip, with PostgreSQL enabled.
+- [ ] The final redesigned release candidate passes exact-SHA CI and current artifact scans.
 - [x] Clean Compose startup/migration/seed/approval/KPI/restart/shutdown sequence passes.
-- [ ] Browser walkthrough and actual human MCP session are recorded.
-- [ ] Case study, real screenshots, short walkthrough and static fallback are accessible.
+- [x] Six captured pages pass rendered desktop/tablet/mobile, overflow, skip-link and disclosure checks in isolated Chromium.
+- [ ] The human accepts the redesigned executive workflow and completes the remaining MCP/browser session.
+- [x] Actual current-design screenshots and a machine-readable browser report are available.
+- [ ] Final case study/walkthrough and release assets receive human acceptance.
 - [x] README leads directly to the demo, architecture, evidence, limitations and release.
 - [x] License/ownership, security reporting, setup/contribution guidance and changelog are consistent.
 - [ ] Release tag, package/plugin version and artifact checksums identify the reviewed code.
@@ -326,4 +336,4 @@ Suggested deliverables: `docs/portfolio/case-study.md`, `docs/portfolio/media/`,
 
 ## 8. Immediate next work
 
-Complete the remaining P1 steps in the execution table: final candidate evidence/public links, actual human MCP/browser acceptance, rendered visual review and release promotion. Implementation and publication decisions are already supplied. Production work remains explicitly scheduled after the showcase and requires the owner inputs listed in sections 4-6.
+Preserve passing current-worktree regression evidence, retain the passing rendered checks and screenshots, finish live usability/release review, obtain human new-design acceptance, refresh executive-first publication assets and promote only a verified final candidate. The old visuals were rejected; earlier human decisions and CI evidence do not close the redesign. Implementation and publication decisions are already supplied. Production work remains explicitly scheduled after the showcase and requires the owner inputs listed in sections 4-6.

@@ -10,6 +10,7 @@ import json
 import re
 import time
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -36,12 +37,21 @@ def main() -> None:
         checks.append("development login, unauthenticated denial and login CSRF")
         review = client.get(f"/runs/{run_id}/review")
         review.raise_for_status()
+        assert "name='decision'" in review.text, "Smoke acceptance requires a fresh, undecided synthetic run"
         evidence_urls = re.findall(r"href=['\"](/evidence/[^'\"]+)", review.text)
         assert evidence_urls, "Review has no navigable evidence"
-        evidence = client.get(evidence_urls[0])
+        preview_url = evidence_urls[0]
+        preview = client.get(preview_url)
+        preview.raise_for_status()
+        assert "Source preview" in preview.text and f"/runs/{run_id}/review#evidence" in preview.text
+        source_path = urlsplit(preview_url).path.removesuffix("/review")
+        evidence = client.get(source_path)
         evidence.raise_for_status()
-        report["evidence_sha256"] = hashlib.sha256(evidence.content).hexdigest()
-        checks.append("review and persisted evidence retrieval")
+        digest = hashlib.sha256(evidence.content).hexdigest()
+        assert digest == evidence.headers["X-Content-Hash"], "Original evidence bytes do not match the stored hash"
+        assert evidence.headers["Content-Type"].startswith("text/plain")
+        report["evidence_sha256"] = digest
+        checks.append("review, contextual evidence preview and hash-verified original evidence")
         assert (
             client.post(f"/runs/{run_id}/approvals/form", data={"decision": "approved", "csrf": "wrong"}).status_code
             == 403
@@ -65,13 +75,17 @@ def main() -> None:
         else:
             raise TimeoutError("Approved showcase run did not complete")
         checks.append("approval form CSRF, decision persistence and worker resume")
-        kpis = client.get("/companies/beacon-pricing/kpis")
+        kpis = client.get(f"/companies/beacon-pricing/kpis?run_id={run_id}")
         kpis.raise_for_status()
-        assert "No approved KPIs" not in kpis.text and "<table" in kpis.text
-        checks.append("approved KPI definitions")
+        assert "No approved KPIs" not in kpis.text and "Operating scorecard" in kpis.text
+        assert "Day-100 target" in kpis.text and f"/runs/{run_id}/review" in kpis.text
+        checks.append("approved run-specific KPI definitions and operating targets")
         delta = client.get(f"/runs/{runs['delta-broken']}")
         delta.raise_for_status()
         assert delta.json()["status"] == "needs_evidence"
+        delta_review = client.get(f"/runs/{runs['delta-broken']}/review")
+        delta_review.raise_for_status()
+        assert "Evidence before commitment" in delta_review.text and "name='decision'" not in delta_review.text
         checks.append("controlled missing-evidence pause")
     report["checks"] = checks
     (STATE / "http-acceptance.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

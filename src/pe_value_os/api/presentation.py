@@ -1,4 +1,17 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0c2231'><title>Delta Ledger Tools (fictional) · Plan review | Value Creation OS</title><style>
+"""Shared, dependency-free presentation for the operating partner workspace.
+
+The body passed to :func:`page` is trusted application markup. All helpers escape
+their text arguments; callers must escape dynamic content used to build a body.
+"""
+
+from __future__ import annotations
+
+import os
+from decimal import Decimal, InvalidOperation
+from html import escape
+from typing import Any
+
+CSS = """
 :root {
   color-scheme: light;
   --ink:#172c3d; --navy:#132c3c; --navy-deep:#0c2231; --teal:#21685d;
@@ -162,7 +175,9 @@ input[type=checkbox],input[type=radio]{accent-color:var(--teal);width:17px;heigh
 @media(max-width:420px){.app-shell{padding-left:16px;padding-right:16px}.topbar-inner{padding-left:16px;padding-right:16px}.metrics-grid{gap:10px;margin-bottom:27px}.metric-card{padding:17px 14px}.metric-value{font-size:26px}.metric-label{font-size:10px;letter-spacing:.02em}.metric-note{font-size:11px}.page-title{font-size:32px}.panel{padding:19px}.hero{padding:25px 21px}.company-card{padding:21px}.scenario-grid{gap:6px}.scenario{padding:11px 8px}.scenario .metric-value{font-size:17px}.scenario .metric-label{font-size:8px}.card-top{flex-wrap:wrap}.card-actions .button{flex-grow:1}.initiative-row{gap:15px;flex-wrap:wrap}.panel-header{flex-wrap:wrap}.nav-link{padding:8px 10px}.page-footer{margin:0 16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 @media print{body{background:#fff;color:#000;font-size:10pt}.topbar{background:#fff;color:#000;border-bottom:2px solid #222}.topbar-inner{padding:15px 0;min-height:0}.brand,.brand-subtitle{color:#111}.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.decision-panel button{display:none!important}.app-shell{max-width:none;padding:22px 0}.hero,.metric-card.highlight{background:#fff;color:#000;border:1px solid #999}.hero h1,.hero h2,.hero .page-subtitle,.hero .eyebrow,.hero-aside .metric-value,.hero-aside .metric-label,.hero-aside .metric-note,.metric-card.highlight .metric-label,.metric-card.highlight .metric-note{color:#111}.panel,.company-card,.metric-card,.decision-panel{box-shadow:none;break-inside:avoid;border-color:#bbb}.table-wrap{overflow:visible}table,.data-table{min-width:0;font-size:9pt}th,td{padding:7px}.page-footer{margin:0;padding-top:15px}a{color:#111}details{break-inside:avoid}.badge{border-color:#999;color:#111}h1{font-size:30pt}.metric-value{font-size:23pt}}
+"""
 
+CSS += """
 .hero-aside.panel{color:var(--ink);border:0;padding:30px;gap:17px;margin:0;background:#fff;box-shadow:0 12px 35px #08182133}
 .hero .hero-aside.panel h2{color:var(--ink)}.hero .hero-aside.panel .muted,.hero .hero-aside.panel .form-help{color:var(--muted)}
 .hero .hero-aside.panel .eyebrow{color:var(--copper)}.hero .hero-aside.panel .button{background:var(--teal);border-color:var(--teal);color:#fff}
@@ -192,4 +207,108 @@ input[type=checkbox],input[type=radio]{accent-color:var(--teal);width:17px;heigh
 @media(max-width:420px){.hero-aside.panel{padding:20px}.definition-list>div,.meta-list{grid-template-columns:minmax(0,1fr);gap:4px}.decision-actions>.button{width:100%;text-align:center}}
 @media(max-width:420px){.metrics-grid{grid-template-columns:minmax(0,1fr)}.metric-value{font-size:30px}.metric-card{padding:20px}.metric-comparison strong{font-size:19px}.contribution-row>div:first-child{flex-wrap:wrap;gap:5px 16px}.value-case>summary{padding:18px}.source-preview{padding:15px}}
 @media print{.section-nav{display:none}.metric-card.highlight .metric-value{color:#111}.evidence-links a{color:#111;background:#fff}.value-case>summary>strong{font-size:14pt}.scenario-card.negative .metric-value{color:#111}}
-</style></head><body><a class='skip-link' href='#main-content'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='workspace.html' aria-label='Value Creation OS portfolio'><span class='brand-mark' aria-hidden='true'><svg width='23' height='23' viewBox='0 0 24 24' fill='none'><path d='M3 19V12M9 19V8M15 19V11M21 19V4' stroke='currentColor' stroke-width='2.5'/><path d='M2 22H22' stroke='currentColor' stroke-opacity='.5'/></svg></span><span class='brand-name'>Value Creation OS<span class='brand-subtitle'>Operating partner workspace</span></span></a><nav class='primary-nav' aria-label='Main'><a class='nav-link' href='workspace.html' aria-current='page'>Portfolio</a><a class='nav-link' href='workspace.html#decisions'>Decision desk</a><a class='nav-link' href='#methodology'>Methodology</a></nav><span class='workspace-tag'>Evidence-led execution</span></div></header><aside class='alert' style='margin:16px auto;max-width:1280px' aria-label='Capture provenance'><strong>Read-only application capture.</strong> Fictional fixtures; automated demonstration. The memo shows the proposed review; the scorecard uses fixture observations after an automated approval. These are modeled values, not realized results. <a href='../../index.html'>Portfolio overview</a> &middot; <a href='workspace.html'>Workspace</a></aside><main class='app-shell' id='main-content' tabindex='-1'><header class='page-header'><div><p class='eyebrow'>Operating partner brief / Plan review</p><h1 class='page-title'>Delta Ledger Tools (fictional)</h1><p class='page-subtitle'>Review the evidence requirements before committing to a value creation plan.</p></div><div><span class='badge state-needs_evidence' data-status='needs_evidence'>Evidence required</span><p class='metric-note'>As of 28 Sep 2026 · 00:51 UTC</p></div></header><nav class='section-nav' aria-label='Plan sections'><a href='#executive'>Decision brief</a><a href='#workstreams'>Execution plan</a><a href='#evidence'>Value cases &amp; evidence</a><a href='#decision'>Decision record</a><a href='delta-kpis.html'>Operating performance ↗</a></nav><section id='executive' class='panel empty-state'><p class='eyebrow'>Controlled review boundary</p><h2>Evidence before commitment</h2><p>A decision-ready plan is not available. No modeled financial result is shown until the workflow can support it.</p><p>1 of 4 analyses have sufficient data; policy requires 2</p><p>Review the evidence requirements below, supply the missing source data, then resume the diagnostic through the authorized workflow.</p></section><section id='workstreams'><h2>Execution plan</h2><p class='empty-state'>Workstreams will appear once a plan is ready for review.</p></section><section class='alert warning'><h2>Source integrity requires review</h2><p>Suspicious content was treated as data and not followed.</p><ul><li>Suspicious instructions in document doc-injection-1: Document contains text addressed to an AI system or referencing another portfolio company. It was treated as data and not followed. Reasons: override_instructions, addressed_to_ai, approval_manipulation, confidence_manipulation, cross_company_reference:beacon-pricing.</li><li>Suspicious instructions in a CRM churn note: A churn note contains text addressed to an AI system. It was treated as data and not followed. Reasons: override_instructions, addressed_to_ai, confidence_manipulation, cross_company_reference:beacon-pricing.</li></ul></section><section class='panel'><p class='eyebrow'>Diligence limitations</p><h2>Data gaps &amp; required evidence</h2><ul><li>unit_economics analysis skipped: insufficient data: &#x27;pnl&#x27; is missing months: 2025-02-01, 2025-10-01, 2025-11-01</li><li>pricing analysis skipped: insufficient data: &#x27;invoices&#x27; as_of 2025-12-31 is 258 days old (limit 45); Dataset &#x27;contracts&#x27; is missing</li><li>ai_opportunity analysis skipped: insufficient data: &#x27;pnl&#x27; is missing months: 2025-02-01, 2025-10-01, 2025-11-01</li></ul></section><section id='evidence'><div class='section-heading'><div><p class='eyebrow'>Analytical diligence · USD</p><h2>Value cases and evidence</h2></div></div><p class='muted'>Expand a lever to inspect scenarios, costs, input assumptions and source evidence. Values outside the displayed plan are not included in its totals.</p><div class='stack'><div class='empty-state'>No sized value cases are available for this diagnostic.</div></div></section><section id='decision' class='panel decision-panel'><p class='eyebrow'>Human control</p><h2>Investment in execution</h2><p>No plan decision is available at this stage. Resolve the evidence or workflow conditions before submitting a plan for approval.</p></section><details class='disclosure'><summary>Workflow &amp; audit identifiers</summary><dl class='definition-list'><div><dt>Workflow status</dt><dd><code>needs_evidence</code></dd></div><div><dt>Company</dt><dd><code>delta-broken</code></dd></div><div><dt>Run</dt><dd><code>b0ad9c54-8f9d-49df-90ff-1341d221e645</code></dd></div><div><dt>Current step</dt><dd>Data sufficiency</dd></div><div><dt>Reference date</dt><dd>Not specified</dd></div></dl></details></main><footer class='page-footer'><div class='footer-line'><p><strong>Value Creation OS</strong> &nbsp; / &nbsp; Evidence. Value. Execution.</p><p>Synthetic company data &middot; Modeled outcomes &middot; Human decision control</p></div><details id='methodology'><summary>Methodology &amp; technical boundaries</summary><p>Evidence supports the diagnostic. Deterministic calculations size the value cases. A human decides which initiatives enter the execution plan. Financial figures are modeled in source units; they are not realized returns. The showcase uses fictional companies and seeded observations.</p></details></footer></body></html>
+"""
+
+
+def money(value: Any, *, compact: bool = False) -> str:
+    """Format financial units without asserting an unspecified currency.
+
+    Full amounts display at most two decimal places. Compact amounts are deliberately
+    approximate and should be paired with a full figure for decision making.
+    """
+    try:
+        amount = Decimal(str(value))
+    except (InvalidOperation, ValueError, TypeError):
+        return escape(str(value))
+    if not amount.is_finite():
+        return "Not available"
+    if compact:
+        for scale, suffix in ((Decimal("1e9"), "bn"), (Decimal("1e6"), "m"), (Decimal("1e3"), "k")):
+            if abs(amount) >= scale:
+                return f"{amount / scale:,.2f}".rstrip("0").rstrip(".") + suffix
+    rendered = f"{amount:,.2f}"
+    return rendered.rstrip("0").rstrip(".") if "." in rendered else rendered
+
+
+def label(value: str) -> str:
+    """Render readable, escaped enum or identifier text."""
+    replacements = {
+        "awaiting_approval": "Awaiting decision",
+        "needs_evidence": "Evidence required",
+        "changes_requested": "Changes requested",
+        "complete": "Complete",
+        "quick_win": "Quick win",
+        "in_progress": "In progress",
+        "ai_and_automation": "AI and automation",
+        "gtm_efficiency": "Go-to-market efficiency",
+    }
+    readable = replacements.get(value, value.replace("_", " ").replace("-", " ").capitalize())
+    return escape(readable)
+
+
+def status_badge(value: str) -> str:
+    """Return an escaped status badge; arbitrary status text cannot affect CSS."""
+    states = {
+        "complete",
+        "approved",
+        "active",
+        "awaiting_approval",
+        "changes_requested",
+        "needs_evidence",
+        "failed",
+        "rejected",
+        "cancelled",
+        "blocked",
+        "running",
+        "queued",
+        "pending",
+        "on_track",
+        "off_track",
+    }
+    state = value if value in states else "neutral"
+    return f"<span class='badge state-{state}' data-status='{escape(value)}'>{label(value)}</span>"
+
+
+def page(title: str, body: str, *, active: str = "portfolio", eyebrow: str | None = None) -> str:
+    """Wrap trusted application markup in the shared, accessible workspace shell."""
+    links = (("portfolio", "/", "Portfolio"), ("decisions", "/#decisions", "Decision desk"))
+    navigation = "".join(
+        f"<a class='nav-link' href='{href}'" + (" aria-current='page'" if active == key else "") + f">{text}</a>"
+        for key, href, text in links
+    )
+    if active == "login":
+        navigation = ""
+    kicker = f"<p class='eyebrow'>{escape(eyebrow)}</p>" if eyebrow else ""
+    synthetic = os.environ.get("PVC_SOURCE_ADAPTER", "fixtures") == "fixtures"
+    data_note = "Synthetic company data" if synthetic else "Company-scoped operating evidence"
+    source_note = (
+        "The showcase uses fictional companies and seeded observations."
+        if synthetic
+        else "Recorded observations inherit the scope and limitations of their source data."
+    )
+    return (
+        "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<meta name='theme-color' content='#0c2231'>"
+        f"<title>{escape(title)} | Value Creation OS</title><style>{CSS}</style></head><body>"
+        "<a class='skip-link' href='#main-content'>Skip to content</a>"
+        "<header class='topbar'><div class='topbar-inner'>"
+        "<a class='brand' href='/' aria-label='Value Creation OS portfolio'>"
+        "<span class='brand-mark' aria-hidden='true'>"
+        "<svg width='23' height='23' viewBox='0 0 24 24' fill='none'>"
+        "<path d='M3 19V12M9 19V8M15 19V11M21 19V4' stroke='currentColor' stroke-width='2.5'/>"
+        "<path d='M2 22H22' stroke='currentColor' stroke-opacity='.5'/></svg></span>"
+        "<span class='brand-name'>Value Creation OS<span class='brand-subtitle'>Operating partner workspace</span>"
+        "</span></a><nav class='primary-nav' aria-label='Main'>"
+        f"{navigation}<a class='nav-link' href='#methodology'>Methodology</a></nav>"
+        "<span class='workspace-tag'>Evidence-led execution</span></div></header>"
+        f"<main class='app-shell' id='main-content' tabindex='-1'>{kicker}{body}</main>"
+        "<footer class='page-footer'><div class='footer-line'>"
+        "<p><strong>Value Creation OS</strong> &nbsp; / &nbsp; Evidence. Value. Execution.</p>"
+        f"<p>{data_note} &middot; Modeled outcomes &middot; Human decision control</p></div>"
+        "<details id='methodology'><summary>Methodology &amp; technical boundaries</summary>"
+        "<p>Evidence supports the diagnostic. Deterministic calculations size the value cases. "
+        "A human decides which initiatives enter the execution plan. Financial figures are modeled "
+        "in source units; they are not realized returns. "
+        f"{source_note}</p></details></footer></body></html>"
+    )

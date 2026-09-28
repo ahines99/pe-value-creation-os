@@ -1,0 +1,19 @@
+{
+  "run_id": "b799f792-3a31-4808-ae8a-890918201b66",
+  "plan_id": "35d0e0d4-65fb-5e5f-bf0d-fc75bc024544",
+  "plan_status": "approved",
+  "decision": "approved",
+  "decided_by": "human:showcase",
+  "decided_at": "2026-09-28 00:17:38.386504+00:00",
+  "kpi_count": 5,
+  "observation_count": 5,
+  "observation_statuses": [
+    "on_track",
+    "on_track",
+    "on_track",
+    "on_track",
+    "on_track"
+  ],
+  "verification": "Agent read-only repository inspection following Alex's supplied approval page; no approval submitted by this inspection.",
+  "run_status": "complete"
+}
