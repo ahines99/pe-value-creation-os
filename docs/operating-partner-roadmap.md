@@ -341,3 +341,15 @@ still requires a sponsor, authorization, a tested private-data lane and actual
 management participation. Alex has no sponsor yet and requested the
 [prepared pilot package](pilot/permissioned/README.md); preparation and simulation
 do not count as a company pilot or realized results.
+
+
+## Executive consistency increment — September 28, 2026
+
+The [executive memo](portfolio/decision-memo.html) now consumes the exact saved
+source-review context and reopens its original service-first preference. Every
+registered sequence is recomputed with current source rows, assumptions and
+capacity; the previous conditional preference is retained as historical reasoning.
+The revised earnings waterfall reconciles to the shared ledger, while historical
+company valuation remains separate from fictional operating changes. This closes
+the contradiction between the original memo and the subsequent adverse source
+review (ADR 0023). It does not establish management approval or pilot results.

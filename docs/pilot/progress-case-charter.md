@@ -105,3 +105,10 @@ not established (ADR 0017).
 Alex confirmed that no operating-company sponsor is available yet and requested
 the [permissioned pilot package](permissioned/README.md). Preparation proceeds;
 actual access, management participation and observed outcomes remain unperformed.
+
+
+The executive memo now incorporates the saved source correction and reopens the
+original service-first preference. The revised alternatives use the latest
+constructed assumptions and source records; the original options remain visible
+as historical reasoning. Public-filing facts and their information cutoff remain
+unchanged. See [ADR 0023](../adr/0023-evidence-responsive-executive-memo.md).

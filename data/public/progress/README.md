@@ -117,7 +117,7 @@ pages were visually inspected; comparative dashes are not interpreted as zero.
 ```powershell
 uv run python scripts/verify_balance_source.py --pdf var/public-diligence/sources/progress-2025-10k.pdf
 uv run pvc historical-valuation --facts data/public/progress/financial-facts.json --balances data/public/progress/balance-facts.json --spec data/constructed/progress/historical-valuation.json --output docs/portfolio/historical-valuation
-uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --balances data/public/progress/balance-facts.json --valuation data/constructed/progress/historical-valuation.json --output docs/portfolio/decision-memo
+uv run pvc decision-memo --brief data/constructed/progress/decision-brief.json --facts data/public/progress/financial-facts.json --growth data/public/progress/growth-context.json --peers data/public/progress/peer-context.json --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --balances data/public/progress/balance-facts.json --valuation data/constructed/progress/historical-valuation.json --output docs/portfolio/decision-memo --case-review docs/portfolio/source-review.json
 ```
 
 Cash is 94.807 million; total debt principal is 1,410.000 million, versus net
@@ -126,3 +126,12 @@ multiples, available cash, lease treatment, other claims and fees live in the
 separate constructed specification. The historical equity sensitivity is not
 current value, a post-Domo capital structure, per-share pricing or transaction
 proceeds. See [ADR 0017](../../../docs/adr/0017-historical-equity-bridge.md).
+
+
+The current memo imports the exact constructed source-review export. Reproduce
+that export first using the command in the [constructed case guide](../../constructed/progress/README.md).
+It reopens the original service-first preference after source evidence changes,
+recomputes all three sequences, and leaves the public Progress financial facts
+and historical equity sensitivity unchanged. All operating figures remain
+fictional; none is added to the issuer earnings baseline. The original positive
+alternatives remain available as historical reasoning, not current forecasts.
