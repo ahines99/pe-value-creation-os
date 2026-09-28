@@ -108,6 +108,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # The table owner is also subject to FORCE RLS. Temporarily remove FORCE
+    # within the migration transaction so an unscoped owner cannot mistake hidden
+    # history for an empty table. A raised guard rolls this DDL back as well.
+    op.execute("alter table investment_cases no force row level security")
     if op.get_bind().exec_driver_sql("select exists(select 1 from investment_cases)").scalar():
         raise RuntimeError(
             "Case history exists; restore an authorized pre-migration backup rather than erase it through downgrade"

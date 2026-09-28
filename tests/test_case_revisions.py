@@ -497,3 +497,41 @@ def test_case_history_reads_work_with_a_single_database_connection(pg_repo, pg_d
             assert single.list_case_reviews(case.case_id) == [receipt]
     finally:
         single.close()
+
+
+def test_downgrade_guard_sees_history_for_non_superuser_owner(pg_repo, pg_database):
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+    import psycopg
+    from psycopg import sql
+
+    from pe_value_os.db.migrate import downgrade
+
+    with security.principal_scope(principal()):
+        case = setup(pg_repo)
+        original = pg_repo.append_case_revision(case.case_id, None, draft())
+    parts = urlsplit(pg_database[0])
+    options = dict(parse_qsl(parts.query))
+    options["options"] = "-crole=pvc_migrator"
+    owner_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(options), parts.fragment))
+    with psycopg.connect(pg_database[0], autocommit=True) as conn:
+        owner = conn.execute(
+            "select pg_get_userbyid(relowner) from pg_class where oid='investment_cases'::regclass"
+        ).fetchone()[0]
+        conn.execute("alter table investment_cases owner to pvc_migrator")
+        conn.execute("grant select,update on alembic_version to pvc_migrator")
+        try:
+            with psycopg.connect(owner_url) as as_owner:
+                assert as_owner.execute("select current_user").fetchone()[0] == "pvc_migrator"
+                assert (
+                    as_owner.execute("select count(*) from investment_cases").fetchone()[0] == 0
+                )  # FORCE RLS hides it.
+            with pytest.raises(RuntimeError, match="Case history exists"):
+                downgrade(owner_url, "0003")
+            assert conn.execute(
+                "select relforcerowsecurity from pg_class where oid='investment_cases'::regclass"
+            ).fetchone()[0]
+            with security.principal_scope(principal()):
+                assert pg_repo.get_case_revision(original.revision_id) == original
+        finally:
+            conn.execute(sql.SQL("alter table investment_cases owner to {}").format(sql.Identifier(owner)))
