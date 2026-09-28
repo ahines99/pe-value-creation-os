@@ -21,6 +21,16 @@ from decimal import Decimal
 from typing import Any, Protocol
 
 from .. import security
+from ..diligence.cases import (
+    CaseReview,
+    CaseRevision,
+    InvestmentCase,
+    ReviewRequest,
+    RevisionDraft,
+    new_case,
+    prepare_review,
+    prepare_revision,
+)
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ValueCase
@@ -77,6 +87,14 @@ def now() -> datetime:
 
 class Repository(Protocol):
     evidence_store: EvidenceStore
+
+    def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase: ...
+    def get_investment_case(self, case_id: str) -> InvestmentCase: ...
+    def append_case_revision(self, case_id: str, expected_parent: str | None, draft: RevisionDraft) -> CaseRevision: ...
+    def get_case_revision(self, revision_id: str) -> CaseRevision: ...
+    def list_case_revisions(self, case_id: str) -> list[CaseRevision]: ...
+    def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview: ...
+    def list_case_reviews(self, case_id: str) -> list[CaseReview]: ...
 
     # companies
     def upsert_company(self, profile: CompanyProfile) -> None: ...
@@ -199,6 +217,122 @@ class InMemoryRepository:
         self.locks: dict[str, str] = {}
         self.lease_times: dict[str, datetime] = {}
         self.notification_claims: dict[str, tuple[str, datetime]] = {}
+        self.investment_cases: dict[str, InvestmentCase] = {}
+        self.case_revisions: dict[str, CaseRevision] = {}
+        self.case_reviews: dict[str, CaseReview] = {}
+
+    # Research-case review never routes through operating-plan approval or KPI activation.
+    def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
+        with self.approval_transaction():
+            self.get_company(company_id)
+            record = new_case(company_id, case_id, label, currency)
+            if case_id in self.investment_cases:
+                raise Conflict("Case identity already exists")
+            self.investment_cases[case_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="case_review",
+                    event_type="case_created",
+                    actor=record.created_by,
+                    created_at=record.created_at,
+                    payload={"case_id": case_id},
+                )
+            )
+            return record
+
+    def get_investment_case(self, case_id: str) -> InvestmentCase:
+        record = self.investment_cases.get(case_id)
+        if record is None or not _visible(record.company_id):
+            raise NotFound(case_id)
+        return record
+
+    def get_case_revision(self, revision_id: str) -> CaseRevision:
+        record = self.case_revisions.get(revision_id)
+        if record is None or not _visible(record.company_id):
+            raise NotFound(revision_id)
+        return record
+
+    def list_case_revisions(self, case_id: str) -> list[CaseRevision]:
+        self.get_investment_case(case_id)
+        return sorted((r for r in self.case_revisions.values() if r.case_id == case_id), key=lambda r: r.sequence)
+
+    def append_case_revision(self, case_id: str, expected_parent: str | None, draft: RevisionDraft) -> CaseRevision:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            if expected_parent != case.current_revision_id:
+                raise Conflict("Case changed; reload the current revision before appending")
+            parent = self.get_case_revision(expected_parent) if expected_parent else None
+            record = prepare_revision(case, draft, parent)
+            self.case_revisions[record.revision_id] = record
+            self.investment_cases[case_id] = case.model_copy(
+                update={
+                    "version": record.sequence,
+                    "current_revision_id": record.revision_id,
+                    "original_revision_id": case.original_revision_id or record.revision_id,
+                }
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="case_revision_appended",
+                    actor=record.author,
+                    created_at=record.recorded_at,
+                    payload={"case_id": case_id, "revision_id": record.revision_id, "sha256": record.content_sha256},
+                )
+            )
+            return record
+
+    def list_case_reviews(self, case_id: str) -> list[CaseReview]:
+        self.get_investment_case(case_id)
+        return sorted(
+            (r for r in self.case_reviews.values() if r.case_id == case_id), key=lambda r: (r.recorded_at, r.review_id)
+        )
+
+    def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview:
+        with self.approval_transaction():
+            revision = self.get_case_revision(revision_id)
+            case = self.get_investment_case(revision.case_id)
+            if case.current_revision_id != revision_id and request.decision != "withdraw":
+                raise Conflict("Cannot review a stale case revision")
+            previous = self.case_reviews.get(request.supersedes_review_id) if request.supersedes_review_id else None
+            if request.supersedes_review_id and (previous is None or not _visible(previous.company_id)):
+                raise NotFound(request.supersedes_review_id)
+            record = prepare_review(case, revision, request, previous)
+            if previous is None and any(
+                r.revision_id == revision_id
+                and r.mode == record.mode
+                and r.actor == record.actor
+                and r.supersedes_review_id is None
+                for r in self.case_reviews.values()
+            ):
+                raise Conflict("Reviewer already recorded a receipt; append a correction explicitly")
+            if previous is not None and any(
+                r.supersedes_review_id == previous.review_id for r in self.case_reviews.values()
+            ):
+                raise Conflict("Receipt already superseded; correct the latest receipt")
+            self.case_reviews[record.review_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_review",
+                    event_type="case_review_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case.case_id,
+                        "revision_id": revision_id,
+                        "review_id": record.review_id,
+                        "mode": record.mode,
+                        "decision": record.decision,
+                    },
+                )
+            )
+            return record
 
     def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
         return FencedRepository(self, run_id, owner)
@@ -459,7 +593,16 @@ class InMemoryRepository:
     def approval_transaction(self) -> Iterator[None]:
         # Approval decisions mutate only these collections; no source/evidence object writes occur here.
         with self._lock:
-            fields = ("runs", "plans", "approvals", "audit", "kpi_defs")
+            fields = (
+                "runs",
+                "plans",
+                "approvals",
+                "audit",
+                "kpi_defs",
+                "investment_cases",
+                "case_revisions",
+                "case_reviews",
+            )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
                 yield
@@ -694,6 +837,10 @@ class InMemoryRepository:
             self.kpi_obs = [o for o in self.kpi_obs if o.company_id != company_id]
             self.kpi_alerts = [a for a in self.kpi_alerts if a.company_id != company_id]
             self.notifications = [n for n in self.notifications if n.company_id != company_id]
+            for name in ("investment_cases", "case_revisions", "case_reviews"):
+                rows = getattr(self, name)
+                counts[name] = sum(row.company_id == company_id for row in rows.values())
+                setattr(self, name, {key: row for key, row in rows.items() if row.company_id != company_id})
             self.companies.pop(company_id, None)
             counts["evidence_objects"] = evidence_objects
             return counts

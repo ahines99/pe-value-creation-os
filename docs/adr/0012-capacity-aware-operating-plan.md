@@ -1,7 +1,8 @@
 # ADR 0012: capacity-aware 100-day operating proposal
 
 Status: implemented for constructed analytical cases. This is not a management
-approval or actual execution record. Durable case/review persistence remains open.
+approval or actual execution record. Durable case/review persistence is now
+implemented separately in [ADR 0013](0013-immutable-case-reviews.md).
 
 ## Decision
 
@@ -79,8 +80,9 @@ the published artifact. Tests prove conditional behavior, not management buy-in.
 
 ## Remaining work
 
-Add immutable database revisions, human review receipts and actual acceptance
-events before using this as an operating execution record. Add the selected/rejected
+Immutable database revisions and exact-version research receipts are available;
+actual acceptance events remain required before using this as an operating
+execution record. Add the selected/rejected
 thesis rationale, full decision memo and original/current/actual attribution ledger.
 The current public report exposes these limitations and does not mark any pilot
 or real initiative approved, executed or realized. Daily calendars, leave handling,

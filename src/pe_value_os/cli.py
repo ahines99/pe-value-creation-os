@@ -320,9 +320,32 @@ def cmd_operating_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_case_history_demo(args: argparse.Namespace) -> int:
+    from .diligence.case_render import build_case_demo
+
+    try:
+        result = build_case_demo(Path(args.underwriting), Path(args.operating_plan), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(
+            f"Case-history replay failed ({type(exc).__name__}); inspect source contracts and exact-case binding.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed case history (simulated reviews): {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
+
+    case_demo = sub.add_parser(
+        "case-history-demo", help="replay constructed revisions and simulated review receipts in isolated memory"
+    )
+    case_demo.add_argument("--underwriting", required=True)
+    case_demo.add_argument("--operating-plan", required=True)
+    case_demo.add_argument("--output", default="var/case-history/report")
+    case_demo.set_defaults(fn=cmd_case_history_demo)
 
     operating = sub.add_parser("operating-plan", help="schedule a constructed 100-day plan and recalculate economics")
     operating.add_argument("--input", required=True, help="typed proposed operating plan JSON")

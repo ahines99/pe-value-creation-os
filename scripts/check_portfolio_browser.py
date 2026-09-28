@@ -34,6 +34,7 @@ def main() -> None:
         "public-baseline": "/portfolio/progress-baseline.html",
         "underwriting": "/portfolio/underwriting.html",
         "operating-plan": "/portfolio/operating-plan.html",
+        "case-history": "/portfolio/case-history.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:

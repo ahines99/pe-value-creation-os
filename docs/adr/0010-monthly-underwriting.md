@@ -1,7 +1,8 @@
 # ADR 0010: dated incremental underwriting model
 
 Status: accepted for the constructed exercise. This extends the financial model;
-durable case revisions and human review receipts remain open. Capacity scheduling
+durable case revisions and exact-version research receipts are now described in
+[ADR 0013](0013-immutable-case-reviews.md). No actual human review is asserted. Capacity scheduling
 and version 2 benefit-availability masks are defined in [ADR 0012](0012-capacity-aware-operating-plan.md).
 
 ## Decision

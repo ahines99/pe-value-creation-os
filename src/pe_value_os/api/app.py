@@ -26,6 +26,7 @@ from .. import __version__, approvals, security
 from ..adapters.evidence_store import EvidenceNotFound
 from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
+from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
@@ -125,6 +126,81 @@ Principal = Annotated[security.Principal, Depends(current_principal)]
 def scoped(p: security.Principal) -> Iterator[None]:
     with security.principal_scope(p):
         yield
+
+
+class CaseCreateIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    company_id: str
+    case_id: str = Field(min_length=1, max_length=128)
+    label: str = Field(min_length=1)
+    currency: str = Field(pattern=r"^[A-Z]{3}$")
+
+
+class CaseRevisionIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    expected_parent_revision_id: str | None
+    draft: RevisionDraft
+
+
+@contextmanager
+def case_request(p: security.Principal, request: Request, *, write: bool = False) -> Iterator[None]:
+    # JSON writes accept explicit bearer credentials only; browser session cookies
+    # cannot silently authorize state changes without a CSRF-aware form.
+    if write and not request.headers.get("authorization", "").lower().startswith("bearer "):
+        raise HTTPException(403, "Case writes require an explicit bearer credential")
+    try:
+        with scoped(p):
+            yield
+    except NotFound as exc:
+        raise HTTPException(404, "Case record not found") from exc
+    except Conflict as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(422, "Invalid case version, source policy or review binding") from exc
+
+
+@app.post("/cases", status_code=201)
+def create_case(body: CaseCreateIn, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return (
+            get_ctx()
+            .repo.create_investment_case(body.company_id, body.case_id, body.label, body.currency)
+            .model_dump(mode="json")
+        )
+
+
+@app.get("/cases/{case_id}")
+def case_history(case_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        repo = get_ctx().repo
+        case = repo.get_investment_case(case_id)
+        # Bind this read to the observed head; a concurrent append cannot make the
+        # comparison silently include a newer revision than the returned case.
+        revisions = [r for r in repo.list_case_revisions(case_id) if r.sequence <= case.version]
+        revision_ids = {r.revision_id for r in revisions}
+        reviews = [r for r in repo.list_case_reviews(case_id) if r.revision_id in revision_ids]
+        return {
+            "case": case.model_dump(mode="json"),
+            "revisions": [r.model_dump(mode="json") for r in revisions],
+            "reviews": [r.model_dump(mode="json") for r in reviews],
+            "comparison": compare_revisions(revisions[0], revisions[-1]) if revisions else None,
+        }
+
+
+@app.post("/cases/{case_id}/revisions", status_code=201)
+def append_case_revision(case_id: str, body: CaseRevisionIn, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return (
+            get_ctx()
+            .repo.append_case_revision(case_id, body.expected_parent_revision_id, body.draft)
+            .model_dump(mode="json")
+        )
+
+
+@app.post("/case-revisions/{revision_id}/reviews", status_code=201)
+def review_case_revision(revision_id: str, body: ReviewRequest, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.review_case_revision(revision_id, body).model_dump(mode="json")
 
 
 def _load_run(run_id: str) -> Any:

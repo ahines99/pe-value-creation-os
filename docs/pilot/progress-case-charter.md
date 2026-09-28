@@ -69,11 +69,14 @@ cost commitments, collection reversals and illustrative incremental EV sensitivi
 Its operating records are explicitly authored examples, not Progress data. The
 [constructed 100-day plan](../portfolio/operating-plan.html) now reserves weekly
 capacity, enforces dependencies and supplies delayed dates to the same economics.
-No actual assignment or accepted deliverable is represented.
+No actual assignment or accepted deliverable is represented. [Case history](../portfolio/case-history.html)
+now preserves original/current inputs and outputs, with separately classified
+simulated review receipts. Actual authenticated review is supported by the API
+but has not occurred for this public case.
 
 Still required: acquisition/growth bridge, metric-specific peer
-eligibility, typed thesis and immutable case revisions, richer interactions,
-public-baseline integration, persisted execution/review state, full decision memo and
+eligibility, typed commercial thesis, richer interactions,
+public-baseline integration, actual execution evidence, full decision memo and
 realization demonstration. These foundations do not complete S1 or any later goal
 milestone by themselves.
 
