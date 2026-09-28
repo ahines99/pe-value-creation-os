@@ -325,6 +325,23 @@ def cmd_operating_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_operating_sources(args: argparse.Namespace) -> int:
+    from .diligence.operating_sources_render import build_sources_report
+
+    try:
+        result = build_sources_report(
+            Path(args.sources), Path(args.underwriting), Path(args.operating_plan), Path(args.output)
+        )
+    except (ValueError, OSError) as exc:
+        print(
+            f"Operating source review failed ({type(exc).__name__}); inspect source controls and exact case bindings.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed operating source review: {result}")
+    return 0
+
+
 def cmd_execution_demo(args: argparse.Namespace) -> int:
     from .diligence.execution_demo import build_execution_demo
 
@@ -435,6 +452,14 @@ def build_parser() -> argparse.ArgumentParser:
         valuation.add_argument(f"--{flag}", required=True)
     valuation.add_argument("--output", default="var/equity-bridge/historical-valuation")
     valuation.set_defaults(fn=cmd_historical_valuation)
+
+    sources = sub.add_parser(
+        "operating-sources", help="constrain a constructed forecast using contract, service and invoice records"
+    )
+    for flag in ("sources", "underwriting", "operating-plan"):
+        sources.add_argument(f"--{flag}", required=True)
+    sources.add_argument("--output", default="var/operating-sources/report")
+    sources.set_defaults(fn=cmd_operating_sources)
 
     execution = sub.add_parser(
         "execution-demo", help="replay constructed delivery, acceptance, steering and financial claim links"

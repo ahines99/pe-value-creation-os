@@ -37,6 +37,7 @@ def main() -> None:
         "case-history": "/portfolio/case-history.html",
         "realization": "/portfolio/realization.html",
         "execution": "/portfolio/execution.html",
+        "operating-sources": "/portfolio/operating-sources.html",
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
     }
@@ -123,6 +124,22 @@ def main() -> None:
                         page.locator("main").focus()
                         page.locator("#comparison").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"realization-comparison-{width}.png"))
+                if name == "operating-sources":
+                    assert "-18,314.50" in page.locator(".metrics-grid").inner_text()
+                    assert "-38,532.00" in page.locator(".metrics-grid").inner_text()
+                    assert "Notice deadline missed" in page.locator("#contracts").inner_text()
+                    assert "fictional records" in page.locator(".hero").inner_text()
+                    payload = page.request.get(base + "/portfolio/operating-sources.json").json()
+                    assert payload["classification"] == "constructed_operating_records"
+                    assert payload["actual_company_realized_value"] is None
+                    assert not payload["missing_service_months"]
+                    scenario = next(s for s in payload["scenarios"] if s["scenario_id"] == "base")
+                    assert scenario["year_one"]["incremental_ebitda"] == "-18314.50"
+                    assert scenario["total"]["working_capital_cash"] == "0.00"
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#contracts").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"operating-contracts-{width}.png"))
                 if name == "case-history":
                     assert "Freeze the reviewed hypothetical close" in page.locator("#close-baseline").inner_text()
                     assert "simulation" in page.locator("#close-baseline").inner_text()
