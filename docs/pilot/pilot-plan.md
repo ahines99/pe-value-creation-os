@@ -1,5 +1,9 @@
 # Pilot plan: one portfolio company (PVC-153)
 
+For the earlier private academic study using public-company financial statements,
+see [Public-company research pilot](public-company-research.md). That study does
+not constitute the operational pilot described below.
+
 For the operating partner, the pilot company's deal team, and the engineering lead. This plan says how the pilot runs, who decides what, and what evidence the go/no-go decision (PVC-154) needs. The pilot has not started. The fields marked **TBD** are open decisions for the project owner (ROADMAP.md, "Open decisions").
 
 ## Entry criteria
