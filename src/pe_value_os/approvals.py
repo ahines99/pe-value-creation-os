@@ -45,6 +45,15 @@ def _require_approver(principal: security.Principal, company_id: str, approver_r
             raise NotApprover("Approval decisions must come from the approval UI client")
 
 
+def can_approve(principal: security.Principal, company_id: str, approver_role: str) -> bool:
+    """Use the same permission boundary for presenting and accepting human decisions."""
+    try:
+        _require_approver(principal, company_id, approver_role)
+    except NotApprover:
+        return False
+    return True
+
+
 def apply_edits(plan: dict[str, Any], remove_initiatives: list[str]) -> tuple[dict[str, Any], dict[str, Any]]:
     """Remove initiatives (by opportunity id) from a plan. Returns (approved_plan, diff)."""
     remove = set(remove_initiatives)
@@ -153,6 +162,10 @@ def _decide(
         if diff:
             edits["approved_plan"] = approved
     elif decision == ApprovalDecision.CHANGES_REQUESTED:
+        known = {o.opportunity_id for o in ctx.repo.list_opportunities(run_id)}
+        unknown = set(exclude_opportunities or []) - known
+        if unknown:
+            raise ApprovalError(f"Unknown opportunities: {sorted(unknown)}")
         edits["exclude_opportunities"] = sorted(exclude_opportunities or [])
     rec = ctx.repo.record_decision(req.approval_id, decision, principal.subject, rationale, edits, diff)
     changed = bool(diff)

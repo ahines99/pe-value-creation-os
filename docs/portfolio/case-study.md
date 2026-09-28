@@ -1,61 +1,76 @@
-# Governed AI workflows for portfolio-company operations
+# From an investment hypothesis to an executable value-creation plan
 
-**PE Value Creation OS** turns operating evidence into deterministic value cases and a human-reviewed 100-day plan. It is a Python/MCP portfolio project for evaluating applied-AI architecture, financial modeling controls, durable workflows and operational engineering.
+**Value Creation OS** is an operating partner workspace for reviewing a portfolio company's opportunities, challenging the financial case and authorizing a 100-day plan. Its executive surface is backed by inspectable engineering: evidence provenance, deterministic calculations, durable workflows and explicit human authority.
 
-[Run the showcase](quickstart.md) · [Actual synthetic output](demo-report.md) · [Architecture](../architecture.md) · [Acceptance evidence](acceptance.md)
+The primary audience is **PE operating partners, investment professionals and portfolio-company executives**. Technical hiring managers, applied-AI leaders and implementation teams can follow the same case into its architecture, contracts and verification evidence.
 
-## The problem
+[Portfolio overview](examples/workspace.html) | [Investment memo](examples/beacon-pricing.html) | [Execution KPIs](examples/beacon-kpis.html) | [Run the workspace](quickstart.md) | [Architecture](../architecture.md) | [Acceptance record](acceptance.md)
 
-A portfolio operator needs to connect fragmented billing, financial, customer and support evidence to a defensible action plan. A plausible AI recommendation is insufficient: the reviewer needs to know where each number came from, what assumptions drive the case, what data is missing and who approved the next step.
+## The operating question
 
-The project makes these boundaries explicit. Typed tools retrieve evidence and compute financial metrics. Optional model components propose opportunities and narrative. Deterministic code sizes each value case and validates numeric references. A durable workflow pauses for missing evidence or a human decision, then tracks approved KPIs.
+Where should the management team act, what is the value at stake, and what must be true for that value to materialize?
+
+A useful answer connects fragmented billing, financial, customer and support records to a small set of accountable workstreams. The reviewer needs a clear base case and downside, the assumptions driving each opportunity, any evidence gaps, the owner of execution, and the decision required. A plausible recommendation by itself does not satisfy that review.
+
+Value Creation OS organizes the journey around those questions. The portfolio overview surfaces company status and decision needs. The investment memo brings the value thesis, financial sizing and workstream ownership together. Supporting evidence and technical calculation detail remain accessible. Human decisions govern which initiatives proceed to monitoring.
+
+## Beacon: a concrete, synthetic investment case
+
+Beacon Scheduling Systems is fictional. Its scenario produces a modeled base-case annual run-rate EBITDA opportunity of **1,148,309**, with **739,200** modeled in-year impact across **three workstreams and five initiatives**. These are outputs in the fixture's financial units, not realized savings, audited forecasts or customer results.
+
+| Initiative | Modeled base annual run-rate EBITDA | Executive question |
+|---|---:|---|
+| Migrate legacy price-book customers | 380,650 | Which customers can move, under what notice periods and caps? |
+| Enforce contracted renewal uplifts | 351,942 | Why are contracted uplifts not being realized? |
+| Discount governance in mid-market | 215,006 | How much discount leakage is addressable without impairing conversion? |
+| Improve sales and marketing efficiency | 191,160 | What efficiency is plausible given the current acquisition economics? |
+| Deflect tier-1 support with AI self-service | 9,552 | Does automation remain attractive after implementation and operating cost? |
+
+Initiative values are rounded for this narrative; the aggregate is computed from the underlying deterministic amounts. Pricing opportunities dominate this scenario. The support automation case remains modest and uncertain: **-31,020 low / 9,552 base / 61,716 high**. The downside is visible rather than discarded. Its calculator version is `value-case/1`; two evidence items support that case. Pricing cases retain six evidence items each. The [generated scenario report](demo-report.md) supplies the reproducible context.
+
+This creates an executive discussion, rather than a blanket recommendation to deploy AI. Contract review precedes customer communication, operating-model changes require their own review, and unquantified candidates remain explicitly unsized.
+
+## The review and decision journey
+
+1. **Diagnose.** Review the company's operating evidence and the sufficiency of the fact base.
+2. **Underwrite.** Challenge the baseline, improvement, realization, flow-through, cost and timing assumptions in the investment memo. Follow the evidence links before accepting a number.
+3. **Decide.** Approve the scoped plan, request changes with a rationale, or reject. The system records the decision separately from any model output.
+4. **Monitor.** Inspect approved KPI definitions and observations in the context of the relevant run. A definition or seeded observation is not evidence of realized business performance.
+
+Alex has completed local browser sign-in and a Beacon approval. The worker's completion and resulting KPI records were separately verified. Remaining client, evidence-review and usability acceptance are tracked in [the acceptance record](acceptance.md); this case study does not imply that every human session gate has passed.
+
+Delta is the counterexample. Only one of four analyses has sufficient evidence, while policy requires two. Missing financial months, stale invoices and incomplete contracts produce a named `needs_evidence` pause. Planted instruction text produces suspicious-content findings. A separate Cedar fault injection demonstrates partial failure and retry without re-executing completed steps.
+
+## Technical diligence behind the memo
 
 ```mermaid
 flowchart LR
-    A[Operating evidence] --> B[Typed tools and diagnostics]
+    A[Operating evidence] --> B[Scoped typed tools]
     B --> C[Deterministic low/base/high sizing]
-    C --> D[Evidence-backed 100-day plan]
+    C --> D[Investment memo and 100-day plan]
     D --> E{Human decision}
     E -->|Approve| F[KPI monitoring]
     E -->|Request changes| D
-    E -->|Reject| G[Recorded terminal decision]
-    B -->|Insufficient data| H[Pause with named gaps]
+    E -->|Reject| G[Recorded decision]
+    B -->|Insufficient evidence| H[Pause with named gaps]
 ```
 
-## One concrete example
-
-In the fictional Beacon scenario, the application identifies discount governance, renewal uplifts and legacy price-book migration alongside smaller support/sales levers. The [generated report](demo-report.md) shows a total modeled base-case annual run-rate EBITDA opportunity of **1,148,309**, with **739,200** modeled in-year impact across three workstreams. These are synthetic scenario outputs, not realized savings, audited forecasts or customer results.
-
-The support self-service case is deliberately less attractive: **−31,020 low / 9,552 base / 61,716 high**. Keeping the negative case visible demonstrates that the workflow does not silently turn every AI suggestion into a positive investment case. Its calculator version is `value-case/1`; two evidence items support that case. Pricing cases retain six evidence items each.
-
-The run stops at `awaiting_approval`. An unauthenticated decision receives HTTP 401. The scripted demonstration uses an explicit human-principal test token, records the decision, resumes the worker and activates five KPIs. This proves the automated path; an actual person's client and browser acceptance is recorded separately and remains pending.
-
-Delta provides the counterexample: only one of four analyses has sufficient data, while policy requires two. Missing financial months, stale invoices and missing contracts produce a named `needs_evidence` pause. Planted instruction text produces suspicious-content findings. A separate Cedar fault injection demonstrates partial failure and retry without re-executing completed steps.
-
-## Engineering decisions a reviewer can inspect
-
-| Decision | Why it matters | Implementation |
+| Engineering decision | Operating implication | Implementation evidence |
 |---|---|---|
-| Deterministic financial core | Numeric results remain reproducible and versioned | Domain calculators, policy snapshots, value cases |
-| Server-issued quantity references | Model prose cannot invent a number or transplant another company's fact | Model proposer/narrator validation and quantity registry |
-| Typed MCP surface | Client behavior is governed by explicit tool contracts | 22 tools, schema snapshots, six procedural skills |
-| Independent human approval | A model or MCP credential cannot authorize a plan | Separate API audience, human role/scope checks, audited decisions |
-| Durable checkpoints and leases | Worker interruption does not discard the business record | PostgreSQL state, worker claims, idempotency and resume |
-| Company isolation and immutable evidence | Tenant access and provenance are enforced below the prompt layer | Repository checks, PostgreSQL RLS, evidence storage |
-| Strict release gates | A successful import or historical green build is insufficient | Installed-demo/eval smoke, container scans, exact-SHA promotion |
+| Deterministic financial core | A reviewer can reproduce the same assumptions and amounts | Domain calculators, policy snapshots, versioned value cases |
+| Server-issued quantity references | Model prose must use a fact with a valid company, unit, period and evidence reference | Proposer/narrator validation and quantity registry |
+| Typed MCP contracts | Client and agent behavior have inspectable interfaces | Tool schemas and procedural skills |
+| Separate human approval authority | A model or ordinary MCP credential cannot authorize a plan | Separate API audience, human role/scope checks and audited decisions |
+| Durable checkpoints and leases | A worker interruption preserves the business record | PostgreSQL state, claims, idempotency and resume |
+| Company isolation and immutable evidence | Access and provenance are enforced beyond the prompt | Repository checks, PostgreSQL row-level security and evidence storage |
+| Artifact-specific release gates | Published packages and images must match verified artifacts | Installed-package, evaluation, Compose and scan evidence |
 
-## Validation and tradeoffs
+The default showcase uses rules and synthetic data, so reviewers need no provider key. Optional model components propose opportunities and narrative; typed tools retain ownership of facts and calculations. Source integration paths exist for warehouse/CSV/HubSpot/Zendesk, but no real-pilot reconciliation is claimed.
 
-The [verified main build at `fd00495`](https://github.com/ahines99/pe-value-creation-os/actions/runs/36359511827) passed all ten CI jobs: 453 tests on each of Python 3.12, 3.13 and 3.14; 39/39 deterministic evaluation cases; installed-package and Compose journeys; infrastructure checks; secret/dependency checks; and strict application/database image scans. The Linux matrix exercised the symlink coverage that Windows could not run without additional privileges. See [the evidence index](../releases/0.1.0/evidence.md) for scope and [human acceptance](acceptance.md) for the remaining independent session.
+## Verification and boundaries
 
-[Load-test methodology and results](../load_test.md) distinguish local synthetic measurements from staging SLO acceptance. [The recording storyboard](../pilot/demo-script.md) follows evidence, sizing, human decision, KPI activation and the controlled missing-data case; rendered screenshots and the actual human session remain pending.
+Use [the versioned evidence index](../releases/0.1.0/evidence.md) for exact reviewed commits, test counts, evaluation outcomes, package checks, live Compose journeys and application/database scans. These links distinguish verified historical builds from changes still undergoing review. [Load-test methodology](../load_test.md) separates local synthetic measurements from staging SLO acceptance. [The recording storyboard](../pilot/demo-script.md) follows the actual operating journey and labels scripted versus human evidence.
 
-The default demo uses rules and synthetic data so reviewers need neither credentials nor paid inference. That makes the core behavior repeatable, while the current optional live-model path still needs a newly authorized provider evaluation. The source has warehouse/CSV/HubSpot/Zendesk integration paths; no real pilot reconciliation is claimed.
+The interface is server-rendered HTML with no third-party frontend assets. PostgreSQL and immutable evidence retain the system of record. AWS Terraform describes a future deployment; a local showcase does not establish AWS, production browser OIDC, customer readiness or on-call acceptance. Optional observability images have their own disclosed scan findings.
 
-Server-rendered HTML keeps the review surface small. PostgreSQL and immutable evidence provide an inspectable system of record. AWS Terraform describes a later deployment, but the local showcase does not prove AWS, browser OIDC, customer readiness or on-call operations.
-
-## What this project demonstrates
-
-The strongest evidence is the connection between behavior and verification: a missing fixture in installed wheels was reproduced and fixed; grounded numeric contracts gained adversarial coverage; a vulnerable base image was replaced and checked against real workloads; deployment promotion now verifies the scanned artifact; and the reviewer can follow a plan back to its evidence.
-
-The project uses AI-assisted implementation and audit workflows. It presents inspectable code and evidence, without claiming that agent-authored checks are independent human review. Production still requires approved policy/benchmarks, real-source reconciliation, security/legal review, recovery and SLO evidence, staffed operations and pilot/launch decisions. Those obligations remain in the [production roadmap](../portfolio-finalization-roadmap.md).
+The project uses AI-assisted implementation and audit workflows. Its claim is an inspectable implementation with reproducible evidence, not independent human certification. Approved policy and benchmarks, real-source reconciliation, domain/security/legal review, recovery and SLO evidence, staffed operations and pilot/launch decisions remain in the [production roadmap](../portfolio-finalization-roadmap.md).

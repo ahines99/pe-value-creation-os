@@ -1,0 +1,132 @@
+{
+  "browser": "Chromium",
+  "version": "153.0.8010.12",
+  "checks": [
+    {
+      "page": "landing",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "workspace",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "memo",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "gaps",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "performance",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "evidence",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "landing",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "workspace",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "memo",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "gaps",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "performance",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "evidence",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "landing",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "workspace",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "memo",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "gaps",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "performance",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "evidence",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 # Review the project in ten minutes
 
-This showcase is for technical hiring managers and applied-AI leaders. It demonstrates governed workflows over fictional PE portfolio-company data. It makes no claim of realized customer savings or production acceptance.
+This walkthrough is for PE operating partners, investment professionals and portfolio-company executives, with a technical diligence path for engineering reviewers. Review a synthetic investment case, inspect the evidence, make a decision and follow its execution record. No realized customer savings or production acceptance are claimed.
+
+For a two-minute read-only introduction, open the [project introduction](../index.html), [portfolio overview](examples/workspace.html), [Beacon investment memo](examples/beacon-pricing.html), [execution KPIs](examples/beacon-kpis.html) and [Delta evidence pause](examples/delta-broken.html). Those captures cannot submit decisions.
 
 ## Run the five-scenario demonstration
 
@@ -22,12 +24,16 @@ Start Docker Desktop with Linux containers, then run:
 python scripts/showcase.py up
 ```
 
-The command builds the application, starts PostgreSQL and migrations, generates a local approver token, seeds two fictional companies and waits for the worker. Open **http://localhost:18081/** and enter the token printed by setup.
+The command builds the application, starts PostgreSQL and migrations, generates a local approver token, seeds two fictional companies and waits for the worker. Open **http://localhost:18081/** and enter the token printed by setup. You can also copy only the token value from ignored `var/local-showcase/settings.json`, without quotes. An unsuccessful sign-in returns to the form with recovery instructions; use the saved local token and try again.
 
-1. Open Beacon's **Review plan and evidence** link. Inspect low/base/high value cases and follow an evidence link.
-2. Approve a plan, request changes with a rationale, or reject it. Approval activates the plan's KPIs after the worker resumes; reload the workspace to inspect the resulting status.
-3. Open **View KPIs** to inspect the approved definitions. Definitions are not proof of realized performance; observations require a later monitoring run.
-4. Open Delta to inspect the explicit `needs evidence` pause. The system records suspicious content rather than treating it as instructions.
+1. **Portfolio overview.** Find Beacon and Delta, compare their workflow states, and use the decision desk to identify the next review. Company cards prioritize the latest run; history remains available for context.
+2. **Beacon investment memo.** Review the base annual run-rate and in-year opportunity, workstream owners and initiative contribution. Expand technical detail to inspect the calculation assumptions; the downside scenario matters as much as the headline.
+3. **Evidence room.** Follow a cited source from the memo. Inspect its provenance and content, then return to the same decision context. Treat all source records as fictional fixture data.
+4. **Human decision.** Approve, request changes with a rationale, or reject. Read any validation feedback; correct the form and resubmit. Approval activates the scoped plan's KPIs after the worker resumes. Refresh to inspect the resulting run status.
+5. **Execution and KPIs.** Follow the memo's KPI link to retain the selected run context. Read baseline, day-100 target, run-rate target and any observations together. Missing observations should remain explicit; approval alone proves no business outcome.
+6. **Delta's evidence pause.** Review the named missing or stale inputs and suspicious-content findings. A credible process stops when the fact base is insufficient.
+
+The redesigned application presents executive summaries first and places identifiers, formulas and provenance in supporting detail. Use the keyboard to inspect focus order, and narrow the viewport to check that decisions and evidence remain usable. Record any confusing language or visual defect in the human acceptance feedback.
 
 Create fresh runs for another decision path with `python scripts/showcase.py seed`. Existing runs and evidence remain available. Local sign-in lasts one hour in the browser; setup's token remains in ignored `var/local-showcase/settings.json`. Never use this dev configuration for an internet-facing service.
 

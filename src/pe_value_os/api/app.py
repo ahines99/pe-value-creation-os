@@ -15,6 +15,7 @@ import secrets
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Annotated, Any, Literal
+from urllib.parse import quote
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -25,7 +26,7 @@ from .. import __version__, approvals, security
 from ..adapters.evidence_store import EvidenceNotFound
 from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
-from ..domain.runs import ApprovalDecision
+from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
@@ -176,8 +177,54 @@ def home(request: Request) -> Response:
             raise
         return _demo_login_response()
     with scoped(principal):
-        runs = get_ctx().repo.list_runs()
-    return HTMLResponse(views.home_page(runs, dev=os.environ.get("PVC_ENV") == "dev"))
+        ctx = get_ctx()
+        runs = ctx.repo.list_runs()
+        latest: dict[str, RunRecord] = {}
+        for run in sorted(runs, key=lambda r: (r.created_at, r.run_id), reverse=True):
+            latest.setdefault(run.company_id, run)
+        companies = {}
+        plans = {}
+        gaps = {}
+        decisions = {}
+        for company_id, run in latest.items():
+            try:
+                companies[company_id] = ctx.repo.get_company(company_id)
+            except NotFound:
+                pass  # A queued assessment can precede company intake.
+            plan = ctx.repo.latest_plan(run.run_id)
+            records = ctx.repo.list_approvals(run.run_id)
+            if records:
+                decisions[run.run_id] = records[-1]
+                if plan is not None and records[-1].decision is not None:
+                    approved = records[-1].edits.get("approved_plan")
+                    if records[-1].decision == ApprovalDecision.APPROVED:
+                        plan = plan.model_copy(
+                            update={
+                                "approved_plan": approved if approved is not None else plan.plan,
+                                "status": "approved",
+                            }
+                        )
+                    elif records[-1].decision in {ApprovalDecision.REJECTED, ApprovalDecision.CHANGES_REQUESTED}:
+                        plan = plan.model_copy(
+                            update={
+                                "status": "rejected"
+                                if records[-1].decision == ApprovalDecision.REJECTED
+                                else "superseded"
+                            }
+                        )
+            if plan is not None:
+                plans[run.run_id] = plan
+            gaps[run.run_id] = sum(f.finding_type.value == "data_gap" for f in ctx.repo.list_findings(run.run_id))
+    return HTMLResponse(
+        views.home_page(
+            runs,
+            dev=os.environ.get("PVC_ENV") == "dev",
+            companies=companies,
+            plans=plans,
+            gaps=gaps,
+            decisions=decisions,
+        )
+    )
 
 
 @app.post("/dev/login")
@@ -242,30 +289,73 @@ def post_decision_form(
     run_id: str,
     request: Request,
     p: Principal,
-    decision: Annotated[str, Form()],
-    csrf: Annotated[str, Form()],
+    decision: Annotated[str, Form()] = "",
+    csrf: Annotated[str, Form()] = "",
     rationale: Annotated[str, Form()] = "",
     remove_initiatives: Annotated[list[str] | None, Form()] = None,
 ) -> Response:
-    expected_csrf = request.cookies.get("pvc_csrf", "")
-    if not expected_csrf or not secrets.compare_digest(csrf, expected_csrf):
-        raise HTTPException(403, "CSRF check failed")
-    if decision not in ("approved", "rejected", "changes_requested"):
-        raise HTTPException(422, "Invalid decision")
     with scoped(p):
         _load_run(run_id)
-        _decide(
-            run_id,
-            p,
-            DecisionIn.model_validate(
-                {"decision": decision, "rationale": rationale or None, "remove_initiatives": remove_initiatives or []}
-            ),
-        )
+        expected_csrf = request.cookies.get("pvc_csrf", "")
+        if not expected_csrf or not secrets.compare_digest(csrf, expected_csrf):
+            return _review_response(
+                run_id,
+                p,
+                error="This decision form expired. Review your choices and submit again.",
+                status_code=403,
+                rationale=rationale,
+                selected_initiatives=remove_initiatives,
+            )
+        if decision not in ("approved", "rejected", "changes_requested"):
+            return _review_response(
+                run_id,
+                p,
+                error="Choose approve, request changes or reject.",
+                status_code=422,
+                rationale=rationale,
+                selected_initiatives=remove_initiatives,
+            )
+        try:
+            _decide(
+                run_id,
+                p,
+                DecisionIn.model_validate(
+                    {
+                        "decision": decision,
+                        "rationale": rationale or None,
+                        "remove_initiatives": remove_initiatives or [] if decision == "approved" else [],
+                        "exclude_opportunities": remove_initiatives or [] if decision == "changes_requested" else [],
+                    }
+                ),
+            )
+        except HTTPException as exc:
+            if exc.status_code not in {403, 422}:
+                raise
+            return _review_response(
+                run_id,
+                p,
+                error=str(exc.detail),
+                status_code=exc.status_code,
+                rationale=rationale,
+                selected_initiatives=remove_initiatives,
+            )
     return RedirectResponse(f"/runs/{run_id}/review", status_code=303)
 
 
 @app.get("/runs/{run_id}/review", response_class=HTMLResponse)
 def review(run_id: str, p: Principal) -> HTMLResponse:
+    return _review_response(run_id, p)
+
+
+def _review_response(
+    run_id: str,
+    p: security.Principal,
+    *,
+    error: str | None = None,
+    status_code: int = 200,
+    rationale: str = "",
+    selected_initiatives: list[str] | None = None,
+) -> HTMLResponse:
     ctx = get_ctx()
     with scoped(p):
         run = _load_run(run_id)
@@ -273,7 +363,11 @@ def review(run_id: str, p: Principal) -> HTMLResponse:
         cases = {v.opportunity_id: v for v in ctx.repo.list_value_cases(run_id)}
         approvals_ = ctx.repo.list_approvals(run_id)
         csrf = secrets.token_urlsafe(24)
-        can = p.is_human and ctx.policy.approval.approver_role in p.roles and p.has_scope(security.APPROVE_SCOPE)
+        can = approvals.can_approve(p, run.company_id, ctx.policy.approval.approver_role)
+        try:
+            company = ctx.repo.get_company(run.company_id)
+        except NotFound:
+            company = None
         html = views.review_page(
             run,
             ctx.repo.latest_plan(run_id),
@@ -283,8 +377,14 @@ def review(run_id: str, p: Principal) -> HTMLResponse:
             approvals_[-1] if approvals_ else None,
             csrf,
             can,
+            company_name=company.name if company else None,
+            currency=company.currency if company else None,
+            error=error,
+            rationale=rationale,
+            selected_initiatives=selected_initiatives,
+            workflow_state=primary.status(ctx, run_id),
         )
-    resp = HTMLResponse(html)
+    resp = HTMLResponse(html, status_code=status_code)
     resp.set_cookie("pvc_csrf", csrf, httponly=True, samesite="strict", secure=os.environ.get("PVC_ENV") != "dev")
     return resp
 
@@ -302,23 +402,62 @@ def evidence(evidence_id: str, p: Principal) -> Response:
         content,
         media_type="text/plain; charset=utf-8",
         headers={
-            "Content-Disposition": f'inline; filename="{name}"',
+            "Content-Disposition": f"inline; filename=\"evidence.txt\"; filename*=UTF-8''{quote(name, safe='')}",
             "X-Content-Hash": ev.content_hash,
             "X-Content-Type-Options": "nosniff",
         },
     )
 
 
-@app.get("/companies/{company_id}/kpis", response_class=HTMLResponse)
-def kpis(company_id: str, p: Principal) -> HTMLResponse:
+@app.get("/evidence/{evidence_id}/review", response_class=HTMLResponse)
+def evidence_review(evidence_id: str, p: Principal, run_id: str | None = None) -> HTMLResponse:
     ctx = get_ctx()
     with scoped(p):
         try:
-            defs = ctx.repo.list_kpi_definitions(company_id)
+            ev = ctx.repo.get_evidence(evidence_id)
+            content = ctx.repo.evidence_content(evidence_id)
+            if run_id and _load_run(run_id).company_id != ev.company_id:
+                raise HTTPException(404, "Evidence not found for this company")
+            try:
+                company = ctx.repo.get_company(ev.company_id)
+            except NotFound:
+                company = None
+        except (NotFound, EvidenceNotFound) as exc:
+            raise HTTPException(404, "Evidence not found") from exc
+    return HTMLResponse(
+        views.evidence_page(ev, content, company_name=company.name if company else ev.company_id, run_id=run_id)
+    )
+
+
+@app.get("/companies/{company_id}/kpis", response_class=HTMLResponse)
+def kpis(company_id: str, p: Principal, run_id: str | None = None) -> HTMLResponse:
+    ctx = get_ctx()
+    with scoped(p):
+        try:
+            defs = ctx.repo.list_kpi_definitions(company_id, active_only=not bool(run_id))
             obs = ctx.repo.list_kpi_observations(company_id)
+            if run_id:
+                if _load_run(run_id).company_id != company_id:
+                    raise HTTPException(404, "Run not found for this company")
+                defs = [d for d in defs if d.run_id == run_id]
+                ids = {d.kpi_id for d in defs}
+                obs = [o for o in obs if o.kpi_id in ids]
+            try:
+                company = ctx.repo.get_company(company_id)
+            except NotFound:
+                company = None
         except security.ScopeError as e:
             raise HTTPException(404, "Company not found") from e
-    return HTMLResponse(views.kpi_page(company_id, defs, obs))
+    return HTMLResponse(
+        views.kpi_page(
+            company_id,
+            defs,
+            obs,
+            company_name=company.name if company else None,
+            currency=company.currency if company else None,
+            include_inactive=bool(run_id),
+        )
+    )
 
 
 @app.get("/metrics/approvals")
