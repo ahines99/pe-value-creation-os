@@ -1,7 +1,7 @@
 {
   "candidate_sha": "31ebfe9938d6fe92232749632eba5224c0eaffaa",
   "ci_run": "https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767",
-  "status": "draft; human executive-design and MCP acceptance pending",
+  "status": "showcase release; delegated closeout; independent human/client and finance validation deferred",
   "license": "Apache-2.0",
   "scope": "executive synthetic showcase and private research workflow; no production acceptance",
   "checks": {
@@ -24,5 +24,6 @@
     "Financial pilot acceptance is pending; LSEG values are not yet used.",
     "Optional telemetry images retain separately documented historical findings.",
     "Cloud deployment and paid model evaluation remain opt-in."
-  ]
+  ],
+  "closeout": "https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/showcase-closeout.md"
 }

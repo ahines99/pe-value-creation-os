@@ -1,32 +1,34 @@
-# 0.1.0 showcase candidate: evidence index
+# 0.1.0 showcase release: evidence index
 
-## Current draft candidate: 31ebfe9
+## Released showcase: 31ebfe9
 
-The draft `v0.1.0` release now targets **31ebfe9938d6fe92232749632eba5224c0eaffaa**.
+The `v0.1.0` showcase release targets **31ebfe9938d6fe92232749632eba5224c0eaffaa**.
 All ten jobs in [the exact-commit CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767)
 passed: **499 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 deterministic
 evaluations**, **18 rendered browser checks**, installed-package and Compose
 acceptance, infrastructure checks, dependency/secret scans and zero HIGH/CRITICAL
 findings in the application and local PostgreSQL images.
 
-The draft assets were refreshed from that run: wheel, source distribution,
+The release assets were assembled from that run: wheel, source distribution,
 source/plugin ZIP, CI evidence ZIP with browser screenshots, candidate manifest,
 release notes and SHA256SUMS. Distribution hashes were checked against CI;
 uploaded asset digests were checked against the local bundle. The manifest records
 the tested image IDs. See the [candidate manifest](candidate-manifest.json) and
-[asset checksums](SHA256SUMS). Draft assets are visible to repository maintainers;
-the CI run is the public evidence source until release promotion.
+[asset checksums](SHA256SUMS). The source, wheel and source distribution are
+unchanged from the verified candidate. Closeout metadata, release notes and the
+evidence archive manifest were updated to record the delegated release decision.
 
 The source archive and packages exclude local credentials, licensed vendor extracts
 and private research reports. The package includes the new financial-statement
 research workflow; the shipped operational examples remain synthetic. The research
 pilot is not independently accepted and LSEG values do not enter its calculations.
 
-**Remaining promotion gates:** Alex's acceptance of the executive visual direction,
-the actual human MCP/browser session and its dated acceptance record. Automated
-browser checks do not satisfy those gates. PE operating partners and executives
-are the primary audience, with technical diligence available throughout. This
-candidate is not a production release.
+**Closeout decision:** Alex authorized delegated recommendations and finalization
+on September 27, 2026. The [closeout record](../../portfolio/showcase-closeout.md)
+defers the full human MCP/usability session from the showcase stopping point.
+Automated checks are not relabeled as human acceptance. Independent finance
+review remains open. PE operating partners and executives are the primary
+audience, with technical diligence throughout. This is not a production release.
 
 The following sections preserve earlier verification history. Their commits and
 counts do not describe the current draft assets.

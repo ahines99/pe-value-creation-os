@@ -1,5 +1,13 @@
 # Distributing the Agent Skills (PVC-076)
 
+Current installation evidence: Claude Code 2.1.280 installed the six-skill plugin
+locally from a detached `31ebfe9` checkout and connected to its stdio server.
+A separate local `pvc-showcase` HTTP entry connected to the persisted Docker
+workspace. These are agent-performed checks, not a human skill conversation.
+See [showcase closeout](portfolio/showcase-closeout.md). Instructions and behavior
+were checked against the installed CLI and
+[Anthropic's marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
+
 The six skills live in `skills/` and are versioned with the package (`pe_value_os.__version__`, mirrored in
 `.claude-plugin/plugin.json`; a test keeps them equal). CI runs `python -m pe_value_os.skills_lint`, which fails if
 a skill references a tool, metric or reference file that does not exist.

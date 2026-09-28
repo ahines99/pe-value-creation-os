@@ -1,5 +1,17 @@
 # Portfolio finalization: execution and owner roadmap
 
+## Superseding showcase decision
+
+September 27, 2026: Alex authorized delegated recommendations and showcase
+closeout, then continuation with five research agents. The
+[closeout record](portfolio/showcase-closeout.md) defines the completed engineering
+scope and the human/finance validation that remains unperformed. The former
+personal-acceptance wait is deferred from this showcase stopping point; it is
+not marked passed. The [operating-partner roadmap](operating-partner-roadmap.md)
+is now the active next-phase delivery plan. F11-F16 and the original production
+acceptance criteria remain unchanged. Historical draft/pending descriptions below
+describe the earlier acceptance contract and are superseded for showcase closure.
+
 ## Published engineering verification
 
 **Current candidate:** `31ebfe9938d6fe92232749632eba5224c0eaffaa` passed all ten

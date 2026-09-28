@@ -1,11 +1,22 @@
 # Portfolio acceptance record
 
+## Current closeout decision
+
+September 27, 2026: Alex delegated routine recommendations and instructed us to
+finalize the showcase goal and proceed with five research agents. The
+[closeout record](showcase-closeout.md) supersedes the former wait for personal
+design/client acceptance as a showcase release condition. Those sessions remain
+unperformed, not passed. Claude Code 2.1.280 plugin installation, six-skill
+discovery, isolated stdio connection and persisted Docker HTTP connection passed
+agent checks. Independent finance validation and production acceptance remain
+separate. Earlier open checkboxes below preserve the actual test history.
+
 ## Published engineering verification
 
-Current draft candidate **31ebfe9** passed all ten [main-branch CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767):
+Released showcase code **31ebfe9** passed all ten [main-branch CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767):
 499 tests on each supported Linux Python version, 39/39 evaluations, 18 rendered
 browser checks, package/Compose/infrastructure validation and security scans.
-Build-matched assets and checksums are attached to the draft release; see the
+Build-matched assets and checksums are attached to the showcase release; see the
 [evidence index](../releases/0.1.0/evidence.md). This completes engineering evidence
 assembly, not the human acceptance steps below. Earlier redesign results are
 retained as dated history.

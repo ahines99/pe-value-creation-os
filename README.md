@@ -10,13 +10,14 @@ Turns portfolio-company operating data into evidence-backed value-creation initi
 
 All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
 
-The current draft candidate `31ebfe9` also includes the private research workflow.
+The `v0.1.0` showcase release at `31ebfe9` also includes the private research workflow.
 All ten [candidate checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767)
 passed, with **499 tests per Python version**, 39 evaluations and 18 browser checks.
-Its [release evidence and checksums](docs/releases/0.1.0/evidence.md) are assembled;
-human acceptance and final promotion remain pending.
+Its [release evidence and checksums](docs/releases/0.1.0/evidence.md) are assembled.
+Alex authorized [delegated showcase closeout](docs/portfolio/showcase-closeout.md);
+full human client/usability and independent finance validation remain unperformed.
 
-The [functional audit](docs/portfolio/executive-functional-audit.md) and [screenshots](docs/portfolio/screenshots/memo-1440.png) document the verified scope. Human acceptance of the new design and MCP client journey remains open. Real-company deployment and optional observability findings have separate gates in the [roadmap](docs/portfolio-finalization-roadmap.md).
+The [functional audit](docs/portfolio/executive-functional-audit.md) and [screenshots](docs/portfolio/screenshots/memo-1440.png) document the verified scope. The next priority is the [five-agent operating-partner roadmap](docs/operating-partner-roadmap.md): one grounded company case, explicit financial bridges, constrained execution and honest realization evidence. Real-company deployment and optional observability findings retain separate gates in the [production roadmap](docs/portfolio-finalization-roadmap.md).
 
 **Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
 
