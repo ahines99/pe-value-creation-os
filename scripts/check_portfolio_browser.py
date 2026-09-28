@@ -81,6 +81,20 @@ def main() -> None:
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
+                if name == "case-history":
+                    assert "Freeze the reviewed hypothetical close" in page.locator("#close-baseline").inner_text()
+                    assert "simulation" in page.locator("#close-baseline").inner_text()
+                    assert "218,977" in page.locator("#close-baseline").inner_text()
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert payload["close_baseline"]["usable_for_comparison"]
+                    assert payload["close_baseline"]["frozen_forecast"]["year_one"]["incremental_ebitda"] == "218976.65"
+                    assert payload["human_review_count"] == 0 and payload["comparison"]["actuals"] is None
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#close-baseline").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"close-baseline-{width}.png"))
                 if name == "decision-memo":
                     assert "-98.385" in page.locator("#historical-valuation").inner_text()
                     assert "Service first" in page.locator("#choices").inner_text()

@@ -106,3 +106,7 @@ explicit reviewed close-baseline designation, actual milestone/assignment eviden
 append-only actuals/attribution records, lessons and historical filing replay. The
 current comparison reports `modeled_only` and actuals unavailable. Public/constructed
 source contracts do not yet admit a real permissioned investment or company pilot.
+
+The separate reviewed hypothetical-close designation is now implemented under
+[ADR 0018](0018-reviewed-close-baselines.md). It preserves this revision contract
+and does not introduce observed actuals or operating authorization.

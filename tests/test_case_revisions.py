@@ -463,7 +463,10 @@ def test_case_replay_never_fabricates_human_or_actual_evidence(tmp_path):
     assert [r["mode"] for r in report["reviews"]] == ["simulation", "simulation"]
     assert all(r["actor_type"] == "service" for r in report["reviews"])
     assert report["comparison"]["actuals"] is None
-    assert len(report["audit"]) == 5
+    assert len(report["audit"]) == 6
+    assert report["close_baseline"]["usable_for_comparison"]
+    assert report["close_baseline"]["baseline"]["request"]["mode"] == "simulation"
+    assert "href='history.json' download" in output.with_suffix(".html").read_text(encoding="utf-8")
     second = demonstrate_revisions(example(), plan_example())
     assert second["comparison"]["current_financials"] == report["comparison"]["current_financials"]
     assert second["reviews"][0]["review_id"] != report["reviews"][0]["review_id"]
@@ -505,8 +508,9 @@ def test_downgrade_guard_sees_history_for_non_superuser_owner(pg_repo, pg_databa
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import downgrade
+    from pe_value_os.db.migrate import downgrade, upgrade
 
+    downgrade(pg_database[0], "0004")
     with security.principal_scope(principal()):
         case = setup(pg_repo)
         original = pg_repo.append_case_revision(case.case_id, None, draft())
@@ -535,3 +539,5 @@ def test_downgrade_guard_sees_history_for_non_superuser_owner(pg_repo, pg_databa
                 assert pg_repo.get_case_revision(original.revision_id) == original
         finally:
             conn.execute(sql.SQL("alter table investment_cases owner to {}").format(sql.Identifier(owner)))
+
+            upgrade(pg_database[0])

@@ -27,6 +27,7 @@ from ..adapters.evidence_store import EvidenceNotFound
 from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
+from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
@@ -179,12 +180,25 @@ def case_history(case_id: str, request: Request, p: Principal) -> dict[str, Any]
         revisions = [r for r in repo.list_case_revisions(case_id) if r.sequence <= case.version]
         revision_ids = {r.revision_id for r in revisions}
         reviews = [r for r in repo.list_case_reviews(case_id) if r.revision_id in revision_ids]
+        baselines = [b for b in repo.list_close_baselines(case_id) if b.request.revision_id in revision_ids]
+        by_revision = {r.revision_id: r for r in revisions}
         return {
+            "close_baselines": [
+                close_baseline_view(b, by_revision[b.request.revision_id], reviews, baselines) for b in baselines
+            ],
             "case": case.model_dump(mode="json"),
             "revisions": [r.model_dump(mode="json") for r in revisions],
             "reviews": [r.model_dump(mode="json") for r in reviews],
             "comparison": compare_revisions(revisions[0], revisions[-1]) if revisions else None,
         }
+
+
+@app.post("/cases/{case_id}/close-baselines", status_code=201)
+def designate_close_baseline(
+    case_id: str, body: CloseBaselineRequest, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.designate_close_baseline(case_id, body).model_dump(mode="json")
 
 
 @app.post("/cases/{case_id}/revisions", status_code=201)
