@@ -1,0 +1,584 @@
+{
+  "classification": "public_filing_vintage_comparison",
+  "history_sha256": "92ea191a96fc3eea037cd8ef7cc111bdd54b701bc79ad0cc5eed5e0dafe7672f",
+  "history": {
+    "schema_version": 1,
+    "classification": "public_filing_vintage_comparison",
+    "revision_kind": "measurement_period_adjustment",
+    "revision_explanation": "The FY2025 filing says the measurement-period work is complete and attributes the approximately $1.5 million goodwill increase mainly to customer relationships and working-capital adjustments.",
+    "explanation_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616726000008/prgs-20251130.htm",
+    "explanation_locator": "Note 5, ShareFile acquisition, printed pages 52\u201353",
+    "timestamp_policy_url": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+    "coverage": "Two annual filing vintages only. This is not an exhaustive survey of intervening filings, releases or dissemination feeds.",
+    "vintages": [
+      {
+        "vintage_id": "fy2024-allocation",
+        "document": {
+          "document_id": "progress-fy2024-allocation",
+          "classification": "public_filing",
+          "entity_id": "0000876167",
+          "title": "Progress Software FY2024 Form 10-K",
+          "url": "https://investors.progress.com/static-files/0b61a077-b170-4950-92c7-a865dddaef4f",
+          "accession": "0000876167-25-000010",
+          "form": "10-K",
+          "filed_on": "2025-01-21",
+          "retrieved_at": "2026-09-28T21:52:03.510357Z",
+          "sha256": "624d426b5725d2306ffb9c2f7636e27b8e879b8cb1214f056de72c53102c9a01",
+          "mapping_sha256": "adada52330405fa8f11c1820feaa3813cfefd07d745581b6f32a58bdcebc5838",
+          "extraction_version": "allocation-pdf-v1"
+        },
+        "accepted": {
+          "timestamp": "2025-01-21T16:23:51-05:00",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616725000010/0000876167-25-000010-index.htm",
+          "locator": "Accepted field; January timestamp in EST (UTC-05:00), per SEC webmaster guidance"
+        },
+        "public_available": null,
+        "acquisition_date": "2024-10-31",
+        "acquired_business": "ShareFile",
+        "status": "preliminary",
+        "currency": "USD",
+        "unit_scale": 1000,
+        "pdf_page": 51,
+        "printed_page": "51",
+        "table_heading": "The preliminary allocation of the purchase price is as follows:",
+        "rows": [
+          {
+            "metric": "working_capital",
+            "reported_amount": "892",
+            "source_row": "Net working capital $ 892",
+            "label": "Net working capital"
+          },
+          {
+            "metric": "ppe",
+            "reported_amount": "54",
+            "source_row": "Property, plant and equipment 54",
+            "label": "Property, plant and equipment"
+          },
+          {
+            "metric": "technology",
+            "reported_amount": "119000",
+            "source_row": "Purchased technology 119,000 7 years",
+            "label": "Purchased technology"
+          },
+          {
+            "metric": "trade_name",
+            "reported_amount": "27000",
+            "source_row": "Trade name 27,000 7 years",
+            "label": "Trade name"
+          },
+          {
+            "metric": "customer_relationships",
+            "reported_amount": "319000",
+            "source_row": "Customer relationships 319,000 7 years",
+            "label": "Customer relationships"
+          },
+          {
+            "metric": "deferred_taxes",
+            "reported_amount": "23456",
+            "source_row": "Deferred taxes 23,456",
+            "label": "Deferred taxes"
+          },
+          {
+            "metric": "deferred_revenue",
+            "reported_amount": "-96159",
+            "source_row": "Deferred revenue (96,159)",
+            "label": "Deferred revenue"
+          },
+          {
+            "metric": "goodwill",
+            "reported_amount": "459459",
+            "source_row": "Goodwill 459,459",
+            "label": "Goodwill"
+          },
+          {
+            "metric": "net_assets",
+            "reported_amount": "852702",
+            "source_row": "Net assets acquired $ 852,702",
+            "label": "Net assets acquired"
+          }
+        ]
+      },
+      {
+        "vintage_id": "fy2025-allocation",
+        "document": {
+          "document_id": "progress-fy2025-allocation",
+          "classification": "public_filing",
+          "entity_id": "0000876167",
+          "title": "Progress Software FY2025 Form 10-K",
+          "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+          "accession": "0000876167-26-000008",
+          "form": "10-K",
+          "filed_on": "2026-01-20",
+          "retrieved_at": "2026-09-28T13:39:25.016566Z",
+          "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+          "mapping_sha256": "3569e2095ca49073cba3de3dd3f482607b398f4f0c57e438c27c33140133119e",
+          "extraction_version": "allocation-pdf-v1"
+        },
+        "accepted": {
+          "timestamp": "2026-01-20T16:12:13-05:00",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616726000008/0000876167-26-000008-index.htm",
+          "locator": "Accepted field; January timestamp in EST (UTC-05:00), per SEC webmaster guidance"
+        },
+        "public_available": null,
+        "acquisition_date": "2024-10-31",
+        "acquired_business": "ShareFile",
+        "status": "final",
+        "currency": "USD",
+        "unit_scale": 1000,
+        "pdf_page": 53,
+        "printed_page": "53",
+        "table_heading": "The allocation of the purchase price is as follows:",
+        "rows": [
+          {
+            "metric": "working_capital",
+            "reported_amount": "2048",
+            "source_row": "Net working capital $ 2,048",
+            "label": "Net working capital"
+          },
+          {
+            "metric": "ppe",
+            "reported_amount": "54",
+            "source_row": "Property, plant and equipment 54",
+            "label": "Property, plant and equipment"
+          },
+          {
+            "metric": "technology",
+            "reported_amount": "119000",
+            "source_row": "Purchased technology 119,000 7 years",
+            "label": "Purchased technology"
+          },
+          {
+            "metric": "trade_name",
+            "reported_amount": "27000",
+            "source_row": "Trade name 27,000 7 years",
+            "label": "Trade name"
+          },
+          {
+            "metric": "customer_relationships",
+            "reported_amount": "318000",
+            "source_row": "Customer relationships 318,000 7 years",
+            "label": "Customer relationships"
+          },
+          {
+            "metric": "deferred_taxes",
+            "reported_amount": "23078",
+            "source_row": "Deferred taxes 23,078",
+            "label": "Deferred taxes"
+          },
+          {
+            "metric": "deferred_revenue",
+            "reported_amount": "-96255",
+            "source_row": "Deferred revenue (96,255)",
+            "label": "Deferred revenue"
+          },
+          {
+            "metric": "goodwill",
+            "reported_amount": "460972",
+            "source_row": "Goodwill 460,972",
+            "label": "Goodwill"
+          },
+          {
+            "metric": "net_assets",
+            "reported_amount": "853897",
+            "source_row": "Net assets acquired $ 853,897",
+            "label": "Net assets acquired"
+          }
+        ]
+      }
+    ]
+  },
+  "comparison": [
+    {
+      "metric": "working_capital",
+      "label": "Net working capital",
+      "preliminary": "892000",
+      "final": "2048000",
+      "change": "1156000"
+    },
+    {
+      "metric": "ppe",
+      "label": "Property, plant and equipment",
+      "preliminary": "54000",
+      "final": "54000",
+      "change": "0"
+    },
+    {
+      "metric": "technology",
+      "label": "Purchased technology",
+      "preliminary": "119000000",
+      "final": "119000000",
+      "change": "0"
+    },
+    {
+      "metric": "trade_name",
+      "label": "Trade name",
+      "preliminary": "27000000",
+      "final": "27000000",
+      "change": "0"
+    },
+    {
+      "metric": "customer_relationships",
+      "label": "Customer relationships",
+      "preliminary": "319000000",
+      "final": "318000000",
+      "change": "-1000000"
+    },
+    {
+      "metric": "deferred_taxes",
+      "label": "Deferred taxes",
+      "preliminary": "23456000",
+      "final": "23078000",
+      "change": "-378000"
+    },
+    {
+      "metric": "deferred_revenue",
+      "label": "Deferred revenue",
+      "preliminary": "-96159000",
+      "final": "-96255000",
+      "change": "-96000"
+    },
+    {
+      "metric": "goodwill",
+      "label": "Goodwill",
+      "preliminary": "459459000",
+      "final": "460972000",
+      "change": "1513000"
+    },
+    {
+      "metric": "net_assets",
+      "label": "Net assets acquired",
+      "preliminary": "852702000",
+      "final": "853897000",
+      "change": "1195000"
+    }
+  ],
+  "reconciliations": {
+    "fy2024-allocation": "components_equal_net_assets",
+    "fy2025-allocation": "components_equal_net_assets"
+  },
+  "cutoffs": [
+    {
+      "cutoff": "2025-01-21T16:23:50-05:00",
+      "acceptance_selection": {
+        "status": "no_eligible_registered_filing",
+        "selected": null
+      },
+      "publication_selection": {
+        "status": "no_eligible_registered_filing",
+        "selected": null
+      }
+    },
+    {
+      "cutoff": "2025-01-21T16:23:51-05:00",
+      "acceptance_selection": {
+        "status": "accepted_filing_only",
+        "selected": {
+          "vintage_id": "fy2024-allocation",
+          "document": {
+            "document_id": "progress-fy2024-allocation",
+            "classification": "public_filing",
+            "entity_id": "0000876167",
+            "title": "Progress Software FY2024 Form 10-K",
+            "url": "https://investors.progress.com/static-files/0b61a077-b170-4950-92c7-a865dddaef4f",
+            "accession": "0000876167-25-000010",
+            "form": "10-K",
+            "filed_on": "2025-01-21",
+            "retrieved_at": "2026-09-28T21:52:03.510357Z",
+            "sha256": "624d426b5725d2306ffb9c2f7636e27b8e879b8cb1214f056de72c53102c9a01",
+            "mapping_sha256": "adada52330405fa8f11c1820feaa3813cfefd07d745581b6f32a58bdcebc5838",
+            "extraction_version": "allocation-pdf-v1"
+          },
+          "accepted": {
+            "timestamp": "2025-01-21T16:23:51-05:00",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616725000010/0000876167-25-000010-index.htm",
+            "locator": "Accepted field; January timestamp in EST (UTC-05:00), per SEC webmaster guidance"
+          },
+          "public_available": null,
+          "acquisition_date": "2024-10-31",
+          "acquired_business": "ShareFile",
+          "status": "preliminary",
+          "currency": "USD",
+          "unit_scale": 1000,
+          "pdf_page": 51,
+          "printed_page": "51",
+          "table_heading": "The preliminary allocation of the purchase price is as follows:",
+          "rows": [
+            {
+              "metric": "working_capital",
+              "reported_amount": "892",
+              "source_row": "Net working capital $ 892",
+              "label": "Net working capital"
+            },
+            {
+              "metric": "ppe",
+              "reported_amount": "54",
+              "source_row": "Property, plant and equipment 54",
+              "label": "Property, plant and equipment"
+            },
+            {
+              "metric": "technology",
+              "reported_amount": "119000",
+              "source_row": "Purchased technology 119,000 7 years",
+              "label": "Purchased technology"
+            },
+            {
+              "metric": "trade_name",
+              "reported_amount": "27000",
+              "source_row": "Trade name 27,000 7 years",
+              "label": "Trade name"
+            },
+            {
+              "metric": "customer_relationships",
+              "reported_amount": "319000",
+              "source_row": "Customer relationships 319,000 7 years",
+              "label": "Customer relationships"
+            },
+            {
+              "metric": "deferred_taxes",
+              "reported_amount": "23456",
+              "source_row": "Deferred taxes 23,456",
+              "label": "Deferred taxes"
+            },
+            {
+              "metric": "deferred_revenue",
+              "reported_amount": "-96159",
+              "source_row": "Deferred revenue (96,159)",
+              "label": "Deferred revenue"
+            },
+            {
+              "metric": "goodwill",
+              "reported_amount": "459459",
+              "source_row": "Goodwill 459,459",
+              "label": "Goodwill"
+            },
+            {
+              "metric": "net_assets",
+              "reported_amount": "852702",
+              "source_row": "Net assets acquired $ 852,702",
+              "label": "Net assets acquired"
+            }
+          ]
+        },
+        "selected_sha256": "413b2ae4ab5198ee3a2edab59a87fad19f2fded94ade936417f6e77db9a878ef"
+      },
+      "publication_selection": {
+        "status": "withheld_missing_publication_evidence",
+        "selected": null,
+        "unknown": [
+          "fy2024-allocation"
+        ]
+      }
+    },
+    {
+      "cutoff": "2026-01-20T16:12:12-05:00",
+      "acceptance_selection": {
+        "status": "accepted_filing_only",
+        "selected": {
+          "vintage_id": "fy2024-allocation",
+          "document": {
+            "document_id": "progress-fy2024-allocation",
+            "classification": "public_filing",
+            "entity_id": "0000876167",
+            "title": "Progress Software FY2024 Form 10-K",
+            "url": "https://investors.progress.com/static-files/0b61a077-b170-4950-92c7-a865dddaef4f",
+            "accession": "0000876167-25-000010",
+            "form": "10-K",
+            "filed_on": "2025-01-21",
+            "retrieved_at": "2026-09-28T21:52:03.510357Z",
+            "sha256": "624d426b5725d2306ffb9c2f7636e27b8e879b8cb1214f056de72c53102c9a01",
+            "mapping_sha256": "adada52330405fa8f11c1820feaa3813cfefd07d745581b6f32a58bdcebc5838",
+            "extraction_version": "allocation-pdf-v1"
+          },
+          "accepted": {
+            "timestamp": "2025-01-21T16:23:51-05:00",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616725000010/0000876167-25-000010-index.htm",
+            "locator": "Accepted field; January timestamp in EST (UTC-05:00), per SEC webmaster guidance"
+          },
+          "public_available": null,
+          "acquisition_date": "2024-10-31",
+          "acquired_business": "ShareFile",
+          "status": "preliminary",
+          "currency": "USD",
+          "unit_scale": 1000,
+          "pdf_page": 51,
+          "printed_page": "51",
+          "table_heading": "The preliminary allocation of the purchase price is as follows:",
+          "rows": [
+            {
+              "metric": "working_capital",
+              "reported_amount": "892",
+              "source_row": "Net working capital $ 892",
+              "label": "Net working capital"
+            },
+            {
+              "metric": "ppe",
+              "reported_amount": "54",
+              "source_row": "Property, plant and equipment 54",
+              "label": "Property, plant and equipment"
+            },
+            {
+              "metric": "technology",
+              "reported_amount": "119000",
+              "source_row": "Purchased technology 119,000 7 years",
+              "label": "Purchased technology"
+            },
+            {
+              "metric": "trade_name",
+              "reported_amount": "27000",
+              "source_row": "Trade name 27,000 7 years",
+              "label": "Trade name"
+            },
+            {
+              "metric": "customer_relationships",
+              "reported_amount": "319000",
+              "source_row": "Customer relationships 319,000 7 years",
+              "label": "Customer relationships"
+            },
+            {
+              "metric": "deferred_taxes",
+              "reported_amount": "23456",
+              "source_row": "Deferred taxes 23,456",
+              "label": "Deferred taxes"
+            },
+            {
+              "metric": "deferred_revenue",
+              "reported_amount": "-96159",
+              "source_row": "Deferred revenue (96,159)",
+              "label": "Deferred revenue"
+            },
+            {
+              "metric": "goodwill",
+              "reported_amount": "459459",
+              "source_row": "Goodwill 459,459",
+              "label": "Goodwill"
+            },
+            {
+              "metric": "net_assets",
+              "reported_amount": "852702",
+              "source_row": "Net assets acquired $ 852,702",
+              "label": "Net assets acquired"
+            }
+          ]
+        },
+        "selected_sha256": "413b2ae4ab5198ee3a2edab59a87fad19f2fded94ade936417f6e77db9a878ef"
+      },
+      "publication_selection": {
+        "status": "withheld_missing_publication_evidence",
+        "selected": null,
+        "unknown": [
+          "fy2024-allocation"
+        ]
+      }
+    },
+    {
+      "cutoff": "2026-01-20T16:12:13-05:00",
+      "acceptance_selection": {
+        "status": "accepted_filing_only",
+        "selected": {
+          "vintage_id": "fy2025-allocation",
+          "document": {
+            "document_id": "progress-fy2025-allocation",
+            "classification": "public_filing",
+            "entity_id": "0000876167",
+            "title": "Progress Software FY2025 Form 10-K",
+            "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+            "accession": "0000876167-26-000008",
+            "form": "10-K",
+            "filed_on": "2026-01-20",
+            "retrieved_at": "2026-09-28T13:39:25.016566Z",
+            "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+            "mapping_sha256": "3569e2095ca49073cba3de3dd3f482607b398f4f0c57e438c27c33140133119e",
+            "extraction_version": "allocation-pdf-v1"
+          },
+          "accepted": {
+            "timestamp": "2026-01-20T16:12:13-05:00",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000087616726000008/0000876167-26-000008-index.htm",
+            "locator": "Accepted field; January timestamp in EST (UTC-05:00), per SEC webmaster guidance"
+          },
+          "public_available": null,
+          "acquisition_date": "2024-10-31",
+          "acquired_business": "ShareFile",
+          "status": "final",
+          "currency": "USD",
+          "unit_scale": 1000,
+          "pdf_page": 53,
+          "printed_page": "53",
+          "table_heading": "The allocation of the purchase price is as follows:",
+          "rows": [
+            {
+              "metric": "working_capital",
+              "reported_amount": "2048",
+              "source_row": "Net working capital $ 2,048",
+              "label": "Net working capital"
+            },
+            {
+              "metric": "ppe",
+              "reported_amount": "54",
+              "source_row": "Property, plant and equipment 54",
+              "label": "Property, plant and equipment"
+            },
+            {
+              "metric": "technology",
+              "reported_amount": "119000",
+              "source_row": "Purchased technology 119,000 7 years",
+              "label": "Purchased technology"
+            },
+            {
+              "metric": "trade_name",
+              "reported_amount": "27000",
+              "source_row": "Trade name 27,000 7 years",
+              "label": "Trade name"
+            },
+            {
+              "metric": "customer_relationships",
+              "reported_amount": "318000",
+              "source_row": "Customer relationships 318,000 7 years",
+              "label": "Customer relationships"
+            },
+            {
+              "metric": "deferred_taxes",
+              "reported_amount": "23078",
+              "source_row": "Deferred taxes 23,078",
+              "label": "Deferred taxes"
+            },
+            {
+              "metric": "deferred_revenue",
+              "reported_amount": "-96255",
+              "source_row": "Deferred revenue (96,255)",
+              "label": "Deferred revenue"
+            },
+            {
+              "metric": "goodwill",
+              "reported_amount": "460972",
+              "source_row": "Goodwill 460,972",
+              "label": "Goodwill"
+            },
+            {
+              "metric": "net_assets",
+              "reported_amount": "853897",
+              "source_row": "Net assets acquired $ 853,897",
+              "label": "Net assets acquired"
+            }
+          ]
+        },
+        "selected_sha256": "0971a43778d88b8cc708891154b87756dc77245b59c6680c4574cef66bb78509"
+      },
+      "publication_selection": {
+        "status": "withheld_missing_publication_evidence",
+        "selected": null,
+        "unknown": [
+          "fy2024-allocation",
+          "fy2025-allocation"
+        ]
+      }
+    }
+  ],
+  "point_in_time_claim": "withheld",
+  "limitations": [
+    "Retrospective comparison of two registered annual filings; intermediate disclosures and earlier publication elsewhere are not surveyed.",
+    "Acceptance order is not proof of exact public availability. Missing availability evidence blocks that selection.",
+    "The issuer describes measurement-period adjustments, not an accounting-error restatement.",
+    "Purchase-price allocation changes do not establish operating EBITDA, cash savings or investment returns.",
+    "Current-vintage LSEG/WRDS data does not become point-in-time evidence through this comparison."
+  ]
+}

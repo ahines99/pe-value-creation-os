@@ -190,3 +190,12 @@ with structured lessons and simulated exact-version reviews. It preserves the
 frozen close and constructed accounting/attribution history. The
 [pilot sponsor package](docs/pilot/permissioned/README.md) is prepared; no sponsor
 or actual operating pilot is in place.
+
+The [disclosure history](https://ahines99.github.io/pe-value-creation-os/portfolio/disclosure-history.html)
+preserves the preliminary and final ShareFile acquisition allocations from two
+public filings. Its 18 source rows reconcile independently. Publication-time
+selection remains withheld where timestamp evidence is missing; the issuer
+revision is a measurement-period adjustment, not an accounting-error restatement.
+The [sponsor brief](docs/pilot/permissioned/sponsor-brief.md) and
+[kickoff worksheet](docs/pilot/permissioned/kickoff-worksheet.md) are ready for a
+prospective pilot discussion; no company pilot has started.

@@ -112,3 +112,11 @@ original service-first preference. The revised alternatives use the latest
 constructed assumptions and source records; the original options remain visible
 as historical reasoning. Public-filing facts and their information cutoff remain
 unchanged. See [ADR 0023](../adr/0023-evidence-responsive-executive-memo.md).
+
+The [disclosure-vintage comparison](../portfolio/disclosure-history.html) now
+retains both the preliminary and final ShareFile allocation and verifies all
+18 rows against the issuer PDFs. This measurement-period revision is distinct
+from an accounting-error restatement. Missing public-availability timestamps
+withhold exact point-in-time selection; acceptance-only selection is labeled
+separately. Intermediate disclosures have not been comprehensively surveyed
+([ADR 0024](../adr/0024-disclosure-vintages.md)).
