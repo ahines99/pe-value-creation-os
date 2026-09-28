@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from pe_value_os.cli import main
+from pe_value_os.diligence.balances import BalanceBundle
 from pe_value_os.diligence.growth import GrowthContext
 from pe_value_os.diligence.memo import DecisionBrief, assemble_memo
 from pe_value_os.diligence.memo_render import build_decision_memo, render_memo
@@ -16,6 +17,7 @@ from pe_value_os.diligence.models import FactBundle
 from pe_value_os.diligence.peers import PeerContext
 from pe_value_os.diligence.scheduling import OperatingPlan, fingerprint
 from pe_value_os.diligence.underwriting import UnderwritingCase
+from pe_value_os.diligence.valuation import ValuationSpec
 
 ROOT = Path(__file__).resolve().parents[1]
 PATHS = [
@@ -27,13 +29,31 @@ PATHS = [
         "data/public/progress/peer-context.json",
         "data/constructed/progress/underwriting.json",
         "data/constructed/progress/operating-plan.json",
+        "data/public/progress/balance-facts.json",
+        "data/constructed/progress/historical-valuation.json",
     )
 ]
-MODELS = (DecisionBrief, FactBundle, GrowthContext, PeerContext, UnderwritingCase, OperatingPlan)
+MODELS = (
+    DecisionBrief,
+    FactBundle,
+    GrowthContext,
+    PeerContext,
+    UnderwritingCase,
+    OperatingPlan,
+    BalanceBundle,
+    ValuationSpec,
+)
 
 
 def inputs():
     return [model.model_validate_json(path.read_bytes()) for model, path in zip(MODELS, PATHS, strict=True)]
+
+
+def test_previous_brief_schema_cannot_be_reinterpreted_as_equity_bound():
+    raw = inputs()[0].model_dump(mode="json")
+    raw["schema_version"] = 1
+    with pytest.raises(ValueError):
+        DecisionBrief.model_validate(raw)
 
 
 def option(report, key):
@@ -91,17 +111,17 @@ def test_hand_worked_sequencing_difference_preserves_costs_and_source_dates():
 def test_all_alternatives_preserve_scope_resources_and_assumptions():
     data = inputs()
     r = assemble_memo(*data)
-    original = data[-1].model_dump(mode="json")
+    original = data[5].model_dump(mode="json")
     for op in r["constructed_options"]:
         for field in ("resources", "tasks", "benefit_gates", "maximum_active_workstreams", "start", "days"):
             assert op["plan"][field] == original[field]
-        assert op["analysis"]["original_underwriting_sha256"] == fingerprint(data[-2])
+        assert op["analysis"]["original_underwriting_sha256"] == fingerprint(data[4])
         for s in op["analysis"]["scheduled_financials"]["scenarios"]:
-            original_s = next(x for x in data[-2].scenarios if x.scenario_id == s["scenario_id"])
+            original_s = next(x for x in data[4].scenarios if x.scenario_id == s["scenario_id"])
             assert s["assumptions"] == [a.model_dump(mode="json") for a in original_s.assumptions]
 
 
-@pytest.mark.parametrize("field", ["financial", "growth", "peers", "underwriting", "plan"])
+@pytest.mark.parametrize("field", ["financial", "growth", "peers", "underwriting", "plan", "balances", "valuation"])
 def test_stale_brief_rejected_before_export(tmp_path, field):
     raw = json.loads(PATHS[0].read_text(encoding="utf-8"))
     raw[field + "_sha256"] = "0" * 64
@@ -154,11 +174,11 @@ def test_invalid_decision_contracts_are_rejected(mutation):
 
 def test_unknown_capacity_reopens_preference_and_suppresses_benefits():
     data = inputs()
-    raw = data[-1].model_dump(mode="json")
+    raw = data[5].model_dump(mode="json")
     raw["resources"][0]["weekly_hours"] = [None] * 15
-    data[-1] = OperatingPlan.model_validate(raw)
+    data[5] = OperatingPlan.model_validate(raw)
     brief = data[0].model_dump(mode="json")
-    brief["plan_sha256"] = fingerprint(data[-1])
+    brief["plan_sha256"] = fingerprint(data[5])
     data[0] = DecisionBrief.model_validate(brief)
     r = assemble_memo(*data)
     assert r["preference_status"] == "reopen_blocked_preference"
@@ -191,7 +211,7 @@ def test_adjustment_register_retains_expenses_and_known_scope_exceptions():
     assert len([a for a in r["adjustment_review"] if a["disposition"] == "retain_expense"]) == 4
 
 
-@pytest.mark.parametrize("index", range(6))
+@pytest.mark.parametrize("index", range(8))
 def test_export_never_overwrites_any_input(index):
     before = PATHS[index].read_bytes()
     with pytest.raises(ValueError, match="overwrite"):
@@ -207,7 +227,11 @@ def test_public_text_escaped_and_cli_replays_bound_memo(tmp_path):
     html = render_memo(assemble_memo(*data))
     assert "<script>" not in html and "&lt;script&gt;" in html
     args = ["decision-memo"]
-    for flag, path in zip(("brief", "facts", "growth", "peers", "underwriting", "operating-plan"), PATHS, strict=True):
+    for flag, path in zip(
+        ("brief", "facts", "growth", "peers", "underwriting", "operating-plan", "balances", "valuation"),
+        PATHS,
+        strict=True,
+    ):
         args.extend(["--" + flag, str(path)])
     output = tmp_path / "memo"
     args.extend(["--output", str(output)])

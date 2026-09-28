@@ -36,6 +36,7 @@ def main() -> None:
         "operating-plan": "/portfolio/operating-plan.html",
         "case-history": "/portfolio/case-history.html",
         "decision-memo": "/portfolio/decision-memo.html",
+        "historical-valuation": "/portfolio/historical-valuation.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -81,6 +82,7 @@ def main() -> None:
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
                 if name == "decision-memo":
+                    assert "-98.385" in page.locator("#historical-valuation").inner_text()
                     assert "Service first" in page.locator("#choices").inner_text()
                     assert "No operating intervention is authorized" in page.locator("#next-decision").inner_text()
                     assert "583.6" in page.locator("#choices").inner_text()
@@ -89,10 +91,28 @@ def main() -> None:
                     payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
                     assert payload["execution_authorized"] is False
                     assert payload["actual_realized_value"] is None
+                    assert payload["historical_valuation"]["current_equity_value"] is None
                     if width in (1440, 375):
                         page.locator("main").focus()
                         page.locator("#choices").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"decision-choices-{width}.png"))
+                if name == "historical-valuation":
+                    matrix = page.locator("#historical-valuation").inner_text()
+                    assert "-98.385" in matrix and "1,410.000" in matrix and "1,400.349" in matrix
+                    assert (
+                        "Zero-valued claims are explicit unverified assumptions"
+                        in page.locator("#assumptions").inner_text()
+                    )
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert payload["current_equity_value"] is None and payload["per_share_value"] is None
+                    assert len(payload["balances"]["facts"]) == 13 and not payload["blocked_by"]
+                    assert all(c["status"] == "matched" for c in payload["reconciliations"])
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#historical-valuation").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"equity-matrix-{width}.png"))
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()

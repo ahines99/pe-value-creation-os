@@ -351,6 +351,8 @@ def cmd_decision_memo(args: argparse.Namespace) -> int:
             Path(args.peers),
             Path(args.underwriting),
             Path(args.operating_plan),
+            Path(args.balances),
+            Path(args.valuation),
             Path(args.output),
         )
     except (ValueError, OSError) as exc:
@@ -363,6 +365,21 @@ def cmd_decision_memo(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_historical_valuation(args: argparse.Namespace) -> int:
+    from .diligence.valuation_render import build_valuation_report
+
+    try:
+        result = build_valuation_report(Path(args.facts), Path(args.balances), Path(args.spec), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(
+            f"Historical valuation failed ({type(exc).__name__}); inspect source and assumption contracts.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Historical company EV-to-equity sensitivity: {result}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="pvc", description="PE Value Creation OS")
     sub = p.add_subparsers(dest="command", required=True)
@@ -370,10 +387,16 @@ def build_parser() -> argparse.ArgumentParser:
     memo = sub.add_parser(
         "decision-memo", help="assemble a version-bound public research memo with constructed sequencing choices"
     )
-    for flag in ("brief", "facts", "growth", "peers", "underwriting", "operating-plan"):
+    for flag in ("brief", "facts", "growth", "peers", "underwriting", "operating-plan", "balances", "valuation"):
         memo.add_argument(f"--{flag}", required=True)
     memo.add_argument("--output", default="var/executive-memo/decision-memo")
     memo.set_defaults(fn=cmd_decision_memo)
+
+    valuation = sub.add_parser("historical-valuation", help="reconcile a dated public company EV-to-equity sensitivity")
+    for flag in ("facts", "balances", "spec"):
+        valuation.add_argument(f"--{flag}", required=True)
+    valuation.add_argument("--output", default="var/equity-bridge/historical-valuation")
+    valuation.set_defaults(fn=cmd_historical_valuation)
 
     case_demo = sub.add_parser(
         "case-history-demo", help="replay constructed revisions and simulated review receipts in isolated memory"

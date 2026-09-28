@@ -1,0 +1,133 @@
+{
+  "company": "Progress Software Corporation",
+  "entity_id": "cik:0000876167",
+  "ticker": "PRGS",
+  "registered_document": {
+    "document_id": "cik:0000876167:0000876167-26-000008",
+    "classification": "public_filing",
+    "entity_id": "cik:0000876167",
+    "title": "Progress Software FY2025 Form 10-K",
+    "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+    "accession": "0000876167-26-000008",
+    "form": "10-K",
+    "filed_on": "2026-01-20",
+    "retrieved_at": "2026-09-28T13:39:25.016566Z",
+    "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+    "mapping_sha256": "54fc41a81cb5e6242ceaa9ff9507842d1d466a557eacebe410a67d6ed1188845",
+    "extraction_version": "filing-pdf/1"
+  },
+  "information_cutoff": "2026-09-28",
+  "entity_heading": "PROGRESS SOFTWARE CORPORATION",
+  "entity_page": 37,
+  "currency": "USD",
+  "unit_scale": 1000,
+  "tables": [
+    {
+      "pdf_page": 37,
+      "printed_page": "37",
+      "heading": "Consolidated Balance Sheets",
+      "unit_heading": "(in thousands, except share data)",
+      "columns": [
+        {
+          "label": "November 30, 2025",
+          "as_of": "2025-11-30",
+          "occurrence": 0
+        },
+        {
+          "label": "November 30, 2024",
+          "as_of": "2024-11-30",
+          "occurrence": 0
+        }
+      ],
+      "selected_column": 0,
+      "rows": [
+        {
+          "metric": "cash",
+          "label": "Cash and cash equivalents",
+          "occurrence": 0
+        },
+        {
+          "metric": "current_notes_net",
+          "label": "Convertible senior notes, current portion, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "noncurrent_notes_net",
+          "label": "Convertible senior notes, non-current portion, net",
+          "occurrence": 0
+        },
+        {
+          "metric": "revolver",
+          "label": "Long-term debt",
+          "occurrence": 0
+        },
+        {
+          "metric": "lease_current",
+          "label": "Operating lease liabilities, current portion",
+          "occurrence": 0
+        },
+        {
+          "metric": "lease_noncurrent",
+          "label": "Operating lease liabilities, non-current portion",
+          "occurrence": 0
+        }
+      ]
+    },
+    {
+      "pdf_page": 55,
+      "printed_page": "55",
+      "heading": "Note 6: Debt",
+      "unit_heading": "(in thousands)",
+      "columns": [
+        {
+          "label": "November 30, 2025",
+          "as_of": "2025-11-30",
+          "occurrence": 0
+        },
+        {
+          "label": "November 30, 2024",
+          "as_of": "2024-11-30",
+          "occurrence": 0
+        }
+      ],
+      "selected_column": 0,
+      "rows": [
+        {
+          "metric": "current_notes_face",
+          "label": "1.0% convertible senior notes due 2026",
+          "occurrence": 0
+        },
+        {
+          "metric": "noncurrent_notes_face",
+          "label": "3.5% convertible senior notes due 2030",
+          "occurrence": 0
+        },
+        {
+          "metric": "long_term_face",
+          "label": "Total face value of long-term debt",
+          "occurrence": 0
+        },
+        {
+          "metric": "current_discount",
+          "label": "Unamortized discount and issuance costs for the Notes",
+          "occurrence": 0
+        },
+        {
+          "metric": "noncurrent_discount",
+          "label": "Unamortized discount and issuance costs for the Notes",
+          "occurrence": 1
+        },
+        {
+          "metric": "revolver_note",
+          "label": "Revolving credit facility",
+          "occurrence": 0
+        },
+        {
+          "metric": "total_debt_net",
+          "label": "Total debt",
+          "occurrence": 0
+        }
+      ]
+    }
+  ]
+}

@@ -7,12 +7,14 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
+from .balances import BalanceBundle
 from .financials import DERIVED, analyze_facts
 from .growth import GrowthContext, analyze_growth
 from .models import FactBundle, Record
 from .peers import PeerContext, analyze_peers
 from .scheduling import OperatingPlan, evaluate_plan, fingerprint
 from .underwriting import UnderwritingCase
+from .valuation import ValuationSpec, analyze_valuation
 
 
 class ThesisPoint(Record):
@@ -39,7 +41,7 @@ class SequenceOption(Record):
 
 
 class DecisionBrief(Record):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[2] = 2
     classification: Literal["public_research_with_constructed_exercise"]
     author_role: Literal["research_author"] = "research_author"
     as_of: date
@@ -48,6 +50,8 @@ class DecisionBrief(Record):
     peers_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     underwriting_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     plan_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    balances_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    valuation_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     recommendation: str = Field(min_length=1)
     thesis: tuple[ThesisPoint, ...] = Field(min_length=1)
     adjustment_review: tuple[AdjustmentReview, ...] = Field(min_length=1)
@@ -77,8 +81,18 @@ def assemble_memo(
     peers: PeerContext,
     underwriting: UnderwritingCase,
     plan: OperatingPlan,
+    balances: BalanceBundle,
+    valuation: ValuationSpec,
 ) -> dict[str, Any]:
-    bindings = {"financial": facts, "growth": growth, "peers": peers, "underwriting": underwriting, "plan": plan}
+    bindings = {
+        "financial": facts,
+        "growth": growth,
+        "peers": peers,
+        "underwriting": underwriting,
+        "plan": plan,
+        "balances": balances,
+        "valuation": valuation,
+    }
     for key, source in bindings.items():
         if getattr(brief, f"{key}_sha256") != fingerprint(source):
             raise ValueError(f"decision brief requires the exact {key} revision")
@@ -93,6 +107,7 @@ def assemble_memo(
     financial["context_events"] = [event.model_dump(mode="json") for event in facts.events]
     growth_result = analyze_growth(facts, growth)
     peer_result = analyze_peers(facts, peers)
+    historical_valuation = analyze_valuation(facts, balances, valuation)
     by_fact = {f.fact_id: f for f in facts.facts}
     evidence = (
         set(by_fact)
@@ -165,7 +180,7 @@ def assemble_memo(
     status = "conditional_research_preference" if preferred["feasible"] else "reopen_blocked_preference"
     # The reported and incremental layers are intentionally separate objects. No sum is emitted.
     return {
-        "memo_version": "executive-decision-packet/1",
+        "memo_version": "executive-decision-packet/2",
         "brief_sha256": fingerprint(brief),
         "input_hashes": {k: fingerprint(v) for k, v in bindings.items()},
         "classification": brief.classification,
@@ -181,10 +196,11 @@ def assemble_memo(
         "adjustment_review": adjustments,
         "normalized_ebitda": None,
         "company_equity_value": None,
+        "historical_valuation": historical_valuation,
         "constructed_options": options,
         "preference_status": status,
         "execution_authorized": False,
         "actual_realized_value": None,
         "authority": "Research-author judgment and constructed operating exercise; no company participation, management approval, independent practitioner review or actual financial result.",
-        "valuation_limit": "Only the existing year-two incremental EV sensitivities are shown. They are not total company EV, equity value, transaction proceeds or sourced market multiples.",
+        "valuation_limit": "Constructed year-two incremental EV sensitivities are separate from the historical company EV-to-equity sensitivity. Neither establishes current equity value, transaction proceeds or sourced market multiples; fictional operating uplift is never added to company earnings.",
     }
