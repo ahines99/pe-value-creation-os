@@ -23,7 +23,9 @@ def table(headers: list[str], rows: list[list[str]], caption: str) -> str:
     # Keep the explanation inside the viewport while the numeric table scrolls.
     # The region retains its descriptive accessible name from the shared helper.
     rendered = financial_table(headers, rows, caption)
-    return f"<p class='muted'>{escape(caption)}</p>" + rendered.replace(f"<caption>{escape(caption)}</caption>", "")
+    return f"<p class='muted'>{escape(caption)}</p>" + rendered.replace(
+        f"<caption class='table-caption'>{escape(caption)}</caption>", ""
+    )
 
 
 def render_sources(report: dict[str, Any], download: str) -> str:
