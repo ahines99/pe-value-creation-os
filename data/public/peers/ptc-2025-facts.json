@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "company": "PTC Inc.",
+  "entity_id": "cik:0000857005",
+  "ticker": "PTC",
+  "information_cutoff": "2026-09-28",
+  "documents": [
+    {
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "classification": "public_filing",
+      "entity_id": "cik:0000857005",
+      "title": "PTC Inc. FY2025 annual report",
+      "url": "https://s27.q4cdn.com/610238322/files/doc_financials/2025/ar/2025-PTC-Annual-Report.pdf",
+      "accession": "0001193125-25-291326",
+      "form": "10-K",
+      "filed_on": "2025-11-21",
+      "retrieved_at": "2026-09-28T16:30:48.126265Z",
+      "sha256": "288e5aa832d4e6730caa88b8220717af3fec93ac6d38c0090d3a912a74dc0539",
+      "mapping_sha256": "21554fdee9547d692c984179ae36440b2dc023e63a62c8bbf66815ac98cdf76a",
+      "extraction_version": "filing-pdf/3"
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "revenue",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "2739226",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total revenue",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Total revenue 2,739,226 2,298,472 2,097,053"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "revenue",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "2298472",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total revenue",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Total revenue 2,739,226 2,298,472 2,097,053"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "revenue",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "2097053",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total revenue",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Total revenue 2,739,226 2,298,472 2,097,053"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:cost_of_revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "444983",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total cost of revenue",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Total cost of revenue 444,983 444,816 441,006"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:cost_of_revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "444816",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total cost of revenue",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Total cost of revenue 444,983 444,816 441,006"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:cost_of_revenue",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cost_of_revenue",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "441006",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total cost of revenue",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Total cost of revenue 444,983 444,816 441,006"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:gross_profit",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "2294243",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Gross margin",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Gross margin 2,294,243 1,853,656 1,656,047"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:gross_profit",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "1853656",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Gross margin",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Gross margin 2,294,243 1,853,656 1,656,047"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:gross_profit",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "gross_profit",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "1656047",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Gross margin",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Gross margin 2,294,243 1,853,656 1,656,047"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:operating_expense",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "1311858",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total operating expenses",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Total operating expenses 1,311,858 1,265,594 1,197,573"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:operating_expense",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "1265594",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total operating expenses",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Total operating expenses 1,311,858 1,265,594 1,197,573"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:operating_expense",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_expense",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "1197573",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Total operating expenses",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Total operating expenses 1,311,858 1,265,594 1,197,573"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:operating_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_income",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "982385",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Operating income",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Operating income 982,385 588,062 458,474"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:operating_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_income",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "588062",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Operating income",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Operating income 982,385 588,062 458,474"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:operating_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_income",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "458474",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Operating income",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Operating income 982,385 588,062 458,474"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "net_income",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "733997",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Net income",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "net_income",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "376333",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Net income",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "net_income",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "245540",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 55,
+      "printed_page": "F-5",
+      "row_label": "Net income",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "733997",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net income",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "376333",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net income",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "245540",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net income",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Net income $ 733,997 $ 376,333 $ 245,540"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:operating_cash_flow",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_cash_flow",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "867696",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net cash provided by operating activities",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Net cash provided by operating activities 867,696 749,984 610,861"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:operating_cash_flow",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_cash_flow",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "749984",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net cash provided by operating activities",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Net cash provided by operating activities 867,696 749,984 610,861"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:operating_cash_flow",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "operating_cash_flow",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "610861",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Net cash provided by operating activities",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Net cash provided by operating activities 867,696 749,984 610,861"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2024-10-01:2025-09-30:annual:ppe_purchases",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "ppe_purchases",
+      "period": {
+        "start": "2024-10-01",
+        "end": "2025-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "-11008",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Additions to property and equipment",
+      "column_label": "2025 [annual; occurrence 0]",
+      "source_row": "Additions to property and equipment (11,008) (14,378) (23,814)"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2023-10-01:2024-09-30:annual:ppe_purchases",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "ppe_purchases",
+      "period": {
+        "start": "2023-10-01",
+        "end": "2024-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "-14378",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Additions to property and equipment",
+      "column_label": "2024 [annual; occurrence 0]",
+      "source_row": "Additions to property and equipment (11,008) (14,378) (23,814)"
+    },
+    {
+      "fact_id": "cik:0000857005:0001193125-25-291326:2022-10-01:2023-09-30:annual:ppe_purchases",
+      "document_id": "cik:0000857005:0001193125-25-291326",
+      "entity_id": "cik:0000857005",
+      "metric": "ppe_purchases",
+      "period": {
+        "start": "2022-10-01",
+        "end": "2023-09-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "-23814",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 57,
+      "printed_page": "F-7",
+      "row_label": "Additions to property and equipment",
+      "column_label": "2023 [annual; occurrence 0]",
+      "source_row": "Additions to property and equipment (11,008) (14,378) (23,814)"
+    }
+  ],
+  "events": []
+}

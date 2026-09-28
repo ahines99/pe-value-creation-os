@@ -80,11 +80,18 @@ def main() -> None:
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
                 if name == "public-baseline":
+                    assert "stricter cohort" in page.locator("#peers").inner_text().lower()
+                    assert "Withheld" in page.locator("#peers").inner_text()
+                    assert "SS&C Technologies" in page.locator("#peers").inner_text()
                     assert "Organic growth remains unavailable" in page.locator("#growth").inner_text()
                     assert "Reject" in page.locator("#research-decisions").inner_text()
                     if width in (1440, 375):
                         page.locator("main").focus()
                         page.locator("#growth").screenshot(path=str(output / f"public-growth-{width}.png"))
+                        page.locator("#peers > details").evaluate("e => e.open = false")
+                        page.locator("main").focus()
+                        page.locator("#peers").scroll_into_view_if_needed()
+                        page.screenshot(path=str(output / f"public-peers-{width}.png"))
                 findings.append(
                     {
                         "page": name,

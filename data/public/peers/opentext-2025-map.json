@@ -1,0 +1,138 @@
+{
+  "company": "Open Text Corporation",
+  "entity_id": "cik:0001002638",
+  "ticker": "OTEX",
+  "title": "Open Text Corporation FY2025 annual report",
+  "url": "https://s23.q4cdn.com/197378439/files/doc_financials/2025/ar/OTEX-2025-Annual-Report-Print-Version.pdf",
+  "accession": "0001002638-25-000053",
+  "form": "10-K",
+  "filed_on": "2025-08-07",
+  "source_sha256": "851a6a22fc9ed3bc9ac1d3ff7eedab30ed86324bab06eaecfacdcc7dcbf24cf9",
+  "currency": "USD",
+  "unit_scale": 1000,
+  "entity_heading": "OPEN TEXT CORPORATION",
+  "entity_page": 3,
+  "tables": [
+    {
+      "pdf_page": 144,
+      "printed_page": "142",
+      "heading": "CONSOLIDATED STATEMENTS OF INCOME",
+      "unit_heading": "(In thousands of U.S. dollars and shares, except per share data)",
+      "period_heading": "Year Ended June 30,",
+      "columns": [
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-07-01",
+            "end": "2025-06-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-07-01",
+            "end": "2024-06-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2023",
+          "occurrence": 0,
+          "period": {
+            "start": "2022-07-01",
+            "end": "2023-06-30",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "Total revenues",
+          "occurrence": 0
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "Total cost of revenues",
+          "occurrence": 0
+        },
+        {
+          "metric": "gross_profit",
+          "label": "Gross profit",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_expense",
+          "label": "Total operating expenses",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_income",
+          "label": "Income from operations",
+          "occurrence": 0
+        },
+        {
+          "metric": "net_income",
+          "label": "Net income",
+          "occurrence": 0
+        }
+      ]
+    },
+    {
+      "pdf_page": 147,
+      "printed_page": "145",
+      "heading": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+      "unit_heading": "(In thousands of U.S. dollars)",
+      "period_heading": "Year Ended June 30,",
+      "columns": [
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-07-01",
+            "end": "2025-06-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-07-01",
+            "end": "2024-06-30",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2023",
+          "occurrence": 0,
+          "period": {
+            "start": "2022-07-01",
+            "end": "2023-06-30",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "cash_flow_net_income",
+          "label": "Net income",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Net cash provided by operating activities",
+          "occurrence": 0
+        },
+        {
+          "metric": "ppe_purchases",
+          "label": "Additions of property and equipment",
+          "occurrence": 0
+        }
+      ]
+    }
+  ]
+}

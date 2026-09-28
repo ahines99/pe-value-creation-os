@@ -1,0 +1,160 @@
+{
+  "company": "The Descartes Systems Group Inc.",
+  "entity_id": "cik:0001050140",
+  "ticker": "DSGX",
+  "title": "The Descartes Systems Group Inc. FY2026 annual report",
+  "url": "https://www.descartes.com/sites/default/files/media/documents/2026-03/Q4FY26%20Shareholder%20Report%20Final.pdf",
+  "accession": "0001104659-26-026450",
+  "form": "40-F",
+  "filed_on": "2026-03-11",
+  "source_sha256": "8ba8cfcb0047bb4debaf88072f86cc05ec31a49df119b714fd888abbe20574fd",
+  "currency": "USD",
+  "unit_scale": 1000,
+  "entity_heading": "THE DESCARTES SYSTEMS GROUP INC.",
+  "entity_page": 1,
+  "tables": [
+    {
+      "pdf_page": 52,
+      "printed_page": "52",
+      "printed_page_location": "header",
+      "heading": "CONSOLIDATED STATEMENTS OF OPERATIONS",
+      "unit_heading": "(US DOLLARS IN THOUSANDS, EXCEPT PER SHARE AND WEIGHTED AVERAGE SHARE AMOUNTS; US GAAP)",
+      "period_heading": "January 31,",
+      "columns": [
+        {
+          "label": "2026",
+          "occurrence": 0,
+          "period": {
+            "start": "2025-02-01",
+            "end": "2026-01-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-02-01",
+            "end": "2025-01-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-02-01",
+            "end": "2024-01-31",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "REVENUES",
+          "occurrence": 0
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "COST OF REVENUES (exclusive of amortization presented separately below)",
+          "occurrence": 0
+        },
+        {
+          "metric": "gross_profit",
+          "label": "GROSS MARGIN",
+          "occurrence": 0
+        },
+        {
+          "metric": "sales_marketing_expense",
+          "label": "Sales and marketing",
+          "occurrence": 0
+        },
+        {
+          "metric": "research_development_expense",
+          "label": "Research and development",
+          "occurrence": 0
+        },
+        {
+          "metric": "general_administrative_expense",
+          "label": "General and administrative",
+          "occurrence": 0
+        },
+        {
+          "metric": "other_operating_charges",
+          "label": "Other charges (Note 20)",
+          "occurrence": 0
+        },
+        {
+          "metric": "intangible_amortization",
+          "label": "Amortization of intangible assets",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_income",
+          "label": "INCOME FROM OPERATIONS",
+          "occurrence": 0
+        },
+        {
+          "metric": "net_income",
+          "label": "NET INCOME",
+          "occurrence": 0
+        }
+      ]
+    },
+    {
+      "pdf_page": 55,
+      "printed_page": "55",
+      "printed_page_location": "header",
+      "heading": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+      "unit_heading": "(US DOLLARS IN THOUSANDS; US GAAP)",
+      "period_heading": "January 31,",
+      "columns": [
+        {
+          "label": "2026",
+          "occurrence": 0,
+          "period": {
+            "start": "2025-02-01",
+            "end": "2026-01-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-02-01",
+            "end": "2025-01-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-02-01",
+            "end": "2024-01-31",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "cash_flow_net_income",
+          "label": "Net income",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Cash provided by operating activities",
+          "occurrence": 0
+        },
+        {
+          "metric": "ppe_purchases",
+          "label": "Additions to property and equipment",
+          "occurrence": 0
+        }
+      ]
+    }
+  ]
+}
