@@ -73,4 +73,29 @@ showcase. The same repository contracts have PostgreSQL persistence, forced RLS,
 exact-parent conflicts, immutable snapshots and authenticated review endpoints;
 see [ADR 0013](../../../docs/adr/0013-immutable-case-reviews.md). Receipt IDs and
 actual recording timestamps change with each replay; financial results remain
-reproducible. Actuals and financial attribution remain unavailable.
+reproducible. Observed company actuals and validated financial attribution remain unavailable.
+
+## Constructed realization review
+
+`realization.json` contains four authored source snapshots covering three months,
+including a November correction, signed income/cash postings, declared controls
+and explicit simulation claims. It is bound to the exact underwriting and plan
+fingerprints. A separate authored reforecast lowers future base pricing capture;
+it is not fitted to the constructed observations.
+
+```powershell
+uv run pvc realization-demo --underwriting data/constructed/progress/underwriting.json --operating-plan data/constructed/progress/operating-plan.json --exercise data/constructed/progress/realization.json --output var/realization/report
+```
+
+Three-month measured difference: EBITDA −16,000 and pre-tax cash +118,000.
+Explicit claims: EBITDA −32,000 and cash +112,000. The remainder, +16,000
+and +6,000 respectively, remains unassigned. October collections contribute
++180,000 cash and zero EBITDA; the later reversal has no recorded actual.
+There are 21 unrecorded months and no prorated day-100 actual. All claims are
+simulated, including early revenue claims without recorded execution acceptance.
+The reviewed close baseline stays fixed when the current forecast changes.
+
+Replay uses isolated memory and does not modify the running showcase. See
+[ADR 0019](../../../docs/adr/0019-constructed-realization-ledger.md) for persistence,
+correction, authority, API and reconciliation contracts. Record IDs/timestamps
+change on replay; the numeric example is reproducible.

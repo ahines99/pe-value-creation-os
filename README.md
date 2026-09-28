@@ -53,8 +53,10 @@ remain. Assignments and acceptance gates are proposed and constructed; durable
 case revisions and exact-version research reviews are now stored separately from
 operating approvals. The [case-history walkthrough](https://ahines99.github.io/pe-value-creation-os/portfolio/case-history.html)
 preserves original/current forecasts and labels its two service-authored reviews
-as simulated. Actual human review, observed results and realization attribution
-remain unperformed.
+as simulated. The [constructed realization review](https://ahines99.github.io/pe-value-creation-os/portfolio/realization.html)
+adds three monthly accounting comparisons, explicit claims, unassigned residuals
+and preserved source corrections. Actual human review, observed company results
+and validated causal attribution remain unperformed.
 
 ## Try it
 

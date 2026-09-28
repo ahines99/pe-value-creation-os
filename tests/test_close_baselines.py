@@ -172,7 +172,7 @@ def test_scope_audit_rollback_and_retention(repo, monkeypatch):
 def test_postgres_baselines_are_forced_rls_immutable_and_downgrade_protected(pg_repo, pg_database):
     import psycopg
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     with security.principal_scope(principal()):
         case, _close, _review, req = prepared(pg_repo)
@@ -187,9 +187,12 @@ def test_postgres_baselines_are_forced_rls_immutable_and_downgrade_protected(pg_
         ):
             with pytest.raises(psycopg.errors.InsufficientPrivilege):
                 conn.execute(statement, (b.baseline_id,))
-    with pytest.raises(RuntimeError, match="Close baseline history"):
-        downgrade(pg_database[0], "0004")
-    assert current(pg_database[0]) == "0005"
+    try:
+        with pytest.raises(RuntimeError, match="Close baseline history"):
+            downgrade(pg_database[0], "0004")
+        assert current(pg_database[0]) == "0005"
+    finally:
+        upgrade(pg_database[0])
 
 
 def test_baseline_downgrade_guard_sees_history_hidden_from_its_owner(pg_repo, pg_database):
@@ -198,7 +201,9 @@ def test_baseline_downgrade_guard_sees_history_hidden_from_its_owner(pg_repo, pg
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import downgrade
+    from pe_value_os.db.migrate import downgrade, upgrade
+
+    downgrade(pg_database[0], "0005")
 
     with security.principal_scope(principal()):
         case, _close, _review, req = prepared(pg_repo)
@@ -225,6 +230,7 @@ def test_baseline_downgrade_guard_sees_history_hidden_from_its_owner(pg_repo, pg
                 assert pg_repo.list_close_baselines(case.case_id) == [baseline]
         finally:
             conn.execute(sql.SQL("alter table case_close_baselines owner to {}").format(sql.Identifier(owner)))
+            upgrade(pg_database[0])
 
 
 def test_api_keeps_bearer_scope_binding_and_invalidated_review_visible(repo, monkeypatch):
