@@ -30,8 +30,18 @@ from ..diligence.cases import (
     new_case,
     prepare_review,
     prepare_revision,
+    writer,
 )
 from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
+from ..diligence.realization import (
+    Attribution,
+    AttributionRequest,
+    Observation,
+    ObservationRequest,
+    prepare_attribution,
+    prepare_observation,
+    realization_report,
+)
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ValueCase
@@ -95,6 +105,11 @@ class Repository(Protocol):
     def get_case_revision(self, revision_id: str) -> CaseRevision: ...
     def list_case_revisions(self, case_id: str) -> list[CaseRevision]: ...
     def review_case_revision(self, revision_id: str, request: ReviewRequest) -> CaseReview: ...
+    def list_case_observations(self, case_id: str) -> list[Observation]: ...
+    def list_case_attributions(self, case_id: str) -> list[Attribution]: ...
+    def record_case_observation(self, case_id: str, request: ObservationRequest) -> Observation: ...
+    def record_case_attribution(self, case_id: str, request: AttributionRequest) -> Attribution: ...
+    def case_realization(self, case_id: str, baseline_id: str) -> dict[str, Any]: ...
     def list_close_baselines(self, case_id: str) -> list[CloseBaseline]: ...
     def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline: ...
     def list_case_reviews(self, case_id: str) -> list[CaseReview]: ...
@@ -224,6 +239,8 @@ class InMemoryRepository:
         self.case_revisions: dict[str, CaseRevision] = {}
         self.case_reviews: dict[str, CaseReview] = {}
         self.case_close_baselines: dict[str, CloseBaseline] = {}
+        self.case_observations: dict[str, Observation] = {}
+        self.case_attributions: dict[str, Attribution] = {}
 
     # Research-case review never routes through operating-plan approval or KPI activation.
     def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
@@ -296,6 +313,138 @@ class InMemoryRepository:
             (b for b in self.case_close_baselines.values() if b.case_id == case_id),
             key=lambda b: (b.request.mode, b.sequence),
         )
+
+    def list_case_observations(self, case_id: str) -> list[Observation]:
+        self.get_investment_case(case_id)
+        return sorted(
+            (r for r in self.case_observations.values() if r.case_id == case_id),
+            key=lambda r: (r.recorded_at, r.observation_id),
+        )
+
+    def list_case_attributions(self, case_id: str) -> list[Attribution]:
+        self.get_investment_case(case_id)
+        return sorted(
+            (r for r in self.case_attributions.values() if r.case_id == case_id),
+            key=lambda r: (r.recorded_at, r.attribution_id),
+        )
+
+    def record_case_observation(self, case_id: str, request: ObservationRequest) -> Observation:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            principal = writer(case.company_id)
+            existing = self.list_case_observations(case_id)
+            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
+            if replay is not None:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Ingestion key already belongs to another request or author")
+                return replay
+            baselines = self.list_close_baselines(case_id)
+            baseline = next((b for b in baselines if b.baseline_id == request.baseline_id), None)
+            if baseline is None:
+                raise NotFound(request.baseline_id)
+            chain = [
+                r
+                for r in existing
+                if r.request.baseline_id == request.baseline_id and r.request.observed.start == request.observed.start
+            ]
+            previous = max(chain, key=lambda r: r.sequence) if chain else None
+            if request.expected_previous_id != (previous.observation_id if previous else None):
+                raise Conflict("Observation changed; explicitly bind the latest snapshot")
+            record = prepare_observation(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                request,
+                previous,
+            )
+            self.case_observations[record.observation_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_realization",
+                    event_type="case_observation_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "observation_id": record.observation_id,
+                        "sha256": record.content_sha256,
+                        "previous_id": request.expected_previous_id,
+                    },
+                )
+            )
+            return record
+
+    def record_case_attribution(self, case_id: str, request: AttributionRequest) -> Attribution:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            principal = writer(case.company_id)
+            existing = self.list_case_attributions(case_id)
+            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
+            if replay is not None:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Ingestion key already belongs to another request or author")
+                return replay
+            baselines = self.list_close_baselines(case_id)
+            observations = self.list_case_observations(case_id)
+            observation = next((o for o in observations if o.observation_id == request.observation_id), None)
+            if observation is None:
+                raise NotFound(request.observation_id)
+            if any(o.request.expected_previous_id == observation.observation_id for o in observations):
+                raise Conflict("Corrected observations require fresh attribution against the new snapshot")
+            baseline = next(b for b in baselines if b.baseline_id == observation.request.baseline_id)
+            chain = [r for r in existing if r.request.observation_id == request.observation_id]
+            previous = max(chain, key=lambda r: r.sequence) if chain else None
+            if request.expected_previous_id != (previous.attribution_id if previous else None):
+                raise Conflict("Attribution changed; explicitly bind the latest claims")
+            record = prepare_attribution(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                observation,
+                request,
+                previous,
+            )
+            self.case_attributions[record.attribution_id] = record
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_realization",
+                    event_type="case_attribution_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "attribution_id": record.attribution_id,
+                        "sha256": record.content_sha256,
+                        "previous_id": request.expected_previous_id,
+                    },
+                )
+            )
+            return record
+
+    def case_realization(self, case_id: str, baseline_id: str) -> dict[str, Any]:
+        with self.approval_transaction():
+            case = self.get_investment_case(case_id)
+            baselines = self.list_close_baselines(case_id)
+            baseline = next((b for b in baselines if b.baseline_id == baseline_id), None)
+            if baseline is None:
+                raise NotFound(baseline_id)
+            return realization_report(
+                case,
+                baseline,
+                self.list_case_revisions(case_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                self.list_case_observations(case_id),
+                self.list_case_attributions(case_id),
+            )
 
     def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline:
         with self.approval_transaction():
@@ -644,6 +793,8 @@ class InMemoryRepository:
                 "case_revisions",
                 "case_reviews",
                 "case_close_baselines",
+                "case_observations",
+                "case_attributions",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -879,7 +1030,14 @@ class InMemoryRepository:
             self.kpi_obs = [o for o in self.kpi_obs if o.company_id != company_id]
             self.kpi_alerts = [a for a in self.kpi_alerts if a.company_id != company_id]
             self.notifications = [n for n in self.notifications if n.company_id != company_id]
-            for name in ("investment_cases", "case_revisions", "case_reviews", "case_close_baselines"):
+            for name in (
+                "investment_cases",
+                "case_revisions",
+                "case_reviews",
+                "case_close_baselines",
+                "case_observations",
+                "case_attributions",
+            ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())
                 setattr(self, name, {key: row for key, row in rows.items() if row.company_id != company_id})

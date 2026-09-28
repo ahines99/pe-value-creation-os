@@ -35,6 +35,7 @@ def main() -> None:
         "underwriting": "/portfolio/underwriting.html",
         "operating-plan": "/portfolio/operating-plan.html",
         "case-history": "/portfolio/case-history.html",
+        "realization": "/portfolio/realization.html",
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
     }
@@ -81,6 +82,24 @@ def main() -> None:
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
+                if name == "realization":
+                    assert "Cash improvement is not earnings delivery" in page.locator("#decision").inner_text()
+                    assert "-16,000" in page.locator("#comparison").inner_text()
+                    assert "118,000" in page.locator("#comparison").inner_text()
+                    assert "nov-close-v2" in page.locator("#correction").inner_text()
+                    download = page.locator("a[download]")
+                    assert download.count() == 1
+                    payload = page.request.get(base + "/portfolio/" + download.get_attribute("href")).json()
+                    assert payload["submitted_periods"] == payload["eligible_periods"] == 3
+                    assert (
+                        payload["aggregate_recorded_periods"]["attributed_difference"]["incremental_ebitda"] == "-32000"
+                    )
+                    assert payload["actual_company_realized_value"] is None and payload["human_review_count"] == 0
+                    assert payload["transitions"][2]["before_new_claims"] == "unassigned"
+                    if width in (1440, 375):
+                        page.locator("main").focus()
+                        page.locator("#comparison").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"realization-comparison-{width}.png"))
                 if name == "case-history":
                     assert "Freeze the reviewed hypothetical close" in page.locator("#close-baseline").inner_text()
                     assert "simulation" in page.locator("#close-baseline").inner_text()

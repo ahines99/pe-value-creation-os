@@ -28,8 +28,18 @@ from ..diligence.cases import (
     new_case,
     prepare_review,
     prepare_revision,
+    writer,
 )
 from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
+from ..diligence.realization import (
+    Attribution,
+    AttributionRequest,
+    Observation,
+    ObservationRequest,
+    prepare_attribution,
+    prepare_observation,
+    realization_report,
+)
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
 from ..domain.models import AuditEvent, EvidenceRef, Finding
 from ..domain.project_models import Opportunity, PriorityScore, ScenarioInputs, ValueCase
@@ -175,6 +185,202 @@ class PostgresRepository:
                     "select record from case_close_baselines where case_id=%s order by mode,sequence", (case_id,)
                 ).fetchall()
             ]
+
+    def list_case_observations(self, case_id: str) -> list[Observation]:
+        self.get_investment_case(case_id)
+        with self._tx() as cur:
+            return [
+                Observation.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from case_observations where case_id=%s order by recorded_at,observation_id",
+                    (case_id,),
+                ).fetchall()
+            ]
+
+    def list_case_attributions(self, case_id: str) -> list[Attribution]:
+        self.get_investment_case(case_id)
+        with self._tx() as cur:
+            return [
+                Attribution.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from case_attributions where case_id=%s order by recorded_at,attribution_id",
+                    (case_id,),
+                ).fetchall()
+            ]
+
+    def record_case_observation(self, case_id: str, request: ObservationRequest) -> Observation:
+        with self.approval_transaction(), self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            case = self._investment_case(row)
+            principal = writer(case.company_id)
+            existing = self.list_case_observations(case_id)
+            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
+            if replay is not None:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Ingestion key already belongs to another request or author")
+                return replay
+            baselines = self.list_close_baselines(case_id)
+            baseline = next((b for b in baselines if b.baseline_id == request.baseline_id), None)
+            if baseline is None:
+                raise NotFound(request.baseline_id)
+            chain = [
+                r
+                for r in existing
+                if r.request.baseline_id == request.baseline_id and r.request.observed.start == request.observed.start
+            ]
+            previous = max(chain, key=lambda r: r.sequence) if chain else None
+            if request.expected_previous_id != (previous.observation_id if previous else None):
+                raise Conflict("Observation changed; explicitly bind the latest snapshot")
+            record = prepare_observation(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                request,
+                previous,
+            )
+            cur.execute(
+                "insert into case_observations (observation_id,company_id,case_id,baseline_id,baseline_sha256,period_start,period_end,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    record.observation_id,
+                    case.company_id,
+                    case_id,
+                    request.baseline_id,
+                    request.baseline_sha256,
+                    request.observed.start,
+                    request.observed.end,
+                    record.sequence,
+                    request.expected_previous_id,
+                    request.ingestion_key,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_realization",
+                    event_type="case_observation_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "observation_id": record.observation_id,
+                        "sha256": record.content_sha256,
+                        "previous_id": request.expected_previous_id,
+                    },
+                )
+            )
+            return record
+
+    def record_case_attribution(self, case_id: str, request: AttributionRequest) -> Attribution:
+        with self.approval_transaction(), self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            case = self._investment_case(row)
+            principal = writer(case.company_id)
+            existing = self.list_case_attributions(case_id)
+            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
+            if replay is not None:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Ingestion key already belongs to another request or author")
+                return replay
+            baselines = self.list_close_baselines(case_id)
+            observations = self.list_case_observations(case_id)
+            observation = next((o for o in observations if o.observation_id == request.observation_id), None)
+            if observation is None:
+                raise NotFound(request.observation_id)
+            if any(o.request.expected_previous_id == observation.observation_id for o in observations):
+                raise Conflict("Corrected observations require fresh attribution against the new snapshot")
+            baseline = next(b for b in baselines if b.baseline_id == observation.request.baseline_id)
+            chain = [r for r in existing if r.request.observation_id == request.observation_id]
+            previous = max(chain, key=lambda r: r.sequence) if chain else None
+            if request.expected_previous_id != (previous.attribution_id if previous else None):
+                raise Conflict("Attribution changed; explicitly bind the latest claims")
+            record = prepare_attribution(
+                case,
+                baseline,
+                self.get_case_revision(baseline.request.revision_id),
+                self.list_case_reviews(case_id),
+                baselines,
+                observation,
+                request,
+                previous,
+            )
+            cur.execute(
+                "insert into case_attributions (attribution_id,company_id,case_id,observation_id,observation_sha256,mode,actor_type,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    record.attribution_id,
+                    case.company_id,
+                    case_id,
+                    request.observation_id,
+                    request.observation_sha256,
+                    request.mode,
+                    record.actor_type,
+                    record.sequence,
+                    request.expected_previous_id,
+                    request.ingestion_key,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=case.company_id,
+                    step="case_realization",
+                    event_type="case_attribution_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "case_id": case_id,
+                        "attribution_id": record.attribution_id,
+                        "sha256": record.content_sha256,
+                        "previous_id": request.expected_previous_id,
+                    },
+                )
+            )
+            return record
+
+    def case_realization(self, case_id: str, baseline_id: str) -> dict[str, Any]:
+        # One statement gives a coherent committed snapshot without requiring a
+        # write lock or UPDATE grants from a read-only database identity.
+        with self._tx() as cur:
+            row = cur.execute(
+                """
+                select to_jsonb(c) as case_record,
+                  (select coalesce(jsonb_agg(record order by sequence),'[]') from case_revisions where case_id=c.case_id) as revisions,
+                  (select coalesce(jsonb_agg(record order by recorded_at,review_id),'[]') from case_reviews where case_id=c.case_id) as reviews,
+                  (select coalesce(jsonb_agg(record order by mode,sequence),'[]') from case_close_baselines where case_id=c.case_id) as baselines,
+                  (select coalesce(jsonb_agg(record order by recorded_at,observation_id),'[]') from case_observations where case_id=c.case_id) as observations,
+                  (select coalesce(jsonb_agg(record order by recorded_at,attribution_id),'[]') from case_attributions where case_id=c.case_id) as attributions
+                from investment_cases c where case_id=%s
+                """,
+                (case_id,),
+            ).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            case = InvestmentCase.model_validate(row["case_record"])
+            baselines = [CloseBaseline.model_validate(r) for r in row["baselines"]]
+            baseline = next((b for b in baselines if b.baseline_id == baseline_id), None)
+            if baseline is None:
+                raise NotFound(baseline_id)
+            return realization_report(
+                case,
+                baseline,
+                [CaseRevision.model_validate(r) for r in row["revisions"]],
+                [CaseReview.model_validate(r) for r in row["reviews"]],
+                baselines,
+                [Observation.model_validate(r) for r in row["observations"]],
+                [Attribution.model_validate(r) for r in row["attributions"]],
+            )
 
     def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline:
         with self.approval_transaction(), self._tx() as cur:
@@ -1218,7 +1424,14 @@ class PostgresRepository:
         with self._tx() as cur:
             # Individual revisions/receipts cannot be deleted by pvc_app. Approved
             # whole-company offboarding cascades from the existing company deletion.
-            for table in ("investment_cases", "case_revisions", "case_reviews", "case_close_baselines"):
+            for table in (
+                "investment_cases",
+                "case_revisions",
+                "case_reviews",
+                "case_close_baselines",
+                "case_observations",
+                "case_attributions",
+            ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)
                 ).fetchone()["n"]

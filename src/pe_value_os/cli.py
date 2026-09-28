@@ -325,6 +325,23 @@ def cmd_operating_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_realization_demo(args: argparse.Namespace) -> int:
+    from .diligence.realization_render import build_realization_demo
+
+    try:
+        result = build_realization_demo(
+            Path(args.underwriting), Path(args.operating_plan), Path(args.exercise), Path(args.output)
+        )
+    except (ValueError, OSError) as exc:
+        print(
+            f"Constructed realization replay failed ({type(exc).__name__}); inspect source and baseline bindings.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed realization review (simulated claims): {result}")
+    return 0
+
+
 def cmd_case_history_demo(args: argparse.Namespace) -> int:
     from .diligence.case_render import build_case_demo
 
@@ -397,6 +414,14 @@ def build_parser() -> argparse.ArgumentParser:
         valuation.add_argument(f"--{flag}", required=True)
     valuation.add_argument("--output", default="var/equity-bridge/historical-valuation")
     valuation.set_defaults(fn=cmd_historical_valuation)
+
+    realization = sub.add_parser(
+        "realization-demo", help="replay constructed monthly accounting and explicit attribution in isolated memory"
+    )
+    for flag in ("underwriting", "operating-plan", "exercise"):
+        realization.add_argument(f"--{flag}", required=True)
+    realization.add_argument("--output", default="var/realization/report")
+    realization.set_defaults(fn=cmd_realization_demo)
 
     case_demo = sub.add_parser(
         "case-history-demo", help="replay constructed revisions and simulated review receipts in isolated memory"

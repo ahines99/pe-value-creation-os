@@ -113,3 +113,17 @@ The first sponsor discussion should resolve scope, ownership and access. Codex
 can prepare an introduction message once a contact and permission to send it are
 provided. No account purchase, deployment or outside contact is needed to use
 this package for planning.
+
+## Measurement rehearsal now available
+
+The [constructed realization walkthrough](../../portfolio/realization.html) rehearses
+complete-month source reconciliation, fixed-baseline comparison, explicit signed
+claims, unassigned residuals and source corrections. It is suitable for showing
+a prospective sponsor the questions and outputs. It does not contain a real
+company ledger, validated counterfactual, accepted intervention or causal result.
+
+The current ingestion contracts deliberately accept only constructed records.
+Before a permissioned pilot uses private records, Codex must implement and test
+the authorized private-data lane, agreed source mappings, retention controls and
+actual work-acceptance linkage. Do not relabel company records as constructed
+to bypass this boundary. Sponsor participation and authorization remain absent.

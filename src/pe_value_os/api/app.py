@@ -28,6 +28,7 @@ from ..adapters.repositories import Conflict, NotFound
 from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
+from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
@@ -191,6 +192,24 @@ def case_history(case_id: str, request: Request, p: Principal) -> dict[str, Any]
             "reviews": [r.model_dump(mode="json") for r in reviews],
             "comparison": compare_revisions(revisions[0], revisions[-1]) if revisions else None,
         }
+
+
+@app.post("/cases/{case_id}/observations", status_code=201)
+def record_case_observation(case_id: str, body: ObservationRequest, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.record_case_observation(case_id, body).model_dump(mode="json")
+
+
+@app.post("/cases/{case_id}/attributions", status_code=201)
+def record_case_attribution(case_id: str, body: AttributionRequest, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.record_case_attribution(case_id, body).model_dump(mode="json")
+
+
+@app.get("/cases/{case_id}/realization/{baseline_id}")
+def case_realization(case_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return get_ctx().repo.case_realization(case_id, baseline_id)
 
 
 @app.post("/cases/{case_id}/close-baselines", status_code=201)
