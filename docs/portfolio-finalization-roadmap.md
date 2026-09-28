@@ -334,8 +334,8 @@ For each completed item, record owner, date, exact SHA/version, command or sessi
 
 - [x] Installed-wheel demo and fresh-clone instructions pass outside the development checkout.
 - [x] Historical candidate `9f9b95f` passed CI, strict release-image scan and Linux symlink coverage with retained reports.
-- [x] Current-worktree local full regression passes: 478 tests, one Windows symlink-privilege skip, with PostgreSQL enabled.
-- [ ] The final redesigned release candidate passes exact-SHA CI and current artifact scans.
+- [x] Local research-candidate regression passes: 498 tests, one Windows symlink-privilege skip, with PostgreSQL enabled.
+- [x] Candidate `31ebfe9` passes exact-SHA CI and artifact scans: 499 tests per Linux Python version, 39 evaluations, 18 browser checks and clean application/database scans.
 - [x] Clean Compose startup/migration/seed/approval/KPI/restart/shutdown sequence passes.
 - [x] Six captured pages pass rendered desktop/tablet/mobile, overflow, skip-link and disclosure checks in isolated Chromium.
 - [ ] The human accepts the redesigned executive workflow and completes the remaining MCP/browser session.
@@ -355,4 +355,4 @@ Suggested deliverables: `docs/portfolio/case-study.md`, `docs/portfolio/media/`,
 
 ## 8. Immediate next work
 
-Preserve passing current-worktree regression evidence, retain the passing rendered checks and screenshots, finish live usability/release review, obtain human new-design acceptance, refresh executive-first publication assets and promote only a verified final candidate. The old visuals were rejected; earlier human decisions and CI evidence do not close the redesign. Implementation and publication decisions are already supplied. Production work remains explicitly scheduled after the showcase and requires the owner inputs listed in sections 4-6.
+The verified candidate and release evidence are assembled. Alex next reviews the executive design, completes the remaining actual MCP/browser session and accepts the case study/walkthrough. Engineering addresses that feedback and promotes the existing verified draft after the acceptance record is complete. Earlier human decisions do not stand in for review of the redesigned flow. Publication rights and the implementation direction are already supplied. The separate research pilot needs independent financial review and peer acceptance. Production remains scheduled after the showcase with the owner inputs in sections 4-6.
