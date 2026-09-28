@@ -280,7 +280,12 @@ def cmd_public_diligence(args: argparse.Namespace) -> int:
     from .diligence.render import build_public_report
 
     try:
-        result = build_public_report(Path(args.input), Path(args.output), Path(args.growth) if args.growth else None)
+        result = build_public_report(
+            Path(args.input),
+            Path(args.output),
+            Path(args.growth) if args.growth else None,
+            Path(args.peers) if args.peers else None,
+        )
     except (ValueError, OSError) as exc:
         print(
             f"Public diligence failed ({type(exc).__name__}); inspect source classification and fact contracts.",
@@ -366,6 +371,7 @@ def build_parser() -> argparse.ArgumentParser:
     public.add_argument(
         "--growth", help="optional exact-bundle-bound acquisition, revenue mix and research context JSON"
     )
+    public.add_argument("--peers", help="optional exact-bundle-bound metric-specific public peer context JSON")
     public.add_argument("--output", default="var/public-diligence/baseline", help="output stem for HTML and JSON")
     public.set_defaults(fn=cmd_public_diligence)
 

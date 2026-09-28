@@ -80,7 +80,11 @@ The residual is not organic growth; standalone acquired earnings remain unavaila
 The disclosed TSA termination is rejected as a new saving because it already occurred.
 See [ADR 0014](../adr/0014-acquisition-growth-research.md).
 
-Still required: metric-specific peer eligibility, reviewed commercial conclusions,
+The public peer exhibit now records metric-specific decisions for PTC, OpenText,
+Descartes and an unquantified SS&C candidate. The strict median is withheld;
+reported differences do not become savings targets (ADR 0015).
+
+Still required: wider candidate/definition review, reviewed commercial conclusions,
 richer interactions,
 public-baseline integration, actual execution evidence, full decision memo and
 realization demonstration. These foundations do not complete S1 or any later goal

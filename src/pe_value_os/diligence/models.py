@@ -28,7 +28,7 @@ class SourceDocument(Record):
     title: str
     url: HttpUrl
     accession: str = Field(pattern=r"^\d{10}-\d{2}-\d{6}$")
-    form: Literal["10-K", "10-Q", "8-K"]
+    form: Literal["10-K", "10-Q", "8-K", "40-F"]
     filed_on: date
     retrieved_at: datetime
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")

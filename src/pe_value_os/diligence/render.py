@@ -14,6 +14,8 @@ from .financials import analyze_facts
 from .growth import GrowthContext, analyze_growth
 from .growth_render import render_growth
 from .models import FactBundle
+from .peer_render import render_peers
+from .peers import PeerContext, analyze_peers
 from .quarterly import derive_quarters
 
 
@@ -62,6 +64,8 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
         )
     if "growth_analysis" in report:
         body += render_growth(bundle, report["growth_analysis"])
+    if "peer_analysis" in report:
+        body += render_peers(report["peer_analysis"])
     body += (
         "<section class='panel'><h2>What this case establishes</h2>"
         "<p>Reported financial periods, their source rows and explicit calculation bridges are reproducible "
@@ -322,7 +326,9 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
     )
 
 
-def build_public_report(source: Path, output: Path, growth_source: Path | None = None) -> Path:
+def build_public_report(
+    source: Path, output: Path, growth_source: Path | None = None, peer_source: Path | None = None
+) -> Path:
     bundle = FactBundle.model_validate_json(source.read_bytes())
     bundle.require_public()
     report = analyze_facts(bundle)
@@ -331,9 +337,14 @@ def build_public_report(source: Path, output: Path, growth_source: Path | None =
     if growth_source is not None:
         context = GrowthContext.model_validate_json(growth_source.read_bytes())
         report["growth_analysis"] = analyze_growth(bundle, context)
+    if peer_source is not None:
+        peer_context = PeerContext.model_validate_json(peer_source.read_bytes())
+        report["peer_analysis"] = analyze_peers(bundle, peer_context)
     html = render_baseline(bundle, report)
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     inputs = {source.resolve()} | ({growth_source.resolve()} if growth_source is not None else set())
+    if peer_source is not None:
+        inputs.add(peer_source.resolve())
     if inputs & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("report must not overwrite the source fact bundle")
     # Validate and render before any filesystem mutation; private sources never create output.

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "company": "Progress Software Corporation",
+  "entity_id": "cik:0000876167",
+  "ticker": "PRGS",
+  "information_cutoff": "2026-09-28",
+  "documents": [
+    {
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "classification": "public_filing",
+      "entity_id": "cik:0000876167",
+      "title": "Progress Software FY2025 Form 10-K",
+      "url": "https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c",
+      "accession": "0000876167-26-000008",
+      "form": "10-K",
+      "filed_on": "2026-01-20",
+      "retrieved_at": "2026-09-28T13:39:25.016566Z",
+      "sha256": "f5227b4aac09542c5acccc8264a0b975f1db25e1891108ededd5df96cd1709c1",
+      "mapping_sha256": "f74ab1ce09063eeffde3279f174c3797834b40a11d2ca179dc03fb22d3889bbf",
+      "extraction_version": "filing-pdf/2"
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2024-12-01:2025-11-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "entity_id": "cik:0000876167",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-11-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "73133",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 41,
+      "printed_page": "41",
+      "row_label": "Net income",
+      "column_label": "November 30, 2025 [annual; occurrence 0]",
+      "source_row": "Net income $ 73,133 $ 68,438 $ 70,197"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2023-12-01:2024-11-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "entity_id": "cik:0000876167",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2023-12-01",
+        "end": "2024-11-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "68438",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 41,
+      "printed_page": "41",
+      "row_label": "Net income",
+      "column_label": "November 30, 2024 [annual; occurrence 0]",
+      "source_row": "Net income $ 73,133 $ 68,438 $ 70,197"
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2022-12-01:2023-11-30:annual:cash_flow_net_income",
+      "document_id": "cik:0000876167:0000876167-26-000008",
+      "entity_id": "cik:0000876167",
+      "metric": "cash_flow_net_income",
+      "period": {
+        "start": "2022-12-01",
+        "end": "2023-11-30",
+        "basis": "annual"
+      },
+      "currency": "USD",
+      "reported_amount": "70197",
+      "unit_scale": 1000,
+      "accounting_basis": "US_GAAP",
+      "pdf_page": 41,
+      "printed_page": "41",
+      "row_label": "Net income",
+      "column_label": "November 30, 2023 [annual; occurrence 0]",
+      "source_row": "Net income $ 73,133 $ 68,438 $ 70,197"
+    }
+  ],
+  "events": []
+}

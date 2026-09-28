@@ -12,9 +12,9 @@ import re
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Literal, Self
+from typing import Any, Literal, Self
 
-from pydantic import Field, HttpUrl, model_validator
+from pydantic import Field, HttpUrl, SerializerFunctionWrapHandler, model_serializer, model_validator
 
 from .models import FactBundle, FinancialFact, FiscalPeriod, Record, SourceClass, SourceDocument
 
@@ -36,11 +36,20 @@ class Row(Record):
 class Table(Record):
     pdf_page: int = Field(ge=1)
     printed_page: str
+    printed_page_location: Literal["footer", "header"] = "footer"
     heading: str
     unit_heading: str
     period_heading: str | None = None
     columns: tuple[Column, ...] = Field(min_length=1)
     rows: tuple[Row, ...] = Field(min_length=1)
+
+    @model_serializer(mode="wrap")
+    def serialize(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        # Preserve the canonical bytes of existing footer mappings and their hashes.
+        result: dict[str, Any] = handler(self)
+        if self.printed_page_location == "footer":
+            result.pop("printed_page_location", None)
+        return result
 
 
 class FilingMap(Record):
@@ -50,7 +59,7 @@ class FilingMap(Record):
     title: str
     url: HttpUrl
     accession: str
-    form: Literal["10-K", "10-Q"]
+    form: Literal["10-K", "10-Q", "40-F"]
     filed_on: date
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     currency: str = Field(pattern=r"^[A-Z]{3}$")
@@ -145,14 +154,17 @@ def extract_filing(pdf: Path, mapping: FilingMap, retrieved_at: datetime, cutoff
         retrieved_at=retrieved_at,
         sha256=mapping.source_sha256,
         mapping_sha256=hashlib.sha256(mapping.model_dump_json().encode()).hexdigest(),
-        extraction_version=EXTRACTION_VERSION,
+        extraction_version="filing-pdf/3"
+        if any(t.printed_page_location == "header" for t in mapping.tables)
+        else EXTRACTION_VERSION,
     )
     facts = []
     for table in mapping.tables:
         if table.pdf_page > len(reader.pages):
             raise ValueError("mapped page does not exist")
         text = reader.pages[table.pdf_page - 1].extract_text()
-        if not text.strip() or text.rstrip().splitlines()[-1] != table.printed_page:
+        page_line = -1 if table.printed_page_location == "footer" else 0
+        if not text.strip() or text.strip().splitlines()[page_line].strip() != table.printed_page:
             raise ValueError("printed page does not match the reviewed mapping")
         values = table_values(text, table)
         lines = [" ".join(line.split()) for line in text.splitlines()]
