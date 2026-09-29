@@ -22,10 +22,12 @@ and is released in PR #43. The [financial-snapshot increment](financial-snapshot
 is released in PR #44. The [private underwriting increment](underwriting.md),
 released in PR #45, connects accepted financials to immutable forecasts,
 distinguishing exact component mappings from human assumptions. Private
-[capacity planning](capacity-plans.md) is released in PR #46. The next
-[reviewed-baseline increment](reviewed-baselines.md) adds exact-version human
-decisions and comparison designations, with a separate release gate. Private
-measurement, intervention/delivery evidence, memo/review UX, retention operations
+[capacity planning](capacity-plans.md) is released in PR #46 and
+[reviewed baselines](reviewed-baselines.md) in PR #47. The subsequent
+[private-observation increment](observations.md) adds reviewed counterfactuals,
+whole-month actuals and frozen-plan comparisons, with a separate release gate.
+All differences remain unattributed. Attribution, intervention/delivery evidence,
+memo/review UX, retention operations
 and actual company approval remain open.
 
 ### Who does what next

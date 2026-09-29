@@ -102,6 +102,18 @@ matched the merge. The local focused/regression suite passed 467 tests with one
 Windows symlink-privilege skip; migration round-trip passed at 0012. These checks
 use fictional inputs and do not establish management commitment or pilot results.
 
+The private human-review and frozen-baseline workflow was released in
+[PR #47](https://github.com/ahines99/pe-value-creation-os/pull/47), tested at
+`3a79d8c961b4d5a539b40856bec37863dbdfe761` and merged as
+`607299a92e24178b8ad984f082cf1cb544a35fd5` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36643048658)
+passed: 1,556 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Nine published files
+matched the merge. Local focused checks added 66 tests; the related regression
+suite passed 461 tests with one Windows symlink-privilege skip. Migration
+round-trip passed at 0013. These are fictional-fixture software checks, not
+actual human company review, operating authorization or pilot results.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -114,8 +126,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #46 is released and verified.
-The private-review/baseline increment below has a separate release gate; its
+**Current status:** implementation through PR #47 is released and verified.
+The private-observation increment below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -279,9 +291,11 @@ Snapshots remain private and do not declare realized value or a frozen baseline.
 Its CI/publication acceptance is verified above. The
 [private underwriting increment](../pilot/permissioned/underwriting.md) is released
 in PR #45, and [private capacity plans](../pilot/permissioned/capacity-plans.md)
-are released in PR #46. The next [reviewed-baseline increment](../pilot/permissioned/reviewed-baselines.md)
-adds exact-version finance/operating decisions, withdrawal and immutable comparison
-baselines, with a separate release gate. Private actuals/counterfactuals, attribution,
+are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-baselines.md)
+are released in PR #47. The subsequent [private-observation increment](../pilot/permissioned/observations.md)
+adds authored and finance-reviewed counterfactuals, accepted whole-month actuals,
+frozen-plan variance and explicitly unattributed differences, with a separate
+release gate. Private attribution,
 intervention authorization/delivery evidence, executive memo and pilot review UX
 remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.

@@ -2,7 +2,7 @@
 
 This increment adds exact-version finance and operating reviews to
 [private capacity plans](capacity-plans.md), followed by an immutable comparison
-baseline. Its CI/publication gate is recorded separately in the
+baseline. It is released in PR #47; its verified CI/publication gate is recorded in the
 [completion checklist](../../portfolio/remaining-work.md). All validation uses
 fictional identities and records; no actual company review, independent finance
 endorsement, operating intervention or performed pilot is represented.
@@ -130,9 +130,10 @@ company records with their source chain while retaining minimal audit events.
 
 ## Remaining pilot work
 
-Private actual observations, reviewed counterfactuals, attribution, intervention
-authorization and delivery evidence, executive memo composition and a usable
-pilot review flow still require integration. These mechanisms also need an actual
+The subsequent [private-observation increment](observations.md) connects reviewed
+counterfactuals and accepted actuals, with a separate release gate. All differences
+remain unattributed. Attribution, intervention authorization and delivery evidence,
+executive memo composition and a usable pilot review flow still require integration. These mechanisms also need an actual
 sponsor, authorized company records and participating reviewers before they can
 represent a performed pilot. Retention operations and the
 [pilot entry gates](../pilot-plan.md) remain outstanding.

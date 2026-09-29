@@ -49,6 +49,11 @@ from ..diligence.private_capacity import CapacityPlanRequest
 from ..diligence.private_financials import FinancialSnapshotRequest, require_snapshot_writer
 from ..diligence.private_grants import GrantRequest, permission_status
 from ..diligence.private_intake import MAX_BYTES, parse_private
+from ..diligence.private_observations import (
+    CounterfactualRequest,
+    CounterfactualReviewRequest,
+    PrivateObservationRequest,
+)
 from ..diligence.private_records import (
     FinanceReviewRequest,
     IntakeRequest,
@@ -222,6 +227,114 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-counterfactuals/cases/{case_key}/streams/{key}", status_code=201)
+async def record_private_counterfactual(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_intake_writer(company_id)
+        body = parse_private(CounterfactualRequest, await bounded_private_body(request, 1024 * 1024))
+        result = await run_in_threadpool(
+            get_ctx().repo.record_private_counterfactual, company_id, case_key, key, body, processing_environment()
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-counterfactuals/cases/{case_key}/streams/{key}")
+def private_counterfactual_history(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "revisions": [
+                r.model_dump(mode="json")
+                for r in get_ctx().repo.list_private_counterfactuals(company_id, case_key, key)
+            ],
+            "historical_records_only": True,
+            "causal_value_claim": False,
+        }
+
+
+@app.post("/companies/{company_id}/private-counterfactuals/revisions/{revision_id}/reviews", status_code=201)
+async def review_private_counterfactual(
+    company_id: str, revision_id: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_finance_reviewer(company_id)
+        body = parse_private(CounterfactualReviewRequest, await bounded_private_body(request, 1024 * 1024))
+        environment = "" if body.decision == "withdraw" else processing_environment()
+        result = await run_in_threadpool(
+            get_ctx().repo.review_private_counterfactual, company_id, revision_id, body, environment
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-counterfactuals/revisions/{revision_id}/reviews")
+def private_counterfactual_reviews(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "reviews": [
+                r.model_dump(mode="json")
+                for r in get_ctx().repo.list_private_counterfactual_reviews(company_id, revision_id)
+            ],
+            "historical_records_only": True,
+            "causal_value_claim": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-counterfactuals/revisions/{revision_id}/usable")
+def usable_private_counterfactual(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        proposal, review = get_ctx().repo.usable_private_counterfactual(
+            company_id, revision_id, processing_environment()
+        )
+        return {
+            "revision": proposal.model_dump(mode="json"),
+            "review": review.model_dump(mode="json"),
+            "usable_for_comparison": True,
+            "causal_value_claim": False,
+        }
+
+
+@app.post("/companies/{company_id}/private-observations/cases/{case_key}/streams/{key}", status_code=201)
+async def record_private_observation(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_snapshot_writer(company_id)
+        body = parse_private(PrivateObservationRequest, await bounded_private_body(request, 1024 * 1024))
+        result = await run_in_threadpool(
+            get_ctx().repo.record_private_observation, company_id, case_key, key, body, processing_environment()
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-observations/cases/{case_key}/streams/{key}")
+def private_observation_history(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "observations": [
+                r.model_dump(mode="json") for r in get_ctx().repo.list_private_observations(company_id, case_key, key)
+            ],
+            "historical_records_only": True,
+            "causal_value_claim": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-observations/observations/{observation_id}/usable")
+def usable_private_observation(company_id: str, observation_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        result = get_ctx().repo.usable_private_observation(company_id, observation_id, processing_environment())
+        return {
+            "observation": result.model_dump(mode="json"),
+            "usable_for_comparison": True,
+            "causal_value_claim": False,
+            "operating_action_authorized": False,
+        }
 
 
 @app.post("/companies/{company_id}/private-capacity/revisions/{revision_id}/reviews/{review_kind}", status_code=201)
