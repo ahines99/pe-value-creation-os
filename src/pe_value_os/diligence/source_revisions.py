@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .models import Record
-from .operating_sources import OperatingBook, operating_records, source_records
+from .operating_sources import AllocatedSourceBook, OperatingBook, operating_records, source_records
 from .scheduling import OperatingPlan, fingerprint
-from .underwriting import EXPECTED_UNITS, UnderwritingCase
+from .underwriting import EXPECTED_UNITS
+from .underwriting_models import UnderwritingModel
 
 if TYPE_CHECKING:
     from .cases import CaseRevision
@@ -52,7 +53,7 @@ class SourceCasePayload(Record):
     # Separate from v1: adding defaults to the old payload would change hashes of
     # already signed case revisions. v2 must be explicitly requested by a writer.
     schema_version: Literal[2]
-    underwriting: UnderwritingCase
+    underwriting: UnderwritingModel
     operating_plan: OperatingPlan
     decision_question: str = Field(min_length=1)
     counterevidence: tuple[str, ...] = Field(min_length=1)
@@ -93,6 +94,10 @@ class SourceCasePayload(Record):
                 raise ValueError("lesson assumptions must belong to the prior initiative driver")
             if any(ref.kind != expected_kind[driver.kind] for ref in lesson.source_records):
                 raise ValueError("lesson source kind does not match its initiative mechanism")
+            if isinstance(self.operating_sources, AllocatedSourceBook):
+                owners = {(a.kind, a.record_id): a.pool_id for a in self.operating_sources.assignments}
+                if any(owners[(ref.kind, ref.record_id)] != driver.benefit_pool for ref in lesson.source_records):
+                    raise ValueError("lesson record must belong to its initiative's economic pool")
 
 
 def source_payload(payload: Any) -> SourceCasePayload | None:
@@ -171,9 +176,17 @@ def financial_snapshot(payload: SourceCasePayload, parent: CaseRevision, report:
         "currency": report["currency"],
         "classification": "constructed_operating_exercise",
         "source_classification": report["classification"],
-        "selected_initiatives": sorted(d.initiative_id for d in payload.underwriting.scenarios[0].drivers),
+        "selected_initiatives": report.get(
+            "selected_initiatives", sorted(d.initiative_id for d in payload.underwriting.scenarios[0].drivers)
+        ),
+        **(
+            {key: report[key] for key in ("interaction_policy", "selection_basis")}
+            if "interaction_policy" in report
+            else {}
+        ),
         "scenarios": scenarios,
         "missing_service_months": report["missing_service_months"],
+        **({"unrepresented_pools": report["unrepresented_pools"]} if "unrepresented_pools" in report else {}),
         "learning_context": learning_context(payload, parent),
         "cash_definition": report["reference_forecast"]["cash_definition"],
         "limitation": report["limitation"],

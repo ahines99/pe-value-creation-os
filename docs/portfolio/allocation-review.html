@@ -1,0 +1,195 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Benefit allocation review</title><style>
+:root {
+  color-scheme: light;
+  --ink:#172c3d; --navy:#132c3c; --navy-deep:#0c2231; --teal:#21685d;
+  --teal-light:#e9f2ee; --copper:#9b5a32; --paper:#f4f3ee; --white:#fff;
+  --muted:#586772; --line:#dce1dd; --soft:#ecefe9; --warn:#825411;
+  --warn-bg:#fff5df; --bad:#a33d35; --bad-bg:#fbece8; --radius:12px;
+  --shadow:0 8px 30px rgb(15 39 49 / 4%);
+  --bg:var(--paper); --fg:var(--ink); --accent:var(--teal); --card:var(--white);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:30px}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-underline-offset:4px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+button,input,textarea,select{font:inherit}
+button,a,input,textarea,summary,select{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid #c87f42;outline-offset:4px;border-radius:3px}
+::selection{background:#cce1d9;color:var(--navy-deep)}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3,h4{line-height:1.2;overflow-wrap:break-word}
+h1{font-size:clamp(32px,3.9vw,54px);font-weight:500;letter-spacing:-.045em}
+h2{font-size:23px;font-weight:600;letter-spacing:-.025em}
+h3{font-size:18px;font-weight:650;letter-spacing:-.018em}
+h4{font-size:15px;font-weight:650}
+p+p{margin-top:12px}
+ul,ol{padding-left:21px}li+li{margin-top:7px}
+code{font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;background:#e9eeea;padding:3px 5px;border-radius:4px}
+small{font-size:12px}
+svg{display:block;max-width:100%}
+.skip-link{position:fixed;top:8px;left:12px;transform:translateY(-150%);z-index:20;background:var(--white);padding:12px 20px;border:2px solid var(--teal)}
+.skip-link:focus{transform:translateY(0)}
+.topbar{background:var(--navy-deep);color:#fff;border-bottom:1px solid #2b404d}
+.topbar-inner{max-width:1360px;margin:auto;min-height:87px;display:flex;align-items:center;gap:40px;padding:18px 40px}
+.brand{display:inline-flex;align-items:center;gap:13px;color:#fff;text-decoration:none;flex-shrink:0}
+.brand-mark{width:38px;height:38px;border:1px solid #577b78;border-radius:8px;display:grid;place-items:center;color:#b2d2bf}
+.brand-name{font-size:18px;letter-spacing:-.04em;font-weight:650;line-height:1.25}
+.brand-subtitle{display:block;font-size:9px;color:#b0c2c8;font-weight:500;letter-spacing:.2em;text-transform:uppercase;margin-top:5px}
+.primary-nav{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-link{color:#bac9d0;text-decoration:none;padding:9px 14px;border:1px solid transparent;border-radius:5px;font-size:13px;font-weight:550;white-space:nowrap}
+.nav-link:hover{background:#203b4c;color:#fff}
+.nav-link[aria-current=page],.nav-link.active{background:#233e4d;color:#fff;border-color:#36505c}
+.workspace-tag{font-size:10px;letter-spacing:.11em;color:#c7d8ce;border-left:1px solid #3c5260;padding-left:22px;text-transform:uppercase;white-space:nowrap}
+.app-shell{max-width:1360px;margin:0 auto;padding:42px 40px 64px;min-height:70vh}
+.breadcrumb{display:flex;gap:9px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:27px;flex-wrap:wrap}
+.breadcrumb a{color:var(--muted)}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:34px}
+.page-header>div{min-width:0}
+.eyebrow,.section-kicker{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--copper);display:block;margin-bottom:12px}
+.page-title{max-width:900px}
+.page-subtitle{color:var(--muted);font-size:15px;max-width:670px;margin-top:13px;line-height:1.7}
+.hero{background:var(--navy);border-radius:var(--radius);padding:43px 44px;color:#fff;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(240px,.75fr);gap:46px;margin-bottom:30px;position:relative;overflow:hidden;border-top:3px solid #9ebba7}
+.hero h1,.hero h2{color:#fff}.hero .eyebrow{color:#bad1bf}.hero .page-subtitle,.hero .muted{color:#c3d1d7}
+.hero p{max-width:640px}.hero .button{background:#f0f2e8;color:var(--navy);border-color:#f0f2e8}
+.hero-aside{border-left:1px solid #49606a;padding-left:34px;display:flex;flex-direction:column;justify-content:center;gap:15px}
+.hero-aside .metric-label{color:#c3d1d7}.hero-aside .metric-note{color:#c3d1d7}
+.hero-aside .metric-value{color:#fff;font-size:44px}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0 0 34px}
+.metric-card{background:var(--white);padding:24px 25px;border:1px solid var(--line);border-radius:9px;position:relative;min-width:0;box-shadow:var(--shadow)}
+.metric-card.highlight{background:var(--navy);color:#fff;border-color:var(--navy)}
+.metric-card.highlight .metric-label,.metric-card.highlight .metric-note{color:#c4d3d8}
+.metric-label{color:var(--muted);font-size:11px;line-height:1.45;letter-spacing:.055em;font-weight:650;text-transform:uppercase;display:block;margin-bottom:11px}
+.metric-value{font-size:clamp(26px,2.75vw,38px);font-weight:550;line-height:1.15;letter-spacing:-.045em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;display:block}
+.metric-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;display:block}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:34px 0 17px}
+.section-heading h2{font-size:22px}.section-heading p{font-size:13px;color:var(--muted);margin-top:6px}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin-bottom:22px;box-shadow:var(--shadow);min-width:0}
+.panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:23px;padding-bottom:19px;border-bottom:1px solid var(--line)}
+.panel-header p{font-size:13px;color:var(--muted);margin-top:7px}
+.panel>:last-child{margin-bottom:0}
+.two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+.three-column{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:18px}.stack>.panel{margin-bottom:0}
+.company-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:27px;min-width:0;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:22px;position:relative}
+.company-card:before{content:"";position:absolute;left:27px;right:27px;top:0;height:3px;background:var(--teal)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.company-monogram{width:44px;height:44px;display:grid;place-items:center;background:var(--teal-light);color:var(--teal);border:1px solid #cbdcd2;border-radius:8px;font-family:Georgia,serif;font-size:21px;flex-shrink:0}
+.company-card h3{font-size:22px}.company-card .metric-value{font-size:31px}
+.company-card .card-actions{margin-top:auto;border-top:1px solid var(--line);padding-top:18px}
+.card-actions{display:flex;gap:13px;align-items:center;flex-wrap:wrap}
+.inline-meta,.status-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.badge,.pill{display:inline-flex;align-items:center;gap:6px;font-size:10px;line-height:1.3;letter-spacing:.035em;font-weight:700;border:1px solid #d4ddd7;border-radius:4px;padding:6px 8px;background:#f1f4f0;color:#4b6260;max-width:100%;vertical-align:middle;white-space:normal}
+.badge:before{content:"";display:block;width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.state-complete,.state-approved,.state-active,.state-on_track{color:#235f50;background:#edf5ef;border-color:#c7ddce}
+.state-awaiting_approval,.state-changes_requested,.state-needs_evidence{color:#825411;background:#fff5df;border-color:#e8d7b2}
+.state-failed,.state-rejected,.state-cancelled,.state-blocked,.state-off_track{color:#993e34;background:#fff0ea;border-color:#efd0c6}
+.state-running,.state-queued,.state-pending{color:#315c78;background:#edf3f8;border-color:#cddce6}
+.button,button{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);border:1px solid var(--teal);color:#fff;text-decoration:none;border-radius:5px;padding:10px 17px;font-size:12px;line-height:1.5;font-weight:650;cursor:pointer;min-height:42px;text-align:center;transition:background .15s,border-color .15s}
+.button:hover,button:hover{background:#164d45;border-color:#164d45;text-decoration:none}
+.button.secondary,button.secondary{background:var(--white);color:var(--ink);border-color:#c7d0ca}
+.button.secondary:hover,button.secondary:hover{background:#edf2ed;border-color:#aabbb0}
+.button.danger,button.danger{background:var(--white);color:var(--bad);border-color:#d9b4ac}
+.button.danger:hover,button.danger:hover{background:var(--bad-bg)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.text-link{font-size:12px;font-weight:650}.text-link:after{content:" →"}
+.muted{color:var(--muted)}.warn{color:var(--warn)}.bad{color:var(--bad)}.positive{color:var(--teal)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.table-wrap,.scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--line);border-radius:7px;margin:16px 0;background:var(--white)}
+.data-table,table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;text-align:left}
+th{color:#53616a;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:650;line-height:1.45;background:#f3f5f0;vertical-align:bottom}
+th,td{padding:15px 17px;border-bottom:1px solid var(--line);vertical-align:top}
+td{line-height:1.65;overflow-wrap:break-word}
+tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafbf8}
+td:first-child{font-weight:550}td .muted{font-weight:400;font-size:12px;display:block;margin-top:5px}
+.table-caption{font-size:11px;color:var(--muted);margin-top:10px}
+.disclosure,details{background:#fafbf8;border:1px solid var(--line);border-radius:7px;margin:14px 0;min-width:0}
+summary{font-size:13px;font-weight:600;padding:16px 18px;cursor:pointer;min-height:48px;color:var(--ink)}
+summary::marker{color:var(--teal)}details[open]>summary{border-bottom:1px solid var(--line)}
+.disclosure-body,details>.details-content{padding:20px}details>.table-wrap{margin:16px}
+.technical{font-size:12px;line-height:1.7;color:var(--muted)}
+.technical code{font-size:11px}.technical h3{font-size:14px;color:var(--ink);margin-bottom:8px}
+.value-bar,.value-track,.progress-track,.bar-track{height:7px;background:#e5ece6;border-radius:2px;overflow:hidden;margin-top:10px}
+.value-bar>span,.value-track>span,.progress-fill,.bar-fill{display:block;height:100%;width:var(--value,0%);max-width:100%;background:var(--teal);border-radius:2px}
+.contribution-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(70px,1fr) auto;gap:15px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-size:12px}
+.contribution-row:last-child{border-bottom:0}.contribution-row .bar-track{margin-top:0}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.scenario,.scenario-card{background:#f5f6f1;padding:15px;border-radius:5px;border:1px solid #e2e7df;min-width:0}
+.scenario-card.base{background:#eaf3ed;border-color:#cadfd0}.scenario-card .metric-value{font-size:22px}
+.scenario.base{background:#eaf3ed;border-color:#cadfd0}.scenario .metric-label{font-size:9px;margin-bottom:7px}.scenario .metric-value{font-size:22px}
+.workstream{border-top:3px solid var(--teal)}
+.initiative-card{border:1px solid var(--line);border-radius:8px;padding:23px;margin:17px 0;background:#fff}
+.initiative-card h3{font-size:17px}.initiative-card>p{font-size:13px;color:var(--muted);margin-top:9px}
+.timeline-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:18px 0}
+.timeline-stage{background:#f8faf6;padding:20px}.timeline-stage h3{font-size:14px;margin-bottom:8px}.timeline-stage p,.timeline-stage li{font-size:12px;color:var(--muted)}
+.definition-list{margin:15px 0;display:grid;grid-template-columns:minmax(110px,.6fr) minmax(0,1fr);gap:9px 20px;font-size:12px}.definition-list dt{color:var(--muted)}.definition-list dd{margin:0;overflow-wrap:anywhere}
+.evidence-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.metric-comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:20px 0}.metric-comparison>div{padding:13px 0;border-top:1px solid var(--line)}.metric-comparison .metric-value{font-size:23px}
+.initiative-list{list-style:none;padding:0;margin:0}
+.initiative-row{padding:19px 0;display:flex;gap:24px;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--line)}
+.initiative-row:last-child{border-bottom:0}.initiative-row p{font-size:12px;color:var(--muted);margin-top:7px}
+.initiative-row .metric-value{font-size:22px}.initiative-row .metric-note{margin-top:4px}
+.meta-list{margin:0;display:grid;grid-template-columns:minmax(100px,.55fr) minmax(0,1fr);gap:12px 20px;font-size:12px}
+.meta-list dt{color:var(--muted)}.meta-list dd{margin:0;overflow-wrap:anywhere}
+.evidence-link{display:inline-flex;border:1px solid #ccdad2;background:#f2f7f3;padding:5px 8px;border-radius:4px;font-size:11px;text-decoration:none;margin:3px 4px 3px 0;overflow-wrap:anywhere}
+.evidence-link:hover{background:#e3eee5}
+.alert,.warning{padding:19px 21px;border:1px solid #e7d6b1;border-left:3px solid #b58238;border-radius:7px;background:var(--warn-bg);font-size:13px;line-height:1.65;margin-bottom:22px;color:#6e501e}
+.alert h3,.warning h3{font-size:15px;margin-bottom:7px}.alert.bad{background:var(--bad-bg);border-color:#e0b6aa;color:var(--bad)}
+.empty-state{padding:42px 30px;border:1px dashed #bdccc1;border-radius:9px;background:#f8faf5;text-align:center;color:var(--muted)}
+.empty-state h2,.empty-state h3{color:var(--ink);margin-bottom:12px}.empty-state p{max-width:550px;margin:0 auto}
+.decision-panel{border:1px solid #c3d6ca;border-top:3px solid var(--teal);background:var(--white);padding:30px;border-radius:var(--radius);margin-top:28px;box-shadow:var(--shadow)}
+.decision-panel h2{margin-bottom:10px}.decision-panel form{margin-top:20px}
+.decision-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:28px}
+label{font-size:13px;font-weight:550;display:block;margin:12px 0 7px}
+input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select,.input-field{width:100%;background:#fff;color:var(--ink);border:1px solid #acbdb1;border-radius:5px;padding:12px 14px;min-height:46px}
+textarea{min-height:105px;resize:vertical}
+input[type=checkbox],input[type=radio]{accent-color:var(--teal);width:17px;height:17px;vertical-align:middle;margin:0 9px 0 0;flex-shrink:0}
+.checkbox-label{display:flex;align-items:flex-start;font-weight:400;gap:6px;line-height:1.6}
+.checkbox-label input{margin-top:3px}.form-help{font-size:12px;color:var(--muted);margin-top:7px}
+.action-list{list-style:none;padding:0;margin:0}.action-list li{padding:12px 0;border-bottom:1px solid var(--line)}
+.action-list li:last-child{border-bottom:0}.divider{border:0;border-top:1px solid var(--line);margin:23px 0}
+.login-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr);gap:60px;align-items:center;min-height:65vh;max-width:1120px;margin:auto}
+.login-layout .panel{padding:35px}.login-layout h1{font-size:clamp(38px,4.7vw,62px)}
+.login-layout .button,.login-layout button{width:100%;margin-top:18px}
+.page-footer{border-top:1px solid #d3dbd4;color:var(--muted);max-width:1280px;margin:0 auto;padding:26px 0 32px;font-size:11px}
+.footer-line{display:flex;justify-content:space-between;align-items:flex-start;gap:30px}.footer-line strong{font-weight:600;color:var(--ink)}
+.page-footer details{max-width:850px;background:transparent;border:0;margin:15px 0 0}.page-footer summary{padding:5px 0;font-size:11px;min-height:30px}.page-footer details[open]>summary{border:0}.page-footer details p{max-width:790px;padding:7px 0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(min-width:1400px){.app-shell{padding-top:50px}.panel{padding:30px}.company-card{padding:30px}}
+@media(max-width:1050px){.topbar-inner{padding:18px 28px;gap:22px}.workspace-tag{display:none}.app-shell{padding:32px 28px 45px}.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-column{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:32px;gap:30px}.page-footer{margin:0 28px}.login-layout{gap:32px}}
+@media(max-width:760px){.topbar-inner{padding:17px 22px;flex-wrap:wrap;gap:15px;min-height:0}.brand-name{font-size:17px}.primary-nav{width:100%;margin-left:0;gap:5px;border-top:1px solid #304552;padding-top:12px}.nav-link{padding:8px 12px;font-size:12px;min-height:38px}.app-shell{padding:29px 20px 42px}.page-header{gap:18px;flex-direction:column;margin-bottom:26px}.page-title{font-size:35px}.page-subtitle{font-size:14px}.two-column,.three-column,.decision-grid,.login-layout{grid-template-columns:minmax(0,1fr)}.hero{grid-template-columns:minmax(0,1fr);gap:25px;padding:28px}.hero-aside{border-left:0;border-top:1px solid #49606a;padding:24px 0 0}.hero-aside .metric-value{font-size:38px}.panel{padding:22px}.panel-header{gap:13px}.metric-card{padding:21px}.metric-value{font-size:30px}.section-heading{margin-top:28px;align-items:flex-start}.section-heading h2{font-size:21px}.company-card{padding:23px}.decision-panel{padding:23px}.page-footer{margin:0 20px}.footer-line{flex-direction:column;gap:9px}.login-layout{min-height:0;gap:30px}.login-layout .panel{padding:26px}.login-layout h1{font-size:43px}th,td{padding:12px 13px}.data-table{min-width:560px}}
+@media(max-width:600px){.timeline-grid{grid-template-columns:minmax(0,1fr)}.contribution-row{grid-template-columns:minmax(100px,1fr) minmax(45px,.55fr) auto;gap:9px}.metric-comparison{gap:8px}.metric-comparison .metric-value{font-size:19px}.initiative-card{padding:18px}.scenario-card{padding:12px 9px}.scenario-card .metric-value{font-size:18px}}
+@media(max-width:420px){.app-shell{padding-left:16px;padding-right:16px}.topbar-inner{padding-left:16px;padding-right:16px}.metrics-grid{gap:10px;margin-bottom:27px}.metric-card{padding:17px 14px}.metric-value{font-size:26px}.metric-label{font-size:10px;letter-spacing:.02em}.metric-note{font-size:11px}.page-title{font-size:32px}.panel{padding:19px}.hero{padding:25px 21px}.company-card{padding:21px}.scenario-grid{gap:6px}.scenario{padding:11px 8px}.scenario .metric-value{font-size:17px}.scenario .metric-label{font-size:8px}.card-top{flex-wrap:wrap}.card-actions .button{flex-grow:1}.initiative-row{gap:15px;flex-wrap:wrap}.panel-header{flex-wrap:wrap}.nav-link{padding:8px 10px}.page-footer{margin:0 16px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+@media print{body{background:#fff;color:#000;font-size:10pt}.topbar{background:#fff;color:#000;border-bottom:2px solid #222}.topbar-inner{padding:15px 0;min-height:0}.brand,.brand-subtitle{color:#111}.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.decision-panel button{display:none!important}.app-shell{max-width:none;padding:22px 0}.hero,.metric-card.highlight{background:#fff;color:#000;border:1px solid #999}.hero h1,.hero h2,.hero .page-subtitle,.hero .eyebrow,.hero-aside .metric-value,.hero-aside .metric-label,.hero-aside .metric-note,.metric-card.highlight .metric-label,.metric-card.highlight .metric-note{color:#111}.panel,.company-card,.metric-card,.decision-panel{box-shadow:none;break-inside:avoid;border-color:#bbb}.table-wrap{overflow:visible}table,.data-table{min-width:0;font-size:9pt}th,td{padding:7px}.page-footer{margin:0;padding-top:15px}a{color:#111}details{break-inside:avoid}.badge{border-color:#999;color:#111}h1{font-size:30pt}.metric-value{font-size:23pt}}
+
+.hero-aside.panel{color:var(--ink);border:0;padding:30px;gap:17px;margin:0;background:#fff;box-shadow:0 12px 35px #08182133}
+.hero .hero-aside.panel h2{color:var(--ink)}.hero .hero-aside.panel .muted,.hero .hero-aside.panel .form-help{color:var(--muted)}
+.hero .hero-aside.panel .eyebrow{color:var(--copper)}.hero .hero-aside.panel .button{background:var(--teal);border-color:var(--teal);color:#fff}
+.hero .action-list>p{padding:16px 0;border-bottom:1px solid #47606d;color:#c3d1d7;font-size:13px}.hero .action-list strong{display:inline-block;color:#fff;margin-bottom:5px}
+.company-card{height:100%}.two-column{align-items:stretch}.company-card>.muted{margin-top:-13px}.company-card .metric-value{letter-spacing:-.045em}
+.contribution-row{display:block}.contribution-row>div:first-child{display:flex;justify-content:space-between;gap:16px;margin-bottom:9px}.contribution-row strong{white-space:nowrap}
+.definition-list{display:block}.definition-list>div{display:grid;grid-template-columns:minmax(130px,.65fr) minmax(0,1fr);gap:18px;padding:10px 0;border-bottom:1px solid var(--line)}
+.metric-comparison{grid-template-columns:repeat(4,minmax(0,1fr))}.metric-comparison span{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}.metric-comparison strong{font-size:22px;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.initiative-card{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}.initiative-values{min-width:150px;text-align:right;flex-shrink:0}.initiative-values strong{display:block;font-size:22px;font-weight:600}.initiative-values span{font-size:12px;color:var(--muted)}
+.scope-option{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}.scope-option input{width:18px;height:18px;margin:3px 0;accent-color:var(--teal);flex-shrink:0}.scope-option small{display:block;color:var(--muted)}
+.decision-actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 12px}.disclosure>p,.disclosure>dl,.disclosure>h4,.disclosure>ul,.disclosure>.table-wrap{margin:20px 24px}.disclosure>.scenario-grid{margin:20px 24px}
+.source-preview{max-width:100%;max-height:620px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:22px;background:#f2f5f1;border:1px solid var(--line);border-radius:8px;font:12px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace}
+.meta-list{display:grid;grid-template-columns:minmax(120px,.35fr) minmax(0,1fr);gap:12px 24px;font-size:13px}.meta-list dt{color:var(--muted)}.meta-list dd{margin:0;overflow-wrap:anywhere}.metric-value small{font-size:12px;letter-spacing:.06em;display:block;margin-bottom:8px}
+.section-nav{display:flex;flex-wrap:wrap;gap:8px 12px;padding:0 0 22px;margin:0 0 28px;border-bottom:1px solid var(--line)}
+.section-nav a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #cbd7ce;border-radius:5px;background:#fff;font-size:12px;font-weight:600;text-decoration:none}
+.section-nav a:hover{background:var(--teal-light);border-color:#9eb7a8}
+.value-case>summary{font-size:15px;line-height:1.5;padding:20px 22px}.value-case>summary:after{content:"";display:block;clear:both}
+.value-case>summary>span{display:inline-block;max-width:calc(100% - 185px);vertical-align:top}.value-case>summary small{display:block;margin-top:7px;color:var(--muted);font-size:11px;font-weight:400}
+.value-case>summary>strong{float:right;display:inline-block;margin:0 0 0 20px;font-size:22px;line-height:1.4;font-weight:600;letter-spacing:-.025em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scenario-card.negative{background:var(--bad-bg);border-color:#deb9ae}.scenario-card.negative .metric-value{color:var(--bad)}.bar-fill.negative{background:var(--bad)}
+.evidence-links{gap:8px}.evidence-links a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:1px solid #cbdace;border-radius:4px;background:#f0f6f1;font-size:12px;text-decoration:none}
+.evidence-links a:hover{background:#e2eee5;border-color:#9fb9a7}.disclosure>.evidence-links{margin:20px 24px}
+.workstream-card{border-top:3px solid var(--teal)}.workstream-card th small,.kpi-card th small{display:block;margin-top:7px;font-weight:400;text-transform:none;letter-spacing:0}
+.timeline-stage h4{margin-bottom:9px}.metric-card.highlight .metric-value{color:#fff}
+@media(max-width:760px){.hero-aside.panel{padding:25px}.initiative-card{display:block}.initiative-values{text-align:left;margin-top:17px}.metric-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}.page-header>.button{align-self:flex-start}}
+@media(max-width:600px){.value-case>summary>span{max-width:100%}.value-case>summary>strong{float:none;display:block;margin:12px 0 0}.scenario-grid{grid-template-columns:minmax(0,1fr)}.scenario-card{padding:15px 17px}.scenario-card .metric-value{font-size:24px}.section-nav{gap:8px}.section-nav a{flex-grow:1;justify-content:center}.disclosure>.scenario-grid,.disclosure>.evidence-links{margin:18px}}
+@media(max-width:420px){.hero-aside.panel{padding:20px}.definition-list>div,.meta-list{grid-template-columns:minmax(0,1fr);gap:4px}.decision-actions>.button{width:100%;text-align:center}}
+@media(max-width:420px){.metrics-grid{grid-template-columns:minmax(0,1fr)}.metric-value{font-size:30px}.metric-card{padding:20px}.metric-comparison strong{font-size:19px}.contribution-row>div:first-child{flex-wrap:wrap;gap:5px 16px}.value-case>summary{padding:18px}.source-preview{padding:15px}}
+@media print{.section-nav{display:none}.metric-card.highlight .metric-value{color:#111}.evidence-links a{color:#111;background:#fff}.value-case>summary>strong{font-size:14pt}.scenario-card.negative .metric-value{color:#111}}
+</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#history'>Decision history</a><a class='nav-link' href='#allocation'>Allocation</a><a class='nav-link' href='#evidence'>Evidence</a></nav></div></header><main class='app-shell' id='main' tabindex='-1'><section class='hero'><div><p class='eyebrow'>Constructed operating decision / Allocation review</p><h1>One pool. An explicit choice.</h1><p class='page-subtitle'>USD · Population shares, competing initiatives and retained commitments</p><p>Two pricing approaches have authored 60% and 40% shares. The 40% alternative is initially deferred because both do not fit the original capacity budgets. A later research revision chooses one competing policy for the full eligible cohort.</p></div><aside class='hero-aside'><span class='metric-label'>Current research decision</span><p>Rework the proposed first wave. No company operation or independent review is represented.</p></aside></section><div class='metrics-grid'><div class='metric-card'><span class='metric-label'>Current year-one EBITDA</span><strong class='metric-value'>-163,165</strong><span class='metric-note'>After source constraints and vendor correction</span></div><div class='metric-card'><span class='metric-label'>Current year-one cash</span><strong class='metric-value'>-181,890</strong><span class='metric-note'>Pre-tax proxy; temporary acceleration reverses</span></div><div class='metric-card'><span class='metric-label'>Frozen accounting history</span><strong class='metric-value'>Preserved</strong><span class='metric-note'>Earlier records and claims do not move with the choice</span></div><div class='metric-card'><span class='metric-label'>Realized company value</span><strong class='metric-value'>Unavailable</strong><span class='metric-note'>Every operating record here is constructed</span></div></div><section class='panel'><h2>Capacity forces a bounded first wave</h2><p>Trying both pricing packages blocks: pricing-review-targeted, pricing-gate-targeted. The modeled close therefore defers the alternative and leaves its 40% share unused. Resource budgets are unchanged.</p></section><section class='panel' id='history'><h2>Trace the decision</h2><div class='table-wrap' tabindex='0' role='region' aria-label='Original forecasts are immutable. Effective dates are authored exercise dates, not actual ownership events.'><table><caption class='table-caption'>Original forecasts are immutable. Effective dates are authored exercise dates, not actual ownership events.</caption><thead><tr><th scope='col'>Revision</th><th scope='col'>Reason</th><th scope='col'>Selected work</th><th scope='col'>Year-one EBITDA</th><th scope='col'>Year-one cash</th></tr></thead><tbody><tr><td>1</td><td>Preserve original constructed assumptions.</td><td>collections-timing, pricing-renewals, service-automation</td><td>130,909</td><td>95,626</td></tr><tr><td>2</td><td>Freeze capacity-tested hypothetical-close economics.</td><td>collections-timing, pricing-renewals, service-automation</td><td>121,618</td><td>86,335</td></tr><tr><td>3</td><td>Separate authored ownership-review challenge lowers base-case pricing capture to 50%; retained costs and capacity schedule remain explicit. This is not an estimate learned from three constructed accounting observations.</td><td>collections-timing, pricing-renewals, service-automation</td><td>82,933</td><td>53,023</td></tr><tr><td>4</td><td>Apply source rights, bounded terms and vendor commitments to each allocated population.</td><td>collections-timing, pricing-renewals, service-automation</td><td>-37,699</td><td>-54,934</td></tr><tr><td>5</td><td>Replace the authored pricing partition with one mutually exclusive alternative; do not reassign historical claims.</td><td>collections-timing, pricing-targeted, service-automation</td><td>-28,165</td><td>-46,890</td></tr><tr><td>6</td><td>Remove unsupported vendor release evidence and retain the adverse forecast for review.</td><td>collections-timing, pricing-targeted, service-automation</td><td>-163,165</td><td>-181,890</td></tr></tbody></table></div></section><section class='panel' id='allocation'><h2>One economic pool, explicit choices</h2><p><strong>Calculation selection:</strong> recorded policy. collections-timing; pricing-targeted; service-automation.</p><p><strong>Recorded selection:</strong> collections-timing; pricing-targeted; service-automation. Research scenario selects pricing-targeted across the eligible cohort instead of two population partitions. This changes proposed scope; it does not move earlier claims or authorize customer actions.</p><p>A calculation override does not amend the recorded policy or authorize work. Save a reviewed case revision to record a different decision.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.'><table><caption class='table-caption'>Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.</caption><thead><tr><th scope='col'>Economic pool / rule</th><th scope='col'>Member</th><th scope='col'>Population share</th><th scope='col'>Calculation scope</th><th scope='col'>Owner / rationale / challenge</th></tr></thead><tbody><tr><td>renewal-cohort / exclusive</td><td>pricing-renewals</td><td>100.0%</td><td>Excluded</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>renewal-cohort / exclusive</td><td>pricing-targeted</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>support-vendor-spend / exclusive</td><td>service-automation</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>existing-receivables / exclusive</td><td>collections-timing</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr></tbody></table></div><p>Shares describe authored population scope. They are not probabilities or attribution of realized earnings.</p><details><summary>Cost explanation: shared-foundation</summary><p>Proposed finance and commercial reviewers: Equal explanatory cost shares across four candidates. The full committed posting survives exclusion; no causal attribution. Challenge: Overlapping customer populations, unsupported rights or an unapproved intervention design.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.'><table><caption class='table-caption'>Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.</caption><thead><tr><th scope='col'>Date</th><th scope='col'>Owner</th><th scope='col'>Component</th><th scope='col'>Allocated amount</th></tr></thead><tbody><tr><td>2026-10-05</td><td>collections-timing</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-renewals</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-targeted</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>service-automation</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>collections-timing</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-renewals</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-targeted</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>service-automation</td><td>operating_cash</td><td>-6,250.00</td></tr></tbody></table></div></details></section><section class='panel' id='evidence'><h2>Review the decision and its limits</h2><p>Population shares do not allocate historical financial claims. A blocked or excluded share is not reassigned automatically. Shared commitments are posted once, with a separate explanation of ownership.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Compared before and after the saved source and selection revisions.'><table><caption class='table-caption'>Compared before and after the saved source and selection revisions.</caption><thead><tr><th scope='col'>Continuity check</th><th scope='col'>Result</th></tr></thead><tbody><tr><td>baseline</td><td>Preserved</td></tr><tr><td>observations</td><td>Preserved</td></tr><tr><td>attributions</td><td>Preserved</td></tr></tbody></table></div><p><a href='allocation-review.json'>Complete case history and accounting comparison</a> · <a href='allocation-sources.html'>Current source constraints</a> · <a href='allocation-memo.html'>Executive memo</a></p><p><a href='allocation-underwriting.html'>Original allocation assumptions</a> · <a href='allocation-operating-plan.html'>Original capacity plan</a> · <a href='lineage-review.html'>Separate initiative split/merge exercise</a></p><p>This is a separate authored decision exercise. Its simulated reviews do not establish a company sponsor, independent finance validation, operating approval or real pilot outcomes.</p></section></main></body></html>

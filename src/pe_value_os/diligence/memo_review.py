@@ -14,7 +14,7 @@ from .models import Record
 from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan, fingerprint
 from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
-from .underwriting import UnderwritingCase
+from .underwriting_models import UnderwritingModel
 
 
 class MemoReviewContext(Record):
@@ -53,6 +53,8 @@ class MemoReviewContext(Record):
                 current.draft.payload, LineageCasePayload
             ):
                 raise ValueError("lineage history cannot be discarded")
+            if a.schema_version == 2 and b.schema_version != 2:
+                raise ValueError("allocation policy cannot be discarded")
             if isinstance(current.draft.payload, LineageCasePayload):
                 current.draft.payload.bind_parent(prior, current.draft.effective_on)
             basis = source_payload(current.draft.payload)
@@ -106,7 +108,7 @@ class MemoReviewContext(Record):
 
 
 def challenge_options(
-    context: MemoReviewContext, original: UnderwritingCase, plan: OperatingPlan, options: list[dict[str, Any]]
+    context: MemoReviewContext, original: UnderwritingModel, plan: OperatingPlan, options: list[dict[str, Any]]
 ) -> dict[str, Any]:
     first, parent, latest = context.revisions[0], context.revisions[-2], context.revisions[-1]
     if fingerprint(first.draft.payload.underwriting) != fingerprint(original) or not any(
@@ -140,7 +142,7 @@ def challenge_options(
             }
         )
         raw_sources = payload.operating_sources.model_dump(mode="json")
-        source_binding = raw_sources["records"] if raw_sources["schema_version"] == 2 else raw_sources
+        source_binding = raw_sources["records"] if raw_sources["schema_version"] in {2, 3} else raw_sources
         source_binding["plan_sha256"] = fingerprint(proposed)
         sources: OperatingBook = TypeAdapter(OperatingBook).validate_python(raw_sources)
         candidate = SourceCasePayload.model_validate(

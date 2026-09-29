@@ -14,7 +14,7 @@ from .memo_review import MemoReviewContext, challenge_options
 from .models import FactBundle, Record
 from .peers import PeerContext, analyze_peers
 from .scheduling import OperatingPlan, evaluate_plan, fingerprint
-from .underwriting import UnderwritingCase
+from .underwriting_models import UnderwritingModel
 from .valuation import ValuationSpec, analyze_valuation
 
 
@@ -80,7 +80,7 @@ def assemble_memo(
     facts: FactBundle,
     growth: GrowthContext,
     peers: PeerContext,
-    underwriting: UnderwritingCase,
+    underwriting: UnderwritingModel,
     plan: OperatingPlan,
     balances: BalanceBundle,
     valuation: ValuationSpec,
@@ -185,7 +185,9 @@ def assemble_memo(
         status = review["status"]
     # The reported and incremental layers are intentionally separate objects. No sum is emitted.
     return {
-        "memo_version": "executive-decision-packet/5"
+        "memo_version": "executive-decision-packet/6"
+        if underwriting.schema_version == 2
+        else "executive-decision-packet/5"
         if review and "lineage_review" in review["latest_financials"]
         else "executive-decision-packet/4"
         if review and "exit_review" in review["latest_financials"]

@@ -87,6 +87,10 @@ class LineageCasePayload(Record):
 
     @property
     def underwriting(self) -> UnderwritingCase:
+        if not isinstance(self.source_basis.underwriting, UnderwritingCase):
+            raise ValueError(
+                "physical split/merge lineage requires disjoint source ownership, not alternative pool shares"
+            )
         return self.source_basis.underwriting
 
     @property

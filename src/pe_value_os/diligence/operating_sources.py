@@ -14,6 +14,7 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
+from .interactions import InteractionCase
 from .models import Record
 from .scheduling import OperatingPlan, evaluate_plan, fingerprint
 from .underwriting import (
@@ -30,6 +31,7 @@ from .underwriting import (
     month_start,
     totals,
 )
+from .underwriting_models import UnderwritingModel
 
 VERSION = "operating-source-forecast/1"
 ZERO = Decimal(0)
@@ -165,14 +167,22 @@ class OperatingSourceBook(Record):
             raise ValueError("invoice did not exist at the source cutoff")
         return self
 
-    def bind(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+    def bind(self, case: UnderwritingModel, plan: OperatingPlan) -> None:
         self.bind_scope(case, plan)
         for scenario in case.scenarios:
             if sorted(d.kind for d in scenario.drivers) != ["collections", "pricing", "service"]:
                 raise ValueError("this source adapter requires one pricing, service and collections driver")
 
-    def bind_scope(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+    def bind_scope(self, case: UnderwritingModel, plan: OperatingPlan) -> None:
         """Shared scope checks; the v1 adapter additionally requires one driver of each kind."""
+        if case.schema_version != 1:
+            raise ValueError(
+                "allocation cases require an explicit source-pool adapter; legacy ownership cannot infer shares"
+            )
+        self.bind_common(case, plan)
+
+    def bind_common(self, case: UnderwritingModel, plan: OperatingPlan) -> None:
+        """Identity, dates and source-mechanism checks shared by explicit adapters."""
         plan.bind(case)
         case.require_public()
         if (self.case_id, self.company, self.currency, self.underwriting_sha256, self.plan_sha256) != (
@@ -234,7 +244,7 @@ class PartitionedSourceBook(Record):
             raise ValueError("partition must bind each exact source record")
         return self
 
-    def bind(self, case: UnderwritingCase, plan: OperatingPlan) -> None:
+    def bind(self, case: UnderwritingModel, plan: OperatingPlan) -> None:
         self.records.bind_scope(case, plan)
         kinds = {d.initiative_id: d.kind for d in case.scenarios[0].drivers}
         expected = {"renewal": "pricing", "service_month": "service", "invoice": "collections"}
@@ -244,11 +254,56 @@ class PartitionedSourceBook(Record):
             raise ValueError("partition source kind must match its initiative mechanism")
 
 
-OperatingBook = OperatingSourceBook | PartitionedSourceBook
+class PoolRecordAssignment(Record):
+    kind: Literal["renewal", "service_month", "invoice"]
+    record_id: str = Field(min_length=1)
+    record_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    pool_id: str = Field(min_length=1)
+
+
+class AllocatedSourceBook(Record):
+    """Each complete record belongs to one pool; policy partitions apply within it."""
+
+    schema_version: Literal[3]
+    records: OperatingSourceBook
+    pool_ids: tuple[str, ...] = Field(min_length=1)
+    assignments: tuple[PoolRecordAssignment, ...] = Field(min_length=1)
+    allocation_rationale: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def complete_pools(self) -> Self:
+        if len(set(self.pool_ids)) != len(self.pool_ids) or any(not p for p in self.pool_ids):
+            raise ValueError("source pool manifest requires unique nonempty identities")
+        if not {a.pool_id for a in self.assignments} <= set(self.pool_ids):
+            raise ValueError("source assignment references an undeclared pool")
+        rows = operating_records(self.records)
+        keys = [(a.kind, a.record_id) for a in self.assignments]
+        if len(set(keys)) != len(keys) or set(keys) != set(rows):
+            raise ValueError("allocation must assign every complete source record to one pool exactly once")
+        if any(fingerprint(rows[(a.kind, a.record_id)]) != a.record_sha256 for a in self.assignments):
+            raise ValueError("allocation must bind each exact source record")
+        return self
+
+    def bind(self, case: UnderwritingModel, plan: OperatingPlan) -> None:
+        if not isinstance(case, InteractionCase):
+            raise ValueError("source pool allocation requires an explicit interaction policy")
+        self.records.bind_common(case, plan)
+        kinds = {
+            p.pool_id: {d.kind for d in case.scenarios[0].drivers if d.benefit_pool == p.pool_id}
+            for p in case.interaction_policy.pools
+        }
+        if set(self.pool_ids) != set(kinds):
+            raise ValueError("source manifest must cover every economic pool and no unknown pool")
+        expected = {"renewal": "pricing", "service_month": "service", "invoice": "collections"}
+        if any(kinds[a.pool_id] != {expected[a.kind]} for a in self.assignments):
+            raise ValueError("source pool members must share the record's economic mechanism")
+
+
+OperatingBook = OperatingSourceBook | PartitionedSourceBook | AllocatedSourceBook
 
 
 def source_records(book: OperatingBook) -> OperatingSourceBook:
-    return book.records if isinstance(book, PartitionedSourceBook) else book
+    return book if isinstance(book, OperatingSourceBook) else book.records
 
 
 def _row_ledger(
@@ -280,8 +335,15 @@ def _row_ledger(
     return tuple(e.model_copy(update={"reference": reference}) for e in entries)
 
 
-def source_forecast(book: OperatingBook, case: UnderwritingCase, plan: OperatingPlan) -> dict[str, Any]:
+def source_forecast(book: OperatingBook, case: UnderwritingModel, plan: OperatingPlan) -> dict[str, Any]:
     book.bind(case, plan)
+    if isinstance(book, AllocatedSourceBook):
+        from .interaction_sources import allocated_source_forecast
+
+        assert isinstance(case, InteractionCase)
+        return allocated_source_forecast(book, case, plan)
+    if not isinstance(case, UnderwritingCase):
+        raise ValueError("legacy source adapter requires legacy underwriting")
     records = source_records(book)
     partitioned = isinstance(book, PartitionedSourceBook)
     owners: dict[tuple[str, str], str] = (

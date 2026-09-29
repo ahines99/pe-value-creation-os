@@ -23,7 +23,7 @@ from .close_baseline import CloseBaseline, CloseBaselineRequest
 from .models import Record
 from .realization import Allocation, AttributionRequest, ClaimEvidence, ObservationRequest, SourceBook
 from .scheduling import OperatingPlan, fingerprint
-from .underwriting import UnderwritingCase
+from .underwriting_models import UnderwritingModel, parse_underwriting, read_underwriting
 from .underwriting_render import amount
 
 
@@ -54,7 +54,7 @@ class RealizationExercise(Record):
 
 
 def demonstrate_realization(
-    case: UnderwritingCase,
+    case: UnderwritingModel,
     plan: OperatingPlan,
     exercise: RealizationExercise,
     execution_replay: Callable[[Repository, InvestmentCase, CloseBaseline], dict[str, Any]] | None = None,
@@ -189,7 +189,7 @@ def demonstrate_realization(
                     next(a for a in scenario["assumptions"] if a["assumption_id"] == "capture").update(
                         value=str(exercise.current_forecast_capture), rationale=exercise.current_forecast_rationale
                     )
-            current_case = UnderwritingCase.model_validate(updated)
+            current_case = parse_underwriting(updated)
             current_plan = OperatingPlan.model_validate(
                 {**plan.model_dump(mode="json"), "underwriting_sha256": fingerprint(current_case)}
             )
@@ -421,7 +421,7 @@ def build_realization_demo(underwriting: Path, operating_plan: Path, exercise_pa
     if sources & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("report must not overwrite its sources")
     report = demonstrate_realization(
-        UnderwritingCase.model_validate_json(underwriting.read_bytes()),
+        read_underwriting(underwriting.read_bytes()),
         OperatingPlan.model_validate_json(operating_plan.read_bytes()),
         RealizationExercise.model_validate_json(exercise_path.read_bytes()),
     )

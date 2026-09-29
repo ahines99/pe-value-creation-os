@@ -14,7 +14,8 @@ from ..api.presentation import CSS
 from ..research.render import table as financial_table
 from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan
-from .underwriting import UnderwritingCase
+from .underwriting_models import read_underwriting
+from .underwriting_render import render_allocation
 
 
 def money(value: Any) -> str:
@@ -34,7 +35,8 @@ def render_sources(report: dict[str, Any], download: str) -> str:
     base = next(s for s in report["scenarios"] if s["scenario_id"] == "base")
     reference = {s["scenario_id"]: s for s in report["reference_forecast"]["scenarios"]}
     source_book = report["source_book"]
-    book = source_book["records"] if source_book["schema_version"] == 2 else source_book
+    book = source_book["records"] if source_book["schema_version"] in {2, 3} else source_book
+    allocated = source_book["schema_version"] == 3
     renewals = [d for d in base["decisions"] if d["kind"] == "renewal"]
     invoices = [d for d in base["decisions"] if d["kind"] == "invoice"]
     missed = sum((d["monthly_revenue"] for d in renewals if d["reason"] == "Notice deadline missed"), Decimal(0))
@@ -79,6 +81,9 @@ def render_sources(report: dict[str, Any], download: str) -> str:
             "Complete, disjoint ownership. A split cannot copy a contract, invoice or whole service/vendor month into two benefit claims.",
         )
         body += "</section>"
+    if allocated:
+        body += render_allocation(report)
+        body += "<section class='panel'><h2>One record per economic pool</h2><p>Rows below are member evaluations of a single source record. Monetary exposure is scaled by the selected population share; excluded alternatives show zero effective exposure. Evaluation counts are not distinct contract counts.</p></section>"
     body += "<section class='panel' id='decision'><h2>What changed the decision</h2>"
     body += (
         table(
@@ -91,7 +96,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
                 ],
                 [
                     "Rights, caps and bounded recognition terms",
-                    f"{len(eligible)} of {len(renewals)} contracts meet the modeled conditions",
+                    f"{len(eligible)} of {len(renewals)} {'member evaluations' if allocated else 'contracts'} meet the modeled conditions",
                     "Reconcile rights, concessions, retained units and revenue recognition by term",
                 ],
                 [
@@ -129,7 +134,12 @@ def render_sources(report: dict[str, Any], download: str) -> str:
                 ]
                 for s in report["scenarios"]
             ],
-            "All original costs remain. Source controls cover only the authored population. Low/base/high are judgmental scenarios, not probabilities. No exit multiple is applied to expiring or unreviewed benefits.",
+            (
+                "Selected work keeps its costs; explicitly avoidable costs of excluded work are removed and retained commitments remain once. "
+                if allocated
+                else "All original costs remain. "
+            )
+            + "Source controls cover only the authored population. Low/base/high are judgmental scenarios, not probabilities. No exit multiple is applied to expiring or unreviewed benefits.",
         )
         + "</section>"
     )
@@ -139,7 +149,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
             ["Record", "Monthly revenue", "Renewal / term end", "Modeled notice / deadline", "Base disposition"],
             [
                 [
-                    escape(d["record_id"]),
+                    escape(d["record_id"]) + ("<br>" + escape(d["initiative_id"]) if allocated else ""),
                     money(d["monthly_revenue"]),
                     f"{d['renewal_on']} / {d['term_ends_on']}",
                     f"{d['notice_on']} / {d['notice_deadline']}",
@@ -158,7 +168,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
             ["Month", "Modeled net hours / full month", "Releasable spend cap", "Spend available from", "Disposition"],
             [
                 [
-                    str(d["month"]),
+                    str(d["month"]) + ("<br>" + escape(d["initiative_id"]) if allocated else ""),
                     money(d.get("net_full_month_hours", 0)) if "net_full_month_hours" in d else "Unavailable",
                     money(d["monthly_cost_action_cap"]) if "monthly_cost_action_cap" in d else "Unavailable",
                     str(d.get("spend_release_from") or "Unavailable"),
@@ -176,7 +186,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
             ["Invoice", "Open / disputed", "Undisputed balance", "Acceleration / original date", "Disposition"],
             [
                 [
-                    escape(d["record_id"]),
+                    escape(d["record_id"]) + ("<br>" + escape(d["initiative_id"]) if allocated else ""),
                     f"{money(d['open_balance'])} / {money(d['disputed'])}",
                     money(d["eligible_balance"]),
                     f"{d['accelerated_on']} / {d['counterfactual_on']}",
@@ -225,7 +235,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
     for label in ("book_sha256", "underwriting_sha256", "plan_sha256", "report_sha256"):
         body += f"<p>{escape(label)} <code>{escape(report[label])}</code></p>"
     body += "</details></section>"
-    return (
+    rendered = (
         "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
         f"<title>Operating source challenge — {escape(report['company'])}</title><style>{CSS}</style></head><body>"
         "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
@@ -233,6 +243,11 @@ def render_sources(report: dict[str, Any], download: str) -> str:
         "<a class='nav-link' href='#decision'>Decision</a><a class='nav-link' href='#contracts'>Contracts</a><a class='nav-link' href='#sources'>Evidence</a></nav></div></header>"
         f"<main class='app-shell' id='main' tabindex='-1'>{body}</main></body></html>"
     )
+    if allocated:
+        rendered = rendered.replace("href='operating-plan.html'", "href='allocation-operating-plan.html'").replace(
+            "href='decision-memo.html'", "href='allocation-memo.html'"
+        )
+    return rendered
 
 
 def build_sources_report(source: Path, underwriting: Path, plan: Path, output: Path) -> Path:
@@ -240,7 +255,7 @@ def build_sources_report(source: Path, underwriting: Path, plan: Path, output: P
     if {p.resolve() for p in (source, underwriting, plan)} & {html_path.resolve(), json_path.resolve()}:
         raise ValueError("source report must not overwrite an input")
     book: OperatingBook = TypeAdapter(OperatingBook).validate_json(source.read_bytes())
-    case = UnderwritingCase.model_validate_json(underwriting.read_bytes())
+    case = read_underwriting(underwriting.read_bytes())
     proposed = OperatingPlan.model_validate_json(plan.read_bytes())
     report = source_forecast(book, case, proposed)
     html = render_sources(report, json_path.name)
