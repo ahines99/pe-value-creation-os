@@ -49,6 +49,9 @@ def main() -> None:
         "allocation-plan": "/portfolio/allocation-operating-plan.html",
         "allocation-sources": "/portfolio/allocation-sources.html",
         "allocation-memo": "/portfolio/allocation-memo.html",
+        "allocated-lineage": "/portfolio/allocation-lineage-review.html",
+        "allocated-lineage-sources": "/portfolio/allocation-lineage-sources.html",
+        "allocated-lineage-memo": "/portfolio/allocation-lineage-memo.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -256,6 +259,16 @@ def main() -> None:
                         page.locator("main").focus()
                         page.locator("#bridge").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"exit-bridge-{width}.png"))
+                if name == "allocated-lineage":
+                    text = page.locator("#kpi-history").inner_text()
+                    assert "3.40%" in text and "Withheld: missing current population" in text
+                    assert "Unavailable; needs a new scoped reading" in text
+                    assert "pricing-recombined" in text
+                    payload = page.request.get(base + "/portfolio/allocation-lineage-review.json").json()
+                    assert payload["version"] == "constructed-realization/4"
+                    assert len(payload["revisions"]) == 12 and payload["actual_company_realized_value"] is None
+                    if width in (1440, 375):
+                        page.locator("#kpi-history").screenshot(path=str(output / f"allocated-kpis-{width}.png"))
                 if name == "lineage-review":
                     assert "Ten revisions" in page.locator("#history").inner_text()
                     assert "pricing-spring" in page.locator("#lineage").inner_text()

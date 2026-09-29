@@ -30,6 +30,19 @@ and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
 
+The subsequent [twelve-revision shared-pool lifecycle](allocation-lineage-review.html)
+and [memo](allocation-lineage-memo.html) compose allocation policy with initiative
+and scoped KPI history (ADR 0028). Its selected 60% population splits into 24% and
+36%, retains target/read corrections and recombines without moving frozen claims.
+`test_allocated_lineage.py` covers worked measurements, semantic tampering,
+PostgreSQL/API persistence, audit rollback, access/approval boundaries and exit
+composition. The extended bundle checker adds eight conditions, and browser
+coverage now includes 27 pages at three widths. This closes the allocated-population
+composition gap; automatic conversion of physical ownership and grouped exclusive
+alternatives remain deliberately unsupported. Independent review and a performed
+pilot remain absent. Older counts and open-item wording below describe their
+specific earlier increments, not this version.
+
 The current allocation increment adds a separate [six-revision review](allocation-review.html)
 and [executive memo](allocation-memo.html). `test_benefit_interactions.py`,
 `test_interaction_workflow.py`, `test_interaction_sources.py` and

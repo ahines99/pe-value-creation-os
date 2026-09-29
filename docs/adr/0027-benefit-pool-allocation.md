@@ -59,6 +59,10 @@ alternative pool shares to physical split/merge ancestry. Composing overlapping
 allocation policies with historical KPI lineage requires an additional explicit
 mapping design; this increment does not infer one.
 
+Subsequent implementation: [ADR 0028](0028-allocated-kpi-lineage.md) adds an explicit
+allocated-population lineage contract without converting the physical schema 4
+history or changing this six-revision example.
+
 ## Reviewable example
 
 The separate [six-revision allocation review](../portfolio/allocation-review.html)

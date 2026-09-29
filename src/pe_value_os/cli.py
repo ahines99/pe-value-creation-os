@@ -340,6 +340,7 @@ def cmd_allocation_demo(args: argparse.Namespace) -> int:
             Path(args.exercise),
             Path(args.sources),
             Path(args.output),
+            include_lineage=args.include_lineage,
         )
     except (ValueError, OSError) as exc:
         print(
@@ -645,6 +646,11 @@ def build_parser() -> argparse.ArgumentParser:
         allocation.add_argument("--" + flag, required=True)
     allocation.add_argument("--output", default="var/allocation-review/report")
     allocation.set_defaults(fn=cmd_allocation_demo)
+    allocation.add_argument(
+        "--include-lineage",
+        action="store_true",
+        help="extend the saved allocation exercise with scoped KPI splits, corrections and merges",
+    )
 
     public = sub.add_parser("public-diligence", help="reconcile public filing facts and render a sourced baseline")
     public.add_argument("--input", required=True, help="public fact bundle JSON (private sources rejected)")

@@ -6,6 +6,30 @@ recommendations. Reviewed code: `8a6a540`; released application code: `31ebfe9`.
 Implementation began September 28, 2026. The progress ledger below distinguishes
 delivered increments from the remaining acceptance criteria.
 
+## Current completion sequence — September 28, 2026
+
+The shared-pool/KPI composition is now implemented
+([ADR 0028](adr/0028-allocated-kpi-lineage.md)). The new
+[twelve-revision review](portfolio/allocation-lineage-review.html) and
+[current memo](portfolio/allocation-lineage-memo.html) are generated; exact release
+acceptance is recorded in the pull request and CI. The earlier allocation and disjoint-lineage examples remain
+unchanged. The five-outcome goal is still active.
+
+| Next work | Owner | Completion evidence |
+|---|---|---|
+| Verify each shared-pool lifecycle release | Codex | Full regressions, PostgreSQL/API checks, exact artifact reproduction, responsive browser review and passing release CI |
+| Close the remaining public-case research disposition | Codex | Every organic/perimeter, amortization and comparable-definition question resolved from permitted evidence or explicitly withheld with its effect on the recommendation |
+| Final executive and technical showcase acceptance | Codex | A concise case study, reproducible guided walkthrough, complete acceptance map, consistent memo/forecast and explicit limitations; internal review clearly identified |
+| Prepare and test the private pilot lane | Codex | Minimized data request, source mapping/reconciliation, accountable review gates, bounded intervention, rollback and measurement worksheets tested on permitted fixtures |
+| Obtain a sponsor and actual operating decisions | Alex and the sponsor | An authorized company/data owner, named finance and operating reviewers, permitted records and a bounded pilot agreement |
+| Run and evaluate the permissioned pilot | Codex supports; company operators authorize and execute | Reconciled baseline, actual accepted work, observed periods, reviewed attribution and an honest outcome report |
+
+No additional credentials or preferences are needed now. Codex owns routine
+implementation, evidence review, test work, documentation and release preparation.
+Alex's necessary external dependency is a sponsor introduction when available;
+outreach is not sent without instructions. An independent practitioner review can
+strengthen the case but cannot be replaced by a simulated or agent-authored review.
+
 ## Implementation progress — September 28, 2026
 
 The five-outcome goal remains active. No sponsor is available yet; Alex requested

@@ -431,11 +431,16 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         + body
         + "</main></body></html>"
     )
-    if report["memo_version"] == "executive-decision-packet/6":
+    if report["memo_version"] in {"executive-decision-packet/6", "executive-decision-packet/7"}:
         for previous, current in (
             ("underwriting", "allocation-underwriting"),
             ("operating-plan", "allocation-operating-plan"),
-            ("case-history", "allocation-review"),
+            (
+                "case-history",
+                "allocation-lineage-review"
+                if report["memo_version"] == "executive-decision-packet/7"
+                else "allocation-review",
+            ),
         ):
             rendered = rendered.replace(f"href='{previous}.html'", f"href='{current}.html'")
     return rendered
