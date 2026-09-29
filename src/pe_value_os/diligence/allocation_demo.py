@@ -23,6 +23,26 @@ from .source_revisions import SourceCasePayload
 from .underwriting_render import amount, render_allocation
 
 
+def validate_demo_selection(case: InteractionCase) -> tuple[str, str]:
+    """This authored narrative is intentionally narrower than the general engine."""
+    partitions = [p for p in case.interaction_policy.pools if p.mode == "partition"]
+    if len(partitions) != 1 or len(partitions[0].initiative_ids) != 2:
+        raise ValueError("allocation walkthrough requires its authored two-member pricing partition")
+    rule = partitions[0]
+    primary, alternative = rule.initiative_ids
+    shares = {s.initiative_id: s.share for s in rule.shares}
+    selected = set(case.interaction_policy.selected_initiatives)
+    if (
+        shares != {primary: Decimal(".6"), alternative: Decimal(".4")}
+        or primary not in selected
+        or alternative in selected
+        or any(d.kind != "pricing" for d in case.scenarios[0].drivers if d.benefit_pool == rule.pool_id)
+        or any(len(p.initiative_ids) != 1 for p in case.interaction_policy.pools if p != rule)
+    ):
+        raise ValueError("allocation walkthrough requires the authored 60% selected / 40% deferred pricing scope")
+    return primary, alternative
+
+
 def bind_sources(records: OperatingSourceBook, case: InteractionCase, plan: OperatingPlan) -> AllocatedSourceBook:
     """Author one exact record-to-pool assignment for this three-mechanism exercise."""
     by_kind: dict[str, set[str]] = {}
@@ -182,7 +202,7 @@ def render_allocation_demo(report: dict[str, Any], download: str) -> str:
     )
     body = (
         "<section class='hero'><div><p class='eyebrow'>Constructed operating decision / Allocation review</p>"
-        "<h1>One pool. An explicit choice.</h1><p class='page-subtitle'>Population shares, competing initiatives and retained commitments</p>"
+        f"<h1>One pool. An explicit choice.</h1><p class='page-subtitle'>{escape(report['currency'])} · Population shares, competing initiatives and retained commitments</p>"
         "<p>Two pricing approaches have authored 60% and 40% shares. The 40% alternative is initially deferred because both do not fit the original capacity budgets. A later research revision chooses one competing policy for the full eligible cohort.</p>"
         f"</div><aside class='hero-aside'><span class='metric-label'>Current research decision</span><p>{decision} "
         "No company operation or independent review is represented.</p></aside></section><div class='metrics-grid'>"
@@ -260,6 +280,12 @@ def build_allocation_demo(
     exercise = RealizationExercise.model_validate_json(exercise_path.read_bytes())
     book = AllocatedSourceBook.model_validate_json(sources.read_bytes())
     book.bind(case, plan)
+    _, alternative = validate_demo_selection(case)
+    challenge = evaluate_plan(plan, case, selected=frozenset(d.initiative_id for d in case.scenarios[0].drivers))
+    if not any(t["initiative_id"] == alternative and t["status"] == "blocked" for t in challenge["tasks"]):
+        raise ValueError(
+            "allocation walkthrough requires a demonstrated capacity constraint on the deferred alternative"
+        )
     paths = (
         output.with_suffix(".html"),
         output.with_suffix(".json"),
@@ -273,7 +299,6 @@ def build_allocation_demo(
     report = demonstrate_realization(
         case, plan, exercise, revision_replay=lambda r, c, b: replay_allocation(r, c, b, book)
     )
-    challenge = evaluate_plan(plan, case, selected=frozenset(d.initiative_id for d in case.scenarios[0].drivers))
     report["initial_capacity_challenge"] = {
         "blocked_tasks": [t["task_id"] for t in challenge["tasks"] if t["status"] == "blocked"],
         "report_sha256": challenge["report_sha256"],

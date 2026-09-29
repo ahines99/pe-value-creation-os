@@ -9,8 +9,9 @@ from scripts.build_allocation_example import examples
 from scripts.check_allocation_review import check_allocation
 
 from pe_value_os.cli import main
-from pe_value_os.diligence.allocation_demo import build_allocation_demo, render_allocation_demo
+from pe_value_os.diligence.allocation_demo import build_allocation_demo, render_allocation_demo, validate_demo_selection
 from pe_value_os.diligence.cases import CaseRevision, digest
+from pe_value_os.diligence.interactions import InteractionCase
 from pe_value_os.diligence.memo import assemble_memo
 from pe_value_os.diligence.memo_render import render_memo
 from pe_value_os.diligence.memo_review import MemoReviewContext
@@ -28,6 +29,11 @@ def test_authored_inputs_reproduce_exactly_and_preserve_resource_budgets():
     old = json.loads((ROOT / "operating-plan.json").read_text(encoding="utf-8"))
     assert authored["allocation-plan"].model_dump(mode="json")["resources"] == old["resources"]
     assert authored["allocation-plan"].maximum_active_workstreams == old["maximum_active_workstreams"]
+    raw = authored["allocation-underwriting"].model_dump(mode="json")
+    pool = next(p for p in raw["interaction_policy"]["pools"] if p["mode"] == "partition")
+    pool["shares"][0]["share"] = ".5"
+    with pytest.raises(ValueError, match="60% selected"):
+        validate_demo_selection(InteractionCase.model_validate(raw))
 
 
 def test_installed_command_replays_choices_and_memo_without_reassigning_history(tmp_path):
