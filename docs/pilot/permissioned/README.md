@@ -9,6 +9,12 @@ Start with the shareable [sponsor brief](sponsor-brief.md). Use the
 [kickoff worksheet](kickoff-worksheet.md) once a prospective sponsor is identified.
 Both are discussion materials; neither represents authorization or participation.
 
+An executable [private ledger preflight](intake-preflight.md) now checks scoped
+monthly exports against file fingerprints, mappings and control totals using
+fictional fixtures. A pass means ready for finance review, not authorized or
+admitted. Persistent private ingestion and the existing pilot entry gates remain
+outstanding.
+
 ### Who does what next
 
 | Stage | Codex / project preparation | Alex | Sponsor / company |

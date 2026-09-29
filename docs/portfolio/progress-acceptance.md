@@ -41,6 +41,17 @@ passed: 1,176 tests on each supported Python version, 84 browser checks,
 matched the merge. Both briefs now expose all four supplied annual/interim
 amortization exceptions. Their causes and independent finance review remain open.
 
+The executive walkthrough and interview guide were released in
+[PR #40](https://github.com/ahines99/pe-value-creation-os/pull/40), tested at
+`25775e8294cf180baad6d6da3ba3e42e34f83d20` and merged as
+`34c75f5ff46a0f83ac8dc73044e753de7789d858` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36626437331)
+passed: 1,176 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Sixteen published
+files matched the merge, including the primary route, screenshots and guides.
+The browser suite checks the route's six destinations and binds the landing
+conclusion to the saved memo. Observed human comprehension remains unperformed.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -132,7 +143,7 @@ proof of correctness or completion.
 | Feasible plan | Resource/dependency conflicts change dated schedule and economics; missing prerequisites block work | Assumed budgets cannot establish actual management capacity |
 | Version and authority | Immutable revisions, exact-hash receipts, scoped access, simulation labels and preserved frozen close | Split/merge and KPI history implemented for disjoint ownership and explicit shared-pool scopes; no simulated review becomes human authority |
 | Executive challenge | Recomputed alternatives, visible contrary evidence, internal adversarial tests and prepared review prompts | No observed comprehension or external score; do not call this practitioner-reviewed |
-| Usability and publication | 27 pages × three widths in PR #36; keyboard and disclosure checks; rendered memo/JSON consistency | Final guided-route acceptance remains; browser automation does not establish accessibility certification or human usability acceptance |
+| Usability and publication | Historical PR #36: 27 pages × three widths. PR #40: 84 page/viewport checks, including the six-stop primary route, keyboard/disclosure checks and memo/JSON consistency; sixteen published files matched its merge | Automated route and publication acceptance verified; browser automation does not establish accessibility certification or observed human usability acceptance |
 | Honest outcome | Actual company value, proceeds and pilot result unavailable | Company participation and observed evidence are external prerequisites |
 
 ## Remaining work and ownership

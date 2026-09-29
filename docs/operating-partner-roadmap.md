@@ -33,8 +33,12 @@ passed, with 1,176 tests per supported Python version and 84 browser checks;
 nine published files matched the merge. Both executive adjustment registers
 have ten entries, including the four supplied annual/interim amortization
 exceptions. Their unexplained components remain unresolved and dependent
-earnings stay withheld. The executive entry and interview guide are prepared
-for their own release review; they do not establish practitioner acceptance.
+earnings stay withheld. The executive entry and interview guide are released in
+[PR #40](https://github.com/ahines99/pe-value-creation-os/pull/40), with ten CI jobs
+passed and sixteen published files verified against the merge. This does not
+establish practitioner acceptance. The private intake preflight is a subsequent
+implementation increment; admission, finance approval and pilot readiness remain
+open as detailed in the completion checklist.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|
