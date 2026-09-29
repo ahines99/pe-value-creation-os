@@ -32,6 +32,13 @@ and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
 
+The [financial-definition review](../research/operating-partner/08-financial-definition-review.md)
+records the outcome of the selected-source investigation: supported earnings and
+cash definitions, four source-period amortization exceptions and the related
+derived-quarter limit, retained expenses and historical valuation boundaries.
+Both decision briefs now expose the interim exceptions previously absent from the
+executive register. No unresolved component is relabeled or used to create an addback.
+
 The subsequent [accounting-restatement exhibit](accounting-restatement.html)
 compares independently retrieved original and amended FY2005 filings, reconciles
 17 financial rows per version and preserves the intervening non-reliance notice.
