@@ -9,6 +9,7 @@ Scope rules (both implementations):
 from __future__ import annotations
 
 import copy
+import hashlib
 import os
 import threading
 import uuid
@@ -56,6 +57,17 @@ from ..diligence.private_grants import (
 from ..diligence.private_grants import (
     validate_key as validate_grant_key,
 )
+from ..diligence.private_records import (
+    FinanceReview,
+    FinanceReviewRequest,
+    IntakeRequest,
+    PrivateIntake,
+    authorize_source,
+    prepare_intake,
+    require_finance_reviewer,
+    require_intake_writer,
+)
+from ..diligence.private_records import prepare_review as prepare_private_review
 from ..diligence.realization import (
     Attribution,
     AttributionRequest,
@@ -120,6 +132,18 @@ def now() -> datetime:
 
 
 class Repository(Protocol):
+    def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]: ...
+    def list_private_finance_reviews(self, company_id: str, intake_id: str) -> list[FinanceReview]: ...
+    def record_private_intake(
+        self, company_id: str, dataset_key: str, request: IntakeRequest, raw: bytes, environment_id: str
+    ) -> PrivateIntake: ...
+    def review_private_intake(
+        self, company_id: str, intake_id: str, request: FinanceReviewRequest, environment_id: str
+    ) -> FinanceReview: ...
+    def private_intake_source(
+        self, company_id: str, intake_id: str, environment_id: str, *, accepted_only: bool = False
+    ) -> bytes: ...
+
     def list_private_grants(self, company_id: str, grant_key: str) -> list[GrantEvent]: ...
 
     def record_private_grant(self, company_id: str, grant_key: str, request: GrantRequest) -> GrantEvent: ...
@@ -273,6 +297,142 @@ class InMemoryRepository:
         self.case_attributions: dict[str, Attribution] = {}
         self.case_execution_events: dict[str, ExecutionEvent] = {}
         self.private_processing_grants: dict[str, GrantEvent] = {}
+        self.private_intakes: dict[str, PrivateIntake] = {}
+        self.private_sources: dict[str, bytes] = {}
+        self.private_intake_reviews: dict[str, FinanceReview] = {}
+
+    def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]:
+        require_grant_reader(company_id)
+        validate_grant_key(dataset_key)
+        self.get_company(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_intakes.values()
+                    if r.company_id == company_id and r.dataset_key == dataset_key
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def _private_intake(self, company_id: str, intake_id: str) -> PrivateIntake:
+        require_grant_reader(company_id)
+        record = self.private_intakes.get(intake_id)
+        if record is None or record.company_id != company_id:
+            raise NotFound(intake_id)
+        return record
+
+    def list_private_finance_reviews(self, company_id: str, intake_id: str) -> list[FinanceReview]:
+        with self._lock:
+            self._private_intake(company_id, intake_id)
+            return sorted(
+                (
+                    r
+                    for r in self.private_intake_reviews.values()
+                    if r.company_id == company_id and r.intake_id == intake_id
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def record_private_intake(
+        self, company_id: str, dataset_key: str, request: IntakeRequest, raw: bytes, environment_id: str
+    ) -> PrivateIntake:
+        principal = require_intake_writer(company_id)
+        with self.approval_transaction():
+            records = self.list_private_intakes(company_id, dataset_key)
+            replay = next((r for r in records if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if (
+                    replay.request != request
+                    or replay.actor != principal.subject
+                    or replay.source_sha256 != hashlib.sha256(raw).hexdigest()
+                ):
+                    raise Conflict("Private intake idempotency key belongs to another request, source or actor")
+                return replay
+            previous = records[-1] if records else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private dataset changed; reload its current head")
+            record = prepare_intake(
+                company_id,
+                dataset_key,
+                request,
+                raw,
+                self.list_private_grants(company_id, request.grant_key),
+                previous,
+                environment_id,
+            )
+            self.private_intakes[record.intake_id] = record
+            self.private_sources[record.intake_id] = raw
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_intake",
+                    event_type="private_source_recorded",
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={
+                        "intake_id": record.intake_id,
+                        "sha256": record.content_sha256,
+                        "status": record.preflight.status,
+                    },
+                )
+            )
+            return record
+
+    def review_private_intake(
+        self, company_id: str, intake_id: str, request: FinanceReviewRequest, environment_id: str
+    ) -> FinanceReview:
+        principal = require_finance_reviewer(company_id)
+        with self.approval_transaction():
+            record = self._private_intake(company_id, intake_id)
+            reviews = self.list_private_finance_reviews(company_id, intake_id)
+            replay = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Private review idempotency key belongs to another request or actor")
+                return replay
+            if self.list_private_intakes(company_id, record.dataset_key)[-1].intake_id != intake_id:
+                raise Conflict("Private intake was superseded; review its replacement")
+            previous = reviews[-1] if reviews else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private finance review changed; reload its current head")
+            review = prepare_private_review(
+                record,
+                self.private_sources[intake_id],
+                request,
+                self.list_private_grants(company_id, record.request.grant_key),
+                previous,
+                environment_id,
+            )
+            self.private_intake_reviews[review.review_id] = review
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_intake",
+                    event_type="private_finance_" + request.decision,
+                    actor=review.actor,
+                    created_at=review.recorded_at,
+                    payload={"intake_id": intake_id, "review_id": review.review_id, "sha256": review.content_sha256},
+                )
+            )
+            return review
+
+    def private_intake_source(
+        self, company_id: str, intake_id: str, environment_id: str, *, accepted_only: bool = False
+    ) -> bytes:
+        with self.approval_transaction():
+            record = self._private_intake(company_id, intake_id)
+            return authorize_source(
+                record,
+                self.private_sources[intake_id],
+                self.list_private_grants(company_id, record.request.grant_key),
+                self.list_private_finance_reviews(company_id, intake_id),
+                self.list_private_intakes(company_id, record.dataset_key)[-1],
+                environment_id,
+                accepted_only=accepted_only,
+            )
 
     def list_private_grants(self, company_id: str, grant_key: str) -> list[GrantEvent]:
         require_grant_reader(company_id)
@@ -934,7 +1094,7 @@ class InMemoryRepository:
     # plans / approvals -------------------------------------------------------------------------------------
     @contextmanager
     def approval_transaction(self) -> Iterator[None]:
-        # Approval decisions mutate only these collections; no source/evidence object writes occur here.
+        # Private source bytes share the same rollback boundary as their receipts.
         with self._lock:
             fields = (
                 "runs",
@@ -950,6 +1110,9 @@ class InMemoryRepository:
                 "case_attributions",
                 "case_execution_events",
                 "private_processing_grants",
+                "private_intakes",
+                "private_sources",
+                "private_intake_reviews",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -1185,6 +1348,9 @@ class InMemoryRepository:
             self.kpi_obs = [o for o in self.kpi_obs if o.company_id != company_id]
             self.kpi_alerts = [a for a in self.kpi_alerts if a.company_id != company_id]
             self.notifications = [n for n in self.notifications if n.company_id != company_id]
+            private_ids = {k for k, v in self.private_intakes.items() if v.company_id == company_id}
+            counts["private_source_bytes"] = sum(len(self.private_sources[k]) for k in private_ids)
+            self.private_sources = {k: v for k, v in self.private_sources.items() if k not in private_ids}
             for name in (
                 "investment_cases",
                 "case_revisions",
@@ -1194,6 +1360,8 @@ class InMemoryRepository:
                 "case_attributions",
                 "case_execution_events",
                 "private_processing_grants",
+                "private_intakes",
+                "private_intake_reviews",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())

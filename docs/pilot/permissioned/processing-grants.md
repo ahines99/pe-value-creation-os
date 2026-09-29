@@ -2,7 +2,7 @@
 
 The private grant registry records a human data owner's decision about one exact
 intake policy, named operator subjects and one processing environment. It is a
-permission control for the forthcoming intake workflow, separate from finance
+permission control for the private intake workflow, separate from finance
 acceptance and authorization to change company operations.
 
 This implementation has been exercised with fictional test identities and
@@ -73,15 +73,16 @@ through the existing company deletion path and retains minimal audit history.
 That behavior does not establish legal-hold handling or deletion of every external
 file, replica or backup.
 
-## Remaining intake work
+## Intake integration and remaining work
 
 The standalone `pilot-intake-check` remains a preflight with all authorization
 flags false. It does not silently treat the presence of a grant as admission.
-The next increment must connect freshly loaded grant state to private source
-custody, persisted preflight/quarantine and correction history, with finance
-decisions bound to exact source/policy versions. That admission transaction must
-serialize against revocation. Retention/deletion for stored source bytes and
-integration with private case/actuals contracts also remain open.
+The subsequent [source-custody increment](intake-records.md) connects freshly
+loaded grant state to stored source bytes, preflight/quarantine, correction history
+and exact-version finance decisions. Its transactions serialize against revocation;
+its release gate is separate from this registry's release. Per-source expiry
+deletion, legal holds, copy/backup disposal and private case/actuals integration
+remain open. Whole-company offboarding removes stored source bytes and receipts.
 
 A real pilot still needs the sponsor, reviewers, approved environment and actual
 decisions specified in the [permissioned pilot package](README.md).

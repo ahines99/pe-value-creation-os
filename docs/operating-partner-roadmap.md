@@ -39,9 +39,13 @@ passed and sixteen published files verified against the merge. This does not
 establish practitioner acceptance. The private intake preflight is released in
 [PR #41](https://github.com/ahines99/pe-value-creation-os/pull/41), with ten CI jobs
 passed, 1,227 tests per supported Python version and six published files verified.
-The processing-grant registry is a subsequent implementation increment; source
-admission, finance approval and pilot readiness remain open as detailed in the
-completion checklist.
+The processing-grant registry is released in
+[PR #42](https://github.com/ahines99/pe-value-creation-os/pull/42), with ten CI jobs
+passed, 1,264 tests per supported Python version and seven published files verified.
+The subsequent [source-custody and finance-review increment](pilot/permissioned/intake-records.md)
+has local implementation and tests; its CI/publication acceptance is separate.
+Private financial-case integration, retention operations, real finance approval
+and pilot readiness remain open as detailed in the completion checklist.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|
