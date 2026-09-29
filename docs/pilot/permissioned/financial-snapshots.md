@@ -3,7 +3,7 @@
 This increment calculates and stores versioned monthly financial inputs from the
 [private source-custody workflow](intake-records.md). Each snapshot binds an exact
 intake, finance acceptance, processing grant, accounting-definition attestation
-and source hash. It has a separate CI/publication gate in the
+and source hash. PR #44 passed CI/publication acceptance as recorded in the
 [completion checklist](../../portfolio/remaining-work.md).
 
 Testing uses fictional records and identities. No company financial statements,
@@ -106,8 +106,10 @@ Audit failure rolls back the snapshot. A populated downgrade is blocked, even
 when the migration owner has no active company scope. Whole-company offboarding
 removes snapshots with their sources while retaining minimal audit events.
 
-The snapshot is a reusable financial input. Private underwriting scenarios,
-capacity-plan association, explicitly reviewed frozen baseline designation,
+The snapshot is a reusable financial input. The next [private underwriting
+increment](underwriting.md) adds explicit scenarios and source-bound forecast
+revisions, with its own release gate. Capacity-plan association, explicitly
+reviewed frozen baseline designation,
 same-scope counterfactual observations, attribution and executive memo composition
 still need integration. Merely subtracting two snapshot balances is not evidence
 of intervention impact. Source retention operations, actual company approvals,

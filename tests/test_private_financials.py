@@ -426,7 +426,7 @@ def test_financial_database_rls_immutability_and_populated_downgrade_guard(pg_re
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     grant, record, accepted = accepted_source(pg_repo)
     snapshot(pg_repo, record, accepted, grant)
@@ -444,6 +444,8 @@ def test_financial_database_rls_immutability_and_populated_downgrade_guard(pg_re
     options = dict(parse_qsl(parts.query))
     options["options"] = "-crole=pvc_migrator"
     owner_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(options), parts.fragment))
+    head = current(pg_database[0])
+    downgrade(pg_database[0], "0010")
     with psycopg.connect(pg_database[0], autocommit=True) as conn:
         owner = conn.execute(
             "select pg_get_userbyid(relowner) from pg_class where oid='private_financial_snapshots'::regclass"
@@ -461,3 +463,5 @@ def test_financial_database_rls_immutability_and_populated_downgrade_guard(pg_re
             ).fetchone()[0]
         finally:
             conn.execute(sql.SQL("alter table private_financial_snapshots owner to {}").format(sql.Identifier(owner)))
+            upgrade(pg_database[0])
+            assert current(pg_database[0]) == head

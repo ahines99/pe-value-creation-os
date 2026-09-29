@@ -43,6 +43,7 @@ from ..diligence.private_records import (
     require_finance_reviewer,
     require_intake_writer,
 )
+from ..diligence.private_underwriting import UnderwritingRequest
 from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
@@ -209,6 +210,40 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-underwriting/cases/{case_key}", status_code=201)
+async def record_private_underwriting(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_intake_writer(company_id)
+        environment = processing_environment()
+        body = parse_private(UnderwritingRequest, await bounded_private_body(request, 1024 * 1024))
+        revision = await run_in_threadpool(
+            get_ctx().repo.record_private_underwriting, company_id, case_key, body, environment
+        )
+        return revision.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-underwriting/cases/{case_key}")
+def private_underwriting_history(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        revisions = get_ctx().repo.list_private_underwriting(company_id, case_key)
+        return {
+            "revisions": [r.model_dump(mode="json") for r in revisions],
+            "historical_records_only": True,
+            "operating_action_authorized": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-underwriting/revisions/{revision_id}/usable")
+def usable_private_underwriting(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        revision = get_ctx().repo.usable_private_underwriting(company_id, revision_id, processing_environment())
+        return {
+            "revision": revision.model_dump(mode="json"),
+            "source_currently_accepted": True,
+            "operating_action_authorized": False,
+        }
 
 
 @app.post("/companies/{company_id}/private-financials/cases/{case_key}", status_code=201)
