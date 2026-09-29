@@ -148,6 +148,6 @@ def build_restatement_report(source: Path, output: Path) -> Path:
     report = analyze_restatement(RestatementHistory.model_validate_json(source.read_bytes()))
     html = render_restatement(report, json_path.name)
     html_path.parent.mkdir(parents=True, exist_ok=True)
-    json_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    html_path.write_text(html, encoding="utf-8")
+    json_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
+    html_path.write_text(html, encoding="utf-8", newline="\n")
     return html_path

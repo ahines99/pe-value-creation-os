@@ -49,6 +49,16 @@ passed all ten jobs: 1,227 tests per supported Python version, 84 browser checks
 matched merge `3188280ee8597c4dd6c68df9fc6e9a168307214c`. No private records were
 admitted and the pilot remains unstarted.
 
+The processing-grant registry was released in
+[PR #42](https://github.com/ahines99/pe-value-creation-os/pull/42), tested at
+`8578ca0ef189a9978ab2a5f84a5496a65972caca` and merged as
+`168833a358b5719b15a5a91514eacef58f794e3d` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36630887673)
+passed: 1,264 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Seven published
+files matched the merge. These are fictional-fixture software checks, not
+actual company authorization, independent finance review or a performed pilot.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -61,9 +71,9 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #41 is released and verified.
-The processing-grant increment below has a separate release gate; its local
-presence does not establish publication or pilot readiness. Historical counts
+**Current status:** implementation through PR #42 is released and verified.
+The source-custody/finance-review increment below has a separate release gate; its
+local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
 Maintain one requirement map that distinguishes implemented behavior, unresolved
@@ -205,15 +215,21 @@ comprehension claims remain unavailable until that review occurs.
 **First executable increment:** the [private ledger preflight](../pilot/permissioned/intake-preflight.md)
 checks scope, source/policy identity, mappings, completeness and exact controls;
 it writes a private receipt without admission or approval. Test fixtures are
-fictional. Source custody, transactional quarantine/correction history, finance
-decisions, private-case integration and retention/deletion enforcement remain
-to be built and verified alongside the grant integration below.
+fictional. The standalone preflight still does not admit records or record finance
+acceptance; those are separate operations in the custody increment below.
 
 **Subsequent implementation increment:** [processing grants](../pilot/permissioned/processing-grants.md)
-now have an append-only repository/API contract, exact policy/operator/environment
-scope and human revocation. This increment has its own release gate. The remaining
-integration must load the current grant within the admission transaction; stored
-grants alone do not admit records or complete finance review or pilot readiness.
+are released in PR #42 with an append-only repository/API contract, exact
+policy/operator/environment scope and human revocation. Stored grants alone do
+not admit records or complete finance review or pilot readiness.
+
+**Current implementation increment:** [source custody and finance review](../pilot/permissioned/intake-records.md)
+stores exact bytes, preflight/quarantine, correction history and human decisions
+under the current grant transaction. It blocks superseded/unaccepted analytical
+source reads, reproduces preflight and removes source bytes during whole-company
+offboarding. This increment still needs its own CI/publication acceptance.
+Private-case/actuals integration, per-source expiry deletion, legal holds,
+backup/copy disposal and pilot readiness remain open.
 
 Use a distinct permissioned-input contract and processing/export boundary. Add
 source mapping, reconciliation/quarantine, scoped access, correction history,

@@ -62,6 +62,16 @@ passed: 1,227 tests on each supported Python version, 84 browser checks,
 matched the merge. The checks used fictional private-lane fixtures; permission
 verification, finance acceptance, admission and a performed pilot remain absent.
 
+The processing-grant registry was released in
+[PR #42](https://github.com/ahines99/pe-value-creation-os/pull/42), tested at
+`8578ca0ef189a9978ab2a5f84a5496a65972caca` and merged as
+`168833a358b5719b15a5a91514eacef58f794e3d` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36630887673)
+passed: 1,264 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Seven published
+files matched the merge. These are fictional-fixture software checks, not
+actual company authorization, independent finance review or a performed pilot.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -70,6 +80,13 @@ valuation, original underwriting, capacity plan, frozen close, accounting
 continuity, attribution reconciliation, authority boundaries and the two rendered
 memo/exit pages, lineage authority and the rendered lineage page. It uses the application's calculators; hand-worked expectations
 and adversarial cases remain in the separate test suites below.
+
+The subsequent [private source-custody increment](../pilot/permissioned/intake-records.md)
+implements atomic source bytes and receipts, persisted quarantine/corrections,
+exact-version human finance decisions and current accepted-source checks. Local
+tests cover memory/PostgreSQL/API, revocation races, rollback and source reproduction.
+Its own CI/publication gate is still pending. Private case/actuals integration,
+retention operations and all real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence
 

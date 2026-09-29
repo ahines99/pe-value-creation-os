@@ -9,6 +9,8 @@ claims for local demos.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 import os
 import secrets
@@ -22,6 +24,7 @@ from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from jwt import PyJWTError
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 
 from .. import __version__, approvals, security
 from ..adapters.evidence_store import EvidenceNotFound
@@ -30,7 +33,15 @@ from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
+from ..diligence.models import Record
 from ..diligence.private_grants import GrantRequest, permission_status
+from ..diligence.private_intake import MAX_BYTES, parse_private
+from ..diligence.private_records import (
+    FinanceReviewRequest,
+    IntakeRequest,
+    require_finance_reviewer,
+    require_intake_writer,
+)
 from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
@@ -192,6 +203,90 @@ def private_grant_history(
             "events": [event.model_dump(mode="json") for event in events],
             "current": permission_status(events, policy_sha256, now=datetime.now(UTC)),
         }
+
+
+class PrivateUpload(Record):
+    intake: IntakeRequest
+    source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+def processing_environment() -> str:
+    environment = os.environ.get("PVC_PROCESSING_ENVIRONMENT_ID", "").strip()
+    if not environment:
+        raise HTTPException(503, "Private processing environment is not configured")
+    return environment
+
+
+async def bounded_private_body(request: Request, limit: int) -> bytes:
+    # Authentication and company/role checks must precede calling this helper.
+    body = bytearray()
+    async for chunk in request.stream():
+        if len(body) + len(chunk) > limit:
+            raise HTTPException(413, "Private request exceeds the size limit")
+        body.extend(chunk)
+    return bytes(body)
+
+
+@app.post("/companies/{company_id}/private-intakes/datasets/{dataset_key}", status_code=201)
+async def record_private_intake(company_id: str, dataset_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_intake_writer(company_id)
+        environment = processing_environment()
+        body = parse_private(PrivateUpload, await bounded_private_body(request, 16 * 1024 * 1024))
+        try:
+            raw = base64.b64decode(body.source_base64, validate=True)
+        except (ValueError, binascii.Error) as exc:
+            raise ValueError("Invalid private source encoding") from exc
+        record = await run_in_threadpool(
+            get_ctx().repo.record_private_intake, company_id, dataset_key, body.intake, raw, environment
+        )
+        return record.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-intakes/datasets/{dataset_key}")
+def private_intake_history(company_id: str, dataset_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        records = get_ctx().repo.list_private_intakes(company_id, dataset_key)
+        return {
+            "intakes": [r.model_dump(mode="json") for r in records],
+            "current_intake_id": records[-1].intake_id if records else None,
+            "operating_action_authorized": False,
+        }
+
+
+@app.post("/companies/{company_id}/private-intakes/{intake_id}/reviews", status_code=201)
+async def review_private_intake(company_id: str, intake_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_finance_reviewer(company_id)
+        environment = processing_environment()
+        body = parse_private(FinanceReviewRequest, await bounded_private_body(request, 1024 * 1024))
+        record = await run_in_threadpool(get_ctx().repo.review_private_intake, company_id, intake_id, body, environment)
+        return record.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-intakes/{intake_id}/reviews")
+def private_finance_history(company_id: str, intake_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "reviews": [
+                r.model_dump(mode="json") for r in get_ctx().repo.list_private_finance_reviews(company_id, intake_id)
+            ]
+        }
+
+
+@app.get("/companies/{company_id}/private-intakes/{intake_id}/source")
+def private_intake_source(
+    company_id: str, intake_id: str, request: Request, p: Principal, accepted_only: bool = False
+) -> Response:
+    with case_request(p, request):
+        raw = get_ctx().repo.private_intake_source(
+            company_id, intake_id, processing_environment(), accepted_only=accepted_only
+        )
+        return Response(
+            raw,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": 'attachment; filename="private-ledger.json"'},
+        )
 
 
 @app.get("/cases/{case_id}")

@@ -317,7 +317,7 @@ def test_database_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_dat
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     with security.principal_scope(principal()):
         setup(pg_repo)
@@ -334,6 +334,7 @@ def test_database_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_dat
     options["options"] = "-crole=pvc_migrator"
     owner_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(options), parts.fragment))
     with psycopg.connect(pg_database[0], autocommit=True) as conn:
+        downgrade(pg_database[0], "0008")
         owner = conn.execute(
             "select pg_get_userbyid(relowner) from pg_class where oid='private_processing_grants'::regclass"
         ).fetchone()[0]
@@ -349,4 +350,5 @@ def test_database_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_dat
             ).fetchone()[0]
         finally:
             conn.execute(sql.SQL("alter table private_processing_grants owner to {}").format(sql.Identifier(owner)))
-    assert current(pg_database[0]) == "0008"
+            upgrade(pg_database[0])
+    assert current(pg_database[0]) == "0009"
