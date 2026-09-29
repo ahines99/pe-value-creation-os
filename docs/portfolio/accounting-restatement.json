@@ -1,0 +1,1170 @@
+{
+  "schema_version": "accounting-restatement-review/1",
+  "history_sha256": "04a0229b69345d1aead001433d12fb4428f73940a428b0ff6b44bd496e4b6a86",
+  "history": {
+    "schema_version": 1,
+    "classification": "public_accounting_restatement",
+    "revision_kind": "accounting_error_restatement",
+    "scope": "Progress Software FY2005: independently retrieved original 10-K and later 10-K/A; 17 selected financial rows and four disclosure events. This historical correction is separate from the current Progress diligence case.",
+    "original": {
+      "snapshot_id": "progress-fy2005-original",
+      "entity_id": "0000876167",
+      "classification": "public_filing",
+      "form": "10-K",
+      "accession": "0000950135-06-000657",
+      "filed_on": "2006-02-10",
+      "url": "https://progresssoftwarecorporation.gcs-web.com/static-files/12a12632-b3f3-47f1-96ad-d5d94ae02005",
+      "sha256": "d4c13ec9364b87f383dd36ba186c72e841cebc16273cd1f4f6c93b75e6f90af4",
+      "retrieved_at": "2026-09-29T19:17:05.357769Z",
+      "period_start": "2004-12-01",
+      "period_end": "2005-11-30",
+      "currency": "USD",
+      "unit_scale": 1000,
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "Revenue",
+          "amount": "405376",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "Cost of revenue",
+          "amount": "68590",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "operating_expenses",
+          "label": "Operating expenses",
+          "amount": "273021",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "operating_income",
+          "label": "Operating income",
+          "amount": "63765",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "other_income",
+          "label": "Other income, net",
+          "amount": "3099",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "pretax_income",
+          "label": "Pretax income",
+          "amount": "66864",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "income_tax",
+          "label": "Income tax expense",
+          "amount": "17931",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "net_income",
+          "label": "Net income",
+          "amount": "48933",
+          "pdf_page": 32,
+          "printed_page": "31",
+          "column": "2005"
+        },
+        {
+          "metric": "cash",
+          "label": "Cash and equivalents",
+          "amount": "57399",
+          "pdf_page": 31,
+          "printed_page": "30",
+          "column": "2005"
+        },
+        {
+          "metric": "short_term_investments",
+          "label": "Short-term investments",
+          "amount": "209021",
+          "pdf_page": 31,
+          "printed_page": "30",
+          "column": "2005"
+        },
+        {
+          "metric": "cash_and_investments",
+          "label": "Cash and short-term investments",
+          "amount": "266420",
+          "pdf_page": 31,
+          "printed_page": "30",
+          "column": "2005"
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Operating cash flow",
+          "amount": "80630",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        },
+        {
+          "metric": "investing_cash_flow",
+          "label": "Investing cash flow",
+          "amount": "-132485",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        },
+        {
+          "metric": "financing_cash_flow",
+          "label": "Financing cash flow",
+          "amount": "42776",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        },
+        {
+          "metric": "fx_cash",
+          "label": "Exchange-rate effect on cash",
+          "amount": "-3461",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        },
+        {
+          "metric": "change_in_cash",
+          "label": "Change in cash",
+          "amount": "-12540",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        },
+        {
+          "metric": "opening_cash",
+          "label": "Opening cash",
+          "amount": "69939",
+          "pdf_page": 34,
+          "printed_page": "33",
+          "column": "2005"
+        }
+      ]
+    },
+    "amended": {
+      "snapshot_id": "progress-fy2005-amended",
+      "entity_id": "0000876167",
+      "classification": "public_filing",
+      "form": "10-K/A",
+      "accession": "0000950135-06-007483",
+      "filed_on": "2006-12-19",
+      "url": "https://investors.progress.com/static-files/62b546ac-25a5-4646-a011-e2578267f47a",
+      "sha256": "ca0fc2c15bab60822a5014be7a324d97c0486180b418de484ab64783d4d563be",
+      "retrieved_at": "2026-09-29T19:06:16.412159Z",
+      "period_start": "2004-12-01",
+      "period_end": "2005-11-30",
+      "currency": "USD",
+      "unit_scale": 1000,
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "Revenue",
+          "amount": "405376",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "Cost of revenue",
+          "amount": "69044",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "operating_expenses",
+          "label": "Operating expenses",
+          "amount": "276382",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "operating_income",
+          "label": "Operating income",
+          "amount": "59950",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "other_income",
+          "label": "Other income, net",
+          "amount": "3099",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "pretax_income",
+          "label": "Pretax income",
+          "amount": "63049",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "income_tax",
+          "label": "Income tax expense",
+          "amount": "16792",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "net_income",
+          "label": "Net income",
+          "amount": "46257",
+          "pdf_page": 66,
+          "printed_page": "65",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "cash",
+          "label": "Cash and equivalents",
+          "amount": "40398",
+          "pdf_page": 68,
+          "printed_page": "67",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "short_term_investments",
+          "label": "Short-term investments",
+          "amount": "226022",
+          "pdf_page": 68,
+          "printed_page": "67",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "cash_and_investments",
+          "label": "Cash and short-term investments",
+          "amount": "266420",
+          "pdf_page": 68,
+          "printed_page": "67",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Operating cash flow",
+          "amount": "80630",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "investing_cash_flow",
+          "label": "Investing cash flow",
+          "amount": "-137985",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "financing_cash_flow",
+          "label": "Financing cash flow",
+          "amount": "42776",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "fx_cash",
+          "label": "Exchange-rate effect on cash",
+          "amount": "-3462",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "change_in_cash",
+          "label": "Change in cash",
+          "amount": "-18041",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        },
+        {
+          "metric": "opening_cash",
+          "label": "Opening cash",
+          "amount": "58439",
+          "pdf_page": 69,
+          "printed_page": "68",
+          "column": "2005 (as restated)"
+        }
+      ]
+    },
+    "corrections": [
+      {
+        "metric": "revenue",
+        "originally_reported": "405376",
+        "adjustment": "0",
+        "restated": "405376",
+        "pdf_page": 66
+      },
+      {
+        "metric": "cost_of_revenue",
+        "originally_reported": "68590",
+        "adjustment": "454",
+        "restated": "69044",
+        "pdf_page": 66
+      },
+      {
+        "metric": "operating_expenses",
+        "originally_reported": "273021",
+        "adjustment": "3361",
+        "restated": "276382",
+        "pdf_page": 66
+      },
+      {
+        "metric": "operating_income",
+        "originally_reported": "63765",
+        "adjustment": "-3815",
+        "restated": "59950",
+        "pdf_page": 66
+      },
+      {
+        "metric": "other_income",
+        "originally_reported": "3099",
+        "adjustment": "0",
+        "restated": "3099",
+        "pdf_page": 66
+      },
+      {
+        "metric": "pretax_income",
+        "originally_reported": "66864",
+        "adjustment": "-3815",
+        "restated": "63049",
+        "pdf_page": 66
+      },
+      {
+        "metric": "income_tax",
+        "originally_reported": "17931",
+        "adjustment": "-1139",
+        "restated": "16792",
+        "pdf_page": 66
+      },
+      {
+        "metric": "net_income",
+        "originally_reported": "48933",
+        "adjustment": "-2676",
+        "restated": "46257",
+        "pdf_page": 66
+      },
+      {
+        "metric": "cash",
+        "originally_reported": "57399",
+        "adjustment": "-17001",
+        "restated": "40398",
+        "pdf_page": 68
+      },
+      {
+        "metric": "short_term_investments",
+        "originally_reported": "209021",
+        "adjustment": "17001",
+        "restated": "226022",
+        "pdf_page": 68
+      },
+      {
+        "metric": "cash_and_investments",
+        "originally_reported": "266420",
+        "adjustment": "0",
+        "restated": "266420",
+        "pdf_page": 68
+      },
+      {
+        "metric": "operating_cash_flow",
+        "originally_reported": "80630",
+        "adjustment": "0",
+        "restated": "80630",
+        "pdf_page": 69
+      },
+      {
+        "metric": "investing_cash_flow",
+        "originally_reported": "-132485",
+        "adjustment": "-5500",
+        "restated": "-137985",
+        "pdf_page": 69
+      },
+      {
+        "metric": "financing_cash_flow",
+        "originally_reported": "42776",
+        "adjustment": "0",
+        "restated": "42776",
+        "pdf_page": 69
+      },
+      {
+        "metric": "fx_cash",
+        "originally_reported": "-3461",
+        "adjustment": "-1",
+        "restated": "-3462",
+        "pdf_page": 69
+      },
+      {
+        "metric": "change_in_cash",
+        "originally_reported": "-12540",
+        "adjustment": "-5501",
+        "restated": "-18041",
+        "pdf_page": 69
+      },
+      {
+        "metric": "opening_cash",
+        "originally_reported": "69939",
+        "adjustment": "-11500",
+        "restated": "58439",
+        "pdf_page": 69
+      }
+    ],
+    "net_income_bridge": {
+      "additional_stock_compensation": "2611",
+      "additional_payroll_withholding": "1204",
+      "income_tax_benefit": "1139",
+      "pdf_page": 65
+    },
+    "events": [
+      {
+        "event_id": "original-10k",
+        "kind": "original_filing",
+        "reported_on": "2006-02-10",
+        "date_basis": "filing_metadata",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000095013506000657/0000950135-06-000657-index.html",
+        "locator": "SEC Filing Date and Accepted fields; form and FY2005 period independently confirmed on issuer filing-detail page.",
+        "accepted": {
+          "timestamp": "2006-02-10T16:29:07-05:00",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000095013506000657/0000950135-06-000657-index.html",
+          "locator": "Accepted field; February EST offset. Acceptance is not public availability."
+        },
+        "public_available": null
+      },
+      {
+        "event_id": "non-reliance-announcement",
+        "kind": "non_reliance",
+        "reported_on": "2006-08-29",
+        "date_basis": "issuer_release_date",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000095013506005501/b62183psexv99w1.htm",
+        "locator": "Issuer release dated August 29, 2006; Item 4.02 of accompanying 8-K signed August 30 confirms non-reliance for FY1996 and subsequent periods. Date is not an exact publication timestamp.",
+        "accepted": null,
+        "public_available": null
+      },
+      {
+        "event_id": "restatement-announcement",
+        "kind": "restatement_announcement",
+        "reported_on": "2006-12-18",
+        "date_basis": "issuer_release_date",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/876167/000095013506007522/b63483psexv99w1.htm",
+        "locator": "Issuer release dated December 18, 2006, opening paragraph; refers to filings after close of business. Its rounded summary is not the mapped annual filing.",
+        "accepted": null,
+        "public_available": null
+      },
+      {
+        "event_id": "amended-10k",
+        "kind": "amended_filing",
+        "reported_on": "2006-12-19",
+        "date_basis": "filing_metadata",
+        "source_url": "https://progresssoftwarecorporation.gcs-web.com/sec-filings/sec-filing/10-ka/0000950135-06-007483",
+        "locator": "Filing Date December 19, 2006; document date November 30, 2005; linked PDF is Form 10-K/A.",
+        "accepted": null,
+        "public_available": null
+      }
+    ],
+    "timing_limitations": [
+      "Exact public-availability timestamps are not evidenced for the four registered disclosures; publication-based selection is withheld.",
+      "The December 18 issuer announcement describes an after-close filing, while the issuer filing index assigns December 19. Both dates are retained with their source roles; no exact acceptance or dissemination time is inferred.",
+      "The August 29 release predates the August 30 signature on its accompanying 8-K. The non-reliance date is not shifted to the later signature date.",
+      "Current PDF retrieval timestamps and hashes establish the inspected source versions, not their historical first public availability."
+    ]
+  },
+  "comparison": [
+    {
+      "metric": "revenue",
+      "label": "Revenue",
+      "original": "405376000",
+      "adjustment": "0",
+      "restated": "405376000"
+    },
+    {
+      "metric": "cost_of_revenue",
+      "label": "Cost of revenue",
+      "original": "68590000",
+      "adjustment": "454000",
+      "restated": "69044000"
+    },
+    {
+      "metric": "operating_expenses",
+      "label": "Operating expenses",
+      "original": "273021000",
+      "adjustment": "3361000",
+      "restated": "276382000"
+    },
+    {
+      "metric": "operating_income",
+      "label": "Operating income",
+      "original": "63765000",
+      "adjustment": "-3815000",
+      "restated": "59950000"
+    },
+    {
+      "metric": "other_income",
+      "label": "Other income, net",
+      "original": "3099000",
+      "adjustment": "0",
+      "restated": "3099000"
+    },
+    {
+      "metric": "pretax_income",
+      "label": "Pretax income",
+      "original": "66864000",
+      "adjustment": "-3815000",
+      "restated": "63049000"
+    },
+    {
+      "metric": "income_tax",
+      "label": "Income tax expense",
+      "original": "17931000",
+      "adjustment": "-1139000",
+      "restated": "16792000"
+    },
+    {
+      "metric": "net_income",
+      "label": "Net income",
+      "original": "48933000",
+      "adjustment": "-2676000",
+      "restated": "46257000"
+    },
+    {
+      "metric": "cash",
+      "label": "Cash and equivalents",
+      "original": "57399000",
+      "adjustment": "-17001000",
+      "restated": "40398000"
+    },
+    {
+      "metric": "short_term_investments",
+      "label": "Short-term investments",
+      "original": "209021000",
+      "adjustment": "17001000",
+      "restated": "226022000"
+    },
+    {
+      "metric": "cash_and_investments",
+      "label": "Cash and short-term investments",
+      "original": "266420000",
+      "adjustment": "0",
+      "restated": "266420000"
+    },
+    {
+      "metric": "operating_cash_flow",
+      "label": "Operating cash flow",
+      "original": "80630000",
+      "adjustment": "0",
+      "restated": "80630000"
+    },
+    {
+      "metric": "investing_cash_flow",
+      "label": "Investing cash flow",
+      "original": "-132485000",
+      "adjustment": "-5500000",
+      "restated": "-137985000"
+    },
+    {
+      "metric": "financing_cash_flow",
+      "label": "Financing cash flow",
+      "original": "42776000",
+      "adjustment": "0",
+      "restated": "42776000"
+    },
+    {
+      "metric": "fx_cash",
+      "label": "Exchange-rate effect on cash",
+      "original": "-3461000",
+      "adjustment": "-1000",
+      "restated": "-3462000"
+    },
+    {
+      "metric": "change_in_cash",
+      "label": "Change in cash",
+      "original": "-12540000",
+      "adjustment": "-5501000",
+      "restated": "-18041000"
+    },
+    {
+      "metric": "opening_cash",
+      "label": "Opening cash",
+      "original": "69939000",
+      "adjustment": "-11500000",
+      "restated": "58439000"
+    }
+  ],
+  "date_replay": [
+    {
+      "cutoff": "2006-02-09",
+      "basis": "reported_date_only",
+      "status": "no_registered_disclosure",
+      "selected": null,
+      "selected_sha256": null,
+      "eligible_event_ids": []
+    },
+    {
+      "cutoff": "2006-02-10",
+      "basis": "reported_date_only",
+      "status": "original_filing",
+      "selected": {
+        "snapshot_id": "progress-fy2005-original",
+        "entity_id": "0000876167",
+        "classification": "public_filing",
+        "form": "10-K",
+        "accession": "0000950135-06-000657",
+        "filed_on": "2006-02-10",
+        "url": "https://progresssoftwarecorporation.gcs-web.com/static-files/12a12632-b3f3-47f1-96ad-d5d94ae02005",
+        "sha256": "d4c13ec9364b87f383dd36ba186c72e841cebc16273cd1f4f6c93b75e6f90af4",
+        "retrieved_at": "2026-09-29T19:17:05.357769Z",
+        "period_start": "2004-12-01",
+        "period_end": "2005-11-30",
+        "currency": "USD",
+        "unit_scale": 1000,
+        "rows": [
+          {
+            "metric": "revenue",
+            "label": "Revenue",
+            "amount": "405376",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "cost_of_revenue",
+            "label": "Cost of revenue",
+            "amount": "68590",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_expenses",
+            "label": "Operating expenses",
+            "amount": "273021",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_income",
+            "label": "Operating income",
+            "amount": "63765",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "other_income",
+            "label": "Other income, net",
+            "amount": "3099",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "pretax_income",
+            "label": "Pretax income",
+            "amount": "66864",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "income_tax",
+            "label": "Income tax expense",
+            "amount": "17931",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "net_income",
+            "label": "Net income",
+            "amount": "48933",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "cash",
+            "label": "Cash and equivalents",
+            "amount": "57399",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "short_term_investments",
+            "label": "Short-term investments",
+            "amount": "209021",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "cash_and_investments",
+            "label": "Cash and short-term investments",
+            "amount": "266420",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_cash_flow",
+            "label": "Operating cash flow",
+            "amount": "80630",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "investing_cash_flow",
+            "label": "Investing cash flow",
+            "amount": "-132485",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "financing_cash_flow",
+            "label": "Financing cash flow",
+            "amount": "42776",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "fx_cash",
+            "label": "Exchange-rate effect on cash",
+            "amount": "-3461",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "change_in_cash",
+            "label": "Change in cash",
+            "amount": "-12540",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "opening_cash",
+            "label": "Opening cash",
+            "amount": "69939",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          }
+        ]
+      },
+      "selected_sha256": "c5a3860c6e28c321cd341d49d7556c50577cf2eca30e17f3f8bb015c36ef9b8d",
+      "eligible_event_ids": [
+        "original-10k"
+      ]
+    },
+    {
+      "cutoff": "2006-08-28",
+      "basis": "reported_date_only",
+      "status": "original_filing",
+      "selected": {
+        "snapshot_id": "progress-fy2005-original",
+        "entity_id": "0000876167",
+        "classification": "public_filing",
+        "form": "10-K",
+        "accession": "0000950135-06-000657",
+        "filed_on": "2006-02-10",
+        "url": "https://progresssoftwarecorporation.gcs-web.com/static-files/12a12632-b3f3-47f1-96ad-d5d94ae02005",
+        "sha256": "d4c13ec9364b87f383dd36ba186c72e841cebc16273cd1f4f6c93b75e6f90af4",
+        "retrieved_at": "2026-09-29T19:17:05.357769Z",
+        "period_start": "2004-12-01",
+        "period_end": "2005-11-30",
+        "currency": "USD",
+        "unit_scale": 1000,
+        "rows": [
+          {
+            "metric": "revenue",
+            "label": "Revenue",
+            "amount": "405376",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "cost_of_revenue",
+            "label": "Cost of revenue",
+            "amount": "68590",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_expenses",
+            "label": "Operating expenses",
+            "amount": "273021",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_income",
+            "label": "Operating income",
+            "amount": "63765",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "other_income",
+            "label": "Other income, net",
+            "amount": "3099",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "pretax_income",
+            "label": "Pretax income",
+            "amount": "66864",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "income_tax",
+            "label": "Income tax expense",
+            "amount": "17931",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "net_income",
+            "label": "Net income",
+            "amount": "48933",
+            "pdf_page": 32,
+            "printed_page": "31",
+            "column": "2005"
+          },
+          {
+            "metric": "cash",
+            "label": "Cash and equivalents",
+            "amount": "57399",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "short_term_investments",
+            "label": "Short-term investments",
+            "amount": "209021",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "cash_and_investments",
+            "label": "Cash and short-term investments",
+            "amount": "266420",
+            "pdf_page": 31,
+            "printed_page": "30",
+            "column": "2005"
+          },
+          {
+            "metric": "operating_cash_flow",
+            "label": "Operating cash flow",
+            "amount": "80630",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "investing_cash_flow",
+            "label": "Investing cash flow",
+            "amount": "-132485",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "financing_cash_flow",
+            "label": "Financing cash flow",
+            "amount": "42776",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "fx_cash",
+            "label": "Exchange-rate effect on cash",
+            "amount": "-3461",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "change_in_cash",
+            "label": "Change in cash",
+            "amount": "-12540",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          },
+          {
+            "metric": "opening_cash",
+            "label": "Opening cash",
+            "amount": "69939",
+            "pdf_page": 34,
+            "printed_page": "33",
+            "column": "2005"
+          }
+        ]
+      },
+      "selected_sha256": "c5a3860c6e28c321cd341d49d7556c50577cf2eca30e17f3f8bb015c36ef9b8d",
+      "eligible_event_ids": [
+        "original-10k"
+      ]
+    },
+    {
+      "cutoff": "2006-08-29",
+      "basis": "reported_date_only",
+      "status": "non_reliance",
+      "selected": null,
+      "selected_sha256": null,
+      "eligible_event_ids": [
+        "original-10k",
+        "non-reliance-announcement"
+      ]
+    },
+    {
+      "cutoff": "2006-12-17",
+      "basis": "reported_date_only",
+      "status": "non_reliance",
+      "selected": null,
+      "selected_sha256": null,
+      "eligible_event_ids": [
+        "original-10k",
+        "non-reliance-announcement"
+      ]
+    },
+    {
+      "cutoff": "2006-12-18",
+      "basis": "reported_date_only",
+      "status": "restatement_announcement",
+      "selected": null,
+      "selected_sha256": null,
+      "eligible_event_ids": [
+        "original-10k",
+        "non-reliance-announcement",
+        "restatement-announcement"
+      ]
+    },
+    {
+      "cutoff": "2006-12-19",
+      "basis": "reported_date_only",
+      "status": "amended_filing",
+      "selected": {
+        "snapshot_id": "progress-fy2005-amended",
+        "entity_id": "0000876167",
+        "classification": "public_filing",
+        "form": "10-K/A",
+        "accession": "0000950135-06-007483",
+        "filed_on": "2006-12-19",
+        "url": "https://investors.progress.com/static-files/62b546ac-25a5-4646-a011-e2578267f47a",
+        "sha256": "ca0fc2c15bab60822a5014be7a324d97c0486180b418de484ab64783d4d563be",
+        "retrieved_at": "2026-09-29T19:06:16.412159Z",
+        "period_start": "2004-12-01",
+        "period_end": "2005-11-30",
+        "currency": "USD",
+        "unit_scale": 1000,
+        "rows": [
+          {
+            "metric": "revenue",
+            "label": "Revenue",
+            "amount": "405376",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "cost_of_revenue",
+            "label": "Cost of revenue",
+            "amount": "69044",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "operating_expenses",
+            "label": "Operating expenses",
+            "amount": "276382",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "operating_income",
+            "label": "Operating income",
+            "amount": "59950",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "other_income",
+            "label": "Other income, net",
+            "amount": "3099",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "pretax_income",
+            "label": "Pretax income",
+            "amount": "63049",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "income_tax",
+            "label": "Income tax expense",
+            "amount": "16792",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "net_income",
+            "label": "Net income",
+            "amount": "46257",
+            "pdf_page": 66,
+            "printed_page": "65",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "cash",
+            "label": "Cash and equivalents",
+            "amount": "40398",
+            "pdf_page": 68,
+            "printed_page": "67",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "short_term_investments",
+            "label": "Short-term investments",
+            "amount": "226022",
+            "pdf_page": 68,
+            "printed_page": "67",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "cash_and_investments",
+            "label": "Cash and short-term investments",
+            "amount": "266420",
+            "pdf_page": 68,
+            "printed_page": "67",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "operating_cash_flow",
+            "label": "Operating cash flow",
+            "amount": "80630",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "investing_cash_flow",
+            "label": "Investing cash flow",
+            "amount": "-137985",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "financing_cash_flow",
+            "label": "Financing cash flow",
+            "amount": "42776",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "fx_cash",
+            "label": "Exchange-rate effect on cash",
+            "amount": "-3462",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "change_in_cash",
+            "label": "Change in cash",
+            "amount": "-18041",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          },
+          {
+            "metric": "opening_cash",
+            "label": "Opening cash",
+            "amount": "58439",
+            "pdf_page": 69,
+            "printed_page": "68",
+            "column": "2005 (as restated)"
+          }
+        ]
+      },
+      "selected_sha256": "7d142d2dff417f378e79ab40a2b94b33b405d52f211fcda337d650f07e09880b",
+      "eligible_event_ids": [
+        "original-10k",
+        "non-reliance-announcement",
+        "restatement-announcement",
+        "amended-10k"
+      ]
+    }
+  ],
+  "public_availability": {
+    "basis": "public_availability",
+    "status": "withheld_missing_publication_evidence",
+    "selected": null,
+    "unknown": [
+      "original-10k",
+      "non-reliance-announcement",
+      "restatement-announcement",
+      "amended-10k"
+    ]
+  },
+  "limitations": [
+    "Exact public-availability timestamps are not evidenced for the four registered disclosures; publication-based selection is withheld.",
+    "The December 18 issuer announcement describes an after-close filing, while the issuer filing index assigns December 19. Both dates are retained with their source roles; no exact acceptance or dissemination time is inferred.",
+    "The August 29 release predates the August 30 signature on its accompanying 8-K. The non-reliance date is not shifted to the later signature date.",
+    "Current PDF retrieval timestamps and hashes establish the inspected source versions, not their historical first public availability.",
+    "Calendar reconstruction is retrospective source chronology, not a trading backtest or first-publication claim.",
+    "This is a narrow FY2005 statement comparison, not an exhaustive reconstruction of all contemporaneous disclosures.",
+    "Original numbers are historical records, not current reliable statements; non-reliance suppresses numeric selection until the mapped amendment.",
+    "No EBITDA add-back, operating benefit, cash savings, investment return or current-company conclusion is inferred from this correction."
+  ]
+}

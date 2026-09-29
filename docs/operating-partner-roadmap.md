@@ -6,18 +6,21 @@ recommendations. Reviewed code: `8a6a540`; released application code: `31ebfe9`.
 Implementation began September 28, 2026. The progress ledger below distinguishes
 delivered increments from the remaining acceptance criteria.
 
-## Current completion sequence — September 28, 2026
+## Current completion sequence — September 29, 2026
 
 The shared-pool/KPI composition is now implemented
 ([ADR 0028](adr/0028-allocated-kpi-lineage.md)). The new
 [twelve-revision review](portfolio/allocation-lineage-review.html) and
-[current memo](portfolio/allocation-lineage-memo.html) are generated; exact release
-acceptance is recorded in the pull request and CI. The earlier allocation and disjoint-lineage examples remain
+[current memo](portfolio/allocation-lineage-memo.html) are released in
+[PR #36](https://github.com/ahines99/pe-value-creation-os/pull/36); exact release
+acceptance is recorded in the [acceptance map](portfolio/progress-acceptance.md).
+The [completion checklist](portfolio/remaining-work.md) gives the current ordered
+actions, owners and finish criteria. The earlier allocation and disjoint-lineage examples remain
 unchanged. The five-outcome goal is still active.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|
-| Verify each shared-pool lifecycle release | Codex | Full regressions, PostgreSQL/API checks, exact artifact reproduction, responsive browser review and passing release CI |
+| Shared-pool lifecycle release — complete in PR #36 | Codex | 1,154 tests on each supported Python version, 81 browser checks, 31 bundle conditions and verified published bytes; repeat relevant checks for subsequent changes |
 | Close the remaining public-case research disposition | Codex | Every organic/perimeter, amortization and comparable-definition question resolved from permitted evidence or explicitly withheld with its effect on the recommendation |
 | Final executive and technical showcase acceptance | Codex | A concise case study, reproducible guided walkthrough, complete acceptance map, consistent memo/forecast and explicit limitations; internal review clearly identified |
 | Prepare and test the private pilot lane | Codex | Minimized data request, source mapping/reconciliation, accountable review gates, bounded intervention, rollback and measurement worksheets tested on permitted fixtures |
@@ -30,7 +33,7 @@ Alex's necessary external dependency is a sponsor introduction when available;
 outreach is not sent without instructions. An independent practitioner review can
 strengthen the case but cannot be replaced by a simulated or agent-authored review.
 
-## Implementation progress — September 28, 2026
+## Implementation progress — September 29, 2026
 
 The five-outcome goal remains active. No sponsor is available yet; Alex requested
 the [permissioned pilot package](pilot/permissioned/README.md). Engineering,
@@ -39,10 +42,10 @@ public research and the constructed demonstration continue independently.
 | Outcome / tickets | Delivered increment | Still required |
 |---|---|---|
 | Public Progress case / OP-01, 02, 09 | [Case charter](pilot/progress-case-charter.md), reviewed 10-K/Q1/Q2 mappings, 241 annual/interim facts, calculated quarter cash with source lineage, acquisition perimeter flag, ShareFile contribution/residual bridge, reconciled revenue mix, four sourced research assessments, metric-specific public peer eligibility with withheld strict medians and [public baseline](portfolio/progress-baseline.html) | Remaining organic/perimeter explanations where available, wider candidate/definition review and reviewed commercial conclusions |
-| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; annual/interim baseline measures with dependency-aware reconciliation; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity; [historical company equity bridge](portfolio/historical-valuation.html) with 13 dated source facts and explicit claim assumptions | Independent review of the new adjustment register and unresolved comparative amortization; independent allocation-input review and composition with physical KPI lineage; independent review of historical valuation assumptions and actual payoff inputs for any transaction |
+| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; annual/interim baseline measures with dependency-aware reconciliation; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity; [historical company equity bridge](portfolio/historical-valuation.html) with 13 dated source facts and explicit claim assumptions; shared-pool/KPI composition in PR #36 | Unresolved comparative amortization; independent review of adjustments, maintainability, allocation inputs and historical valuation assumptions; actual payoff inputs for any transaction |
 | Capacity-aware plan / OP-03, 08, 10–11 | [Constructed 100-day proposal](portfolio/operating-plan.html): seven packages, four resource budgets, dependency/capacity constraints, conflict explanations and schedule-linked economics | Validated effort/capacity evidence and actual company participation; [constructed contract/service/invoice records](portfolio/operating-sources.html) now constrain a separate forecast; [constructed execution receipts](portfolio/execution.html) now separate assignment, delivery, acceptance and steering (ADR 0020) |
 | Executive memo / OP-12–13 | [Integrated decision memo](portfolio/decision-memo.html): version-bound thesis/counterarguments, eight-entry adjustment register, three capacity-tested first waves, downside/cash/EV distinctions, embedded historical equity matrix and source appendix | Independent executive challenge, unresolved valuation diligence and final portfolio acceptance |
-| Underwriting-to-realization and pilot / OP-14–17 | [Original/current revision walkthrough](portfolio/case-history.html), immutable PostgreSQL case snapshots, exact-version research reviews, review-bound hypothetical-close baselines (ADR 0018), [three-month constructed realization review](portfolio/realization.html) with append-only sources/claims and correction handling (ADR 0019), sponsor brief and pilot worksheets | [Constructed delivery-to-claim links](portfolio/execution.html), late-acceptance rejections and withdrawn-support history now available; richer operating evidence, lifecycle/learning and independently challenged attribution; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
+| Underwriting-to-realization and pilot / OP-14–17 | Immutable case snapshots, exact-version reviews, frozen baselines, constructed actuals/claims and corrections; delivery-to-claim links; ten-revision physical-ownership and twelve-revision shared-pool/KPI exercises; constructed exit review; sponsor brief and pilot worksheets | Historical publication-time/accounting-restatement replay, independent attribution/learning review and private-data readiness; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
 
 The [record-level source challenge](portfolio/operating-sources.html) now extends
 OP-06/08/11 with authored contract, service/vendor and invoice records. Notice
@@ -57,7 +60,8 @@ latest 50% capture assumption, and preserves the frozen close and accounting
 history. Its corrected year-one EBITDA is −163,165 and cash is −181,890.
 
 OP-04's current screening corrections are implemented. OP-01 has a working
-charter/source policy; OP-02/03/05–08/12 have partial foundations. The monthly
+charter/source policy; the acceptance map distinguishes implemented OP-02/03/05–08/12
+contracts and exhibits from unresolved research and review requirements. The monthly
 engine uses typed case drafts and persisted immutable revisions. Constructed assignment, steering, delivery and acceptance receipts are now persisted separately (ADR 0020); actual company activity remains unperformed. The scheduler supplies proposed dates and benefit availability to the shared engine (ADR 0012). Recorded work and gate review preserve those original plan dates and do not prove actual effort or causal value. Other tickets retain
 their full acceptance criteria. A prepared pilot package is not a performed pilot,
 and the annual baseline is not the completed public diligence case.
@@ -67,8 +71,12 @@ OP-16 now has a [real disclosure-vintage comparison](portfolio/disclosure-histor
 and bound to issuer PDFs, plus cutoff selection that excludes later accepted
 filings. Exact publication-time replay remains withheld: SEC acceptance does not
 establish first public availability. The revision is a measurement-period
-adjustment, so the accounting-error-restatement criterion also remains open.
-See [ADR 0024](adr/0024-disclosure-vintages.md).
+adjustment. A separate [FY2005 accounting-restatement exhibit](portfolio/accounting-restatement.html)
+now compares independently retrieved original and amended filings and preserves
+the intervening non-reliance state. Local focused checks pass; release acceptance
+is pending. Exact publication timing remains unverified, so OP-16 is still open.
+See [ADR 0024](adr/0024-disclosure-vintages.md) and
+[ADR 0029](adr/0029-accounting-restatement-history.md).
 
 OP-15 now includes a [constructed exit review](portfolio/exit-review.html) saved
 as a sixth case revision. It reconciles earnings, multiple and interaction effects
@@ -79,7 +87,8 @@ The later [ten-revision exercise](portfolio/lineage-review.html) adds disjoint s
 ownership, explicit initiative/task splits and merges, immutable KPI targets and
 readings, weighted ratios and frozen-to-current financial comparability. Historical
 parent claims are never allocated to children. See [ADR 0026](adr/0026-initiative-and-kpi-lineage.md).
-Allocation/KPI-lineage composition and independently reviewed maintainability remain open;
+Shared-pool allocation/KPI-lineage composition is released in PR #36;
+independently reviewed maintainability remains open.
 the earlier exit model is documented in [ADR 0025](adr/0025-constructed-exit-review.md).
 
 OP-13 now has a [current case study](portfolio/case-study.md),
@@ -88,7 +97,7 @@ and [requirement-level acceptance map](portfolio/progress-acceptance.md).
 The offline review consistency command checks source bindings, linked forecasts,
 frozen baseline, accounting residuals and rendered memo/exit output. These are
 internal engineering and presentation artifacts; no external score or pilot
-participation is inferred. The original OP-01?17 scope remains open where recorded.
+participation is inferred. The original OP-01–17 scope remains open where recorded.
 
 ## Recommended destination
 
@@ -98,9 +107,11 @@ cost explanations. It connects those choices to scheduling, exact source-pool
 assignments, saved revisions, frozen accounting and an executive memo. The separate
 six-revision example retains an adverse result; it does not replace the existing
 disjoint split/merge exercise. See [ADR 0027](adr/0027-benefit-pool-allocation.md).
-Earlier references above to richer pool allocation as open describe the previous
-release. Remaining overlap work is explicit composition with physical KPI lineage
-and independent validation of actual population/intervention assumptions.
+PR #36 composes explicit shared-pool scopes with KPI and initiative history.
+Independent validation of actual population/intervention assumptions remains
+unperformed. Automatic conversion from physical ownership and grouped exclusive
+alternatives are outside the supported contracts; neither is required to replay
+the released demonstration.
 
 The full five-outcome goal remains active. Codex next owns wider public diligence,
 review-driven corrections, private-data pilot readiness and final portfolio
@@ -226,7 +237,9 @@ issuer facts for the public case; dataset-specific rights still apply.
 | S4 — Permissioned company pilot | Bounded intervention using authorized operating/accounting evidence | Actual source reconciliation, management decisions, observed periods and review | Re-estimate after data discovery; operating/reporting time cannot be compressed by coding |
 | S5 — Production | Target-environment acceptance, operations/security and separate launch | Original F11–F16/PVC production gates | Separate scope and budget, not part of this research phase |
 
-These are estimates of focused engineering/research effort, not a promise about
+These are original scope estimates, not estimates of the work remaining after
+PR #36. Use the current completion checklist for outstanding actions. They describe
+focused engineering/research effort, not a promise about
 agent runtime or calendar dates. Five research agents do not reduce the estimate
 fivefold. Their individual estimates overlap substantially; the integrated tickets
 below replace, rather than add to, those totals. S1 can ship while the operating
@@ -403,7 +416,7 @@ five constructed accounting periods, claims and residuals. Existing v1 signed
 records remain readable without hash changes; no live database migration is needed.
 See [ADR 0022](adr/0022-source-backed-case-revisions.md).
 
-Codex next owns the remaining benefit-allocation interactions, public evidence gaps,
+Codex next owns the remaining public evidence gaps,
 pilot readiness engineering and corrections arising from executive/practitioner review. Real pilot work
 still requires a sponsor, authorization, a tested private-data lane and actual
 management participation. Alex has no sponsor yet and requested the

@@ -201,6 +201,12 @@ preserves the preliminary and final ShareFile acquisition allocations from two
 public filings. Its 18 source rows reconcile independently. Publication-time
 selection remains withheld where timestamp evidence is missing; the issuer
 revision is a measurement-period adjustment, not an accounting-error restatement.
+The separate [accounting-restatement exercise](docs/portfolio/accounting-restatement.html)
+compares independently retrieved original and amended FY2005 statements. Its
+four-event chronology suspends numeric selection during non-reliance and keeps
+earnings corrections separate from cash reclassification. Exact publication-time
+selection remains withheld; a retrospective dated chronology is not a backtest.
+Reproduce it with `pvc restatement-history --input data/public/progress/accounting-restatement-history.json --output var/public-diligence/accounting-restatement`.
 The [sponsor brief](docs/pilot/permissioned/sponsor-brief.md) and
 [kickoff worksheet](docs/pilot/permissioned/kickoff-worksheet.md) are ready for a
 prospective pilot discussion; no company pilot has started.

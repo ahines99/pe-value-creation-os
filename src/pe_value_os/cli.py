@@ -494,6 +494,18 @@ def cmd_disclosure_history(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_restatement_history(args: argparse.Namespace) -> int:
+    from .diligence.restatements_render import build_restatement_report
+
+    try:
+        result = build_restatement_report(Path(args.input), Path(args.output))
+    except (ValueError, OSError) as exc:
+        print(f"Restatement history failed ({type(exc).__name__}); inspect source contracts.", file=sys.stderr)
+        return 2
+    print(f"Public accounting-restatement comparison: {result}")
+    return 0
+
+
 def cmd_exit_review(args: argparse.Namespace) -> int:
     from .diligence.exit_demo import build_exit_demo
 
@@ -568,6 +580,13 @@ def build_parser() -> argparse.ArgumentParser:
     history.add_argument("--input", required=True)
     history.add_argument("--output", default="var/public-diligence/disclosure-history")
     history.set_defaults(fn=cmd_disclosure_history)
+
+    restatement = sub.add_parser(
+        "restatement-history", help="reconcile original and corrected statements with non-reliance history"
+    )
+    restatement.add_argument("--input", required=True)
+    restatement.add_argument("--output", default="var/public-diligence/accounting-restatement")
+    restatement.set_defaults(fn=cmd_restatement_history)
 
     memo = sub.add_parser(
         "decision-memo", help="assemble a version-bound public research memo with constructed sequencing choices"

@@ -42,6 +42,7 @@ def main() -> None:
         "decision-memo": "/portfolio/decision-memo.html",
         "historical-valuation": "/portfolio/historical-valuation.html",
         "disclosure-history": "/portfolio/disclosure-history.html",
+        "accounting-restatement": "/portfolio/accounting-restatement.html",
         "exit-review": "/portfolio/exit-review.html",
         "lineage-review": "/portfolio/lineage-review.html",
         "allocation-review": "/portfolio/allocation-review.html",
@@ -244,6 +245,19 @@ def main() -> None:
                     assert payload["cutoffs"][2]["acceptance_selection"]["selected"]["status"] == "preliminary"
                     assert payload["cutoffs"][3]["acceptance_selection"]["selected"]["status"] == "final"
                     assert all(row["publication_selection"]["selected"] is None for row in payload["cutoffs"])
+                if name == "accounting-restatement":
+                    assert "Withheld" in page.locator(".hero-aside").inner_text()
+                    assert "not an operating cash-saving initiative" in page.locator("#decision").inner_text()
+                    assert "48.933" in page.locator("#numbers").inner_text()
+                    assert "46.257" in page.locator("#numbers").inner_text()
+                    payload = page.request.get(base + "/portfolio/accounting-restatement.json").json()
+                    assert payload["public_availability"]["selected"] is None
+                    assert len(payload["comparison"]) == 17
+                    states = {r["cutoff"]: r for r in payload["date_replay"]}
+                    assert states["2006-08-28"]["selected"]["form"] == "10-K"
+                    assert states["2006-08-29"]["selected"] is None
+                    assert states["2006-12-18"]["selected"] is None
+                    assert states["2006-12-19"]["selected"]["form"] == "10-K/A"
                 if name == "exit-review":
                     assert "Unavailable" in page.locator(".hero-aside").inner_text()
                     assert "304.202" in page.locator("#matrix").inner_text()
