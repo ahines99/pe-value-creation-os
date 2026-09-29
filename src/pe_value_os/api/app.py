@@ -34,6 +34,7 @@ from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
 from ..diligence.models import Record
+from ..diligence.private_capacity import CapacityPlanRequest
 from ..diligence.private_financials import FinancialSnapshotRequest, require_snapshot_writer
 from ..diligence.private_grants import GrantRequest, permission_status
 from ..diligence.private_intake import MAX_BYTES, parse_private
@@ -210,6 +211,42 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-capacity/cases/{case_key}", status_code=201)
+async def record_private_capacity_plan(
+    company_id: str, case_key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_intake_writer(company_id)
+        environment = processing_environment()
+        body = parse_private(CapacityPlanRequest, await bounded_private_body(request, 1024 * 1024))
+        revision = await run_in_threadpool(
+            get_ctx().repo.record_private_capacity_plan, company_id, case_key, body, environment
+        )
+        return revision.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-capacity/cases/{case_key}")
+def private_capacity_history(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        revisions = get_ctx().repo.list_private_capacity_plans(company_id, case_key)
+        return {
+            "revisions": [r.model_dump(mode="json") for r in revisions],
+            "historical_records_only": True,
+            "operating_action_authorized": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-capacity/revisions/{revision_id}/usable")
+def usable_private_capacity_plan(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        revision = get_ctx().repo.usable_private_capacity_plan(company_id, revision_id, processing_environment())
+        return {
+            "revision": revision.model_dump(mode="json"),
+            "source_currently_accepted": True,
+            "operating_action_authorized": False,
+        }
 
 
 @app.post("/companies/{company_id}/private-underwriting/cases/{case_key}", status_code=201)

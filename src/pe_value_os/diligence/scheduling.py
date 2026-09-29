@@ -16,7 +16,7 @@ from pydantic import Field, model_validator
 
 from .interactions import InteractionCase
 from .models import Record
-from .underwriting import Collections, evaluate
+from .underwriting import Collections, Scenario, evaluate
 from .underwriting_models import UnderwritingModel, parse_underwriting
 
 VERSION = "capacity-schedule/1"
@@ -66,13 +66,13 @@ class BenefitGate(Record):
     task_id: str = Field(min_length=1)
 
 
-class OperatingPlan(Record):
+class _PlanningInputs(Record):
     schema_version: Literal[1] = 1
     plan_id: str = Field(min_length=1)
     revision_id: str = Field(min_length=1)
     case_id: str = Field(min_length=1)
     underwriting_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    classification: Literal["constructed_operating_exercise"]
+    classification: Literal["constructed_operating_exercise", "permissioned_private"]
     start: date
     days: Literal[100] = 100
     maximum_active_workstreams: int = Field(ge=1, le=10)
@@ -138,6 +138,12 @@ class OperatingPlan(Record):
                 raise ValueError("benefit gate must depend on every work package for its initiative")
         return self
 
+
+class OperatingPlan(_PlanningInputs):
+    """Public constructed plan; field order and serialization remain stable."""
+
+    classification: Literal["constructed_operating_exercise"]
+
     def bind(self, case: UnderwritingModel) -> None:
         case.require_public()
         if self.case_id != case.case_id or self.start != case.start or self.underwriting_sha256 != fingerprint(case):
@@ -147,7 +153,7 @@ class OperatingPlan(Record):
             raise ValueError("benefit gates must cover the exact underwriting initiatives")
 
 
-def schedule(plan: OperatingPlan, selected: frozenset[str] | None = None) -> dict[str, Any]:
+def schedule(plan: _PlanningInputs, selected: frozenset[str] | None = None) -> dict[str, Any]:
     tasks = {t.task_id: t for t in plan.tasks}
     excluded = []
     if selected is not None:
@@ -267,7 +273,9 @@ def schedule(plan: OperatingPlan, selected: frozenset[str] | None = None) -> dic
             }
             for resource in plan.resources
         ],
-        "authority": "Constructed proposed plan; no actual assignments, accepted deliverables, management decisions or authorization to execute.",
+        "authority": "Constructed proposed plan; no actual assignments, accepted deliverables, management decisions or authorization to execute."
+        if plan.classification == "constructed_operating_exercise"
+        else "Private proposed plan; capacity and acceptance dates are authored assumptions, not committed assignments, accepted deliverables or operating authorization.",
         "method": "Authored priority among dependency-ready tasks; earliest feasible non-preemptive full planning weeks. Seven-day weeks start on the case date; the final two days cannot fit a full-week package. Capacity is net of normal duties. Feasibility is conditional on the inputs, not optimality or observed execution.",
         **(
             {
@@ -281,20 +289,19 @@ def schedule(plan: OperatingPlan, selected: frozenset[str] | None = None) -> dic
     }
 
 
-def evaluate_plan(
-    plan: OperatingPlan, case: UnderwritingModel, *, selected: frozenset[str] | None = None
-) -> dict[str, Any]:
-    plan.bind(case)
-    if isinstance(case, InteractionCase):
-        selected = frozenset(case.interaction_policy.selected_initiatives) if selected is None else selected
-        case.validate_selection(selected)
-    result = schedule(plan, selected)
+def apply_benefit_timing(
+    scenarios: tuple[Scenario, ...],
+    benefit_gates: tuple[BenefitGate, ...],
+    result: dict[str, Any],
+    selected: frozenset[str] | None,
+) -> tuple[list[dict[str, Any]], dict[str, frozenset[str]], list[dict[str, Any]]]:
+    """Apply scheduled gates without changing costs, selection or counterfactual dates."""
     tasks = {t["task_id"]: t for t in result["tasks"]}
-    gates = {g.initiative_id: tasks[g.task_id] for g in plan.benefit_gates if g.task_id in tasks}
-    raw = case.model_dump(mode="json")
+    gates = {g.initiative_id: tasks[g.task_id] for g in benefit_gates if g.task_id in tasks}
+    raw = [scenario.model_dump(mode="json") for scenario in scenarios]
     blocks: dict[str, frozenset[str]] = {}
     timing = []
-    for scenario, original in zip(raw["scenarios"], case.scenarios, strict=True):
+    for scenario, original in zip(raw, scenarios, strict=True):
         suppressed = set()
         for driver, original_driver in zip(scenario["drivers"], original.drivers, strict=True):
             if selected is not None and driver["initiative_id"] not in selected:
@@ -335,6 +342,19 @@ def evaluate_plan(
                 }
             )
         blocks[scenario["scenario_id"]] = frozenset(suppressed)
+    return raw, blocks, timing
+
+
+def evaluate_plan(
+    plan: OperatingPlan, case: UnderwritingModel, *, selected: frozenset[str] | None = None
+) -> dict[str, Any]:
+    plan.bind(case)
+    if isinstance(case, InteractionCase):
+        selected = frozenset(case.interaction_policy.selected_initiatives) if selected is None else selected
+        case.validate_selection(selected)
+    result = schedule(plan, selected)
+    raw = case.model_dump(mode="json")
+    raw["scenarios"], blocks, timing = apply_benefit_timing(case.scenarios, plan.benefit_gates, result, selected)
     scheduled_case = parse_underwriting(raw)
     original_report = evaluate(case, selected)
     revised_report = evaluate(scheduled_case, selected, benefit_blocks=blocks)

@@ -93,6 +93,17 @@ matched the merge. The local focused/regression suite passed 373 tests with one
 Windows symlink-privilege skip; migration round-trip passed at 0010. This remains
 fictional-fixture software validation, not company acceptance or a performed pilot.
 
+The private underwriting workflow was released in
+[PR #45](https://github.com/ahines99/pe-value-creation-os/pull/45), tested at
+`5e1de4fa6b23fdb00bfdb551a0972d2f4f41c396` and merged as
+`2a9f3e11b539e4e55d8930be541d13abe7f65953` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36639076145)
+passed: 1,421 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Seven published files
+matched the merge. The local focused/regression suite passed 387 tests with one
+Windows symlink-privilege skip; migration round-trip passed at 0011. These checks
+use fictional inputs and do not establish actual company review or pilot results.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -109,11 +120,12 @@ tests cover memory/PostgreSQL/API, revocation races, rollback and source reprodu
 Its CI/publication acceptance is now verified in PR #43. The subsequent
 [private financial snapshots](../pilot/permissioned/financial-snapshots.md) calculate
 monthly inputs with exact source/review/grant bindings and explicit accounting
-definitions; CI/publication acceptance is verified in PR #44. The next
-[private underwriting increment](../pilot/permissioned/underwriting.md) records
-source-bound forecast revisions, financial-component mappings and explicit
-operator judgments, with a separate release gate. Capacity-plan association,
-baseline designation, counterfactual/attribution and memo composition,
+definitions; CI/publication acceptance is verified in PR #44. The
+[private underwriting increment](../pilot/permissioned/underwriting.md) is released
+in PR #45. The next [private capacity plans](../pilot/permissioned/capacity-plans.md)
+connect resource/dependency proposals to forecast timing and have a separate
+release gate. Exact-version finance/operating decisions, frozen baseline
+designation, counterfactual/attribution and memo composition,
 retention operations and all real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence

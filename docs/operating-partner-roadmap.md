@@ -48,9 +48,12 @@ all ten CI jobs passed, with 1,319 tests per supported Python version and eight
 published files verified. The [private financial snapshots](pilot/permissioned/financial-snapshots.md)
 are released in [PR #44](https://github.com/ahines99/pe-value-creation-os/pull/44):
 ten CI jobs passed, 1,356 tests per supported Python version and nine published
-files verified. The next [private underwriting increment](pilot/permissioned/underwriting.md)
-adds source-bound forecasts and authored assumptions, with its own release gate.
-Private capacity/baseline/measurement/memo integration, retention
+files verified. The [private underwriting increment](pilot/permissioned/underwriting.md)
+is released in [PR #45](https://github.com/ahines99/pe-value-creation-os/pull/45):
+ten CI jobs passed, 1,421 tests per supported Python version and seven published
+files verified. The next [private capacity-plan increment](pilot/permissioned/capacity-plans.md)
+connects resource/dependency proposals to forecast timing, with its own release gate.
+Private finance/operating reviews, baseline/measurement/memo integration, retention
 operations, real finance approval and pilot readiness remain open.
 
 | Next work | Owner | Completion evidence |
