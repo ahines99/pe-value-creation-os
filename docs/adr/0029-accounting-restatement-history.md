@@ -1,6 +1,7 @@
 # ADR 0029: Accounting restatement and intervening non-reliance
 
-Status: implemented locally; release acceptance is pending. September 29, 2026.
+Status: released in PR #37 after all ten CI jobs passed. September 29, 2026.
+Exact public-availability timing remains unverified; OP-16 remains open.
 
 ## Decision
 

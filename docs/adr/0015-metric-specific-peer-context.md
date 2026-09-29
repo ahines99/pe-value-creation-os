@@ -12,8 +12,8 @@ complete software universe or a representative industry benchmark.
 
 ## Sources and period selection
 
-The committed maps reproduce 93 comparative statement facts from PTC FY2025,
-OpenText FY2025 and Descartes FY2026. Three additional Progress cash-flow net-income
+The committed maps reproduce 123 comparative statement facts from PTC FY2025,
+OpenText FY2025, Descartes FY2026 and SS&C FY2025. Three additional Progress cash-flow net-income
 facts reconcile the focal cash measure without rewriting its original 241 facts.
 Raw issuer PDFs stay outside the repository; maps, factual rows, source hashes,
 filing identity, dates and brief reviewed interpretations are public. No WRDS or
@@ -21,8 +21,9 @@ LSEG extract enters this exhibit. Code licensing does not relicense issuer repor
 
 Underlying filing identities are independently checked against the
 [PTC index](https://www.sec.gov/Archives/edgar/data/857005/000119312525291326/0001193125-25-291326-index.htm),
-[OpenText index](https://www.sec.gov/Archives/edgar/data/1002638/000100263825000053/0001002638-25-000053-index.htm)
-and [Descartes 40-F index](https://www.sec.gov/Archives/edgar/data/1050140/000110465926026450/0001104659-26-026450-index.html).
+[OpenText index](https://www.sec.gov/Archives/edgar/data/1002638/000100263825000053/0001002638-25-000053-index.htm),
+[Descartes 40-F index](https://www.sec.gov/Archives/edgar/data/1050140/000110465926026450/0001104659-26-026450-index.html)
+and [SS&C index](https://www.sec.gov/Archives/edgar/data/1402436/000119312526076745/0001193125-26-076745-index.htm).
 Hashes identify the exact issuer-hosted annual-report PDFs, not byte identity
 with EDGAR HTML. Descartes financials accompany its 40-F; it is not relabeled 10-K.
 
@@ -56,9 +57,11 @@ not normalized earnings. None qualifies for the stricter cash cohort because
 complete cash-investment classifications have not been reconciled. Its capitalized
 development disclosure is one concrete reason to retain this limitation.
 
-SS&C was considered but issuer PDF retrieval failed twice. Its filing link and
-exclusion remain visible; it contributes no numbers. No financial hashes or facts
-are invented to complete a peer set. All four candidates are excluded from organic
+SS&C was initially unquantified after failed retrieval. On September 29 the issuer
+PDF became retrievable; its exact bytes and 30 mapped facts are now verified. Its
+software-enabled services mix, separate capitalized software investment and client
+funds accounting make it context-only for both reported ratios. This resolves a
+source gap without relaxing strict eligibility. All four candidates are excluded from organic
 growth and ARR comparisons until common definitions and perimeter bridges exist.
 
 All-eligible and strict medians require three observations. The released strict
@@ -75,7 +78,7 @@ the exact original fact-bundle hash. Source restrictions and contracts are check
 before creating output files. The optional context preserves existing callers.
 
 See [source replay instructions](../../data/public/peers/README.md).
-`verify_peer_sources.py` re-extracts all 96 rows and checks disclosure anchors
+`verify_peer_sources.py` re-extracts all 126 facts and checks disclosure anchors
 against exact local PDFs; locating an anchor does not independently validate the
 interpretation or cohort judgment. Financial source pages were visually inspected.
 
@@ -90,3 +93,10 @@ rejection, exact-bundle binding, public escaping, immutable input files and 40-F
 header mapping. Browser coverage includes desktop, tablet and phone widths,
 keyboard disclosure access and expanded-table overflow. Peer judgments and the
 executive interpretation still need independent practitioner challenge.
+
+September 29 source-review update: adding the previously selected SS&C candidate
+changes the all-context operating-margin median from 28.8% to 25.9%, and the
+PP&E-only cash median from 31.3% to 28.9%. Strict counts remain one and zero,
+respectively, so strict medians remain withheld. These are selection-sensitive
+historical comparisons, not savings estimates. See the
+[review disposition](../research/operating-partner/07-peer-evidence-review.md).

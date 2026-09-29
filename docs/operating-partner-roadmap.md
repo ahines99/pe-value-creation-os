@@ -73,8 +73,9 @@ filings. Exact publication-time replay remains withheld: SEC acceptance does not
 establish first public availability. The revision is a measurement-period
 adjustment. A separate [FY2005 accounting-restatement exhibit](portfolio/accounting-restatement.html)
 now compares independently retrieved original and amended filings and preserves
-the intervening non-reliance state. Local focused checks pass; release acceptance
-is pending. Exact publication timing remains unverified, so OP-16 is still open.
+the intervening non-reliance state. PR #37 passed all ten CI jobs, including
+1,175 tests on each Python version and 84 browser checks; eight published files
+matched its merge. Exact publication timing remains unverified, so OP-16 is still open.
 See [ADR 0024](adr/0024-disclosure-vintages.md) and
 [ADR 0029](adr/0029-accounting-restatement-history.md).
 
@@ -434,3 +435,8 @@ The revised earnings waterfall reconciles to the shared ledger, while historical
 company valuation remains separate from fictional operating changes. This closes
 the contradiction between the original memo and the subsequent adverse source
 review (ADR 0023). It does not establish management approval or pilot results.
+
+September 29 peer review: all four selected candidates now have verified public
+statement mappings. [SS&C source review](research/operating-partner/07-peer-evidence-review.md)
+closes its retrieval gap while retaining context-only eligibility. Strict medians,
+organic-growth comparisons and peer-implied savings remain withheld.
