@@ -104,9 +104,10 @@ This command does not replace the [permissioned pilot package](README.md).
 The [grant/revocation registry](processing-grants.md) and subsequent
 [source-custody workflow](intake-records.md) are separate implementation increments.
 The latter adds transactional source storage, quarantine/corrections and exact-version
-finance decisions, with its own release gate. Accepted-record integration with
-private case/actuals contracts and retention/deletion enforcement for all copies
-and backups remain open.
+finance decisions and is released in PR #43. A subsequent
+[financial snapshot](financial-snapshots.md) builds versioned monthly inputs;
+its release is separate. Private underwriting/measurement/memo integration and
+retention/deletion enforcement for all copies and backups remain open.
 Passing preflight creates none of those records. Current constructed-only case,
 operating-source, execution and realization contracts remain unchanged.
 

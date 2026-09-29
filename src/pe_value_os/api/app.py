@@ -34,6 +34,7 @@ from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
 from ..diligence.models import Record
+from ..diligence.private_financials import FinancialSnapshotRequest, require_snapshot_writer
 from ..diligence.private_grants import GrantRequest, permission_status
 from ..diligence.private_intake import MAX_BYTES, parse_private
 from ..diligence.private_records import (
@@ -208,6 +209,44 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-financials/cases/{case_key}", status_code=201)
+async def record_private_financial_snapshot(
+    company_id: str, case_key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_snapshot_writer(company_id)
+        environment = processing_environment()
+        body = parse_private(FinancialSnapshotRequest, await bounded_private_body(request, 1024 * 1024))
+        snapshot = await run_in_threadpool(
+            get_ctx().repo.record_private_financial_snapshot, company_id, case_key, body, environment
+        )
+        return snapshot.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-financials/cases/{case_key}")
+def private_financial_history(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        snapshots = get_ctx().repo.list_private_financial_snapshots(company_id, case_key)
+        return {
+            "snapshots": [s.model_dump(mode="json") for s in snapshots],
+            "historical_records_only": True,
+            "operating_action_authorized": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-financials/snapshots/{snapshot_id}/usable")
+def usable_private_financial_snapshot(
+    company_id: str, snapshot_id: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request):
+        snapshot = get_ctx().repo.usable_private_financial_snapshot(company_id, snapshot_id, processing_environment())
+        return {
+            "snapshot": snapshot.model_dump(mode="json"),
+            "source_currently_accepted": True,
+            "operating_action_authorized": False,
+        }
 
 
 def processing_environment() -> str:

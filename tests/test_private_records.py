@@ -508,11 +508,13 @@ def test_private_database_rls_immutability_source_hash_and_downgrade(pg_repo, pg
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     grant = setup(pg_repo)
     record = ingest(pg_repo, grant)
     review(pg_repo, record, grant)
+    head = current(pg_database[0])
+    downgrade(pg_database[0], "0009")
     with psycopg.connect(pg_database[1], autocommit=True) as conn:
         for table in ("private_intakes", "private_intake_reviews"):
             assert conn.execute(f"select count(*) from {table}").fetchone()[0] == 0
@@ -551,3 +553,5 @@ def test_private_database_rls_immutability_source_hash_and_downgrade(pg_repo, pg
         finally:
             for table, owner in owners.items():
                 conn.execute(sql.SQL("alter table {} owner to {}").format(sql.Identifier(table), sql.Identifier(owner)))
+            upgrade(pg_database[0])
+    assert current(pg_database[0]) == head

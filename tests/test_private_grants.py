@@ -319,6 +319,8 @@ def test_database_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_dat
 
     from pe_value_os.db.migrate import current, downgrade, upgrade
 
+    head = current(pg_database[0])
+
     with security.principal_scope(principal()):
         setup(pg_repo)
         pg_repo.record_private_grant(COMPANY, "ledger", request())
@@ -351,4 +353,4 @@ def test_database_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_dat
         finally:
             conn.execute(sql.SQL("alter table private_processing_grants owner to {}").format(sql.Identifier(owner)))
             upgrade(pg_database[0])
-    assert current(pg_database[0]) == "0009"
+    assert current(pg_database[0]) == head

@@ -80,7 +80,7 @@ flags false. It does not silently treat the presence of a grant as admission.
 The subsequent [source-custody increment](intake-records.md) connects freshly
 loaded grant state to stored source bytes, preflight/quarantine, correction history
 and exact-version finance decisions. Its transactions serialize against revocation;
-its release gate is separate from this registry's release. Per-source expiry
+it was released in PR #43. Per-source expiry
 deletion, legal holds, copy/backup disposal and private case/actuals integration
 remain open. Whole-company offboarding removes stored source bytes and receipts.
 

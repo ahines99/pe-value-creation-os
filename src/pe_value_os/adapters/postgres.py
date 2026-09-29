@@ -42,6 +42,13 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_financials import (
+    FinancialSnapshotRequest,
+    PrivateFinancialSnapshot,
+    prepare_snapshot,
+    require_current_snapshot,
+    require_snapshot_writer,
+)
 from ..diligence.private_grants import (
     GrantEvent,
     GrantRequest,
@@ -114,6 +121,114 @@ class PostgresRepository:
     def _lock_private_company(self, cur: Any, company_id: str) -> None:
         if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
             raise NotFound(company_id)
+
+    def list_private_financial_snapshots(self, company_id: str, case_key: str) -> list[PrivateFinancialSnapshot]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        self.get_company(company_id)
+        with self._tx() as cur:
+            return [
+                PrivateFinancialSnapshot.model_validate(r["record"])
+                for r in cur.execute(
+                    "select record from private_financial_snapshots where company_id=%s and case_key=%s order by sequence",
+                    (company_id, case_key),
+                ).fetchall()
+            ]
+
+    def record_private_financial_snapshot(
+        self, company_id: str, case_key: str, request: FinancialSnapshotRequest, environment_id: str
+    ) -> PrivateFinancialSnapshot:
+        principal = require_snapshot_writer(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            snapshots = self.list_private_financial_snapshots(company_id, case_key)
+            replay = next((r for r in snapshots if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private financial idempotency key belongs to another request or author")
+                return replay
+            previous = snapshots[-1] if snapshots else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private financial history changed; reload its current head")
+            record = self._private_intake(company_id, request.intake_id)
+            snapshot = prepare_snapshot(
+                company_id,
+                case_key,
+                request,
+                record,
+                self._private_source(company_id, record.intake_id),
+                self.list_private_grants(company_id, record.request.grant_key),
+                self.list_private_finance_reviews(company_id, record.intake_id),
+                self.list_private_intakes(company_id, record.dataset_key)[-1],
+                previous,
+                environment_id,
+            )
+            cur.execute(
+                """insert into private_financial_snapshots
+                (snapshot_id,company_id,case_key,sequence,previous_sha256,idempotency_key,intake_id,intake_sha256,finance_review_sha256,grant_key,grant_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    snapshot.snapshot_id,
+                    company_id,
+                    case_key,
+                    snapshot.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    record.intake_id,
+                    record.content_sha256,
+                    request.expected_finance_review_sha256,
+                    record.request.grant_key,
+                    request.expected_grant_sha256,
+                    snapshot.content_sha256,
+                    Jsonb(snapshot.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_financials",
+                    event_type="private_financial_snapshot",
+                    actor=snapshot.author,
+                    created_at=snapshot.recorded_at,
+                    payload={
+                        "snapshot_id": snapshot.snapshot_id,
+                        "sha256": snapshot.content_sha256,
+                        "intake_id": record.intake_id,
+                    },
+                )
+            )
+            return snapshot
+
+    def usable_private_financial_snapshot(
+        self, company_id: str, snapshot_id: str, environment_id: str
+    ) -> PrivateFinancialSnapshot:
+        require_grant_reader(company_id)
+        try:
+            if str(uuid.UUID(snapshot_id)) != snapshot_id:
+                raise ValueError("Noncanonical snapshot identifier")
+        except ValueError as exc:
+            raise NotFound(snapshot_id) from exc
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            row = cur.execute(
+                "select record from private_financial_snapshots where company_id=%s and snapshot_id=%s",
+                (company_id, snapshot_id),
+            ).fetchone()
+            if row is None:
+                raise NotFound(snapshot_id)
+            snapshot = PrivateFinancialSnapshot.model_validate(row["record"])
+            record = self._private_intake(company_id, snapshot.request.intake_id)
+            require_current_snapshot(
+                snapshot,
+                record,
+                self._private_source(company_id, record.intake_id),
+                self.list_private_grants(company_id, record.request.grant_key),
+                self.list_private_finance_reviews(company_id, record.intake_id),
+                self.list_private_intakes(company_id, record.dataset_key)[-1],
+                environment_id,
+            )
+            return snapshot
 
     def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]:
         require_grant_reader(company_id)
@@ -1864,6 +1979,7 @@ class PostgresRepository:
                 "private_processing_grants",
                 "private_intakes",
                 "private_intake_reviews",
+                "private_financial_snapshots",
             ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)
