@@ -10,13 +10,22 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 
 from pydantic import Field, model_validator
 
+from .allocation_kpis import AllocatedKpiBook, AllocatedKpiDefinition, allocated_kpi_report
 from .exit_review import ExitReviewPayload
+from .interactions import InteractionCase, population_shares
 from .lineage_kpis import METRIC_KIND, LineageKpiBook, kpi_report
 from .models import Record
-from .operating_sources import PartitionedSourceBook, operating_records, source_forecast, source_records
+from .operating_sources import (
+    AllocatedSourceBook,
+    PartitionedSourceBook,
+    operating_records,
+    source_forecast,
+    source_records,
+)
 from .scheduling import OperatingPlan, fingerprint
 from .source_revisions import SHA, UUID, SourceCasePayload, source_payload
 from .underwriting import EXPECTED_UNITS, Entry, UnderwritingCase, month_end, month_start, totals
+from .underwriting_models import UnderwritingModel
 
 if TYPE_CHECKING:
     from .cases import CaseRevision
@@ -71,11 +80,11 @@ class LineageEvent(Record):
         return self
 
 
-class LineageCasePayload(Record):
-    schema_version: Literal[4]
+class _LineagePayload(Record):
+    schema_version: Literal[4, 5]
     basis: SourceCasePayload | ExitReviewPayload
     lineage_events: tuple[LineageEvent, ...]
-    kpis: LineageKpiBook
+    kpis: LineageKpiBook | AllocatedKpiBook
 
     @property
     def source_basis(self) -> SourceCasePayload:
@@ -86,8 +95,8 @@ class LineageCasePayload(Record):
         return self.basis if isinstance(self.basis, ExitReviewPayload) else None
 
     @property
-    def underwriting(self) -> UnderwritingCase:
-        if not isinstance(self.source_basis.underwriting, UnderwritingCase):
+    def underwriting(self) -> UnderwritingModel:
+        if self.schema_version == 4 and not isinstance(self.source_basis.underwriting, UnderwritingCase):
             raise ValueError(
                 "physical split/merge lineage requires disjoint source ownership, not alternative pool shares"
             )
@@ -99,7 +108,14 @@ class LineageCasePayload(Record):
 
     @model_validator(mode="after")
     def scope(self) -> Self:
-        if not isinstance(self.source_basis.operating_sources, PartitionedSourceBook):
+        allocated = self.schema_version == 5
+        if allocated and (
+            not isinstance(self.source_basis.operating_sources, AllocatedSourceBook)
+            or not isinstance(self.underwriting, InteractionCase)
+            or not isinstance(self.kpis, AllocatedKpiBook)
+        ):
+            raise ValueError("allocated lineage requires a native allocation case, source book and KPI scopes")
+        if not allocated and not isinstance(self.source_basis.operating_sources, PartitionedSourceBook):
             raise ValueError("lineage requires explicit source-record ownership")
         seen: set[str] = set()
         seen_tasks: set[str] = set()
@@ -123,15 +139,32 @@ class LineageCasePayload(Record):
             o.start < self.underwriting.start or o.end > end for o in self.kpis.observations
         ):
             raise ValueError("KPI targets and observations must remain within the case calendar")
-        owners = {(a.kind, a.record_id): (a.initiative_id, a.record_sha256) for a in book.assignments}
+        assert isinstance(book, (AllocatedSourceBook, PartitionedSourceBook))
+        owners = (
+            {(a.kind, a.record_id): (a.pool_id, a.record_sha256) for a in book.assignments}
+            if isinstance(book, AllocatedSourceBook)
+            else {(a.kind, a.record_id): (a.initiative_id, a.record_sha256) for a in book.assignments}
+        )
         for definition in active:
-            owned = {key for key, value in owners.items() if value[0] == definition.initiative_id}
+            owner = drivers[definition.initiative_id].benefit_pool if allocated else definition.initiative_id
+            owned = {key for key, value in owners.items() if value[0] == owner}
             if {(r.kind, r.record_id) for r in definition.population} != owned or any(
                 owners[(r.kind, r.record_id)][1] != r.record_sha256 for r in definition.population
             ):
                 raise ValueError("current KPI population must bind every exact source record owned by its initiative")
             if METRIC_KIND[definition.metric] != drivers[definition.initiative_id].kind:
                 raise ValueError("KPI metric must match its initiative mechanism")
+            if allocated:
+                assert isinstance(self.underwriting, InteractionCase)
+                assert isinstance(definition, AllocatedKpiDefinition)
+                rule = next(p for p in self.underwriting.interaction_policy.pools if p.pool_id == owner)
+                scope = definition.allocation_scope
+                if (scope.pool_id, scope.mode, scope.population_share) != (
+                    owner,
+                    rule.mode,
+                    population_shares(self.underwriting)[definition.initiative_id],
+                ):
+                    raise ValueError("current KPI allocation scope must match its exact pool, mode and share")
         return self
 
     def bind_parent(self, parent: CaseRevision, effective_on: date) -> None:
@@ -140,8 +173,10 @@ class LineageCasePayload(Record):
         if prior_source is None:
             raise ValueError("lineage requires a source-backed parent")
         prior = parent.draft.payload
-        events = prior.lineage_events if isinstance(prior, LineageCasePayload) else ()
-        previous_kpis = prior.kpis if isinstance(prior, LineageCasePayload) else LineageKpiBook()
+        if isinstance(prior, _LineagePayload) and prior.schema_version != self.schema_version:
+            raise ValueError("physical and allocated KPI histories require separate measurement contracts")
+        events = prior.lineage_events if isinstance(prior, _LineagePayload) else ()
+        previous_kpis = prior.kpis if isinstance(prior, _LineagePayload) else LineageKpiBook()
         self.kpis.retain(previous_kpis)
         if self.lineage_events[: len(events)] != events:
             raise ValueError("lineage history cannot be discarded or rewritten")
@@ -222,9 +257,38 @@ class LineageCasePayload(Record):
                 raise ValueError("KPI observation cannot be future evidence at the authored revision date")
 
 
+class LineageCasePayload(_LineagePayload):
+    schema_version: Literal[4]
+    kpis: LineageKpiBook
+
+    @property
+    def underwriting(self) -> UnderwritingCase:
+        case = super().underwriting
+        if not isinstance(case, UnderwritingCase):
+            raise ValueError("physical lineage requires disjoint source ownership")
+        return case
+
+
+class AllocatedLineageCasePayload(_LineagePayload):
+    schema_version: Literal[5]
+    kpis: AllocatedKpiBook
+
+    @property
+    def underwriting(self) -> InteractionCase:
+        case = super().underwriting
+        if not isinstance(case, InteractionCase):
+            raise ValueError("allocated lineage requires a native allocation case")
+        return case
+
+
+LineagePayload = LineageCasePayload | AllocatedLineageCasePayload
+LINEAGE_PAYLOAD_TYPES = (LineageCasePayload, AllocatedLineageCasePayload)
+
+
 def validate_partition_transition(prior: SourceCasePayload, current: SourceCasePayload, event: LineageEvent) -> None:
     before_book, after_book = prior.operating_sources, current.operating_sources
-    assert isinstance(after_book, PartitionedSourceBook)
+    assert isinstance(after_book, (PartitionedSourceBook, AllocatedSourceBook))
+    allocated = isinstance(after_book, AllocatedSourceBook)
     before_rows, after_rows = operating_records(source_records(before_book)), operating_records(after_book.records)
     if before_rows != after_rows:
         raise ValueError(
@@ -238,13 +302,13 @@ def validate_partition_transition(prior: SourceCasePayload, current: SourceCaseP
         else {key: old_drivers[kind[key[0]]] for key in before_rows}
     )
     allowed = {(e.predecessor_id, e.successor_id) for e in event.edges}
-    allowed |= {
-        (a.initiative_id, a.initiative_id)
-        for a in after_book.assignments
-        if a.initiative_id in {d.initiative_id for d in prior.underwriting.scenarios[0].drivers}
-    }
-    if any((owners[(a.kind, a.record_id)], a.initiative_id) not in allowed for a in after_book.assignments):
-        raise ValueError("source ownership cannot cross undeclared initiative lineage")
+    allowed |= {(d.initiative_id, d.initiative_id) for d in prior.underwriting.scenarios[0].drivers}
+    if allocated:
+        validate_allocation_transition(prior, current, event)
+    else:
+        assert isinstance(after_book, PartitionedSourceBook)
+        if any((owners[(a.kind, a.record_id)], a.initiative_id) not in allowed for a in after_book.assignments):
+            raise ValueError("source ownership cannot cross undeclared initiative lineage")
     old_tasks, new_tasks = (
         {t.task_id: t for t in prior.operating_plan.tasks},
         {t.task_id: t for t in current.operating_plan.tasks},
@@ -275,9 +339,9 @@ def validate_partition_transition(prior: SourceCasePayload, current: SourceCaseP
                 raise ValueError("identity-only transition cannot change an unrelated driver")
         for edge in event.edges:
             a, b = old[edge.predecessor_id], new[edge.successor_id]
-            if a.kind != b.kind:
+            if a.kind != b.kind or (allocated and a.benefit_pool != b.benefit_pool):
                 raise ValueError("lineage cannot change an initiative's economic mechanism")
-            for field in EXPECTED_UNITS.keys() - EXTENTS[a.kind]:
+            for field in EXPECTED_UNITS.keys() - (set() if allocated else EXTENTS[a.kind]):
                 if hasattr(a, field) and old_values[getattr(a, field)] != new_values[getattr(b, field)]:
                     raise ValueError(
                         "identity-only transition must retain unit economics; revise assumptions separately"
@@ -292,7 +356,7 @@ def validate_partition_transition(prior: SourceCasePayload, current: SourceCaseP
             ):
                 if getattr(a, field, None) != getattr(b, field, None):
                     raise ValueError("identity-only transition must retain driver timing and cost action")
-        for successor in {e.successor_id for e in event.edges}:
+        for successor in {e.successor_id for e in event.edges} if not allocated else set():
             b = new[successor]
             for field in EXTENTS[b.kind]:
                 expected = sum(
@@ -323,7 +387,94 @@ def validate_partition_transition(prior: SourceCasePayload, current: SourceCaseP
                 raise ValueError("lineage must preserve cost amount, timing, retention and complete owner mapping")
 
 
-def mapped_priority(payload: LineageCasePayload, original_order: list[str]) -> list[str]:
+def validate_allocation_transition(prior: SourceCasePayload, current: SourceCasePayload, event: LineageEvent) -> None:
+    """Conserve pool exposure and fixed cost explanations through an identity change."""
+    a, b = prior.underwriting, current.underwriting
+    before, after = prior.operating_sources, current.operating_sources
+    if not isinstance(a, InteractionCase) or not isinstance(b, InteractionCase):
+        raise ValueError("allocated lineage requires a native allocation parent")
+    if not isinstance(before, AllocatedSourceBook) or not isinstance(after, AllocatedSourceBook):
+        raise ValueError("allocated lineage requires unchanged pool ownership")
+    if before.assignments != after.assignments or before.pool_ids != after.pool_ids:
+        raise ValueError("identity-only transition must preserve exact source-to-pool assignments")
+    if (
+        prior.operating_plan.resources != current.operating_plan.resources
+        or prior.operating_plan.maximum_active_workstreams != current.operating_plan.maximum_active_workstreams
+    ):
+        raise ValueError("identity-only transition cannot create resource capacity or change concurrency")
+    old_tasks = {t.task_id: t for t in prior.operating_plan.tasks}
+    new_tasks = {t.task_id: t for t in current.operating_plan.tasks}
+    for identity in old_tasks.keys() & new_tasks.keys():
+        if old_tasks[identity] != new_tasks[identity]:
+            raise ValueError("identity-only transition cannot change an unrelated work package")
+    # Effort is a separately authored operating assumption. It is conserved per
+    # resource, not inferred to fall simply because an initiative has split.
+    for resource in prior.operating_plan.resources:
+
+        def effort(tasks: dict[str, Any], resource_id: str = resource.resource_id) -> Decimal:
+            return sum(
+                (
+                    t.duration_weeks * d.hours_per_week
+                    for t in tasks.values()
+                    for d in t.demands
+                    if d.resource_id == resource_id
+                ),
+                Decimal(0),
+            )
+
+        if effort(old_tasks) != effort(new_tasks):
+            raise ValueError("identity-only transition must conserve authored resource effort")
+    successors = {
+        d.initiative_id: {
+            e.successor_id: e.reference_allocation for e in event.edges if e.predecessor_id == d.initiative_id
+        }
+        or {d.initiative_id: Decimal(1)}
+        for d in a.scenarios[0].drivers
+    }
+
+    def mapped(shares: dict[str, Decimal]) -> dict[str, Decimal]:
+        result: dict[str, Decimal] = {}
+        for identity, share in shares.items():
+            for successor, fraction in successors[identity].items():
+                result[successor] = result.get(successor, Decimal(0)) + share * fraction
+        return result
+
+    old_policy, new_policy = a.interaction_policy, b.interaction_policy
+    rules = {p.pool_id: p for p in new_policy.pools}
+    if set(rules) != {p.pool_id for p in old_policy.pools}:
+        raise ValueError("identity-only transition cannot add or remove an economic pool")
+    old_selected, new_selected = set(old_policy.selected_initiatives), set(new_policy.selected_initiatives)
+    if new_selected != set().union(*(set(successors[i]) for i in old_selected)):
+        raise ValueError("identity-only transition must preserve selection through lineage")
+    for successor in {e.successor_id for e in event.edges}:
+        incoming = {e.predecessor_id in old_selected for e in event.edges if e.successor_id == successor}
+        if len(incoming) > 1:
+            raise ValueError("cannot merge selected and deferred populations in an identity-only transition")
+    old_shares, new_shares = population_shares(a), population_shares(b)
+    for rule in old_policy.pools:
+        revised = rules[rule.pool_id]
+        if rule.mode != revised.mode:
+            raise ValueError("identity-only transition cannot change pool mode; record policy changes separately")
+        expected_members = set().union(*(set(successors[i]) for i in rule.initiative_ids))
+        if set(revised.initiative_ids) != expected_members:
+            raise ValueError("lineage must preserve complete pool membership")
+        if rule.mode == "exclusive" and any(len(successors[i]) != 1 for i in rule.initiative_ids):
+            raise ValueError("exclusive candidate splits require an explicitly grouped alternative contract")
+        expected = mapped({i: old_shares[i] for i in rule.initiative_ids})
+        if expected != {i: new_shares[i] for i in revised.initiative_ids}:
+            raise ValueError(
+                "lineage must conserve each allocated population share without scaling the full reference twice"
+            )
+    costs = {c.cost_id: c for c in new_policy.cost_allocations}
+    if set(costs) != {c.cost_id for c in old_policy.cost_allocations}:
+        raise ValueError("identity-only transition must preserve cost allocation rules")
+    for cost in old_policy.cost_allocations:
+        expected = mapped({s.initiative_id: s.share for s in cost.shares})
+        if expected != {s.initiative_id: s.share for s in costs[cost.cost_id].shares}:
+            raise ValueError("lineage must conserve explicit cost shares and their unassigned residual")
+
+
+def mapped_priority(payload: LineagePayload, original_order: list[str]) -> list[str]:
     """Map an original first-wave ordering through explicitly authored task ancestry."""
     ancestors: dict[str, set[str]] = {}
     for event in payload.lineage_events:
@@ -341,7 +492,7 @@ def mapped_priority(payload: LineageCasePayload, original_order: list[str]) -> l
     )
 
 
-def lineage_families(payload: LineageCasePayload) -> list[dict[str, Any]]:
+def lineage_families(payload: LineagePayload) -> list[dict[str, Any]]:
     current = {d.initiative_id for d in payload.underwriting.scenarios[0].drivers}
     components = [{i} for i in current]
     successors: set[str] = set()
@@ -365,7 +516,7 @@ def lineage_families(payload: LineageCasePayload) -> list[dict[str, Any]]:
     ]
 
 
-def evaluate_lineage(payload: LineageCasePayload, parent: CaseRevision, financial: dict[str, Any]) -> dict[str, Any]:
+def evaluate_lineage(payload: LineagePayload, parent: CaseRevision, financial: dict[str, Any]) -> dict[str, Any]:
     prior = source_payload(parent.draft.payload)
     assert prior is not None
     families = lineage_families(payload)
@@ -429,13 +580,19 @@ def evaluate_lineage(payload: LineageCasePayload, parent: CaseRevision, financia
                         raise ValueError("lineage families and shared costs must reconcile for every month")
         scenarios.append({"scenario_id": current["scenario_id"], "families": groups})
     return {
-        "version": "initiative-lineage/1",
+        "version": "initiative-lineage/2"
+        if isinstance(payload, AllocatedLineageCasePayload)
+        else "initiative-lineage/1",
         "payload_sha256": fingerprint(payload),
         "parent_revision_id": parent.revision_id,
         "parent_revision_sha256": parent.content_sha256,
         "families": families,
         "cost_treatment": "A cost shared only among descendants of one family rolls up once to that family. Cross-family costs remain shared. Raw ledger owners, amounts and historical accounting are unchanged.",
         "scenarios": scenarios,
-        "kpis": kpi_report(payload.kpis, set(financial["selected_initiatives"])),
+        "kpis": (
+            allocated_kpi_report(payload.kpis, set(financial["selected_initiatives"]))
+            if isinstance(payload, AllocatedLineageCasePayload)
+            else kpi_report(payload.kpis, set(financial["selected_initiatives"]))
+        ),
         "authority": "Constructed initiative and KPI lineage. Family comparisons conserve scope; shared costs remain separate. Prior accounting and attribution retain frozen initiative IDs. Reference allocation shares never manufacture historical child observations or financial attribution.",
     }

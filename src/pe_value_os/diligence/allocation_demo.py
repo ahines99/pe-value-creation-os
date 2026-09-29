@@ -19,7 +19,7 @@ from .operating_sources import AllocatedSourceBook, OperatingSourceBook, operati
 from .operating_sources_render import render_sources
 from .realization_render import RealizationExercise, demonstrate_realization
 from .scheduling import OperatingPlan, evaluate_plan, fingerprint
-from .source_revisions import SourceCasePayload
+from .source_revisions import SourceCasePayload, source_payload
 from .underwriting_render import amount, render_allocation
 
 
@@ -273,7 +273,13 @@ def render_allocation_demo(report: dict[str, Any], download: str) -> str:
 
 
 def build_allocation_demo(
-    underwriting: Path, plan_path: Path, exercise_path: Path, sources: Path, output: Path
+    underwriting: Path,
+    plan_path: Path,
+    exercise_path: Path,
+    sources: Path,
+    output: Path,
+    *,
+    include_lineage: bool = False,
 ) -> Path:
     case = InteractionCase.model_validate_json(underwriting.read_bytes())
     plan = OperatingPlan.model_validate_json(plan_path.read_bytes())
@@ -286,27 +292,32 @@ def build_allocation_demo(
         raise ValueError(
             "allocation walkthrough requires a demonstrated capacity constraint on the deferred alternative"
         )
+    source_name = "allocation-lineage-sources" if include_lineage else "allocation-sources"
+    replay, render = replay_allocation, render_allocation_demo
+    if include_lineage:
+        from .allocation_lineage_demo import render_allocated_lineage, replay_allocated_lineage
+
+        replay, render = replay_allocated_lineage, render_allocated_lineage
     paths = (
         output.with_suffix(".html"),
         output.with_suffix(".json"),
-        output.parent / "allocation-sources.html",
-        output.parent / "allocation-sources.json",
+        output.parent / (source_name + ".html"),
+        output.parent / (source_name + ".json"),
     )
     if len({p.resolve() for p in paths}) != len(paths):
         raise ValueError("allocation review and companion source outputs must be distinct")
     if {p.resolve() for p in (underwriting, plan_path, exercise_path, sources)} & {p.resolve() for p in paths}:
         raise ValueError("allocation demo must not overwrite an input")
-    report = demonstrate_realization(
-        case, plan, exercise, revision_replay=lambda r, c, b: replay_allocation(r, c, b, book)
-    )
+    report = demonstrate_realization(case, plan, exercise, revision_replay=lambda r, c, b: replay(r, c, b, book))
     report["initial_capacity_challenge"] = {
         "blocked_tasks": [t["task_id"] for t in challenge["tasks"] if t["status"] == "blocked"],
         "report_sha256": challenge["report_sha256"],
         "authority": "Hypothetical simultaneous selection; a blocked proposal cannot become the frozen close baseline.",
     }
-    latest = SourceCasePayload.model_validate(report["revisions"][-1]["draft"]["payload"])
+    latest = source_payload(RevisionDraft.model_validate(report["revisions"][-1]["draft"]).payload)
+    assert latest is not None
     source = source_forecast(latest.operating_sources, latest.underwriting, latest.operating_plan)
-    html = render_allocation_demo(report, paths[1].name)
+    html = render(report, paths[1].name)
     source_html = render_sources(source, paths[3].name)
     output.parent.mkdir(parents=True, exist_ok=True)
     for path, value in zip(

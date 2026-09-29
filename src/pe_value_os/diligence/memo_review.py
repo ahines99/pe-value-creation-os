@@ -9,7 +9,7 @@ from pydantic import Field, TypeAdapter, model_validator
 
 from .cases import CaseReview, CaseRevision
 from .exit_review import evaluate_exit, exit_payload
-from .lineage import LineageCasePayload, evaluate_lineage, mapped_priority
+from .lineage import LINEAGE_PAYLOAD_TYPES, evaluate_lineage, mapped_priority
 from .models import Record
 from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan, fingerprint
@@ -43,19 +43,19 @@ class MemoReviewContext(Record):
                 != (a.case_id, a.company, a.currency, a.start, a.months)
                 or current.draft.effective_on < prior.draft.effective_on
                 or (
-                    not isinstance(current.draft.payload, LineageCasePayload)
+                    not isinstance(current.draft.payload, LINEAGE_PAYLOAD_TYPES)
                     and {(d.initiative_id, d.kind, d.benefit_pool) for d in a.scenarios[0].drivers}
                     != {(d.initiative_id, d.kind, d.benefit_pool) for d in b.scenarios[0].drivers}
                 )
             ):
                 raise ValueError("memo review requires a contiguous same-case comparison history")
-            if isinstance(prior.draft.payload, LineageCasePayload) and not isinstance(
-                current.draft.payload, LineageCasePayload
+            if isinstance(prior.draft.payload, LINEAGE_PAYLOAD_TYPES) and not isinstance(
+                current.draft.payload, LINEAGE_PAYLOAD_TYPES
             ):
                 raise ValueError("lineage history cannot be discarded")
             if a.schema_version == 2 and b.schema_version != 2:
                 raise ValueError("allocation policy cannot be discarded")
-            if isinstance(current.draft.payload, LineageCasePayload):
+            if isinstance(current.draft.payload, LINEAGE_PAYLOAD_TYPES):
                 current.draft.payload.bind_parent(prior, current.draft.effective_on)
             basis = source_payload(current.draft.payload)
             if basis is not None:
@@ -124,7 +124,7 @@ def challenge_options(
     exit_basis = exit_payload(latest.draft.payload)
     if exit_basis is not None:
         computed["exit_review"] = evaluate_exit(exit_basis, computed)
-    if isinstance(latest.draft.payload, LineageCasePayload):
+    if isinstance(latest.draft.payload, LINEAGE_PAYLOAD_TYPES):
         computed["lineage_review"] = evaluate_lineage(latest.draft.payload, parent, computed)
     normalized = json.loads(json.dumps(computed, default=str, sort_keys=True))
     if normalized != json.loads(latest.financial_result_json):
@@ -135,7 +135,7 @@ def challenge_options(
             {
                 **payload.operating_plan.model_dump(mode="json"),
                 "priority_order": mapped_priority(latest.draft.payload, option["priority_order"])
-                if isinstance(latest.draft.payload, LineageCasePayload)
+                if isinstance(latest.draft.payload, LINEAGE_PAYLOAD_TYPES)
                 else option["priority_order"],
                 "revision_id": payload.operating_plan.revision_id + ":source-challenge:" + option["option_id"],
                 "sequencing_rationale": option["rationale"],
@@ -211,7 +211,7 @@ def challenge_options(
         "source_treatment": "Each alternative keeps the latest underwriting assumptions, source rows, resources, work packages and costs. Only priority order and its resulting dates change; source-book plan hashes are explicitly rebound to each hypothetical schedule."
         + (
             " Original priorities follow the explicitly recorded split/merge task ancestry to current packages."
-            if isinstance(latest.draft.payload, LineageCasePayload)
+            if isinstance(latest.draft.payload, LINEAGE_PAYLOAD_TYPES)
             else ""
         ),
         "authority": "Derived research challenge, not a new case revision or operating approval. A receipt for the stored case does not accept these recomputed alternatives. Constructed exercise dates do not change the public-filing information cutoff; this is not a historical point-in-time forecast.",

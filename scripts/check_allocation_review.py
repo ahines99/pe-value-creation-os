@@ -6,11 +6,13 @@ import json
 from pathlib import Path
 
 from pe_value_os.diligence.allocation_demo import render_allocation_demo
+from pe_value_os.diligence.allocation_lineage_demo import render_allocated_lineage
 from pe_value_os.diligence.balances import BalanceBundle
 from pe_value_os.diligence.cases import InvestmentCase
 from pe_value_os.diligence.close_baseline import CloseBaseline
 from pe_value_os.diligence.growth import GrowthContext
 from pe_value_os.diligence.interactions import InteractionCase
+from pe_value_os.diligence.lineage import LINEAGE_PAYLOAD_TYPES, evaluate_lineage
 from pe_value_os.diligence.memo import DecisionBrief, assemble_memo
 from pe_value_os.diligence.memo_render import render_memo
 from pe_value_os.diligence.memo_review import MemoReviewContext
@@ -31,7 +33,7 @@ def normalized(value):
     return json.loads(json.dumps(value, default=str))
 
 
-def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
+def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data"), *, include_lineage=False):
     files, checks = {}, []
 
     def read(path):
@@ -48,7 +50,8 @@ def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
         return json.loads(read(portfolio / (name + ".json")))
 
     constructed, public = data / "constructed/progress", data / "public/progress"
-    report = artifact("allocation-review")
+    prefix = "allocation-lineage" if include_lineage else "allocation"
+    report = artifact(prefix + "-review")
     context = MemoReviewContext.from_export(report)
     case = InteractionCase.model_validate_json(read(constructed / "allocation-underwriting.json"))
     plan = OperatingPlan.model_validate_json(read(constructed / "allocation-plan.json"))
@@ -78,12 +81,16 @@ def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
             ]
         else:
             projected = evaluate(revision.draft.payload.underwriting)
+        if isinstance(revision.draft.payload, LINEAGE_PAYLOAD_TYPES):
+            projected["lineage_review"] = evaluate_lineage(
+                revision.draft.payload, context.revisions[index - 1], projected
+            )
         if normalized(projected) != json.loads(revision.financial_result_json):
             raise ValueError("allocation-revision-reproduction")
     check(True, "allocation-revision-reproduction")
     latest = source_payload(context.revisions[-1].draft.payload)
     assert latest is not None
-    sources = artifact("allocation-sources")
+    sources = artifact(prefix + "-sources")
     source_calculated = source_forecast(latest.operating_sources, latest.underwriting, latest.operating_plan)
     check(
         sources == normalized(source_calculated),
@@ -102,7 +109,7 @@ def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
         )
     )
     check(all(report[k] == value for k, value in accounting.items()), "allocation-accounting-reproduction")
-    memo = artifact("allocation-memo")
+    memo = artifact(prefix + "-memo")
     calculated = assemble_memo(
         DecisionBrief.model_validate_json(read(constructed / "allocation-brief.json")),
         FactBundle.model_validate_json(read(public / "financial-facts.json")),
@@ -125,9 +132,11 @@ def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
         "allocation-authority",
     )
     rendered = {
-        "allocation-review": render_allocation_demo(report, "allocation-review.json"),
-        "allocation-sources": render_sources(source_calculated, "allocation-sources.json"),
-        "allocation-memo": render_memo(memo, "allocation-memo.json"),
+        prefix + "-review": (render_allocated_lineage if include_lineage else render_allocation_demo)(
+            report, prefix + "-review.json"
+        ),
+        prefix + "-sources": render_sources(source_calculated, prefix + "-sources.json"),
+        prefix + "-memo": render_memo(memo, prefix + "-memo.json"),
         "allocation-underwriting": render_underwriting(case, underwriting_calculated),
         "allocation-operating-plan": render_plan(plan, operating_calculated),
     }
@@ -148,10 +157,11 @@ def check_allocation(portfolio=Path("docs/portfolio"), data=Path("data")):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=Path("var/allocation-review/checks.json"))
+    parser.add_argument("--include-lineage", action="store_true")
     args = parser.parse_args()
     if any(args.output.resolve().is_relative_to(Path(p).resolve()) for p in ("docs", "data")):
         parser.error("receipt must be outside the published documents and input data")
-    result = check_allocation()
+    result = check_allocation(include_lineage=args.include_lineage)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(f"PASS: {len(result['checks'])} allocation review consistency checks")

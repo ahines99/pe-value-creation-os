@@ -16,7 +16,7 @@ from pydantic import Field, model_validator
 
 from .. import security
 from .exit_review import ExitReviewPayload, evaluate_exit, exit_payload
-from .lineage import LineageCasePayload, evaluate_lineage
+from .lineage import LINEAGE_PAYLOAD_TYPES, AllocatedLineageCasePayload, LineageCasePayload, evaluate_lineage
 from .models import Record
 from .operating_sources import source_forecast
 from .scheduling import OperatingPlan, evaluate_plan
@@ -49,7 +49,7 @@ class RevisionDraft(Record):
     stage: Literal["underwriting", "close_validation", "ownership_review", "exit_review"]
     effective_on: date
     reason: str = Field(min_length=1)
-    payload: CasePayload | SourceCasePayload | ExitReviewPayload | LineageCasePayload
+    payload: CasePayload | SourceCasePayload | ExitReviewPayload | LineageCasePayload | AllocatedLineageCasePayload
 
     @model_validator(mode="after")
     def exit_stage(self) -> Self:
@@ -163,13 +163,15 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
             raise ValueError("revision must preserve the reference company")
         if old.schema_version == 2 and new.schema_version != 2:
             raise ValueError("an allocation-backed revision cannot discard its interaction policy")
-        if not isinstance(draft.payload, LineageCasePayload) and {
+        if not isinstance(draft.payload, LINEAGE_PAYLOAD_TYPES) and {
             (d.initiative_id, d.kind, d.benefit_pool) for d in new.scenarios[0].drivers
         } != {(d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers}:
             raise ValueError("initiative lineage changes require an explicit mapping; title matching is insufficient")
-        if isinstance(parent.draft.payload, LineageCasePayload) and not isinstance(draft.payload, LineageCasePayload):
+        if isinstance(parent.draft.payload, LINEAGE_PAYLOAD_TYPES) and not isinstance(
+            draft.payload, LINEAGE_PAYLOAD_TYPES
+        ):
             raise ValueError("a lineage-backed revision cannot discard its identity and KPI history")
-        if isinstance(draft.payload, LineageCasePayload):
+        if isinstance(draft.payload, LINEAGE_PAYLOAD_TYPES):
             draft.payload.bind_parent(parent, draft.effective_on)
         if source_payload(parent.draft.payload) and not source_payload(draft.payload):
             raise ValueError("a source-backed revision cannot silently discard its operating-source basis")
@@ -193,7 +195,7 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
         exit_basis = exit_payload(draft.payload)
         if exit_basis is not None:
             financial["exit_review"] = evaluate_exit(exit_basis, financial)
-        if isinstance(draft.payload, LineageCasePayload):
+        if isinstance(draft.payload, LINEAGE_PAYLOAD_TYPES):
             financial["lineage_review"] = evaluate_lineage(draft.payload, parent, financial)
     elif draft.payload.operating_plan is None:
         financial = evaluate(draft.payload.underwriting)

@@ -8,6 +8,7 @@ unweighted average. These observations do not establish financial attribution.
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
 from typing import Any, Literal, Self
@@ -150,7 +151,12 @@ class LineageKpiBook(Record):
             raise ValueError("KPI revisions must retain all prior definitions and observations unchanged")
 
 
-def kpi_report(book: LineageKpiBook, current_initiatives: set[str]) -> dict[str, Any]:
+def kpi_report(
+    book: LineageKpiBook,
+    current_initiatives: set[str],
+    *,
+    population_validator: Callable[[list[LineageKpiDefinition]], None] | None = None,
+) -> dict[str, Any]:
     replaced = {d.supersedes_definition_id for d in book.definitions}
     active = [d for d in book.definitions if d.initiative_id in current_initiatives and d.definition_id not in replaced]
     corrected = {o.supersedes_observation_id for o in book.observations}
@@ -159,7 +165,9 @@ def kpi_report(book: LineageKpiBook, current_initiatives: set[str]) -> dict[str,
     for metric in sorted({d.metric for d in active}):
         members = [d for d in active if d.metric == metric]
         populations = [(r.kind, r.record_id) for d in members for r in d.population]
-        if len(set(populations)) != len(populations):
+        if population_validator is not None:
+            population_validator(members)
+        elif len(set(populations)) != len(populations):
             raise ValueError("KPI aggregation cannot overlap current populations")
         ids = {d.definition_id for d in members}
         periods = sorted({(o.start, o.end) for o in observations if o.definition_id in ids})

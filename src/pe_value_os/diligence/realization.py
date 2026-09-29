@@ -572,7 +572,7 @@ def realization_report(
         }
     current_financial = json.loads(current.financial_result_json)
     if "interaction_policy" in current_financial:
-        result["version"] = "constructed-realization/3"
+        result["version"] = "constructed-realization/4" if lineage else "constructed-realization/3"
         result["allocation_comparability"] = {
             "original_selected_initiatives": json.loads(original.financial_result_json)["selected_initiatives"],
             "frozen_selected_initiatives": json.loads(frozen.financial_result_json)["selected_initiatives"],
