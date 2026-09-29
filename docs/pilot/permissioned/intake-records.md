@@ -3,7 +3,7 @@
 This increment connects [processing grants](processing-grants.md) to persisted
 [ledger preflight](intake-preflight.md) results, exact source bytes, correction
 history and human finance decisions. It is tested with fictional records and
-identities. Its release is tracked separately in the
+identities. Released in PR #43; exact-build acceptance is recorded in the
 [completion checklist](../../portfolio/remaining-work.md).
 
 No actual sponsor, company permission, accepted company records or performed
@@ -127,4 +127,7 @@ Private receipts reject public-exhibit use and have no MCP tool or public case
 export route. An authorized source download still returns private data and must
 stay within the approved handling scope. Private financial-case/actuals integration,
 provider processing, company-specific source adapters, staging deployment and real
-human reviews remain to be completed before a company pilot.
+human reviews remain to be completed before a company pilot. The subsequent
+[financial snapshot](financial-snapshots.md) adds versioned monthly inputs from
+accepted sources, with a separate release gate; it does not complete the private
+underwriting, frozen baseline, counterfactual or memo workflow.

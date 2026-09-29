@@ -41,6 +41,13 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_financials import (
+    FinancialSnapshotRequest,
+    PrivateFinancialSnapshot,
+    prepare_snapshot,
+    require_current_snapshot,
+    require_snapshot_writer,
+)
 from ..diligence.private_grants import (
     GrantEvent,
     GrantRequest,
@@ -132,6 +139,13 @@ def now() -> datetime:
 
 
 class Repository(Protocol):
+    def list_private_financial_snapshots(self, company_id: str, case_key: str) -> list[PrivateFinancialSnapshot]: ...
+    def record_private_financial_snapshot(
+        self, company_id: str, case_key: str, request: FinancialSnapshotRequest, environment_id: str
+    ) -> PrivateFinancialSnapshot: ...
+    def usable_private_financial_snapshot(
+        self, company_id: str, snapshot_id: str, environment_id: str
+    ) -> PrivateFinancialSnapshot: ...
     def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]: ...
     def list_private_finance_reviews(self, company_id: str, intake_id: str) -> list[FinanceReview]: ...
     def record_private_intake(
@@ -300,6 +314,86 @@ class InMemoryRepository:
         self.private_intakes: dict[str, PrivateIntake] = {}
         self.private_sources: dict[str, bytes] = {}
         self.private_intake_reviews: dict[str, FinanceReview] = {}
+        self.private_financial_snapshots: dict[str, PrivateFinancialSnapshot] = {}
+
+    def list_private_financial_snapshots(self, company_id: str, case_key: str) -> list[PrivateFinancialSnapshot]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        self.get_company(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_financial_snapshots.values()
+                    if r.company_id == company_id and r.case_key == case_key
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def record_private_financial_snapshot(
+        self, company_id: str, case_key: str, request: FinancialSnapshotRequest, environment_id: str
+    ) -> PrivateFinancialSnapshot:
+        principal = require_snapshot_writer(company_id)
+        with self.approval_transaction():
+            snapshots = self.list_private_financial_snapshots(company_id, case_key)
+            replay = next((r for r in snapshots if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private financial idempotency key belongs to another request or author")
+                return replay
+            previous = snapshots[-1] if snapshots else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private financial history changed; reload its current head")
+            record = self._private_intake(company_id, request.intake_id)
+            snapshot = prepare_snapshot(
+                company_id,
+                case_key,
+                request,
+                record,
+                self.private_sources[record.intake_id],
+                self.list_private_grants(company_id, record.request.grant_key),
+                self.list_private_finance_reviews(company_id, record.intake_id),
+                self.list_private_intakes(company_id, record.dataset_key)[-1],
+                previous,
+                environment_id,
+            )
+            self.private_financial_snapshots[snapshot.snapshot_id] = snapshot
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_financials",
+                    event_type="private_financial_snapshot",
+                    actor=snapshot.author,
+                    created_at=snapshot.recorded_at,
+                    payload={
+                        "snapshot_id": snapshot.snapshot_id,
+                        "sha256": snapshot.content_sha256,
+                        "intake_id": record.intake_id,
+                    },
+                )
+            )
+            return snapshot
+
+    def usable_private_financial_snapshot(
+        self, company_id: str, snapshot_id: str, environment_id: str
+    ) -> PrivateFinancialSnapshot:
+        require_grant_reader(company_id)
+        with self.approval_transaction():
+            snapshot = self.private_financial_snapshots.get(snapshot_id)
+            if snapshot is None or snapshot.company_id != company_id:
+                raise NotFound(snapshot_id)
+            record = self._private_intake(company_id, snapshot.request.intake_id)
+            require_current_snapshot(
+                snapshot,
+                record,
+                self.private_sources[record.intake_id],
+                self.list_private_grants(company_id, record.request.grant_key),
+                self.list_private_finance_reviews(company_id, record.intake_id),
+                self.list_private_intakes(company_id, record.dataset_key)[-1],
+                environment_id,
+            )
+            return snapshot
 
     def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]:
         require_grant_reader(company_id)
@@ -1113,6 +1207,7 @@ class InMemoryRepository:
                 "private_intakes",
                 "private_sources",
                 "private_intake_reviews",
+                "private_financial_snapshots",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -1362,6 +1457,7 @@ class InMemoryRepository:
                 "private_processing_grants",
                 "private_intakes",
                 "private_intake_reviews",
+                "private_financial_snapshots",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())

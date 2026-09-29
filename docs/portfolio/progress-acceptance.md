@@ -72,6 +72,16 @@ passed: 1,264 tests on each supported Python version, 84 browser checks,
 files matched the merge. These are fictional-fixture software checks, not
 actual company authorization, independent finance review or a performed pilot.
 
+The private source-custody and finance-review workflow was released in
+[PR #43](https://github.com/ahines99/pe-value-creation-os/pull/43), tested at
+`ebbb960c2760171fb6b4018455cfcaaa66c524b0` and merged as
+`35a93214936f74a6339be2e5a36aff90a768713c` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36633938733)
+passed: 1,319 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Eight published files
+matched the merge. Local focused checks passed 55 tests, and migration round-trip
+passed at 0009. No actual private company records or performed pilot are represented.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -85,7 +95,11 @@ The subsequent [private source-custody increment](../pilot/permissioned/intake-r
 implements atomic source bytes and receipts, persisted quarantine/corrections,
 exact-version human finance decisions and current accepted-source checks. Local
 tests cover memory/PostgreSQL/API, revocation races, rollback and source reproduction.
-Its own CI/publication gate is still pending. Private case/actuals integration,
+Its CI/publication acceptance is now verified in PR #43. The subsequent
+[private financial snapshots](../pilot/permissioned/financial-snapshots.md) calculate
+monthly inputs with exact source/review/grant bindings and explicit accounting
+definitions; that increment has a separate pending release gate. Private
+underwriting, baseline designation, counterfactual/attribution and memo composition,
 retention operations and all real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence

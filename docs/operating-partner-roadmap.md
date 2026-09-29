@@ -43,9 +43,12 @@ The processing-grant registry is released in
 [PR #42](https://github.com/ahines99/pe-value-creation-os/pull/42), with ten CI jobs
 passed, 1,264 tests per supported Python version and seven published files verified.
 The subsequent [source-custody and finance-review increment](pilot/permissioned/intake-records.md)
-has local implementation and tests; its CI/publication acceptance is separate.
-Private financial-case integration, retention operations, real finance approval
-and pilot readiness remain open as detailed in the completion checklist.
+is released in [PR #43](https://github.com/ahines99/pe-value-creation-os/pull/43):
+all ten CI jobs passed, with 1,319 tests per supported Python version and eight
+published files verified. The next [private financial snapshot](pilot/permissioned/financial-snapshots.md)
+adds monthly inputs under an explicit reviewed definition and has a separate
+release gate. Private underwriting/measurement/memo integration, retention
+operations, real finance approval and pilot readiness remain open.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|

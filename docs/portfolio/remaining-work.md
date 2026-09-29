@@ -59,6 +59,16 @@ passed: 1,264 tests on each supported Python version, 84 browser checks,
 files matched the merge. These are fictional-fixture software checks, not
 actual company authorization, independent finance review or a performed pilot.
 
+The private source-custody and finance-review workflow was released in
+[PR #43](https://github.com/ahines99/pe-value-creation-os/pull/43), tested at
+`ebbb960c2760171fb6b4018455cfcaaa66c524b0` and merged as
+`35a93214936f74a6339be2e5a36aff90a768713c` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36633938733)
+passed: 1,319 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Eight published files
+matched the merge. Local focused checks passed 55 tests, and migration round-trip
+passed at 0009. No actual private company records or performed pilot are represented.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -71,8 +81,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #42 is released and verified.
-The source-custody/finance-review increment below has a separate release gate; its
+**Current status:** implementation through PR #43 is released and verified.
+The private-financial-snapshot increment below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -223,13 +233,20 @@ are released in PR #42 with an append-only repository/API contract, exact
 policy/operator/environment scope and human revocation. Stored grants alone do
 not admit records or complete finance review or pilot readiness.
 
-**Current implementation increment:** [source custody and finance review](../pilot/permissioned/intake-records.md)
+**Released in PR #43:** [source custody and finance review](../pilot/permissioned/intake-records.md)
 stores exact bytes, preflight/quarantine, correction history and human decisions
 under the current grant transaction. It blocks superseded/unaccepted analytical
 source reads, reproduces preflight and removes source bytes during whole-company
-offboarding. This increment still needs its own CI/publication acceptance.
-Private-case/actuals integration, per-source expiry deletion, legal holds,
-backup/copy disposal and pilot readiness remain open.
+offboarding. Its CI and publication acceptance are verified.
+
+**Current implementation increment:** [private financial snapshots](../pilot/permissioned/financial-snapshots.md)
+calculate monthly earnings/cash inputs from accepted original bytes, retaining
+exact source/finance/grant bindings and a human-reviewed accounting definition.
+Snapshots remain private and do not declare realized value or a frozen baseline.
+This increment has its own pending CI/publication acceptance. Private underwriting,
+capacity-plan association, frozen baseline review, counterfactual observations,
+attribution and memo composition remain open, as do per-source expiry deletion,
+legal holds, backup/copy disposal and pilot readiness.
 
 Use a distinct permissioned-input contract and processing/export boundary. Add
 source mapping, reconciliation/quarantine, scoped access, correction history,

@@ -17,9 +17,11 @@ admitted. The existing pilot entry gates remain outstanding.
 The subsequent [processing-grant registry](processing-grants.md) records exact-policy
 human grants and revocations with named operators, environment scope and audit
 history. The subsequent [source-custody and finance-review increment](intake-records.md)
-adds atomic stored bytes, quarantine/corrections and exact-version human decisions;
-its release acceptance is tracked separately. Private case integration, retention
-operations and actual company approval remain outstanding.
+adds atomic stored bytes, quarantine/corrections and exact-version human decisions
+and is released in PR #43. The next [financial-snapshot increment](financial-snapshots.md)
+calculates versioned monthly private inputs under a recorded accounting definition;
+it has a separate release gate. Private underwriting, frozen baseline/measurement
+and memo integration, retention operations and actual company approval remain open.
 
 ### Who does what next
 
