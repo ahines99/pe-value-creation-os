@@ -31,6 +31,16 @@ passed: 1,176 tests on each supported Python version, 84 browser checks,
 files matched the merge. The four sourced candidates remain subject to
 metric-level exclusions; strict peer medians are still withheld.
 
+The financial-definition review was released in
+[PR #39](https://github.com/ahines99/pe-value-creation-os/pull/39), tested at
+`d172d3da31dda587d987c1436534d22d9bee51fb` and merged as
+`082beb0c972b562ad0e0fd659089cc0a977d7474` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36624637599)
+passed: 1,176 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Nine published files
+matched the merge. Both briefs now expose all four supplied annual/interim
+amortization exceptions. Their causes and independent finance review remain open.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original

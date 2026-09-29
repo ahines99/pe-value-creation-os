@@ -27,6 +27,13 @@ passed all ten jobs: 1,176 tests on each supported Python version, 84 browser
 checks, 31 bundle conditions and 39 installed-package evaluations. Thirteen
 published files matched merge `de2ee940ad9f6f1a2735dc15d208b72bbb831362`.
 
+The financial-definition review was released in
+[PR #39](https://github.com/ahines99/pe-value-creation-os/pull/39).
+[CI run 36624637599](https://github.com/ahines99/pe-value-creation-os/actions/runs/36624637599)
+passed all ten jobs with the same counts as PR #38. Nine published files matched
+merge `082beb0c972b562ad0e0fd659089cc0a977d7474`. This exposes the remaining
+reconciliation exceptions; it does not explain their unsupported components.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -39,10 +46,10 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #38 is released and verified.
-The financial-register and executive-route updates have separate release gates;
-their local presence does not establish publication. Historical counts below
-remain attached to their original builds.
+**Current status:** implementation through PR #39 is released and verified.
+The executive-route update has a separate release gate; its local presence does
+not establish publication. Historical counts remain attached to their original
+builds in this checklist and the acceptance map.
 
 Maintain one requirement map that distinguishes implemented behavior, unresolved
 research, unavailable evidence and external dependencies. Historical release counts
