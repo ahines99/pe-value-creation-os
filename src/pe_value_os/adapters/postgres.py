@@ -41,6 +41,22 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_grants import (
+    GrantEvent,
+    GrantRequest,
+)
+from ..diligence.private_grants import (
+    prepare_event as prepare_grant_event,
+)
+from ..diligence.private_grants import (
+    require_author as require_grant_author,
+)
+from ..diligence.private_grants import (
+    require_reader as require_grant_reader,
+)
+from ..diligence.private_grants import (
+    validate_key as validate_grant_key,
+)
 from ..diligence.realization import (
     Attribution,
     AttributionRequest,
@@ -82,6 +98,69 @@ class PostgresRepository:
 
     def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
         return FencedRepository(self, run_id, owner)
+
+    def list_private_grants(self, company_id: str, grant_key: str) -> list[GrantEvent]:
+        require_grant_reader(company_id)
+        validate_grant_key(grant_key)
+        self.get_company(company_id)
+        with self._tx() as cur:
+            return [
+                GrantEvent.model_validate(row["record"])
+                for row in cur.execute(
+                    "select record from private_processing_grants where company_id=%s and grant_key=%s order by sequence",
+                    (company_id, grant_key),
+                ).fetchall()
+            ]
+
+    def record_private_grant(self, company_id: str, grant_key: str, request: GrantRequest) -> GrantEvent:
+        principal = require_grant_author(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            # Serialize initial grants as well as revisions and revocations. The
+            # company row exists before any grant stream and is protected by RLS.
+            if not cur.execute(
+                "select company_id from companies where company_id=%s for update", (company_id,)
+            ).fetchone():
+                raise NotFound(company_id)
+            events = self.list_private_grants(company_id, grant_key)
+            replay = next((e for e in events if e.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Private grant idempotency key belongs to another request or actor")
+                return replay
+            previous = events[-1] if events else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private grant changed; reload its current head")
+            record = prepare_grant_event(company_id, grant_key, request, previous)
+            cur.execute(
+                """insert into private_processing_grants
+                (event_id,company_id,grant_key,sequence,previous_sha256,idempotency_key,action,actor_type,content_sha256,recorded_at,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.event_id,
+                    company_id,
+                    grant_key,
+                    record.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    request.action,
+                    record.actor_type,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_intake",
+                    event_type="private_processing_" + request.action,
+                    actor=record.actor,
+                    created_at=record.recorded_at,
+                    payload={"grant_key": grant_key, "event_id": record.event_id, "sha256": record.content_sha256},
+                )
+            )
+            return record
 
     def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
         with self.approval_transaction(), self._tx() as cur:
@@ -1572,6 +1651,7 @@ class PostgresRepository:
                 "case_observations",
                 "case_attributions",
                 "case_execution_events",
+                "private_processing_grants",
             ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)

@@ -41,6 +41,14 @@ passed all ten jobs with 1,176 tests per supported Python version, 84 browser
 checks, 31 bundle conditions and 39 installed-package evaluations. Sixteen
 published files matched merge `34c75f5ff46a0f83ac8dc73044e753de7789d858`.
 
+The private intake preflight was released in
+[PR #41](https://github.com/ahines99/pe-value-creation-os/pull/41).
+[CI run 36628596953](https://github.com/ahines99/pe-value-creation-os/actions/runs/36628596953)
+passed all ten jobs: 1,227 tests per supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Six published files
+matched merge `3188280ee8597c4dd6c68df9fc6e9a168307214c`. No private records were
+admitted and the pilot remains unstarted.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -53,8 +61,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #40 is released and verified.
-The private preflight increment below has a separate release gate; its local
+**Current status:** implementation through PR #41 is released and verified.
+The processing-grant increment below has a separate release gate; its local
 presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -197,9 +205,15 @@ comprehension claims remain unavailable until that review occurs.
 **First executable increment:** the [private ledger preflight](../pilot/permissioned/intake-preflight.md)
 checks scope, source/policy identity, mappings, completeness and exact controls;
 it writes a private receipt without admission or approval. Test fixtures are
-fictional. Persisted grants/revocations, source custody, quarantine/correction
-history, finance decisions, private-case integration and retention/deletion
-enforcement remain to be built and verified.
+fictional. Source custody, transactional quarantine/correction history, finance
+decisions, private-case integration and retention/deletion enforcement remain
+to be built and verified alongside the grant integration below.
+
+**Subsequent implementation increment:** [processing grants](../pilot/permissioned/processing-grants.md)
+now have an append-only repository/API contract, exact policy/operator/environment
+scope and human revocation. This increment has its own release gate. The remaining
+integration must load the current grant within the admission transaction; stored
+grants alone do not admit records or complete finance review or pilot readiness.
 
 Use a distinct permissioned-input contract and processing/export boundary. Add
 source mapping, reconciliation/quarantine, scoped access, correction history,

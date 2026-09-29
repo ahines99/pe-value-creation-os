@@ -517,7 +517,7 @@ def test_human_delivery_requires_named_operator_and_separate_human_acceptance(re
 def test_forced_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_database):
     import psycopg
 
-    from pe_value_os.db.migrate import current, downgrade
+    from pe_value_os.db.migrate import current, downgrade, upgrade
 
     with security.principal_scope(principal()):
         case, _, _, baseline, _ = ready(pg_repo)
@@ -529,9 +529,14 @@ def test_forced_rls_immutability_and_populated_downgrade_guard(pg_repo, pg_datab
         for statement in ("update case_execution_events set sequence=99", "delete from case_execution_events"):
             with pytest.raises(psycopg.errors.InsufficientPrivilege):
                 conn.execute(statement)
-    with pytest.raises(RuntimeError, match="Execution history"):
-        downgrade(pg_database[0], "0006")
-    assert current(pg_database[0]) == "0007"
+    try:
+        with pytest.raises(RuntimeError, match="Execution history"):
+            downgrade(pg_database[0], "0006")
+        # Empty later migrations may have committed their downgrade before the
+        # execution-history guard stops at 0007. Restore head for other tests.
+        assert current(pg_database[0]) == "0007"
+    finally:
+        upgrade(pg_database[0])
 
 
 def test_link_withdrawal_is_explicit_and_does_not_remove_the_claim(repo):
@@ -719,7 +724,7 @@ def test_database_enforces_baseline_mode_and_guard_sees_unscoped_owner(pg_repo, 
     import psycopg
     from psycopg import sql
 
-    from pe_value_os.db.migrate import downgrade
+    from pe_value_os.db.migrate import downgrade, upgrade
 
     with security.principal_scope(principal()):
         case, _, _, baseline, _ = ready(pg_repo)
@@ -736,6 +741,8 @@ def test_database_enforces_baseline_mode_and_guard_sees_unscoped_owner(pg_repo, 
     options = dict(parse_qsl(parts.query))
     options["options"] = "-crole=pvc_migrator"
     owner_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(options), parts.fragment))
+    # This test exercises the 0007 owner's guard, not ownership of later tables.
+    downgrade(pg_database[0], "0007")
     with psycopg.connect(pg_database[0], autocommit=True) as conn:
         owner = conn.execute(
             "select pg_get_userbyid(relowner) from pg_class where oid='case_execution_events'::regclass"
@@ -752,6 +759,7 @@ def test_database_enforces_baseline_mode_and_guard_sees_unscoped_owner(pg_repo, 
             ).fetchone()[0]
         finally:
             conn.execute(sql.SQL("alter table case_execution_events owner to {}").format(sql.Identifier(owner)))
+            upgrade(pg_database[0])
 
 
 def test_readonly_database_role_reads_execution(pg_repo, pg_database):

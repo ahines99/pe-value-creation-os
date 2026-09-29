@@ -52,6 +52,16 @@ files matched the merge, including the primary route, screenshots and guides.
 The browser suite checks the route's six destinations and binds the landing
 conclusion to the saved memo. Observed human comprehension remains unperformed.
 
+The private intake preflight was released in
+[PR #41](https://github.com/ahines99/pe-value-creation-os/pull/41), tested at
+`048acca8d99e83112ad4d2b9f454631c53cec1dd` and merged as
+`3188280ee8597c4dd6c68df9fc6e9a168307214c` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36628596953)
+passed: 1,227 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Six published files
+matched the merge. The checks used fictional private-lane fixtures; permission
+verification, finance acceptance, admission and a performed pilot remain absent.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original

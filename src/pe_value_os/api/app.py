@@ -14,7 +14,7 @@ import os
 import secrets
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Annotated, Any, Literal
 from urllib.parse import quote
 
@@ -30,6 +30,7 @@ from ..auth import JwtTokenVerifier, principal_from_claims, verifier_from_env
 from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
+from ..diligence.private_grants import GrantRequest, permission_status
 from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
@@ -171,6 +172,26 @@ def create_case(body: CaseCreateIn, request: Request, p: Principal) -> dict[str,
             .repo.create_investment_case(body.company_id, body.case_id, body.label, body.currency)
             .model_dump(mode="json")
         )
+
+
+@app.post("/companies/{company_id}/private-grants/{grant_key}/events", status_code=201)
+def record_private_grant(
+    company_id: str, grant_key: str, body: GrantRequest, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        return get_ctx().repo.record_private_grant(company_id, grant_key, body).model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-grants/{grant_key}")
+def private_grant_history(
+    company_id: str, grant_key: str, policy_sha256: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request):
+        events = get_ctx().repo.list_private_grants(company_id, grant_key)
+        return {
+            "events": [event.model_dump(mode="json") for event in events],
+            "current": permission_status(events, policy_sha256, now=datetime.now(UTC)),
+        }
 
 
 @app.get("/cases/{case_id}")
