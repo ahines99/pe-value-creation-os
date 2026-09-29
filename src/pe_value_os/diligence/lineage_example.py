@@ -312,6 +312,7 @@ def merge_lineage(parent: CaseRevision) -> RevisionDraft:
         old_tasks = [tasks[phase + ":" + child] for child in CHILDREN]
         new_task = deepcopy(old_tasks[0])
         new_task.update(task_id=phase + ":combined", initiative_id=MERGED, workstream_id=MERGED)
+        new_task["title"] = old_tasks[0]["title"].removesuffix(" / spring cohort") + " / consolidated renewals"
         new_task["prerequisites"] = list(
             dict.fromkeys(task_map.get(p, p) for task in old_tasks for p in task["prerequisites"])
         )

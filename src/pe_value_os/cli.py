@@ -492,7 +492,8 @@ def cmd_exit_review(args: argparse.Namespace) -> int:
     except (ValueError, OSError) as exc:
         print(f"Exit review failed ({type(exc).__name__}); inspect source and scenario contracts.", file=sys.stderr)
         return 2
-    print(f"Constructed exit review: {result}")
+    label = "Initiative and KPI lineage" if args.command == "lineage-demo" else "Constructed exit review"
+    print(f"{label}: {result}")
     return 0
 
 
