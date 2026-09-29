@@ -39,7 +39,7 @@ values to add together.
 | Ownership assumption review | 154,500.65 | 114,650.65 | Reduce assumed capture from 65% to 50% |
 | Contract/service/invoice challenge | −28,165.00 | −46,890.00 | Eligibility, notice, quality and timing constrain value |
 | Vendor-evidence correction | −163,165.00 | −181,890.00 | Remove unsupported vendor release; retain costs |
-| KPI seed, pricing split, target correction and merge (revisions 6?9) | ?163,165.00 | ?181,890.00 | Preserve seven KPI definitions, fifteen readings and frozen financial claims |
+| KPI seed, pricing split, target correction and merge (revisions 6–9) | −163,165.00 | −181,890.00 | Preserve seven KPI definitions, fifteen readings and frozen financial claims |
 | Constructed exit review (revision 10) | −163,165.00 | −181,890.00 | Preserve operating forecast; evaluate exit sensitivity separately |
 
 The [source-review history](source-review.html) shows the evidence corrections. The
