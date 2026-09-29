@@ -58,6 +58,13 @@ or product profitability is not replaced with fabricated company data.
 
 ### 3. Finish the financial-definition review — Codex
 
+**Public-source disposition recorded:** the [definition review](../research/operating-partner/08-financial-definition-review.md)
+reconciles supported measures and records all four annual/interim amortization
+exceptions, plus their derived-quarter effect. Both executive adjustment registers
+include every supplied exception. The cause remains unavailable; dependent
+earnings stay withheld. Component evidence, maintainability and independent finance
+approval are still outstanding, with specific requests recorded in the review.
+
 Investigate comparative acquired-intangible/other-amortization differences between
 cash-flow and income-statement measures. Complete the earnings adjustment rationale
 and distinguish recurring economics, implementation expense, capex, working capital,

@@ -1,6 +1,6 @@
 {
   "memo_version": "executive-decision-packet/6",
-  "brief_sha256": "695d818d4fff511b74f57ea6069e85850fd372ef50dc38b6c1e6cfffc7c72f36",
+  "brief_sha256": "68fa58291afda9debeb5c56e93fb216f5580e95720327236079c53da8d0ea7fc",
   "input_hashes": {
     "financial": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
     "growth": "13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d",
@@ -72,7 +72,7 @@
       {
         "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:restructuring",
         "disposition": "retain_expense",
-        "rationale": "A restructuring label does not establish that comparable costs will stop recurring. No additional earnings adjustment is accepted.",
+        "rationale": "Retain the expense. FY2025 Note 13 records restructuring activity across all three presented years and cash commitments beyond year end; the label does not establish a nonrecurring or cash-free adjustment.",
         "evidence_needed": "Program-level cost schedule, cash commitments, repeat-program history and finance review."
       },
       {
@@ -102,14 +102,26 @@
       {
         "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization",
         "disposition": "scope_unresolved",
-        "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-        "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+        "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 2,106,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+        "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
       },
       {
         "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization",
         "disposition": "scope_unresolved",
-        "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-        "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+        "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 203,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+        "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
+      },
+      {
+        "fact_id": "cik:0000876167:0000876167-26-000051:2024-12-01:2025-02-28:discrete_quarter:intangible_amortization",
+        "disposition": "scope_unresolved",
+        "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 351,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+        "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
+      },
+      {
+        "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:intangible_amortization",
+        "disposition": "scope_unresolved",
+        "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 702,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+        "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
       }
     ],
     "options": [
@@ -11627,7 +11639,7 @@
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:restructuring",
       "disposition": "retain_expense",
-      "rationale": "A restructuring label does not establish that comparable costs will stop recurring. No additional earnings adjustment is accepted.",
+      "rationale": "Retain the expense. FY2025 Note 13 records restructuring activity across all three presented years and cash commitments beyond year end; the label does not establish a nonrecurring or cash-free adjustment.",
       "evidence_needed": "Program-level cost schedule, cash commitments, repeat-program history and finance review.",
       "metric": "restructuring",
       "period": {
@@ -11712,8 +11724,8 @@
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization",
       "disposition": "scope_unresolved",
-      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld.",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 2,106,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.",
       "metric": "intangible_amortization",
       "period": {
         "start": "2023-12-01",
@@ -11729,8 +11741,8 @@
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization",
       "disposition": "scope_unresolved",
-      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld.",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 203,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.",
       "metric": "intangible_amortization",
       "period": {
         "start": "2022-12-01",
@@ -11741,6 +11753,40 @@
       "currency": "USD",
       "pdf_page": 41,
       "document_id": "cik:0000876167:0000876167-26-000008",
+      "accepted_addback": null
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000051:2024-12-01:2025-02-28:discrete_quarter:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 351,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.",
+      "metric": "intangible_amortization",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-02-28",
+        "basis": "discrete_quarter"
+      },
+      "reported_amount": "36581000",
+      "currency": "USD",
+      "pdf_page": 7,
+      "document_id": "cik:0000876167:0000876167-26-000051",
+      "accepted_addback": null
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 702,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.",
+      "metric": "intangible_amortization",
+      "period": {
+        "start": "2024-12-01",
+        "end": "2025-05-31",
+        "basis": "year_to_date"
+      },
+      "reported_amount": "73532000",
+      "currency": "USD",
+      "pdf_page": 8,
+      "document_id": "cik:0000876167:0000876167-26-000078",
       "accepted_addback": null
     }
   ],

@@ -204,10 +204,21 @@ def test_nonpublic_focal_fact_is_rejected_even_with_rebound_brief(classification
 
 def test_adjustment_register_retains_expenses_and_known_scope_exceptions():
     r = assemble_memo(*inputs())
-    assert len(r["adjustment_review"]) == 8
+    assert len(r["adjustment_review"]) == 10
     assert all(a["accepted_addback"] is None for a in r["adjustment_review"])
     unresolved = [a for a in r["adjustment_review"] if a["disposition"] == "scope_unresolved"]
-    assert {a["period"]["end"] for a in unresolved} == {"2023-11-30", "2024-11-30"}
+    assert {a["period"]["end"] for a in unresolved} == {
+        "2023-11-30",
+        "2024-11-30",
+        "2025-02-28",
+        "2025-05-31",
+    }
+    # Every supplied annual/interim amortization scope exception reaches the decision packet.
+    assert {a["fact_id"] for a in unresolved} == {
+        p["reported"]["intangible_amortization"]["fact_id"]
+        for p in r["public_financials"]["periods"]
+        if any(c["target"] == "intangible_amortization" and c["status"] == "mismatch" for c in p["reconciliations"])
+    }
     assert len([a for a in r["adjustment_review"] if a["disposition"] == "retain_expense"]) == 4
 
 

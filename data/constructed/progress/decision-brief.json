@@ -54,7 +54,7 @@
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:restructuring",
       "disposition": "retain_expense",
-      "rationale": "A restructuring label does not establish that comparable costs will stop recurring. No additional earnings adjustment is accepted.",
+      "rationale": "Retain the expense. FY2025 Note 13 records restructuring activity across all three presented years and cash commitments beyond year end; the label does not establish a nonrecurring or cash-free adjustment.",
       "evidence_needed": "Program-level cost schedule, cash commitments, repeat-program history and finance review."
     },
     {
@@ -84,14 +84,26 @@
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization",
       "disposition": "scope_unresolved",
-      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 2,106,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
     },
     {
       "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization",
       "disposition": "scope_unresolved",
-      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
-      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 203,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000051:2024-12-01:2025-02-28:discrete_quarter:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 351,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000078:2024-12-01:2025-05-31:year_to_date:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 702,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.",
+      "evidence_needed": "A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available."
     }
   ],
   "options": [
