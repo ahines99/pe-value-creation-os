@@ -55,12 +55,20 @@ def test_independently_worked_ratios_and_cohort_sensitivity():
     assert observations[1]["metrics"]["cash_margin"]["value"] == Decimal(687396) / Decimal(5168405)
     assert observations[2]["metrics"]["operating_margin"]["value"] == Decimal(209978) / Decimal(728992)
     assert observations[2]["metrics"]["cash_margin"]["value"] == Decimal(260516) / Decimal(728992)
-    assert oi["cohorts"]["all_eligible"]["median"] == Decimal(209978) / Decimal(728992)
-    assert cash["cohorts"]["all_eligible"]["median"] == Decimal(856688) / Decimal(2739226)
+    assert observations[3]["metrics"]["operating_margin"]["value"] == Decimal("1436.7") / Decimal("6272.2")
+    assert observations[3]["metrics"]["cash_margin"]["value"] == Decimal("1664.0") / Decimal("6272.2")
+    assert (
+        oi["cohorts"]["all_eligible"]["median"]
+        == (Decimal("1436.7") / Decimal("6272.2") + Decimal(209978) / Decimal(728992)) / 2
+    )
+    assert (
+        cash["cohorts"]["all_eligible"]["median"]
+        == (Decimal("1664.0") / Decimal("6272.2") + Decimal(856688) / Decimal(2739226)) / 2
+    )
     assert oi["cohorts"]["strict"]["count"] == 1 and oi["cohorts"]["strict"]["median"] is None
     assert cash["cohorts"]["strict"]["count"] == 0 and cash["cohorts"]["strict"]["median"] is None
     assert observations[2]["period"]["end"] == "2026-01-31"
-    assert observations[3]["period"] is None
+    assert observations[3]["period"]["end"] == "2025-12-31"
     assert report["operating_target"] is None
     assert context.model_dump_json() == before and analyze_peers(bundle, context) == report
 
@@ -100,10 +108,15 @@ def test_focal_cash_supplement_cannot_bypass_same_source_and_reconciliation(muta
 def test_removing_peer_withholds_median_and_keeps_exclusion_reason():
     data = raw()
     data["candidates"][0]["eligibility"][0]["status"] = "exclude"
+    # One exclusion leaves three contextual values; two drop below the display floor.
+    first = result(data)
+    assert first["metrics"]["operating_margin"]["cohorts"]["all_eligible"]["count"] == 3
+    assert first["metrics"]["operating_margin"]["cohorts"]["all_eligible"]["median"] is not None
+    data["candidates"][3]["eligibility"][0]["status"] = "exclude"
     report = result(data)
     assert report["metrics"]["operating_margin"]["cohorts"]["all_eligible"]["count"] == 2
     assert report["metrics"]["operating_margin"]["cohorts"]["all_eligible"]["median"] is None
-    assert report["metrics"]["cash_margin"]["cohorts"]["all_eligible"]["count"] == 3
+    assert report["metrics"]["cash_margin"]["cohorts"]["all_eligible"]["count"] == 4
     assert report["observations"][0]["metrics"]["operating_margin"]["rationale"]
 
 
@@ -171,7 +184,7 @@ def test_temporal_and_currency_gates(mutation):
         else:
             fact["period"]["start"] = fact["period"]["start"][:8] + "15"
     report = result(data)
-    assert report["metrics"]["cash_margin"]["cohorts"]["all_eligible"]["count"] == 2
+    assert report["metrics"]["cash_margin"]["cohorts"]["all_eligible"]["count"] == 3
     assert report["observations"][0]["metrics"]["operating_margin"]["value"] is None
 
 
@@ -209,6 +222,7 @@ def test_invalid_context_is_rejected(mutation):
     elif mutation == "unknown_evidence":
         data["candidates"][0]["eligibility"][0]["evidence_ids"] = ["unknown"]
     elif mutation == "unverified_included":
+        data["candidates"][3]["facts"] = None
         data["candidates"][3]["eligibility"][0]["status"] = "strict"
     elif mutation == "wrong_company":
         data["candidates"][0]["company"] = "Other"
@@ -260,7 +274,25 @@ def test_mapping_and_embedded_facts_match_separate_source_artifacts():
         )
         assert candidate.facts == bundle
         assert bundle.documents[0].mapping_sha256 == hashlib.sha256(mapping.model_dump_json().encode()).hexdigest()
-    assert sum(len(c.facts.facts) for c in inputs()[1].candidates if c.facts) == 93
+    assert sum(len(c.facts.facts) for c in inputs()[1].candidates if c.facts) == 123
+
+
+def test_ssc_software_investment_is_preserved_without_relabeling_cash_proxy():
+    bundle, context = inputs()
+    candidate = context.candidates[3]
+    assert candidate.facts is not None
+    facts = {f.metric: f.amount for f in candidate.facts.facts if f.period.end == date(2025, 12, 31)}
+    assert facts["capitalized_software_purchases"] == Decimal(-221900000)
+    assert facts["operating_cash_flow"] + facts["ppe_purchases"] == Decimal(1664000000)
+    after_software = facts["operating_cash_flow"] + facts["ppe_purchases"] + facts["capitalized_software_purchases"]
+    assert after_software == Decimal(1442100000)
+    report = analyze_peers(bundle, context)
+    metric = report["observations"][3]["metrics"]["cash_margin"]
+    assert metric["value"] != after_software / facts["revenue"]
+    assert metric["status"] == "context_only"
+    assert "ssc-capitalization" in metric["evidence_ids"]
+    assert "ssc-client-funds" in metric["evidence_ids"]
+    assert report["operating_target"] is None
 
 
 def test_header_page_number_and_40f_are_explicit_and_fail_closed(tmp_path, monkeypatch):

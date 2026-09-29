@@ -35,7 +35,12 @@ and adversarial cases remain in the separate test suites below.
 The subsequent [accounting-restatement exhibit](accounting-restatement.html)
 compares independently retrieved original and amended FY2005 filings, reconciles
 17 financial rows per version and preserves the intervening non-reliance notice.
-Focused tests pass locally; release acceptance for this increment is pending.
+Released in [PR #37](https://github.com/ahines99/pe-value-creation-os/pull/37),
+tested at `d1016dd1732ea24e1075c8032a674205cf0a7951` and merged as
+`18d8c85c3cc0f51bb36842366c9aba874eb32997` with identical trees. All ten
+[CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36619814502)
+passed: 1,175 tests on each Python version, 84 browser checks, 31 bundle conditions
+and 39 installed-package evaluations. Eight published files matched the merge.
 Its date-only chronology does not close the missing exact-publication criterion.
 
 The subsequent [twelve-revision shared-pool lifecycle](allocation-lineage-review.html)
@@ -75,7 +80,7 @@ complete outcome is not established. Passing tests does not replace external fac
 | **3. Capacity-aware 100-day plan — OP-08/10/11** | [Operating proposal](operating-plan.html), [source constraints](operating-sources.html), [execution receipts](execution.html); `test_operating_plan.py`, `test_operating_sources.py`, `test_execution.py` cover conflicts, dependencies, blocked gates, notice/quality/vendor limits and withdrawn support | Constructed feasibility and execution-state demonstration implemented. Actual operator commitments, effort, capacity and delivery evidence absent |
 | **4. Executive memo — OP-12/13** | [Memo](decision-memo.html), [case study](case-study.md), [demo](progress-demo.md), [practitioner packet](practitioner-review.md); `test_decision_memo.py`, `test_memo_review.py` and bundle check reproduce the decision and reject rehashed financial tampering; browser script checks keyboard/disclosure/narrow views | Integrated packet and internal engineering challenge implemented. Observed human comprehension, external commercial/finance challenge and scored practitioner rubric remain unperformed; no overall acceptance score assigned |
 | **5a. Underwriting-to-realization — OP-03/14/15** | [Case history](case-history.html), [realization](realization.html), [source review](source-review.html), [exit review](exit-review.html), [allocated lifecycle](allocation-lineage-review.html); revision, realization, source, exit and lineage tests cover exact reviews, frozen baselines, corrections, residuals, tenant boundaries and old-hash compatibility | Ten-revision physical-ownership and twelve-revision shared-pool constructed exercises implemented, with initiative/task changes and immutable scoped KPI definitions/readings. Real causal attribution and independently reviewed lessons remain unproven |
-| **5b. Historical replay — OP-16** | [Disclosure history](disclosure-history.html), [accounting restatement](accounting-restatement.html), `test_disclosure_history.py`, `test_accounting_restatement.py`; independent source-PDF verification, reconciliation and cutoff tests | Separate measurement-period and actual accounting-error comparisons implemented; restatement release acceptance pending. Date reconstruction suspends numbers during non-reliance. Exact public-availability time remains unavailable, so OP-16 is not complete |
+| **5b. Historical replay — OP-16** | [Disclosure history](disclosure-history.html), [accounting restatement](accounting-restatement.html), `test_disclosure_history.py`, `test_accounting_restatement.py`; independent source-PDF verification, reconciliation and cutoff tests | Separate measurement-period and actual accounting-error comparisons implemented; restatement released with exact-build acceptance. Date reconstruction suspends numbers during non-reliance. Exact public-availability time remains unavailable, so OP-16 is not complete |
 | **5c. Permissioned pilot — OP-17** | [Sponsor brief](../pilot/permissioned/sponsor-brief.md), [kickoff worksheet](../pilot/permissioned/kickoff-worksheet.md), [data request and roles](../pilot/permissioned/README.md), [entry criteria](../pilot/pilot-plan.md) | Package prepared. No sponsor, private ingestion acceptance, authorized records, intervention or outcome observation. Pilot has not started |
 | **Production — OP-18 / existing launch gates** | [Production roadmap](../portfolio-finalization-roadmap.md), pilot entry criteria and operations runbooks | Separate later scope; local/static acceptance does not establish deployed identity, recovery, live alerting, SLOs, signed reviews or staffed operations |
 
@@ -111,3 +116,8 @@ operating periods, actual management decisions or independent review.
 
 This packet advances OP-13; it does not close every OP-01–17 criterion or the full
 goal. The [capability roadmap](../operating-partner-roadmap.md) retains the original scope.
+
+The September 29 [peer-source review](../research/operating-partner/07-peer-evidence-review.md)
+adds verified SS&C statements to the existing selected cohort. All four candidates
+now have mapped public sources; broader context changes while strict medians
+remain withheld. This does not establish normalized profitability or sized savings.

@@ -1,0 +1,145 @@
+{
+  "company": "SS&C Technologies Holdings, Inc.",
+  "entity_id": "cik:0001402436",
+  "ticker": "SSNC",
+  "title": "SS&C Technologies Holdings, Inc. FY2025 Form 10-K",
+  "url": "https://investor.ssctech.com/static-files/8d784cd6-7a12-4eaf-a8a6-8f7672e2fb2b",
+  "accession": "0001193125-26-076745",
+  "form": "10-K",
+  "filed_on": "2026-02-26",
+  "source_sha256": "da30345eaee3f0177917144ff957dfcde153674163cab12eb0aebca983474a61",
+  "currency": "USD",
+  "unit_scale": 1000000,
+  "entity_heading": "SS&C TECHNOLOGIES HOLDINGS, INC.",
+  "entity_page": 1,
+  "tables": [
+    {
+      "pdf_page": 59,
+      "printed_page": "59",
+      "printed_page_location": "header",
+      "heading": "CONSOLIDATED STATEMENTS OF COMPREHENSIVE INCOME",
+      "unit_heading": "(in millions, except per share data)",
+      "period_heading": "Year Ended December 31,",
+      "columns": [
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2025-01-01",
+            "end": "2025-12-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-01-01",
+            "end": "2024-12-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2023",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-01-01",
+            "end": "2023-12-31",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "revenue",
+          "label": "Total revenues",
+          "occurrence": 0
+        },
+        {
+          "metric": "cost_of_revenue",
+          "label": "Total cost of revenues",
+          "occurrence": 0
+        },
+        {
+          "metric": "gross_profit",
+          "label": "Gross profit",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_expense",
+          "label": "Total operating expenses",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_income",
+          "label": "Operating income",
+          "occurrence": 0
+        },
+        {
+          "metric": "net_income",
+          "label": "Net income",
+          "occurrence": 0
+        }
+      ]
+    },
+    {
+      "pdf_page": 60,
+      "printed_page": "60",
+      "printed_page_location": "header",
+      "heading": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+      "unit_heading": "(in millions)",
+      "period_heading": "Year Ended December 31,",
+      "columns": [
+        {
+          "label": "2025",
+          "occurrence": 0,
+          "period": {
+            "start": "2025-01-01",
+            "end": "2025-12-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2024",
+          "occurrence": 0,
+          "period": {
+            "start": "2024-01-01",
+            "end": "2024-12-31",
+            "basis": "annual"
+          }
+        },
+        {
+          "label": "2023",
+          "occurrence": 0,
+          "period": {
+            "start": "2023-01-01",
+            "end": "2023-12-31",
+            "basis": "annual"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "metric": "cash_flow_net_income",
+          "label": "Net income",
+          "occurrence": 0
+        },
+        {
+          "metric": "operating_cash_flow",
+          "label": "Net cash provided by operating activities",
+          "occurrence": 0
+        },
+        {
+          "metric": "ppe_purchases",
+          "label": "Additions to property and equipment",
+          "occurrence": 0
+        },
+        {
+          "metric": "capitalized_software_purchases",
+          "label": "Additions to capitalized software",
+          "occurrence": 0
+        }
+      ]
+    }
+  ]
+}

@@ -7,13 +7,18 @@ feature backlog or an estimate of work already delivered.
 
 ## Current baseline
 
-The shared-pool, initiative and KPI integration is released in
+The shared-pool, initiative and KPI integration was released in
 [PR #36](https://github.com/ahines99/pe-value-creation-os/pull/36). Its
 [CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36511734336)
 passed all ten jobs, including 1,154 tests on each of Python 3.12, 3.13 and 3.14,
 81 browser checks, 31 bundle conditions and 39 installed-package evaluations.
 Twelve published files matched the merged Git blobs. These are release-specific
 software checks, not independent finance approval or evidence of company impact.
+
+The subsequent [PR #37](https://github.com/ahines99/pe-value-creation-os/pull/37)
+released the accounting-restatement comparison: all ten CI jobs passed, including
+1,175 tests on each Python version and 84 browser checks. Eight published files
+matched merge `18d8c85c3cc0f51bb36842366c9aba874eb32997`.
 
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
@@ -65,6 +70,10 @@ internal analysis is not described as independent finance approval.
 
 ### 4. Finish peer and thesis decisions — Codex
 
+**Source review:** all four selected candidates now have verified financial
+mappings, including SS&C. The [disposition](../research/operating-partner/07-peer-evidence-review.md)
+records why broader context is available but strict medians remain withheld.
+
 Review candidate peers by metric, business mix, period and accounting definition.
 Show how exclusions change or suppress comparisons. For each thesis, finalize
 retain/reject/defer, mechanism, contrary evidence, falsification test and next
@@ -78,8 +87,8 @@ opportunities stay unsized and adverse findings remain visible.
 ### 5. Complete the historical replay evidence — Codex
 
 **Current increment:** the [FY2005 accounting correction](accounting-restatement.html)
-and intervening non-reliance chronology are implemented and locally tested;
-release acceptance is pending. Exact public-availability timing remains unverified.
+and intervening non-reliance chronology are released with verified CI and
+publication. Exact public-availability timing remains unverified.
 
 Locate and verify an original disclosure and an actual later accounting
 restatement. Preserve both information sets and any intervening non-reliance

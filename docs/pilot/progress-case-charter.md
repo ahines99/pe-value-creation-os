@@ -84,7 +84,8 @@ The disclosed TSA termination is rejected as a new saving because it already occ
 See [ADR 0014](../adr/0014-acquisition-growth-research.md).
 
 The public peer exhibit now records metric-specific decisions for PTC, OpenText,
-Descartes and an unquantified SS&C candidate. The strict median is withheld;
+Descartes and SS&C, now supported by mapped issuer filings. SS&C remains
+context-only because of service mix and investment definitions. The strict median is withheld;
 reported differences do not become savings targets (ADR 0015).
 
 Still required: wider candidate/definition review, reviewed commercial conclusions,

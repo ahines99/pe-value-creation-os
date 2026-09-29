@@ -1,10 +1,10 @@
 {
   "memo_version": "executive-decision-packet/7",
-  "brief_sha256": "847d4732fb8717c6c334b5b6bea96f86a4e97c77fca1b09e0cec65ee43934f6b",
+  "brief_sha256": "695d818d4fff511b74f57ea6069e85850fd372ef50dc38b6c1e6cfffc7c72f36",
   "input_hashes": {
     "financial": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
     "growth": "13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d",
-    "peers": "0d3ce42243e87a49189301bf36d75073ee4dbb0444ab2fb16283a6a27dc2782c",
+    "peers": "69bb83a6e9522f6d50f3f31cbf3ba40f1b7b59ba9a530762b199b204596323b6",
     "underwriting": "7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb",
     "plan": "3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1",
     "balances": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
@@ -21,7 +21,7 @@
     "as_of": "2026-09-28",
     "financial_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
     "growth_sha256": "13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d",
-    "peers_sha256": "0d3ce42243e87a49189301bf36d75073ee4dbb0444ab2fb16283a6a27dc2782c",
+    "peers_sha256": "69bb83a6e9522f6d50f3f31cbf3ba40f1b7b59ba9a530762b199b204596323b6",
     "underwriting_sha256": "7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb",
     "plan_sha256": "3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1",
     "balances_sha256": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
@@ -3093,7 +3093,7 @@
   "public_peers": {
     "analysis_version": "metric-peer-context/1",
     "financial_input_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
-    "context_sha256": "0d3ce42243e87a49189301bf36d75073ee4dbb0444ab2fb16283a6a27dc2782c",
+    "context_sha256": "69bb83a6e9522f6d50f3f31cbf3ba40f1b7b59ba9a530762b199b204596323b6",
     "anchor": {
       "start": "2024-12-01",
       "end": "2025-11-30",
@@ -3115,13 +3115,14 @@
         },
         "cohorts": {
           "all_eligible": {
-            "count": 3,
+            "count": 4,
             "candidate_ids": [
               "ptc-2025",
               "opentext-2025",
-              "descartes-2026"
+              "descartes-2026",
+              "ssc-2025"
             ],
-            "median": "0.2880388262148281462622360739",
+            "median": "0.2585486054163327938351772188",
             "withheld_reason": null
           },
           "strict": {
@@ -3149,13 +3150,14 @@
         },
         "cohorts": {
           "all_eligible": {
-            "count": 3,
+            "count": 4,
             "candidate_ids": [
               "ptc-2025",
               "opentext-2025",
-              "descartes-2026"
+              "descartes-2026",
+              "ssc-2025"
             ],
-            "median": "0.3127481996739224875932106369",
+            "median": "0.2890229311880023458022811578",
             "withheld_reason": null
           },
           "strict": {
@@ -3454,56 +3456,58 @@
       {
         "candidate_id": "ssc-2025",
         "company": "SS&C Technologies Holdings, Inc.",
-        "period": null,
+        "period": {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "basis": "annual"
+        },
         "metrics": {
           "operating_margin": {
             "metric": "operating_margin",
-            "status": "exclude",
-            "rationale": "Local source bytes and financial mapping remain unverified.",
+            "status": "context_only",
+            "rationale": "Reconciled GAAP statements, but a different software-enabled services mix and capitalization policy prevent a strict operating benchmark.",
             "evidence_ids": [
-              "filing_index"
+              "ssc-mix",
+              "ssc-capitalization"
             ],
-            "value": null,
-            "blocked_by": [
-              "Source bytes and mapped facts not verified",
-              "Missing cost_of_revenue",
-              "Missing gross_profit",
-              "Missing operating_expense",
-              "Missing operating_income",
-              "Missing revenue",
-              "Excluded by recorded metric eligibility"
-            ],
-            "fact_ids": []
+            "value": "0.2290583846178374414081183636",
+            "blocked_by": [],
+            "fact_ids": [
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:cost_of_revenue",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:gross_profit",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_expense",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_income",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:revenue"
+            ]
           },
           "cash_margin": {
             "metric": "cash_margin",
-            "status": "exclude",
-            "rationale": "Local source bytes and financial mapping remain unverified.",
+            "status": "context_only",
+            "rationale": "CFO ties to consolidated net income. PP&E-only cash subtracts neither $221.9m capitalized software nor normalizes business mix; restricted client funds are not corporate cash.",
             "evidence_ids": [
-              "filing_index"
+              "ssc-capitalization",
+              "ssc-client-funds"
             ],
-            "value": null,
-            "blocked_by": [
-              "Source bytes and mapped facts not verified",
-              "Missing cash_flow_net_income",
-              "Missing net_income",
-              "Missing operating_cash_flow",
-              "Missing ppe_purchases",
-              "Missing revenue",
-              "Excluded by recorded metric eligibility"
-            ],
-            "fact_ids": []
+            "value": "0.2652976627020822040113516788",
+            "blocked_by": [],
+            "fact_ids": [
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:cash_flow_net_income",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:net_income",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_cash_flow",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:ppe_purchases",
+              "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:revenue"
+            ]
           },
           "organic_growth": {
             "metric": "organic_growth",
             "status": "exclude",
             "rationale": "Acquisition, currency and revenue-recognition perimeter are not reconciled to a common organic definition.",
             "evidence_ids": [
-              "filing_index"
+              "ssc-mix",
+              "ssc-acquisitions"
             ],
             "value": null,
             "blocked_by": [
-              "Source bytes and mapped facts not verified",
               "Comparable growth definition and perimeter not established",
               "Excluded by recorded metric eligibility"
             ],
@@ -3514,11 +3518,11 @@
             "status": "exclude",
             "rationale": "No reconciled common ARR definition or comparable ARR fact series in this mapping.",
             "evidence_ids": [
-              "filing_index"
+              "ssc-mix",
+              "ssc-acquisitions"
             ],
             "value": null,
             "blocked_by": [
-              "Source bytes and mapped facts not verified",
               "Comparable growth definition and perimeter not established",
               "Excluded by recorded metric eligibility"
             ],
@@ -5780,26 +5784,690 @@
           "candidate_id": "ssc-2025",
           "company": "SS&C Technologies Holdings, Inc.",
           "entity_id": "cik:0001402436",
-          "filing_index": "https://investor.ssctech.com/sec-filings/sec-filing/10-k/0001193125-26-076745",
-          "selection_rationale": "Considered as an acquisitive software and technology-enabled services group. Issuer PDF retrieval failed twice; no verified local bytes or quantitative mapping. Retained as an excluded candidate, not silently removed.",
-          "facts": null,
-          "disclosures": [],
+          "filing_index": "https://www.sec.gov/Archives/edgar/data/1402436/000119312526076745/0001193125-26-076745-index.htm",
+          "selection_rationale": "Considered as an acquisitive software and technology-enabled services group before calculation. The issuer PDF is now retrieved and mapped; financial-services/healthcare service mix and software investment prevent strict comparability.",
+          "facts": {
+            "schema_version": 1,
+            "company": "SS&C Technologies Holdings, Inc.",
+            "entity_id": "cik:0001402436",
+            "ticker": "SSNC",
+            "information_cutoff": "2026-09-28",
+            "documents": [
+              {
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "classification": "public_filing",
+                "entity_id": "cik:0001402436",
+                "title": "SS&C Technologies Holdings, Inc. FY2025 Form 10-K",
+                "url": "https://investor.ssctech.com/static-files/8d784cd6-7a12-4eaf-a8a6-8f7672e2fb2b",
+                "accession": "0001193125-26-076745",
+                "form": "10-K",
+                "filed_on": "2026-02-26",
+                "retrieved_at": "2026-09-29T19:34:48.109011Z",
+                "sha256": "da30345eaee3f0177917144ff957dfcde153674163cab12eb0aebca983474a61",
+                "mapping_sha256": "78e3ff41766fa63201b65f3abef1a5e9d649d28fe309817f9e49e96f4be5c303",
+                "extraction_version": "filing-pdf/3"
+              }
+            ],
+            "facts": [
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "revenue",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "6272.2",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total revenues",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Total revenues 6,272.2 5,882.0 5,502.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "revenue",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "5882.0",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total revenues",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Total revenues 6,272.2 5,882.0 5,502.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "revenue",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "5502.8",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total revenues",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Total revenues 6,272.2 5,882.0 5,502.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:cost_of_revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cost_of_revenue",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "3250.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total cost of revenues",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Total cost of revenues 3,250.6 3,018.4 2,851.0"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:cost_of_revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cost_of_revenue",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "3018.4",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total cost of revenues",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Total cost of revenues 3,250.6 3,018.4 2,851.0"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:cost_of_revenue",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cost_of_revenue",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "2851.0",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total cost of revenues",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Total cost of revenues 3,250.6 3,018.4 2,851.0"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:gross_profit",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "gross_profit",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "3021.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Gross profit",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Gross profit 3,021.6 2,863.6 2,651.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:gross_profit",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "gross_profit",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "2863.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Gross profit",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Gross profit 3,021.6 2,863.6 2,651.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:gross_profit",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "gross_profit",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "2651.8",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Gross profit",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Gross profit 3,021.6 2,863.6 2,651.8"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_expense",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_expense",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1584.9",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total operating expenses",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Total operating expenses 1,584.9 1,520.1 1,442.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:operating_expense",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_expense",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1520.1",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total operating expenses",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Total operating expenses 1,584.9 1,520.1 1,442.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:operating_expense",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_expense",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1442.9",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Total operating expenses",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Total operating expenses 1,584.9 1,520.1 1,442.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_income",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1436.7",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Operating income",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Operating income 1,436.7 1,343.5 1,208.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:operating_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_income",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1343.5",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Operating income",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Operating income 1,436.7 1,343.5 1,208.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:operating_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_income",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1208.9",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Operating income",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Operating income 1,436.7 1,343.5 1,208.9"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "net_income",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "798.7",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Net income",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Net income 798.7 761.7 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "net_income",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "761.7",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Net income",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Net income 798.7 761.7 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "net_income",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "608.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 59,
+                "printed_page": "59",
+                "row_label": "Net income",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Net income 798.7 761.7 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:cash_flow_net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cash_flow_net_income",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "798.7",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net income",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Net income $ 798.7 $ 761.7 $ 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:cash_flow_net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cash_flow_net_income",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "761.7",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net income",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Net income $ 798.7 $ 761.7 $ 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:cash_flow_net_income",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "cash_flow_net_income",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "608.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net income",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Net income $ 798.7 $ 761.7 $ 608.6"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:operating_cash_flow",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_cash_flow",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1744.8",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net cash provided by operating activities",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Net cash provided by operating activities 1,744.8 1,388.6 1,215.1"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:operating_cash_flow",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_cash_flow",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1388.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net cash provided by operating activities",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Net cash provided by operating activities 1,744.8 1,388.6 1,215.1"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:operating_cash_flow",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "operating_cash_flow",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "1215.1",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Net cash provided by operating activities",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Net cash provided by operating activities 1,744.8 1,388.6 1,215.1"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:ppe_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "ppe_purchases",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-80.8",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to property and equipment",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Additions to property and equipment (80.8) (61.4) (56.6)"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:ppe_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "ppe_purchases",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-61.4",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to property and equipment",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Additions to property and equipment (80.8) (61.4) (56.6)"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:ppe_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "ppe_purchases",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-56.6",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to property and equipment",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Additions to property and equipment (80.8) (61.4) (56.6)"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2025-01-01:2025-12-31:annual:capitalized_software_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "capitalized_software_purchases",
+                "period": {
+                  "start": "2025-01-01",
+                  "end": "2025-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-221.9",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to capitalized software",
+                "column_label": "2025 [annual; occurrence 0]",
+                "source_row": "Additions to capitalized software (221.9) (194.3) (194.9)"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2024-01-01:2024-12-31:annual:capitalized_software_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "capitalized_software_purchases",
+                "period": {
+                  "start": "2024-01-01",
+                  "end": "2024-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-194.3",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to capitalized software",
+                "column_label": "2024 [annual; occurrence 0]",
+                "source_row": "Additions to capitalized software (221.9) (194.3) (194.9)"
+              },
+              {
+                "fact_id": "cik:0001402436:0001193125-26-076745:2023-01-01:2023-12-31:annual:capitalized_software_purchases",
+                "document_id": "cik:0001402436:0001193125-26-076745",
+                "entity_id": "cik:0001402436",
+                "metric": "capitalized_software_purchases",
+                "period": {
+                  "start": "2023-01-01",
+                  "end": "2023-12-31",
+                  "basis": "annual"
+                },
+                "currency": "USD",
+                "reported_amount": "-194.9",
+                "unit_scale": 1000000,
+                "accounting_basis": "US_GAAP",
+                "pdf_page": 60,
+                "printed_page": "60",
+                "row_label": "Additions to capitalized software",
+                "column_label": "2023 [annual; occurrence 0]",
+                "source_row": "Additions to capitalized software (221.9) (194.3) (194.9)"
+              }
+            ],
+            "events": []
+          },
+          "disclosures": [
+            {
+              "evidence_id": "ssc-mix",
+              "pdf_page": 59,
+              "locator": "FY2025 Form 10-K PDF and printed page 59",
+              "source_anchor": "Software-enabled services",
+              "classification": "reported_disclosure",
+              "reported_summary": "FY2025 software-enabled services revenue is $5,211.1m of $6,272.2m total revenue.",
+              "analytical_limit": "Service mix differs from Progress; a GAAP margin difference does not establish removable cost."
+            },
+            {
+              "evidence_id": "ssc-capitalization",
+              "pdf_page": 60,
+              "locator": "FY2025 Form 10-K PDF and printed page 60",
+              "source_anchor": "Additions to capitalized software",
+              "classification": "reported_disclosure",
+              "reported_summary": "FY2025 investing outflows include $221.9m capitalized software and $80.8m property/equipment purchases.",
+              "analytical_limit": "The PP&E-only cash measure omits material software investment; it is not comparable free cash flow."
+            },
+            {
+              "evidence_id": "ssc-client-funds",
+              "pdf_page": 65,
+              "locator": "FY2025 Form 10-K PDF and printed page 65",
+              "source_anchor": "restricted for use",
+              "classification": "reported_disclosure",
+              "reported_summary": "Funds held on behalf of clients are restricted, with qualifying balances included in beginning and ending cash-flow cash.",
+              "analytical_limit": "Client cash is not available corporate cash. The client obligation movement appears in financing, not operating cash flow."
+            },
+            {
+              "evidence_id": "ssc-acquisitions",
+              "pdf_page": 73,
+              "locator": "FY2025 Form 10-K PDF and printed page 73",
+              "source_anchor": "Calastone",
+              "classification": "reported_disclosure",
+              "reported_summary": "The filing describes the October 2025 Calastone acquisition.",
+              "analytical_limit": "Consolidated revenue growth does not establish a common organic or ARR growth definition."
+            }
+          ],
           "operating_expense_components": [],
           "eligibility": [
             {
               "metric": "operating_margin",
-              "status": "exclude",
-              "rationale": "Local source bytes and financial mapping remain unverified.",
+              "status": "context_only",
+              "rationale": "Reconciled GAAP statements, but a different software-enabled services mix and capitalization policy prevent a strict operating benchmark.",
               "evidence_ids": [
-                "filing_index"
+                "ssc-mix",
+                "ssc-capitalization"
               ]
             },
             {
               "metric": "cash_margin",
-              "status": "exclude",
-              "rationale": "Local source bytes and financial mapping remain unverified.",
+              "status": "context_only",
+              "rationale": "CFO ties to consolidated net income. PP&E-only cash subtracts neither $221.9m capitalized software nor normalizes business mix; restricted client funds are not corporate cash.",
               "evidence_ids": [
-                "filing_index"
+                "ssc-capitalization",
+                "ssc-client-funds"
               ]
             },
             {
@@ -5807,7 +6475,8 @@
               "status": "exclude",
               "rationale": "Acquisition, currency and revenue-recognition perimeter are not reconciled to a common organic definition.",
               "evidence_ids": [
-                "filing_index"
+                "ssc-mix",
+                "ssc-acquisitions"
               ]
             },
             {
@@ -5815,7 +6484,8 @@
               "status": "exclude",
               "rationale": "No reconciled common ARR definition or comparable ARR fact series in this mapping.",
               "evidence_ids": [
-                "filing_index"
+                "ssc-mix",
+                "ssc-acquisitions"
               ]
             }
           ]
