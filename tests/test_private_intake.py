@@ -315,6 +315,33 @@ def test_unauthorized_operator_cannot_open_ledger(inputs, tmp_path, monkeypatch)
     assert not (tmp_path / "var").exists()
 
 
+@pytest.mark.parametrize("field,value", [("company_id", "another-company"), ("policy_sha256", "0" * 64)])
+def test_mismatched_manifest_cannot_open_ledger(inputs, tmp_path, monkeypatch, field, value):
+    paths = install_files(tmp_path, monkeypatch, inputs)
+    manifest = json.loads(paths[1].read_bytes())
+    manifest[field] = value
+    paths[1].write_text(json.dumps(manifest), encoding="utf-8")
+    paths[2].unlink()
+    with pytest.raises(ValueError, match="before opening"):
+        intake.check_files(*paths, "denied")
+    assert not (tmp_path / "var").exists()
+
+
+def test_expired_processing_window_cannot_open_ledger(inputs, tmp_path, monkeypatch):
+    paths = install_files(tmp_path, monkeypatch, inputs)
+
+    class Clock:
+        @staticmethod
+        def now(zone):
+            return inputs[0].expires_at
+
+    monkeypatch.setattr(intake, "datetime", Clock)
+    paths[2].unlink()
+    with pytest.raises(ValueError, match="before opening"):
+        intake.check_files(*paths, "expired")
+    assert not (tmp_path / "var").exists()
+
+
 def test_cli_only_prints_safe_status_and_keeps_failed_validation_values_private(inputs, tmp_path, monkeypatch, capsys):
     paths = install_files(tmp_path, monkeypatch, inputs)
     monkeypatch.setenv("PVC_OPERATOR_COMPANIES", "pilot-fixture")

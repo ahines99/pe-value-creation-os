@@ -52,7 +52,7 @@ uv run pvc pilot-intake-check --policy tests/fixtures/pilot-intake/policy.json -
 
 The fixture's processing window is September 1, 2026 through January 1, 2027
 (exclusive); retention ends February 1, 2027. The command uses actual UTC time,
-so an expired fixture correctly produces a quarantine verdict. Tests freeze the
+so an expired fixture correctly fails before opening the ledger. Tests freeze the
 assessment at September 29, 2026. Do not change an actual company's dates or
 authorization reference to bypass an expiry check.
 
@@ -80,7 +80,8 @@ the three inputs are not overwritten.
   in place; this is a verdict, not a persisted quarantine queue. Row-level issues
   identify source ordinals without copying the offending field values. Failed
   identity, scope, date or size checks prevent ledger parsing.
-- **Command failure / exit 2:** malformed policy/manifest, missing scope, unsafe
+- **Command failure / exit 2:** malformed or mismatched policy/manifest, expired
+  processing/retention window, missing scope, unsafe
   output location, existing receipt or I/O failure. No successful receipt is
   claimed. Inspect private inputs locally; do not paste private exception data
   into a public issue.

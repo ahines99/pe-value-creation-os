@@ -34,6 +34,13 @@ passed all ten jobs with the same counts as PR #38. Nine published files matched
 merge `082beb0c972b562ad0e0fd659089cc0a977d7474`. This exposes the remaining
 reconciliation exceptions; it does not explain their unsupported components.
 
+The executive walkthrough and interview guide were released in
+[PR #40](https://github.com/ahines99/pe-value-creation-os/pull/40).
+[CI run 36626437331](https://github.com/ahines99/pe-value-creation-os/actions/runs/36626437331)
+passed all ten jobs with 1,176 tests per supported Python version, 84 browser
+checks, 31 bundle conditions and 39 installed-package evaluations. Sixteen
+published files matched merge `34c75f5ff46a0f83ac8dc73044e753de7789d858`.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -46,10 +53,10 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #39 is released and verified.
-The executive-route update has a separate release gate; its local presence does
-not establish publication. Historical counts remain attached to their original
-builds in this checklist and the acceptance map.
+**Current status:** implementation through PR #40 is released and verified.
+The private preflight increment below has a separate release gate; its local
+presence does not establish publication or pilot readiness. Historical counts
+remain attached to their original builds in this checklist and the acceptance map.
 
 Maintain one requirement map that distinguishes implemented behavior, unresolved
 research, unavailable evidence and external dependencies. Historical release counts
@@ -127,13 +134,13 @@ note alone does not close this requirement.
 
 ### 6. Consolidate the executive walkthrough — Codex
 
-**Implemented for release review:** the landing page now leads with the Progress
+**Published in PR #40:** the landing page now leads with the Progress
 decision and a six-stop primary route. The README and presenter guide follow the
 same sequence. Shared-pool examples and the fictional local approval demo are
 explicitly separate; deeper exhibits remain available through an expandable index.
 Browser checks verify route destinations and bind the landing conclusion to the
-saved memo's reopened preference and authority state. Publication acceptance and
-actual observed executive comprehension remain separate checks.
+saved memo's reopened preference and authority state. Publication acceptance is
+verified; actual observed executive comprehension remains unperformed.
 
 Create a clear primary route through business context, thesis, evidence, explicit
 assumptions, EBITDA/cash/valuation, constrained first-wave selection, source

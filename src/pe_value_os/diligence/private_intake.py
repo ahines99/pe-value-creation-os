@@ -182,35 +182,43 @@ def require_operator(company_id: str) -> security.Principal:
     return principal
 
 
-def assess_intake(policy: IntakePolicy, manifest: IntakeManifest, raw: bytes, *, now: datetime) -> IntakeReport:
-    require_operator(policy.company_id)
+def header_issues(policy: IntakePolicy, manifest: IntakeManifest, now: datetime) -> list[IntakeIssue]:
     if now.tzinfo is None:
         raise ValueError("assessment time must be timezone-aware")
     now = now.astimezone(UTC)
-    issues: list[IntakeIssue] = []
+    issues = []
+    checks = (
+        (manifest.company_id == policy.company_id, "company_scope_mismatch"),
+        (manifest.policy_sha256 == fingerprint(policy), "policy_fingerprint_mismatch"),
+        (policy.valid_from <= now < policy.expires_at, "outside_processing_window"),
+        (now < policy.retain_until, "retention_expired"),
+        (policy.valid_from <= manifest.extracted_at <= now, "extraction_outside_processing_window"),
+        (
+            manifest.data_cutoff == month_end(policy.first_month, policy.months - 1)
+            and manifest.extracted_at.astimezone(UTC).date() >= manifest.data_cutoff,
+            "cutoff_mismatch",
+        ),
+    )
+    for passed, code in checks:
+        if not passed:
+            issues.append(IntakeIssue(code=code))
+    return issues
+
+
+def assess_intake(policy: IntakePolicy, manifest: IntakeManifest, raw: bytes, *, now: datetime) -> IntakeReport:
+    require_operator(policy.company_id)
+    issues = header_issues(policy, manifest, now)
+    now = now.astimezone(UTC)
     results: list[ControlResult] = []
 
     def issue(code: str, *rows: int) -> None:
         issues.append(IntakeIssue(code=code, row_numbers=rows))
 
     actual_hash = hashlib.sha256(raw).hexdigest()
-    if manifest.company_id != policy.company_id:
-        issue("company_scope_mismatch")
-    if manifest.policy_sha256 != fingerprint(policy):
-        issue("policy_fingerprint_mismatch")
     if actual_hash != manifest.source_sha256:
         issue("source_fingerprint_mismatch")
     if len(raw) > MAX_BYTES:
         issue("source_size_limit")
-    if not policy.valid_from <= now < policy.expires_at:
-        issue("outside_processing_window")
-    if now >= policy.retain_until:
-        issue("retention_expired")
-    if not policy.valid_from <= manifest.extracted_at <= now:
-        issue("extraction_outside_processing_window")
-    last_day = month_end(policy.first_month, policy.months - 1)
-    if manifest.data_cutoff != last_day or manifest.extracted_at.astimezone(UTC).date() < last_day:
-        issue("cutoff_mismatch")
 
     # Do not parse a file with failed identity, scope, processing or size checks.
     if not issues:
@@ -295,8 +303,11 @@ def check_files(policy_path: Path, manifest_path: Path, ledger_path: Path, name:
     # Require scope before opening the operating ledger or preparing output paths.
     require_operator(policy.company_id)
     manifest = parse_private(IntakeManifest, read_bounded(manifest_path))
+    now = datetime.now(UTC)
+    if header_issues(policy, manifest, now):
+        raise ValueError("private header checks failed before opening the ledger")
     raw = read_bounded(ledger_path)
-    report = assess_intake(policy, manifest, raw, now=datetime.now(UTC))
+    report = assess_intake(policy, manifest, raw, now=now)
     root = Path.cwd().resolve() / "var" / "permissioned-pilot"
     if root.resolve() != root:
         raise ValueError("private output root cannot redirect through a symbolic link")
