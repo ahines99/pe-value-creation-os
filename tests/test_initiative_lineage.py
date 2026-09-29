@@ -323,6 +323,64 @@ def test_merge_rejects_incomplete_population_and_identity_reuse():
         RevisionDraft.model_validate(raw)
 
 
+def test_renaming_initiative_cannot_silently_reassign_existing_task_ids():
+    from pe_value_os.diligence.lineage_example import definition, partition_book, source_basis
+    from pe_value_os.diligence.operating_sources import PartitionedSourceBook
+    from pe_value_os.diligence.scheduling import OperatingPlan, fingerprint
+    from pe_value_os.diligence.underwriting import UnderwritingCase
+
+    parent = saved_parent()
+    seed = advance(parent, seed_lineage(parent))
+    prior = seed.draft.payload
+    renamed = "pricing-renamed"
+    case = UnderwritingCase.model_validate_json(
+        prior.underwriting.model_dump_json().replace('"pricing-renewals"', '"pricing-renamed"')
+    )
+    raw_plan = json.loads(prior.operating_plan.model_dump_json().replace('"pricing-renewals"', '"pricing-renamed"'))
+    raw_plan["underwriting_sha256"] = fingerprint(case)
+    plan = OperatingPlan.model_validate(raw_plan)
+    raw_book = json.loads(
+        partition_book(prior.source_basis).model_dump_json().replace('"pricing-renewals"', '"pricing-renamed"')
+    )
+    raw_book["records"].update(underwriting_sha256=fingerprint(case), plan_sha256=fingerprint(plan))
+    book = PartitionedSourceBook.model_validate(raw_book)
+    new_definition = definition(
+        book, renamed, "renamed-kpi-v1", "net_price_uplift", Decimal(1000000), predecessors=("pricing-kpi-v1",)
+    )
+    payload = LineageCasePayload.model_validate(
+        {
+            "schema_version": 4,
+            "basis": source_basis(seed, case, plan, book),
+            "kpis": {"definitions": [*prior.kpis.definitions, new_definition], "observations": prior.kpis.observations},
+            "lineage_events": [
+                {
+                    "parent_revision_id": seed.revision_id,
+                    "parent_revision_sha256": seed.content_sha256,
+                    "prior_underwriting_sha256": fingerprint(prior.underwriting),
+                    "revised_underwriting_sha256": fingerprint(case),
+                    "effective_on": "2027-04-30",
+                    "edges": [
+                        {"predecessor_id": "pricing-renewals", "successor_id": renamed, "reference_allocation": "1"}
+                    ],
+                    "task_edges": [],
+                    "rationale": "Identity change without explicit task ancestry",
+                    "allocation_basis": "Complete source population retained",
+                }
+            ],
+        }
+    )
+    with pytest.raises(ValueError, match="unchanged task identity"):
+        advance(
+            seed,
+            RevisionDraft(
+                stage="ownership_review",
+                effective_on=date(2027, 4, 30),
+                reason="Invalid task ownership reuse",
+                payload=payload,
+            ),
+        )
+
+
 def test_lineage_api_roundtrip(repo, monkeypatch):
     from types import SimpleNamespace
 

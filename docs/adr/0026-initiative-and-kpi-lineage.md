@@ -21,6 +21,8 @@ An identity transition binds its exact parent revision, prior and revised inputs
 and authored date. Every retired initiative and work package maps to a complete
 successor set. Retired IDs cannot be reused. A many-to-many change requires separate
 split and merge revisions. Each predecessor's reference allocation sums to one.
+An unchanged task ID retains its initiative ownership; a renamed initiative cannot
+silently inherit the old task IDs without an explicit task transition.
 
 Partitioned source books assign each contract, invoice and indivisible service/vendor
 month exactly once, using the record hash. Every current driver owns records of its

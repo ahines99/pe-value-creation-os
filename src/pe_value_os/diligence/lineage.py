@@ -143,6 +143,12 @@ class LineageCasePayload(Record):
             raise ValueError("lineage history cannot be discarded or rewritten")
         old = {d.initiative_id: d for d in prior.underwriting.scenarios[0].drivers}
         new = {d.initiative_id: d for d in self.underwriting.scenarios[0].drivers}
+        old_tasks = {t.task_id: t for t in prior_source.operating_plan.tasks}
+        new_tasks = {t.task_id: t for t in self.operating_plan.tasks}
+        if any(
+            old_tasks[key].initiative_id != new_tasks[key].initiative_id for key in old_tasks.keys() & new_tasks.keys()
+        ):
+            raise ValueError("unchanged task identity must retain initiative ownership; use explicit task lineage")
         before, after = set(old) - set(new), set(new) - set(old)
         if bool(before) != bool(after):
             raise ValueError("lineage cannot silently add or remove an economic initiative")
