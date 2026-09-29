@@ -154,7 +154,7 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 | Area | State |
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
-| Public Progress case and constructed lifecycle | Six case revisions, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
+| Public Progress case and constructed lifecycle | Ten case revisions with initiative/KPI lineage, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
 | CI (GitHub Actions) | Exact PR #32 evidence: ten successful jobs, 1,047 tests per Python version, 39 evaluations and 54 browser checks. Later changes require their own successful CI. HIGH and CRITICAL image findings fail regardless of fix availability. |
 | Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
 | Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
@@ -210,3 +210,8 @@ adds a sixth saved revision, an earnings/multiple/interaction decomposition and
 a hypothetical equity bridge. Scoped operating forecasts remain separate from
 company-level sensitivities. Actual proceeds, distributions and investment
 returns remain unavailable.
+
+The [initiative and KPI history](https://ahines99.github.io/pe-value-creation-os/portfolio/lineage-review.html)
+extends that rehearsal to ten revisions: disjoint source ownership, pricing split and
+merge, immutable targets/readings and unchanged financial claims. The current memo
+uses this history; the earlier six-revision exit exhibit remains inspectable.

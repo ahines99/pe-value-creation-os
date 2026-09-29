@@ -43,6 +43,7 @@ def main() -> None:
         "historical-valuation": "/portfolio/historical-valuation.html",
         "disclosure-history": "/portfolio/disclosure-history.html",
         "exit-review": "/portfolio/exit-review.html",
+        "lineage-review": "/portfolio/lineage-review.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -250,6 +251,21 @@ def main() -> None:
                         page.locator("main").focus()
                         page.locator("#bridge").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"exit-bridge-{width}.png"))
+                if name == "lineage-review":
+                    assert "Ten revisions" in page.locator("#history").inner_text()
+                    assert "pricing-spring" in page.locator("#lineage").inner_text()
+                    assert "4.00%" in page.locator("#kpis").inner_text()
+                    assert "18,000.00" in page.locator("#authority").inner_text()
+                    payload = page.request.get(base + "/portfolio/lineage-review.json").json()
+                    assert len(payload["revisions"]) == 10 and payload["human_review_count"] == 0
+                    assert payload["initiative_comparability"]["historical_child_allocations"] is None
+                    latest = json.loads(payload["revisions"][-1]["financial_result_json"])
+                    assert len(latest["lineage_review"]["kpis"]["definitions"]) == 7
+                    assert len(latest["lineage_review"]["kpis"]["observations"]) == 15
+                    assert latest["exit_review"]["transaction_proceeds"] is None
+                    if width in (1440, 375):
+                        page.locator("#kpis").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"lineage-kpis-{width}.png"))
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()

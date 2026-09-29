@@ -28,7 +28,7 @@ code; third-party data rights remain separate.
 
 ## What changed, and why
 
-The six-revision lifecycle retains these **constructed base-case USD forecasts
+The ten-revision lifecycle retains these **constructed base-case USD forecasts
 for October 2026 through September 2027**. They are successive versions, not
 values to add together.
 
@@ -39,9 +39,13 @@ values to add together.
 | Ownership assumption review | 154,500.65 | 114,650.65 | Reduce assumed capture from 65% to 50% |
 | Contract/service/invoice challenge | −28,165.00 | −46,890.00 | Eligibility, notice, quality and timing constrain value |
 | Vendor-evidence correction | −163,165.00 | −181,890.00 | Remove unsupported vendor release; retain costs |
-| Constructed exit review | −163,165.00 | −181,890.00 | Preserve operating forecast; evaluate exit sensitivity separately |
+| KPI seed, pricing split, target correction and merge (revisions 6–9) | −163,165.00 | −181,890.00 | Preserve seven KPI definitions, fifteen readings and frozen financial claims |
+| Constructed exit review (revision 10) | −163,165.00 | −181,890.00 | Preserve operating forecast; evaluate exit sensitivity separately |
 
-The [source-review history](source-review.html) shows the corrections. The
+The [source-review history](source-review.html) shows the evidence corrections. The
+[initiative and KPI history](lineage-review.html) traces the split, target revision,
+reading correction and merge. Every source record has one current owner; shared
+costs remain once, and historical parent results are not allocated to children. The
 [memo](decision-memo.html) recomputes three competing first-wave sequences under
 latest evidence. All three remain negative in the base first year. Moving tasks
 does not repair the business case; the earlier service-first preference is
@@ -97,8 +101,9 @@ and internal checks are not independent certification.
 The implemented result is an inspectable workflow that changes its recommendation
 when evidence deteriorates. [Exact-build evidence and remaining requirements](progress-acceptance.md)
 remain separate from external finance/commercial review and observed executive
-comprehension, which have not been performed. Initiative/KPI split lineage, richer
-overlap allocations and exact publication-time reconstruction remain open.
+comprehension, which have not been performed. Initiative/KPI lineage is implemented
+for explicit, disjoint source populations. Richer overlap allocations, broader KPI
+semantics and exact publication-time reconstruction remain open.
 
 A [practitioner worksheet](practitioner-review.md) and [sponsor package](../pilot/permissioned/README.md)
 are ready. A real pilot needs authorized records, management participation, an

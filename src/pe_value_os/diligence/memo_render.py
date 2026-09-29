@@ -156,6 +156,8 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
     )
     if review:
         body += source_challenge_summary(report)
+        if "lineage_review" in review["latest_financials"]:
+            body += "<section class='panel'><h2>Preserve the decision history as work changes</h2><p>The latest case includes a pricing split, an explicit KPI target change and reading correction, and a later merge. Original sequence priorities follow the recorded task ancestry. Costs and frozen financial claims remain intact.</p><p><a href='lineage-review.html'>Inspect the ten-revision lifecycle, source ownership and KPI history</a>.</p></section>"
     body += "<section class='panel' id='thesis'><h2>Judgments that shape the next decision</h2><div class='memo-grid'>"
     for point in brief["thesis"]:
         body += (

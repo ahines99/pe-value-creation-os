@@ -51,8 +51,12 @@ as a sixth case revision. It reconciles earnings, multiple and interaction effec
 and an explicitly assumed equity bridge. Historical public company anchors stay
 separate from scoped operating forecasts; accounting, claims and the frozen close
 remain intact. Proceeds, actual exit and investment returns remain unavailable.
-Initiative/KPI split lineage and independently reviewed maintainability are still
-open; see [ADR 0025](adr/0025-constructed-exit-review.md).
+The later [ten-revision exercise](portfolio/lineage-review.html) adds disjoint source
+ownership, explicit initiative/task splits and merges, immutable KPI targets and
+readings, weighted ratios and frozen-to-current financial comparability. Historical
+parent claims are never allocated to children. See [ADR 0026](adr/0026-initiative-and-kpi-lineage.md).
+Broader allocation interactions and independently reviewed maintainability remain open;
+the earlier exit model is documented in [ADR 0025](adr/0025-constructed-exit-review.md).
 
 OP-13 now has a [current case study](portfolio/case-study.md),
 [guided demonstration](portfolio/progress-demo.md), [practitioner worksheet](portfolio/practitioner-review.md)
@@ -359,8 +363,8 @@ five constructed accounting periods, claims and residuals. Existing v1 signed
 records remain readable without hash changes; no live database migration is needed.
 See [ADR 0022](adr/0022-source-backed-case-revisions.md).
 
-Codex next owns initiative/KPI lineage, exit-value boundaries, publication-vintage
-replay and the final executive/practitioner acceptance packet. Real pilot work
+Codex next owns the remaining benefit-allocation interactions, public evidence gaps,
+pilot readiness engineering and corrections arising from executive/practitioner review. Real pilot work
 still requires a sponsor, authorization, a tested private-data lane and actual
 management participation. Alex has no sponsor yet and requested the
 [prepared pilot package](pilot/permissioned/README.md); preparation and simulation

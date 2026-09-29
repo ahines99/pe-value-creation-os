@@ -524,7 +524,7 @@ def realization_report(
                 if all(r[name] is not None for r in eligible)
                 else None
             )
-    return {
+    result = {
         "version": "constructed-realization/1",
         "classification": "constructed_operating_exercise",
         "case_id": case.case_id,
@@ -550,3 +550,24 @@ def realization_report(
         "day_100_actual": None,
         "limitation": "Constructed monthly records and authored no-intervention counterfactuals. Financial differences are not causal impact. Explicit attribution claims and unassigned residual are separate. Missing periods are not zero; no monthly observation is prorated into a day-100 actual. No company intervention or observed customer result is claimed.",
     }
+    lineage = json.loads(current.financial_result_json).get("lineage_review")
+    if lineage is not None:
+        frozen_ids = json.loads(frozen.financial_result_json)["selected_initiatives"]
+        families = {identity: f for f in lineage["families"] for identity in f["all_identities"]}
+        if not set(frozen_ids) <= families.keys():
+            raise ValueError("lineage must retain the complete frozen measurement perimeter")
+        result["version"] = "constructed-realization/2"
+        result["initiative_comparability"] = {
+            "current_revision_sha256": current.content_sha256,
+            "frozen_to_current": [
+                {
+                    "frozen_initiative_id": identity,
+                    "family_id": families[identity]["family_id"],
+                    "current_ids": families[identity]["current_ids"],
+                }
+                for identity in frozen_ids
+            ],
+            "historical_child_allocations": None,
+            "authority": "Read-only identity mapping. Accounting and attribution retain their exact frozen initiative IDs; neither split shares nor KPI readings allocate historical financial claims to successors.",
+        }
+    return result

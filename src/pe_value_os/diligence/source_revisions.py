@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .models import Record
-from .operating_sources import OperatingSourceBook
+from .operating_sources import OperatingBook, operating_records, source_records
 from .scheduling import OperatingPlan, fingerprint
 from .underwriting import EXPECTED_UNITS, UnderwritingCase
 
@@ -18,12 +18,8 @@ UUID = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 SHA = r"^[0-9a-f]{64}$"
 
 
-def source_rows(book: OperatingSourceBook) -> dict[tuple[str, str], Record]:
-    return {
-        **{("renewal", r.record_id): r for r in book.renewals},
-        **{("invoice", r.record_id): r for r in book.invoices},
-        **{("service_month", str(r.month)): r for r in book.service_months},
-    }
+def source_rows(book: OperatingBook) -> dict[tuple[str, str], Record]:
+    return operating_records(source_records(book))
 
 
 class OperatingRecordRef(Record):
@@ -61,7 +57,7 @@ class SourceCasePayload(Record):
     decision_question: str = Field(min_length=1)
     counterevidence: tuple[str, ...] = Field(min_length=1)
     unresolved_items: tuple[str, ...] = Field(min_length=1)
-    operating_sources: OperatingSourceBook
+    operating_sources: OperatingBook
     challenged_revision_id: str = Field(pattern=UUID)
     challenged_revision_sha256: str = Field(pattern=SHA)
     lessons: tuple[SourceLesson, ...] = Field(min_length=1)

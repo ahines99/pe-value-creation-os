@@ -21,11 +21,11 @@ implementation, not future commits or independent finance validation.
 
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
-and the current exit revision. It verifies 13 conditions: exit inputs, original
+and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
 operating-source inputs, full memo reproduction, public appendix, historical
 valuation, original underwriting, capacity plan, frozen close, accounting
 continuity, attribution reconciliation, authority boundaries and the two rendered
-memo/exit pages. It uses the application's calculators; hand-worked expectations
+memo/exit pages, lineage authority and the rendered lineage page. It uses the application's calculators; hand-worked expectations
 and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
@@ -39,7 +39,7 @@ complete outcome is not established. Passing tests does not replace external fac
 | **2. EBITDA, cash and valuation — OP-04/05/06/07** | [Underwriting](underwriting.html), [historical valuation](historical-valuation.html), [exit review](exit-review.html); `test_underwriting.py`, `test_historical_valuation.py`, `test_exit_review.py` cover hand-worked amounts, cost timing, cash reversals, missing earnings, negative residuals and EV decomposition | Explicit separate models implemented. Richer pool allocation/exclusivity, independently challenged adjustments/maintainability and actual transaction claim inputs remain open |
 | **3. Capacity-aware 100-day plan — OP-08/10/11** | [Operating proposal](operating-plan.html), [source constraints](operating-sources.html), [execution receipts](execution.html); `test_operating_plan.py`, `test_operating_sources.py`, `test_execution.py` cover conflicts, dependencies, blocked gates, notice/quality/vendor limits and withdrawn support | Constructed feasibility and execution-state demonstration implemented. Actual operator commitments, effort, capacity and delivery evidence absent |
 | **4. Executive memo — OP-12/13** | [Memo](decision-memo.html), [case study](case-study.md), [demo](progress-demo.md), [practitioner packet](practitioner-review.md); `test_decision_memo.py`, `test_memo_review.py` and bundle check reproduce the decision and reject rehashed financial tampering; browser script checks keyboard/disclosure/narrow views | Integrated packet and internal engineering challenge implemented. Observed human comprehension, external commercial/finance challenge and scored practitioner rubric remain unperformed; no overall acceptance score assigned |
-| **5a. Underwriting-to-realization — OP-03/14/15** | [Case history](case-history.html), [realization](realization.html), [source review](source-review.html), [exit review](exit-review.html); `test_case_revisions.py`, `test_realization.py`, `test_source_revisions.py`, `test_exit_review.py` cover exact reviews, frozen baselines, corrections, residuals, tenant boundaries and old-hash compatibility | Six-revision constructed lifecycle implemented. Initiative/KPI split lineage remains rejected rather than mapped; real causal attribution and independently reviewed lessons remain unproven |
+| **5a. Underwriting-to-realization — OP-03/14/15** | [Case history](case-history.html), [realization](realization.html), [source review](source-review.html), [exit review](exit-review.html); `test_case_revisions.py`, `test_realization.py`, `test_source_revisions.py`, `test_exit_review.py`, `test_initiative_lineage.py`, `test_source_partitions.py` cover exact reviews, frozen baselines, corrections, residuals, tenant boundaries and old-hash compatibility | Ten-revision constructed lifecycle implemented with explicit initiative/task splits and merges, exact source ownership and immutable KPI definitions/readings; real causal attribution and independently reviewed lessons remain unproven |
 | **5b. Historical replay — OP-16** | [Disclosure history](disclosure-history.html), `test_disclosure_history.py`; source-PDF row verification and cutoff tests | Provisional/final measurement-period comparison implemented. Exact public-availability time is unavailable; an accounting-error restatement is not demonstrated. Those claims remain withheld |
 | **5c. Permissioned pilot — OP-17** | [Sponsor brief](../pilot/permissioned/sponsor-brief.md), [kickoff worksheet](../pilot/permissioned/kickoff-worksheet.md), [data request and roles](../pilot/permissioned/README.md), [entry criteria](../pilot/pilot-plan.md) | Package prepared. No sponsor, private ingestion acceptance, authorized records, intervention or outcome observation. Pilot has not started |
 | **Production — OP-18 / existing launch gates** | [Production roadmap](../portfolio-finalization-roadmap.md), pilot entry criteria and operations runbooks | Separate later scope; local/static acceptance does not establish deployed identity, recovery, live alerting, SLOs, signed reviews or staffed operations |
@@ -56,14 +56,14 @@ proof of correctness or completion.
 | Source truth | Public facts, authored assumptions and constructed observations stay distinct; unsupported claims remain blocked/unsized | Reviewer must assess commercial relevance and missing operating populations |
 | Financial reconciliation | Independent numerical examples plus separate EBITDA/cash/EV exhibits; adverse source correction remains adverse | Richer overlap allocation and maintainability review open |
 | Feasible plan | Resource/dependency conflicts change dated schedule and economics; missing prerequisites block work | Assumed budgets cannot establish actual management capacity |
-| Version and authority | Immutable revisions, exact-hash receipts, scoped access, simulation labels and preserved frozen close | Split initiative/KPI lineage open; no simulated review becomes human authority |
+| Version and authority | Immutable revisions, exact-hash receipts, scoped access, simulation labels and preserved frozen close | Split/merge and KPI history implemented for disjoint populations; no simulated review becomes human authority |
 | Executive challenge | Recomputed alternatives, visible contrary evidence, internal adversarial tests and prepared review prompts | No observed comprehension or external score; do not call this practitioner-reviewed |
 | Usability and publication | 18 pages × three widths in PR #32; keyboard and disclosure checks; rendered memo/JSON consistency | Browser automation does not establish accessibility certification or human usability acceptance |
 | Honest outcome | Actual company value, proceeds and pilot result unavailable | Company participation and observed evidence are external prerequisites |
 
 ## Remaining work and ownership
 
-1. **Codex:** implement explicit initiative/KPI split mappings while retaining comparable original/current/actual periods and preventing benefit duplication.
+1. **Codex:** maintain exact-build acceptance for the [initiative/KPI lineage](lineage-review.html) implementation; preserve its disjoint-population limits. [PR #34](https://github.com/ahines99/pe-value-creation-os/pull/34) records this increment's CI. Broader pool allocation remains separate work.
 2. **Codex:** complete the remaining interaction/allocation cases and targeted source/commercial diligence where public evidence can resolve them. Preserve unsupported or adverse conclusions.
 3. **Codex:** maintain this packet and execute corrections from review. A human/practitioner session is unperformed until someone actually participates; blank worksheet fields remain blank.
 4. **Codex:** prepare the agreed private ingestion and readiness evidence once a sponsor defines scope. Generic readiness work may proceed, but no company environment or permission is presumed.

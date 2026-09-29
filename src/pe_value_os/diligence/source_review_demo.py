@@ -31,6 +31,8 @@ def source_draft(
     if correction:
         if not isinstance(prior, SourceCasePayload):
             raise ValueError("source correction requires a prior source-backed revision")
+        if not isinstance(prior.operating_sources, OperatingSourceBook):
+            raise ValueError("the legacy source-correction demo requires an unpartitioned source book")
         book = prior.operating_sources
     bound = OperatingSourceBook.model_validate(
         {

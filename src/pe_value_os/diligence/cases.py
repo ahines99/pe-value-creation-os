@@ -15,7 +15,8 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .. import security
-from .exit_review import ExitReviewPayload, evaluate_exit
+from .exit_review import ExitReviewPayload, evaluate_exit, exit_payload
+from .lineage import LineageCasePayload, evaluate_lineage
 from .models import Record
 from .operating_sources import source_forecast
 from .scheduling import OperatingPlan, evaluate_plan
@@ -47,13 +48,14 @@ class RevisionDraft(Record):
     stage: Literal["underwriting", "close_validation", "ownership_review", "exit_review"]
     effective_on: date
     reason: str = Field(min_length=1)
-    payload: CasePayload | SourceCasePayload | ExitReviewPayload
+    payload: CasePayload | SourceCasePayload | ExitReviewPayload | LineageCasePayload
 
     @model_validator(mode="after")
     def exit_stage(self) -> Self:
-        if isinstance(self.payload, ExitReviewPayload) and self.stage != "exit_review":
+        exit_basis = exit_payload(self.payload)
+        if exit_basis is not None and self.stage != "exit_review":
             raise ValueError("exit-review stage requires its explicit exit payload and assumptions")
-        if isinstance(self.payload, ExitReviewPayload) and self.effective_on != self.payload.exit_assumptions.exit_on:
+        if exit_basis is not None and self.effective_on != exit_basis.exit_assumptions.exit_on:
             raise ValueError("exit effective date must match the authored scenario date")
         return self
 
@@ -147,7 +149,7 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
         raise ValueError("first revision must be original underwriting")
     # Old v1/v2 stage markers remain readable under their original signed schema.
     # New writes must provide the actual exit assumptions rather than an empty marker.
-    if draft.stage == "exit_review" and not isinstance(draft.payload, ExitReviewPayload):
+    if draft.stage == "exit_review" and exit_payload(draft.payload) is None:
         raise ValueError("new exit review requires its explicit exit payload and assumptions")
     if parent is not None:
         old = parent.draft.payload.underwriting
@@ -158,15 +160,19 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
             raise ValueError("revision must preserve the comparison calendar")
         if new.company != old.company:
             raise ValueError("revision must preserve the reference company")
-        if {(d.initiative_id, d.kind, d.benefit_pool) for d in new.scenarios[0].drivers} != {
-            (d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers
-        }:
+        if not isinstance(draft.payload, LineageCasePayload) and {
+            (d.initiative_id, d.kind, d.benefit_pool) for d in new.scenarios[0].drivers
+        } != {(d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers}:
             raise ValueError("initiative lineage changes require an explicit mapping; title matching is insufficient")
+        if isinstance(parent.draft.payload, LineageCasePayload) and not isinstance(draft.payload, LineageCasePayload):
+            raise ValueError("a lineage-backed revision cannot discard its identity and KPI history")
+        if isinstance(draft.payload, LineageCasePayload):
+            draft.payload.bind_parent(parent, draft.effective_on)
         if source_payload(parent.draft.payload) and not source_payload(draft.payload):
             raise ValueError("a source-backed revision cannot silently discard its operating-source basis")
-        if isinstance(parent.draft.payload, ExitReviewPayload) and not isinstance(draft.payload, ExitReviewPayload):
+        if exit_payload(parent.draft.payload) is not None and exit_payload(draft.payload) is None:
             raise ValueError("an exit review cannot silently discard its valuation basis")
-        if isinstance(draft.payload, ExitReviewPayload) and (
+        if exit_payload(draft.payload) is not None and (
             source_payload(parent.draft.payload) is None
             or parent.draft.stage not in {"ownership_review", "exit_review"}
         ):
@@ -181,8 +187,11 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
         source = source_forecast(payload.operating_sources, payload.underwriting, payload.operating_plan)
         financial = financial_snapshot(payload, parent, source)
         report = source["schedule"]
-        if isinstance(draft.payload, ExitReviewPayload):
-            financial["exit_review"] = evaluate_exit(draft.payload, financial)
+        exit_basis = exit_payload(draft.payload)
+        if exit_basis is not None:
+            financial["exit_review"] = evaluate_exit(exit_basis, financial)
+        if isinstance(draft.payload, LineageCasePayload):
+            financial["lineage_review"] = evaluate_lineage(draft.payload, parent, financial)
     elif draft.payload.operating_plan is None:
         financial = evaluate(draft.payload.underwriting)
     else:

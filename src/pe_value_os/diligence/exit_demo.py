@@ -272,6 +272,8 @@ def build_exit_demo(
     valuation: Path,
     assumptions: Path,
     output: Path,
+    *,
+    include_lineage: bool = False,
 ) -> Path:
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     if {
@@ -301,14 +303,19 @@ def build_exit_demo(
     spec = ExitAssumptions.model_validate_json(assumptions.read_bytes())
     if exercise.realization_sha256 != fingerprint(financial):
         raise ValueError("execution must bind the exact realization exercise")
+    replay, render = replay_exit, render_exit
+    if include_lineage:
+        from .lineage_demo import render_lineage, replay_lineage
+
+        replay, render = replay_lineage, render_lineage
     report = demonstrate_realization(
         case,
         plan,
         financial,
         lambda repo, case, baseline: replay_execution(repo, case, baseline, exercise),
-        lambda repo, case, baseline: replay_exit(repo, case, baseline, book, exercise, public, balance, value, spec),
+        lambda repo, case, baseline: replay(repo, case, baseline, book, exercise, public, balance, value, spec),
     )
-    html = render_exit(report, json_path.name)
+    html = render(report, json_path.name)
     html_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(report, default=str, indent=2) + "\n", encoding="utf-8")
     html_path.write_text(html, encoding="utf-8")

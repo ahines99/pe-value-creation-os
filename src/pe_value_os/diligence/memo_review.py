@@ -5,12 +5,13 @@ from __future__ import annotations
 import json
 from typing import Any, Literal, Self
 
-from pydantic import Field, model_validator
+from pydantic import Field, TypeAdapter, model_validator
 
 from .cases import CaseReview, CaseRevision
-from .exit_review import ExitReviewPayload, evaluate_exit
+from .exit_review import evaluate_exit, exit_payload
+from .lineage import LineageCasePayload, evaluate_lineage, mapped_priority
 from .models import Record
-from .operating_sources import OperatingSourceBook, source_forecast
+from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan, fingerprint
 from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
 from .underwriting import UnderwritingCase
@@ -41,18 +42,25 @@ class MemoReviewContext(Record):
                 or (b.case_id, b.company, b.currency, b.start, b.months)
                 != (a.case_id, a.company, a.currency, a.start, a.months)
                 or current.draft.effective_on < prior.draft.effective_on
-                or {(d.initiative_id, d.kind, d.benefit_pool) for d in a.scenarios[0].drivers}
-                != {(d.initiative_id, d.kind, d.benefit_pool) for d in b.scenarios[0].drivers}
+                or (
+                    not isinstance(current.draft.payload, LineageCasePayload)
+                    and {(d.initiative_id, d.kind, d.benefit_pool) for d in a.scenarios[0].drivers}
+                    != {(d.initiative_id, d.kind, d.benefit_pool) for d in b.scenarios[0].drivers}
+                )
             ):
                 raise ValueError("memo review requires a contiguous same-case comparison history")
+            if isinstance(prior.draft.payload, LineageCasePayload) and not isinstance(
+                current.draft.payload, LineageCasePayload
+            ):
+                raise ValueError("lineage history cannot be discarded")
+            if isinstance(current.draft.payload, LineageCasePayload):
+                current.draft.payload.bind_parent(prior, current.draft.effective_on)
             basis = source_payload(current.draft.payload)
             if basis is not None:
                 basis.bind_parent(prior)
             elif source_payload(prior.draft.payload) is not None:
                 raise ValueError("source basis cannot be discarded")
-            if isinstance(prior.draft.payload, ExitReviewPayload) and not isinstance(
-                current.draft.payload, ExitReviewPayload
-            ):
+            if exit_payload(prior.draft.payload) is not None and exit_payload(current.draft.payload) is None:
                 raise ValueError("exit valuation basis cannot be discarded")
         seen: dict[str, CaseReview] = {}
         superseded: set[str] = set()
@@ -111,8 +119,11 @@ def challenge_options(
     computed = financial_snapshot(
         payload, parent, source_forecast(payload.operating_sources, payload.underwriting, payload.operating_plan)
     )
-    if isinstance(latest.draft.payload, ExitReviewPayload):
-        computed["exit_review"] = evaluate_exit(latest.draft.payload, computed)
+    exit_basis = exit_payload(latest.draft.payload)
+    if exit_basis is not None:
+        computed["exit_review"] = evaluate_exit(exit_basis, computed)
+    if isinstance(latest.draft.payload, LineageCasePayload):
+        computed["lineage_review"] = evaluate_lineage(latest.draft.payload, parent, computed)
     normalized = json.loads(json.dumps(computed, default=str, sort_keys=True))
     if normalized != json.loads(latest.financial_result_json):
         raise ValueError("stored source forecast differs from its reproduced inputs and calculator")
@@ -121,17 +132,17 @@ def challenge_options(
         proposed = OperatingPlan.model_validate(
             {
                 **payload.operating_plan.model_dump(mode="json"),
-                "priority_order": option["priority_order"],
+                "priority_order": mapped_priority(latest.draft.payload, option["priority_order"])
+                if isinstance(latest.draft.payload, LineageCasePayload)
+                else option["priority_order"],
                 "revision_id": payload.operating_plan.revision_id + ":source-challenge:" + option["option_id"],
                 "sequencing_rationale": option["rationale"],
             }
         )
-        sources = OperatingSourceBook.model_validate(
-            {
-                **payload.operating_sources.model_dump(mode="json"),
-                "plan_sha256": fingerprint(proposed),
-            }
-        )
+        raw_sources = payload.operating_sources.model_dump(mode="json")
+        source_binding = raw_sources["records"] if raw_sources["schema_version"] == 2 else raw_sources
+        source_binding["plan_sha256"] = fingerprint(proposed)
+        sources: OperatingBook = TypeAdapter(OperatingBook).validate_python(raw_sources)
         candidate = SourceCasePayload.model_validate(
             {
                 **payload.model_dump(mode="json"),
@@ -195,6 +206,11 @@ def challenge_options(
         "recommendation": "Reopen first-wave selection: every tested sequence has nonpositive base year-one EBITDA after the corrected source constraints and retained costs. Changing task order does not repair the business case."
         if nonpositive
         else "Reopen first-wave selection against the latest source constraints; compare economics, capacity and evidence before choosing an alternative.",
-        "source_treatment": "Each alternative keeps the latest underwriting assumptions, source rows, resources, work packages and costs. Only priority order and its resulting dates change; source-book plan hashes are explicitly rebound to each hypothetical schedule.",
+        "source_treatment": "Each alternative keeps the latest underwriting assumptions, source rows, resources, work packages and costs. Only priority order and its resulting dates change; source-book plan hashes are explicitly rebound to each hypothetical schedule."
+        + (
+            " Original priorities follow the explicitly recorded split/merge task ancestry to current packages."
+            if isinstance(latest.draft.payload, LineageCasePayload)
+            else ""
+        ),
         "authority": "Derived research challenge, not a new case revision or operating approval. A receipt for the stored case does not accept these recomputed alternatives. Constructed exercise dates do not change the public-filing information cutoff; this is not a historical point-in-time forecast.",
     }

@@ -486,12 +486,14 @@ def cmd_exit_review(args: argparse.Namespace) -> int:
                     "assumptions",
                     "output",
                 )
-            )
+            ),
+            include_lineage=args.command == "lineage-demo",
         )
     except (ValueError, OSError) as exc:
         print(f"Exit review failed ({type(exc).__name__}); inspect source and scenario contracts.", file=sys.stderr)
         return 2
-    print(f"Constructed exit review: {result}")
+    label = "Initiative and KPI lineage" if args.command == "lineage-demo" else "Constructed exit review"
+    print(f"{label}: {result}")
     return 0
 
 
@@ -516,6 +518,22 @@ def build_parser() -> argparse.ArgumentParser:
         exit_review.add_argument(f"--{flag}", required=True)
     exit_review.add_argument("--output", default="var/exit-review/exit-review")
     exit_review.set_defaults(fn=cmd_exit_review)
+
+    lineage = sub.add_parser("lineage-demo", help="replay initiative splits, merges and immutable KPI history")
+    for flag in (
+        "underwriting",
+        "operating-plan",
+        "realization",
+        "execution",
+        "sources",
+        "facts",
+        "balances",
+        "valuation",
+        "assumptions",
+    ):
+        lineage.add_argument(f"--{flag}", required=True)
+    lineage.add_argument("--output", default="var/lineage-review/lineage-review")
+    lineage.set_defaults(fn=cmd_exit_review)
 
     history = sub.add_parser(
         "disclosure-history", help="compare public filing vintages with explicit publication limits"

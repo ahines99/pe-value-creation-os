@@ -185,7 +185,9 @@ def assemble_memo(
         status = review["status"]
     # The reported and incremental layers are intentionally separate objects. No sum is emitted.
     return {
-        "memo_version": "executive-decision-packet/4"
+        "memo_version": "executive-decision-packet/5"
+        if review and "lineage_review" in review["latest_financials"]
+        else "executive-decision-packet/4"
         if review and "exit_review" in review["latest_financials"]
         else "executive-decision-packet/3"
         if review
