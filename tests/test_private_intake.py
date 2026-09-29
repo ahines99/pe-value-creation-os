@@ -270,6 +270,17 @@ def test_private_receipt_preserves_old_inputs_and_rejects_overwrite(inputs, tmp_
     assert len(list(destination.parent.glob("*.json"))) == 2
 
 
+def test_running_inside_docs_keeps_receipts_out_of_the_static_tree(inputs, tmp_path, monkeypatch):
+    paths = install_files(tmp_path, monkeypatch, inputs)
+    (tmp_path / ".git").write_text("gitdir: fixture-only", encoding="utf-8")
+    docs = tmp_path / "docs/portfolio"
+    docs.mkdir(parents=True)
+    monkeypatch.chdir(docs)
+    intake.check_files(*paths, "nested-cwd")
+    assert (tmp_path / "var/permissioned-pilot/nested-cwd.json").exists()
+    assert not (docs / "var").exists()
+
+
 @pytest.mark.parametrize("name", ["../../docs/exposed", "../public-diligence/exposed"])
 def test_public_path_escape_is_rejected(inputs, tmp_path, monkeypatch, name):
     paths = install_files(tmp_path, monkeypatch, inputs)

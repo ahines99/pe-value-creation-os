@@ -73,6 +73,12 @@ or redirect through a symlink to a public directory. Receipts use exclusive
 creation: choose a new name for a correction or rerun; an existing receipt and
 the three inputs are not overwritten.
 
+Inside a Git checkout, the output root is anchored to that checkout even when
+the command runs from `docs/`. For an installed package outside a checkout, use
+a private working directory: its `var/permissioned-pilot` is the output root.
+This path guard is not filesystem access control, encryption, a retention job
+or a substitute for the approved storage environment.
+
 - **`ready_for_finance_review` / exit 0:** structural, scope and exact control-total
   checks pass. Permission verification, finance acceptance and data admission
   are still false.

@@ -297,6 +297,14 @@ def read_bounded(path: Path) -> bytes:
     return raw
 
 
+def private_root() -> Path:
+    cwd = Path.cwd().resolve()
+    # Running from docs/ must not create docs/var and expose a private receipt
+    # through the local static site. Git worktrees use a .git file, not a folder.
+    workspace = next((p for p in (cwd, *cwd.parents) if (p / ".git").exists()), cwd)
+    return workspace / "var" / "permissioned-pilot"
+
+
 def check_files(policy_path: Path, manifest_path: Path, ledger_path: Path, name: str) -> IntakeReport:
     """Local operator entry point. Writes one private receipt, never source records."""
     policy = parse_private(IntakePolicy, read_bounded(policy_path))
@@ -308,7 +316,7 @@ def check_files(policy_path: Path, manifest_path: Path, ledger_path: Path, name:
         raise ValueError("private header checks failed before opening the ledger")
     raw = read_bounded(ledger_path)
     report = assess_intake(policy, manifest, raw, now=now)
-    root = Path.cwd().resolve() / "var" / "permissioned-pilot"
+    root = private_root()
     if root.resolve() != root:
         raise ValueError("private output root cannot redirect through a symbolic link")
     destination = (root / f"{name}.json").resolve()
