@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "classification": "permissioned_private",
+  "origin": "synthetic_test_fixture",
+  "company_id": "pilot-fixture",
+  "export_id": "fixture-export-one",
+  "source_system": "fictional-ledger",
+  "extraction_reference": "authored seven-row example",
+  "extracted_at": "2026-09-28T12:00:00Z",
+  "data_cutoff": "2026-01-31",
+  "source_sha256": "e6ed939c6e51b7bdbb6b228cfb3242698d5b0b3c423563caea74eb3bbce218bc",
+  "policy_sha256": "1de16af15f1977acad38061b7e37840aa9ec619c5f21d5169a6d9836bd5a2274",
+  "record_count": 7
+}

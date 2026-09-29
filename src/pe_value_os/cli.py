@@ -296,6 +296,42 @@ def cmd_public_diligence(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_pilot_intake_check(args: argparse.Namespace) -> int:
+    from .diligence.private_intake import check_files
+    from .security import Principal, principal_scope
+
+    try:
+        # Explicit local operator scope; do not contact a configured source adapter
+        # or borrow the demo's default company list for private ledger inspection.
+        principal = Principal(
+            subject="human:" + (os.environ.get("PVC_OPERATOR") or "local-operator"),
+            companies=frozenset(
+                c.strip() for c in os.environ.get("PVC_OPERATOR_COMPANIES", "").split(",") if c.strip()
+            ),
+            roles=frozenset({"operator"}),
+            principal_type="human",
+        )
+        with principal_scope(principal):
+            report = check_files(Path(args.policy), Path(args.manifest), Path(args.ledger), args.name)
+    except (ValueError, OSError):
+        # Neither validation input values, private paths nor exception text belong
+        # on the console. ScopeError is a PermissionError/OSError subclass.
+        print(
+            "Private intake preflight failed; inspect scope, contracts and private receipt destination.",
+            file=sys.stderr,
+        )
+        return 2
+    _print(
+        {
+            "status": report.status,
+            "issue_count": len(report.issues),
+            "authorization_verified": False,
+            "data_admitted": False,
+        }
+    )
+    return 0 if report.status == "ready_for_finance_review" else 2
+
+
 def cmd_underwriting(args: argparse.Namespace) -> int:
     from .diligence.underwriting_render import build_underwriting_report
 
@@ -684,6 +720,13 @@ def build_parser() -> argparse.ArgumentParser:
     pilot.add_argument("--input", required=True, help="normalized financial-statement bundle JSON")
     pilot.add_argument("--name", default="pilot", help="output name within var/research-pilot")
     pilot.set_defaults(fn=cmd_research_pilot)
+
+    intake = sub.add_parser("pilot-intake-check", help="check a private ledger for finance review; does not admit data")
+    intake.add_argument("--policy", required=True, help="private scope, mapping and independent controls JSON")
+    intake.add_argument("--manifest", required=True, help="private export identity and file/policy fingerprints JSON")
+    intake.add_argument("--ledger", required=True, help="normalized monthly source rows JSON")
+    intake.add_argument("--name", default="intake", help="new receipt name within var/permissioned-pilot")
+    intake.set_defaults(fn=cmd_pilot_intake_check)
 
     f = sub.add_parser("fixtures")
     f.add_argument("action", choices=["generate"])

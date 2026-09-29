@@ -187,6 +187,13 @@ comprehension claims remain unavailable until that review occurs.
 
 ### 10. Build and test the private-data foundation — Codex
 
+**First executable increment:** the [private ledger preflight](../pilot/permissioned/intake-preflight.md)
+checks scope, source/policy identity, mappings, completeness and exact controls;
+it writes a private receipt without admission or approval. Test fixtures are
+fictional. Persisted grants/revocations, source custody, quarantine/correction
+history, finance decisions, private-case integration and retention/deletion
+enforcement remain to be built and verified.
+
 Use a distinct permissioned-input contract and processing/export boundary. Add
 source mapping, reconciliation/quarantine, scoped access, correction history,
 retention/deletion behavior and review semantics. Test with permitted fixtures

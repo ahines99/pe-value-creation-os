@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "source_row_id": "fixture-1",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "REV",
+      "currency": "USD",
+      "amount": "1000.00"
+    },
+    {
+      "source_row_id": "fixture-credit",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "REV",
+      "currency": "USD",
+      "amount": "-20.00"
+    },
+    {
+      "source_row_id": "fixture-2",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "OPEX",
+      "currency": "USD",
+      "amount": "300.00"
+    },
+    {
+      "source_row_id": "fixture-3",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "IMPL",
+      "currency": "USD",
+      "amount": "50.00"
+    },
+    {
+      "source_row_id": "fixture-4",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "OP_CASH",
+      "currency": "USD",
+      "amount": "600.00"
+    },
+    {
+      "source_row_id": "fixture-5",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "WC_CASH",
+      "currency": "USD",
+      "amount": "40.00"
+    },
+    {
+      "source_row_id": "fixture-6",
+      "entity_id": "fixture-entity",
+      "period": "2026-01-01",
+      "account_code": "CAPEX",
+      "currency": "USD",
+      "amount": "100.00"
+    }
+  ]
+}

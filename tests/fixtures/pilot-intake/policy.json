@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "company_id": "pilot-fixture",
+  "entity_id": "fixture-entity",
+  "currency": "USD",
+  "unit_scale": 1,
+  "first_month": "2026-01-01",
+  "months": 1,
+  "purpose": "Synthetic preflight test fixture. No company data, sponsor or permission is represented.",
+  "authorization_reference": "fixture-only-not-an-authorization",
+  "authorization_sha256": "d6997a0ad2aa9b3c1c3f1ede96f778ed17d73c56dc2d476b85a52c9c8742d5f7",
+  "valid_from": "2026-09-01T00:00:00Z",
+  "expires_at": "2027-01-01T00:00:00Z",
+  "retain_until": "2027-02-01T00:00:00Z",
+  "control_source_reference": "fixture-only-hand-worked-controls",
+  "control_source_sha256": "92209458caab874b20220416a748d04d356b6a4b6157b536be5893a9228568c0",
+  "mappings": [
+    {
+      "account_code": "REV",
+      "component": "revenue",
+      "multiplier": 1
+    },
+    {
+      "account_code": "OPEX",
+      "component": "operating_expense",
+      "multiplier": -1
+    },
+    {
+      "account_code": "IMPL",
+      "component": "implementation_expense",
+      "multiplier": -1
+    },
+    {
+      "account_code": "OP_CASH",
+      "component": "operating_cash",
+      "multiplier": 1
+    },
+    {
+      "account_code": "WC_CASH",
+      "component": "working_capital_cash",
+      "multiplier": 1
+    },
+    {
+      "account_code": "CAPEX",
+      "component": "capex_cash",
+      "multiplier": -1
+    }
+  ],
+  "controls": [
+    {
+      "period": "2026-01-01",
+      "component": "revenue",
+      "amount": "980.00"
+    },
+    {
+      "period": "2026-01-01",
+      "component": "operating_expense",
+      "amount": "-300.00"
+    },
+    {
+      "period": "2026-01-01",
+      "component": "implementation_expense",
+      "amount": "-50.00"
+    },
+    {
+      "period": "2026-01-01",
+      "component": "operating_cash",
+      "amount": "600.00"
+    },
+    {
+      "period": "2026-01-01",
+      "component": "working_capital_cash",
+      "amount": "40.00"
+    },
+    {
+      "period": "2026-01-01",
+      "component": "capex_cash",
+      "amount": "-100.00"
+    }
+  ]
+}
