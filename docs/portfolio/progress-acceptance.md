@@ -21,7 +21,7 @@ implementation, not future commits or independent finance validation.
 
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
-and the current exit revision. The current worktree expands it to 15 conditions: exit inputs, original
+and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
 operating-source inputs, full memo reproduction, public appendix, historical
 valuation, original underwriting, capacity plan, frozen close, accounting
 continuity, attribution reconciliation, authority boundaries and the two rendered
@@ -63,7 +63,7 @@ proof of correctness or completion.
 
 ## Remaining work and ownership
 
-1. **Codex:** complete release acceptance for the [initiative/KPI lineage](lineage-review.html) implementation; preserve its disjoint-population limits. Broader pool allocation remains separate work.
+1. **Codex:** maintain exact-build acceptance for the [initiative/KPI lineage](lineage-review.html) implementation; preserve its disjoint-population limits. [PR #34](https://github.com/ahines99/pe-value-creation-os/pull/34) records this increment's CI. Broader pool allocation remains separate work.
 2. **Codex:** complete the remaining interaction/allocation cases and targeted source/commercial diligence where public evidence can resolve them. Preserve unsupported or adverse conclusions.
 3. **Codex:** maintain this packet and execute corrections from review. A human/practitioner session is unperformed until someone actually participates; blank worksheet fields remain blank.
 4. **Codex:** prepare the agreed private ingestion and readiness evidence once a sponsor defines scope. Generic readiness work may proceed, but no company environment or permission is presumed.

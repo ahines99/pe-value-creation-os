@@ -1,6 +1,7 @@
 # 0026: Explicit initiative and KPI lineage
 
-Status: Implemented in the current worktree; release acceptance is recorded separately.
+Status: Implemented; exact-build release acceptance is recorded separately in
+[PR #34](https://github.com/ahines99/pe-value-creation-os/pull/34) and its CI checks.
 
 ## Problem
 
