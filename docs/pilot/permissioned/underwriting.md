@@ -101,11 +101,12 @@ revocation does not delete derived records or copies.
 ## Remaining workflow
 
 A successful calculation is neither finance/operating approval nor a frozen
-comparison baseline. The next [private capacity-plan increment](capacity-plans.md)
-connects proposed resource/dependency schedules to financial timing and has its
-own release gate. Exact-version human reviews, frozen baseline designation,
-observations/counterfactuals, attribution
-and memo composition remain subsequent integration work. The public constructed
+comparison baseline. [Private capacity plans](capacity-plans.md), released in PR #46,
+connect resource/dependency proposals to financial timing. The next
+[reviewed-baseline increment](reviewed-baselines.md) adds exact-version decisions
+and comparison designations, with a separate release gate. Private observations/
+counterfactuals, attribution, intervention/delivery evidence and memo/review UX
+remain subsequent integration work. The public constructed
 versions of these capabilities already exist and are not reused by relabeling
 private inputs. Source-retention operations and the actual
 [pilot entry gates](../pilot-plan.md) also remain outstanding.

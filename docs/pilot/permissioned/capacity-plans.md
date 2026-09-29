@@ -2,7 +2,7 @@
 
 This increment connects a saved [private underwriting revision](underwriting.md)
 to an explicit resource/dependency plan and recalculates its benefit timing. It
-has a separate CI/publication gate in the
+passed CI/publication acceptance in PR #46 as recorded in the
 [completion checklist](../../portfolio/remaining-work.md). Tests use fictional
 companies, operators, capacity evidence and grants; no company commitment or
 performed pilot is represented.
@@ -106,8 +106,9 @@ not assert that processing remains permitted or delete retained copies.
 
 ## Remaining decisions
 
-The plan remains unreviewed and uncommitted. Exact-version finance and operating
-reviews, reviewed frozen baseline designation, private observations/counterfactuals,
-attribution and executive memo composition remain subsequent work. No feasible
+The saved proposal remains unchanged. The next [reviewed-baseline increment](reviewed-baselines.md)
+adds separate exact-version finance/operating receipts and comparison designations,
+with its own release gate. Private observations/counterfactuals, attribution,
+intervention/delivery evidence and executive memo/review UX remain subsequent work. No feasible
 schedule alone authorizes an intervention. Retention operations, independent
 review and the actual [pilot entry gates](../pilot-plan.md) remain open.

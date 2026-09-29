@@ -109,10 +109,10 @@ removes snapshots with their sources while retaining minimal audit events.
 The snapshot is a reusable financial input. The [private underwriting
 increment](underwriting.md), released in PR #45, adds explicit scenarios and
 source-bound forecast revisions. The subsequent [private capacity plans](capacity-plans.md)
-associate resource proposals with forecast timing and also require separate release
-acceptance. Explicitly reviewed frozen baseline designation,
-same-scope counterfactual observations, attribution and executive memo composition
-still need integration. Merely subtracting two snapshot balances is not evidence
+are released in PR #46. The next [reviewed-baseline increment](reviewed-baselines.md)
+adds exact-version human decisions and frozen comparison designations, with its
+own release gate. Private observations/counterfactuals, attribution, intervention/
+delivery evidence and executive memo/review UX still need integration. Merely subtracting two snapshot balances is not evidence
 of intervention impact. Source retention operations, actual company approvals,
 staging acceptance and the [pilot entry gates](../pilot-plan.md) remain open.
 
