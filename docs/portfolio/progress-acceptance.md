@@ -32,6 +32,13 @@ and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
 
+The primary entry now follows one six-stop decision story, with the separate
+shared-pool and local application examples identified explicitly. The
+[presenter guide](progress-demo.md) and case study preserve period and example
+boundaries. Browser checks verify all route destinations, keyboard access and
+the landing conclusion against the saved memo. This provides automated route
+acceptance, not observed executive comprehension or practitioner endorsement.
+
 The [financial-definition review](../research/operating-partner/08-financial-definition-review.md)
 records the outcome of the selected-source investigation: supported earnings and
 cash definitions, four source-period amortization exceptions and the related

@@ -111,6 +111,14 @@ note alone does not close this requirement.
 
 ### 6. Consolidate the executive walkthrough — Codex
 
+**Implemented for release review:** the landing page now leads with the Progress
+decision and a six-stop primary route. The README and presenter guide follow the
+same sequence. Shared-pool examples and the fictional local approval demo are
+explicitly separate; deeper exhibits remain available through an expandable index.
+Browser checks verify route destinations and bind the landing conclusion to the
+saved memo's reopened preference and authority state. Publication acceptance and
+actual observed executive comprehension remain separate checks.
+
 Create a clear primary route through business context, thesis, evidence, explicit
 assumptions, EBITDA/cash/valuation, constrained first-wave selection, source
 challenge, revised decision and realization/KPI history. Keep technical exhibits

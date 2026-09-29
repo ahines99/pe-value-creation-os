@@ -1,62 +1,78 @@
 # A 10-minute evidence-to-decision walkthrough
 
-**Presenter guide · constructed exercise · no practitioner session recorded**
+**Presenter guide · public research and constructed exercise · no practitioner session recorded**
 
-Use the published pages or serve `docs/` locally. No token, model key or vendor
-account is needed for this read-only demonstration. The live Beacon application
-has its own [quickstart](quickstart.md) and [historical storyboard](../pilot/demo-script.md).
+Start at the [portfolio entry point](../index.html), then follow its six-stop
+route. The decision is whether the proposed first wave merits further work after
+the evidence changes. No login, model key or vendor account is needed to inspect
+these pages. The separate fictional Beacon application has its own
+[local quickstart](quickstart.md).
 
-| Time | Open / show | Say and challenge | Expected evidence |
+## Follow the primary case
+
+| Time | Open | Explain and challenge | Evidence to leave visible |
 |---|---|---|---|
-| 0:00–1:00 | [Memo](decision-memo.html), headline and evidence update | “Latest evidence makes every tested first wave adverse. This is a public reference case plus constructed operating records.” | Reopened preference; no authorized intervention |
-| 1:00–2:00 | [Public baseline](progress-baseline.html), definitions and sources | Trace FY2025 calculated EBITDA of $304.202m. Why is this not normalized EBITDA? | Public components, locators, retained expenses and unresolved accounting differences |
-| 2:00–3:00 | [Operating proposal](operating-plan.html), capacity and dates | Identify a delayed package and its resource conflict. | Seven packages, four budgets; proposed rather than actual staffing |
-| 3:00–5:00 | [Source review](source-review.html), corrections | Trace 50% capture, source constraints and removal of vendor release. Why does sequencing not repair the case? | Base first-year EBITDA −$163,165 and cash −$181,890; original and frozen close survive |
-| 5:00–6:30 | [Ten-revision lifecycle](lineage-review.html), history and KPI definitions; [execution](execution.html), claims | Compare the same five recorded periods, not a partial period with a full-year forecast. Inspect a claim's withdrawn support and verify that split shares never allocate earlier claims. | $61k EBITDA difference = $18k claims + $43k residual; $185k cash = $166k + $19k; all constructed |
-| 6:30–8:00 | [Exit matrix and EV bridge](exit-review.html) | Select 0.9x earnings / 6x multiple. Why is the change not entirely operating value? | −$790.9252m EV change: −$243.3616m earnings, −$608.404m multiple, +$60.8404m interaction; no proceeds |
-| 8:00–9:00 | [Disclosure history](disclosure-history.html) | Show provisional/final allocations. What was publicly available at a historical instant? | Measurement-period adjustment retained; SEC acceptance does not establish first publication; point-in-time claim withheld |
-| 9:00–10:00 | [Pilot brief](../pilot/permissioned/sponsor-brief.md) | State what a sponsor must authorize. Invite stop, revise or further diligence. | One company, one lever, read-only scope; no pilot or promised impact |
+| 0:00–1:00 | [Executive memo](decision-memo.html) | State the current decision: rework the constructed first wave; obtain evidence before a company-specific commitment. | Reopened preference, adverse alternatives and no operating authorization |
+| 1:00–3:00 | [Public baseline](progress-baseline.html) | Trace the FY2025 $304.202m calculated EBITDA bridge. Explain why it is not normalized earnings and why peer gaps are not savings. | Filing rows, retained expenses, unresolved amortization scope and strict peer medians withheld |
+| 3:00–4:00 | [Underwriting](underwriting.html) | Show the original constructed mechanism and distinguish earnings, cash timing, implementation spending and value assumptions. | Monthly schedules and downside; fictional uplift is never added to company earnings |
+| 4:00–5:00 | [100-day proposal](operating-plan.html) | Identify a resource conflict and explain the delay. Capacity is assumed, not a commitment by Progress management. | Seven packages, four budgets, dependencies and dates tied to the same economics |
+| 5:00–7:00 | [Source review](source-review.html), then [memo choices](decision-memo.html#choices) | Trace contract/service/invoice constraints and removal of unsupported vendor release. Ask why a different sequence cannot repair the case. | Base first-year EBITDA −$163,165 and pre-tax cash −$181,890; prior versions and the hypothetical close remain intact |
+| 7:00–9:00 | [Ten-revision lifecycle](lineage-review.html) | Compare the same five recorded periods. Inspect a corrected KPI target/read and a claim whose supporting evidence was withdrawn. | $61k EBITDA difference = $18k claims + $43k residual; $185k cash = $166k claims + $19k residual; all constructed |
+| 9:00–10:00 | [Sponsor brief](../pilot/permissioned/sponsor-brief.md) | State the next bounded data request and who must authorize it. Invite stop, revise or further diligence. | One company, one lever, named finance/operating reviewers; no sponsor or performed pilot yet |
 
-HTML rounds some amounts to millions or whole dollars; JSON retains underlying
-Decimal amounts. The exit example is an authored sensitivity, not a current
-valuation, investment return or recommendation to transact.
+Public-company facts, first-year forecasts and five-period accounting observations
+have different scopes. Do not add successive revisions, compare a partial period
+with a full-year forecast, or describe a claim as proven causal impact. HTML rounds
+some figures; downloadable JSON preserves Decimal amounts.
 
-## Reproduce the review checks
+## Keep deeper exhibits available
+
+- **Earnings definitions:** the [financial review](../research/operating-partner/08-financial-definition-review.md)
+  explains all four source-period exceptions and the derived-quarter limitation.
+- **Company valuation:** the [historical equity bridge](historical-valuation.html)
+  uses November 30, 2025 balances and explicit author assumptions. It is not current value.
+- **Exit sensitivity:** the [exit review](exit-review.html) separates earnings,
+  multiple and interaction effects; actual proceeds remain unavailable.
+- **Historical information:** [acquisition disclosures](disclosure-history.html)
+  and [accounting restatement](accounting-restatement.html) are different events.
+  The latter preserves a non-reliance interval. Exact public-availability timing
+  remains unverified and blocks a point-in-time availability claim.
+- **Shared benefits:** the [twelve-revision allocation example](allocation-lineage-review.html)
+  and its [own memo](allocation-lineage-memo.html) demonstrate shared-population
+  selection, splits, corrections and recombination. This is a separate exercise;
+  do not splice its figures into the ten-revision primary case.
+- **Interactive human approval:** use the [Beacon quickstart](quickstart.md).
+  Progress research receipts are simulated; they are not a recorded human review.
+
+## Reproduce before presenting
 
 From a clean checkout with Python 3.12+ and `uv`:
 
 ```sh
 uv sync --frozen --extra dev
 uv run python scripts/check_progress_review.py
+uv run python scripts/check_allocation_review.py --include-lineage
 ```
 
-The check reads only the public and constructed Progress input directories and
-linked portfolio artifacts. It does not read `.env`, contact LSEG/WRDS, start
-services or use a model. Its receipt at `var/progress-review/checks.json` records
-file hashes and the exact case revision. Resolve a failure before presenting the
-affected exhibit. This uses the application calculators; it is not independent
-finance review or a new source-document audit.
+The checks cover the primary Progress bundle and the separate shared-pool lifecycle.
+Receipts under `var/` identify inputs and exact case revisions. Resolve failures
+before presenting affected exhibits. The checks use application calculators;
+they are not independent finance review.
 
-For a full artifact rebuild, follow the `pvc` commands in the repository's
-[CI workflow](../../.github/workflows/ci.yml), “Check rendered portfolio across
-desktop, tablet and phone widths,” in their listed order. The preceding application
-capture steps and Docker browser checks are separate acceptance work. Each domain
-command exposes `--help`. Public mappings are checked-in inputs; replay does not
-redownload or independently reread the original filings.
+For a complete rebuild, follow the `pvc` commands in the
+[CI workflow](../../.github/workflows/ci.yml), in the artifact-rebuild step's order.
+Generate `lineage-review.json` before rebuilding the primary memo with that file
+as `--case-review`. Use the allocation lineage file only for its corresponding
+memo. Replay IDs and recording times can change; economic/source fingerprints
+reproduce, and linked exhibits within one bundle must share the exact revision.
 
-Generate `lineage-review.json` with `pvc lineage-demo` before rebuilding the memo with `--case-review` set
-to that file. Demo IDs and recorded-at times change across runs. Compare source
-fingerprints and economics across replays; within a single bundle, the memo and
-exit export must share the exact revision hash.
+No `.env`, LSEG/WRDS connection or live model is needed. Raw source-PDF verification
+is a separate step documented with the public mappings; replay alone does not
+independently re-audit the filings.
 
-## Respond to challenges
+## Record real feedback when it exists
 
-- **“Those are real savings.”** Show classification and the unavailable actual-company result.
-- **“Hours freed equal payroll savings.”** Show corrected vendor evidence and zero supported cost release.
-- **“Choose a different sequence.”** Open the recomputed alternatives; every tested base first-year result remains adverse.
-- **“The multiple creates operating value.”** Separate earnings, multiple and interaction effects; keep proceeds unavailable.
-- **“Tests prove commercial validity.”** Show [acceptance limits](progress-acceptance.md) and the [practitioner worksheet](practitioner-review.md).
-
-Do not present simulated receipts as a human approval session. Record actual
-questions and disagreement only if a person supplies them; no external score or
-endorsement is prefilled.
+Use the [practitioner worksheet](practitioner-review.md) to record the actual
+reviewed version, objections, responses and unresolved questions. Leave ratings
+and endorsements unfilled until a person supplies them. Automated browser checks
+do not establish that an executive understood or accepted the analysis.
