@@ -101,7 +101,8 @@ It cannot be rendered as a public exhibit by this tool.
 ## What remains before actual intake
 
 This command does not replace the [permissioned pilot package](README.md).
-Still required are authenticated grant/revocation records, authorized source
+The [grant/revocation registry](processing-grants.md) is a separate implementation
+increment. Still required are its transactional integration with authorized source
 storage, persisted quarantine and correction history, finance decisions bound
 to exact versions, accepted-record integration with private case/actuals
 contracts, and retention/deletion enforcement for all copies and backups.

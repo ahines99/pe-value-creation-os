@@ -15,6 +15,11 @@ fictional fixtures. A pass means ready for finance review, not authorized or
 admitted. Persistent private ingestion and the existing pilot entry gates remain
 outstanding.
 
+The subsequent [processing-grant registry](processing-grants.md) records exact-policy
+human grants and revocations with named operators, environment scope and audit
+history. It is separate from preflight and still needs transactional integration
+with source custody, intake and finance acceptance before real records are admitted.
+
 ### Who does what next
 
 | Stage | Codex / project preparation | Alex | Sponsor / company |
