@@ -118,6 +118,8 @@ Resume framing: **Built an evidence-linked PE value-creation research platform
 using public filings and constructed operating records, with deterministic
 EBITDA/cash models, capacity-aware planning, immutable revisions and executive review.**
 Do not describe modeled values as generated savings or imply a Progress client engagement.
+The [interview guide](interview-guide.md) provides role-specific resume bullets,
+a short introduction and evidence to use when answering reviewer questions.
 
 The earlier [Beacon case study](beacon-case-study.md) remains a fictional
 application and human-approval demonstration.

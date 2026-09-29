@@ -20,6 +20,13 @@ released the accounting-restatement comparison: all ten CI jobs passed, includin
 1,175 tests on each Python version and 84 browser checks. Eight published files
 matched merge `18d8c85c3cc0f51bb36842366c9aba874eb32997`.
 
+The peer-source review was released in
+[PR #38](https://github.com/ahines99/pe-value-creation-os/pull/38).
+[CI run 36622008898](https://github.com/ahines99/pe-value-creation-os/actions/runs/36622008898)
+passed all ten jobs: 1,176 tests on each supported Python version, 84 browser
+checks, 31 bundle conditions and 39 installed-package evaluations. Thirteen
+published files matched merge `de2ee940ad9f6f1a2735dc15d208b72bbb831362`.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -32,8 +39,10 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** the PR #36 release is complete; this documentation update
-removes stale allocation/KPI-composition gaps from the current acceptance map.
+**Current status:** implementation through PR #38 is released and verified.
+The financial-register and executive-route updates have separate release gates;
+their local presence does not establish publication. Historical counts below
+remain attached to their original builds.
 
 Maintain one requirement map that distinguishes implemented behavior, unresolved
 research, unavailable evidence and external dependencies. Historical release counts
@@ -181,6 +190,22 @@ scope is agreed; do not bypass constructed-only contracts by relabeling records.
 checklist. **Done when:** accepted records can be traced and reconciled, invalid
 or unauthorized records are rejected and private inputs cannot enter public
 exports. This generic work can proceed without a sponsor.
+
+The existing [pilot entry gates](../pilot/pilot-plan.md) also remain required
+before an actual company pilot. They are separate from the later production launch:
+
+| Pilot gate | Remaining action / owner | Evidence required |
+|---|---|---|
+| Authenticated staging | Codex prepares deployment and smoke checks; agree the actual environment, identity integration and spending before provisioning | Deployed R0.5 acceptance, scoped identities and authenticated service checks |
+| Live alerting | Codex configures and verifies alerts in the agreed environment; responsible operator participates | Two weeks of live alerting evidence; fixtures or a local test do not satisfy elapsed operation |
+| Threat model and data handling | Codex supplies architecture, data flows and review packet; accountable reviewers decide | Recorded threat-model and legal/data-processing reviews, including model-provider handling |
+| Domain policy | Codex prepares the six skills, policy values and evaluation evidence; domain expert reviews | Actual sign-off and a reviewed policy without the placeholder version suffix |
+| Source onboarding | Company authorizes read-only access; Codex maps and checks the agreed inputs | Data-access agreement, onboarding steps 1–5 and successful `pvc onboard-check` |
+| Model comparison | Codex prepares model/rules comparisons for the same accepted data after processing is authorized | Two reviewed diagnostic runs under the existing six-week plan; actual provider costs and limits recorded |
+
+The current plan is model-enabled; a deterministic-only private research route
+would require an explicit pilot-plan amendment. No amendment, deployment or
+review approval is implied by the public demonstration or this preparation work.
 
 ### 11. Find an authorized sponsor — Alex, supported by Codex
 

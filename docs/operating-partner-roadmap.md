@@ -18,6 +18,15 @@ The [completion checklist](portfolio/remaining-work.md) gives the current ordere
 actions, owners and finish criteria. The earlier allocation and disjoint-lineage examples remain
 unchanged. The five-outcome goal is still active.
 
+Subsequent releases add the actual accounting-restatement comparison in
+[PR #37](https://github.com/ahines99/pe-value-creation-os/pull/37) and verified SS&C
+peer mapping in [PR #38](https://github.com/ahines99/pe-value-creation-os/pull/38).
+The latter passed all ten CI jobs, including 1,176 tests per supported Python
+version and 84 browser checks; thirteen published files matched its merge.
+These releases do not close exact historical publication timing, independent
+finance review or the performed pilot. The acceptance map records their build
+identities separately from the original PR #36 counts.
+
 | Next work | Owner | Completion evidence |
 |---|---|---|
 | Shared-pool lifecycle release — complete in PR #36 | Codex | 1,154 tests on each supported Python version, 81 browser checks, 31 bundle conditions and verified published bytes; repeat relevant checks for subsequent changes |
