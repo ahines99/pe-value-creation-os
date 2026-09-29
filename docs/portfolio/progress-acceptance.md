@@ -104,6 +104,17 @@ matched the merge. The local focused/regression suite passed 387 tests with one
 Windows symlink-privilege skip; migration round-trip passed at 0011. These checks
 use fictional inputs and do not establish actual company review or pilot results.
 
+The private capacity-plan workflow was released in
+[PR #46](https://github.com/ahines99/pe-value-creation-os/pull/46), tested at
+`ed208745bb08fc5851c9523d5d7f8321c7b1652f` and merged as
+`f6247d715e91de105e7fea4fb5044a0c9fe0681e` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36640797738)
+passed: 1,490 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Eight published files
+matched the merge. The local focused/regression suite passed 467 tests with one
+Windows symlink-privilege skip; migration round-trip passed at 0012. These checks
+use fictional inputs and do not establish management commitment or pilot results.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -122,11 +133,12 @@ Its CI/publication acceptance is now verified in PR #43. The subsequent
 monthly inputs with exact source/review/grant bindings and explicit accounting
 definitions; CI/publication acceptance is verified in PR #44. The
 [private underwriting increment](../pilot/permissioned/underwriting.md) is released
-in PR #45. The next [private capacity plans](../pilot/permissioned/capacity-plans.md)
-connect resource/dependency proposals to forecast timing and have a separate
-release gate. Exact-version finance/operating decisions, frozen baseline
-designation, counterfactual/attribution and memo composition,
-retention operations and all real-company pilot evidence remain outstanding.
+in PR #45. [Private capacity plans](../pilot/permissioned/capacity-plans.md)
+are released in PR #46. The next [reviewed-baseline increment](../pilot/permissioned/reviewed-baselines.md)
+adds exact-version finance/operating decisions and immutable comparison designations,
+with its own release gate. Private actuals/counterfactuals, attribution, intervention
+permission/delivery evidence, memo/review UX, retention operations and all
+real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence
 

@@ -51,10 +51,13 @@ ten CI jobs passed, 1,356 tests per supported Python version and nine published
 files verified. The [private underwriting increment](pilot/permissioned/underwriting.md)
 is released in [PR #45](https://github.com/ahines99/pe-value-creation-os/pull/45):
 ten CI jobs passed, 1,421 tests per supported Python version and seven published
-files verified. The next [private capacity-plan increment](pilot/permissioned/capacity-plans.md)
-connects resource/dependency proposals to forecast timing, with its own release gate.
-Private finance/operating reviews, baseline/measurement/memo integration, retention
-operations, real finance approval and pilot readiness remain open.
+files verified. [Private capacity plans](pilot/permissioned/capacity-plans.md)
+are released in [PR #46](https://github.com/ahines99/pe-value-creation-os/pull/46):
+ten CI jobs passed, 1,490 tests per supported Python version and eight published
+files verified. The next [reviewed-baseline increment](pilot/permissioned/reviewed-baselines.md)
+adds exact-version decisions and comparison designations, with its own release gate.
+Private actuals/counterfactuals, attribution, intervention/delivery evidence,
+memo/review UX, retention, real finance approval and pilot readiness remain open.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|

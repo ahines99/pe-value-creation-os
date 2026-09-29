@@ -34,6 +34,17 @@ from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
 from ..diligence.models import Record
+from ..diligence.private_baselines import (
+    BaselineRequest,
+    PlanReviewRequest,
+    ReviewKind,
+)
+from ..diligence.private_baselines import (
+    require_baseline_author as require_private_baseline_author,
+)
+from ..diligence.private_baselines import (
+    require_reviewer as require_private_plan_reviewer,
+)
 from ..diligence.private_capacity import CapacityPlanRequest
 from ..diligence.private_financials import FinancialSnapshotRequest, require_snapshot_writer
 from ..diligence.private_grants import GrantRequest, permission_status
@@ -211,6 +222,68 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-capacity/revisions/{revision_id}/reviews/{review_kind}", status_code=201)
+async def review_private_capacity(
+    company_id: str,
+    revision_id: str,
+    review_kind: ReviewKind,
+    request: Request,
+    p: Principal,
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_private_plan_reviewer(company_id, review_kind)
+        body = parse_private(PlanReviewRequest, await bounded_private_body(request, 1024 * 1024))
+        if body.review_kind != review_kind:
+            raise ValueError("review body does not match the requested review role")
+        environment = "" if body.decision == "withdraw" else processing_environment()
+        result = await run_in_threadpool(
+            get_ctx().repo.review_private_capacity, company_id, revision_id, body, environment
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-capacity/revisions/{revision_id}/reviews")
+def private_plan_review_history(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "reviews": [
+                r.model_dump(mode="json") for r in get_ctx().repo.list_private_plan_reviews(company_id, revision_id)
+            ],
+            "historical_records_only": True,
+            "operating_action_authorized": False,
+        }
+
+
+@app.post("/companies/{company_id}/private-baselines/cases/{case_key}", status_code=201)
+async def freeze_private_baseline(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_private_baseline_author(company_id)
+        environment = processing_environment()
+        body = parse_private(BaselineRequest, await bounded_private_body(request, 1024 * 1024))
+        result = await run_in_threadpool(
+            get_ctx().repo.freeze_private_baseline, company_id, case_key, body, environment
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-baselines/cases/{case_key}")
+def private_baseline_history(company_id: str, case_key: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "baselines": [
+                b.model_dump(mode="json") for b in get_ctx().repo.list_private_baselines(company_id, case_key)
+            ],
+            "historical_records_only": True,
+            "operating_action_authorized": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-baselines/designations/{baseline_id}/status")
+def private_baseline_status(company_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return get_ctx().repo.private_baseline_status(company_id, baseline_id, processing_environment())
 
 
 @app.post("/companies/{company_id}/private-capacity/cases/{case_key}", status_code=201)

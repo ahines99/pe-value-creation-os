@@ -42,6 +42,30 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_baselines import (
+    BaselineRequest,
+    PlanReviewRequest,
+    PrivateBaseline,
+    PrivatePlanReview,
+)
+from ..diligence.private_baselines import (
+    baseline_view as private_baseline_view,
+)
+from ..diligence.private_baselines import (
+    prepare_baseline as prepare_private_baseline,
+)
+from ..diligence.private_baselines import (
+    prepare_review as prepare_private_plan_review,
+)
+from ..diligence.private_baselines import (
+    require_baseline_author as require_private_baseline_author,
+)
+from ..diligence.private_baselines import (
+    require_reviewer as require_private_plan_reviewer,
+)
+from ..diligence.private_baselines import (
+    review_heads as private_review_heads,
+)
 from ..diligence.private_capacity import (
     CapacityPlanRequest,
     PrivateCapacityRevision,
@@ -58,6 +82,9 @@ from ..diligence.private_financials import (
     prepare_snapshot,
     require_current_snapshot,
     require_snapshot_writer,
+)
+from ..diligence.private_financials import (
+    verify_snapshot as verify_private_financial_snapshot,
 )
 from ..diligence.private_grants import (
     GrantEvent,
@@ -141,6 +168,229 @@ class PostgresRepository:
     def _lock_private_company(self, cur: Any, company_id: str) -> None:
         if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
             raise NotFound(company_id)
+
+    def _private_capacity_revision(self, company_id: str, revision_id: str) -> PrivateCapacityRevision:
+        require_grant_reader(company_id)
+        try:
+            if str(uuid.UUID(revision_id)) != revision_id:
+                raise ValueError("Noncanonical revision identifier")
+        except ValueError as exc:
+            raise NotFound(revision_id) from exc
+        with self._tx() as cur:
+            row = cur.execute(
+                "select record from private_capacity_plans where company_id=%s and revision_id=%s",
+                (company_id, revision_id),
+            ).fetchone()
+            if row is None:
+                raise NotFound(revision_id)
+            return PrivateCapacityRevision.model_validate(row["record"])
+
+    def list_private_plan_reviews(self, company_id: str, revision_id: str) -> list[PrivatePlanReview]:
+        self._private_capacity_revision(company_id, revision_id)
+        with self._tx() as cur:
+            return [
+                PrivatePlanReview.model_validate(r["record"])
+                for r in cur.execute(
+                    "select record from private_plan_reviews where company_id=%s and capacity_revision_id=%s order by review_kind,sequence",
+                    (company_id, revision_id),
+                ).fetchall()
+            ]
+
+    def review_private_capacity(
+        self, company_id: str, revision_id: str, request: PlanReviewRequest, environment_id: str
+    ) -> PrivatePlanReview:
+        principal = require_private_plan_reviewer(company_id, request.review_kind)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            plan = self._private_capacity_revision(company_id, revision_id)
+            reviews = self.list_private_plan_reviews(company_id, revision_id)
+            replay = next(
+                (
+                    r
+                    for r in reviews
+                    if r.review_kind == request.review_kind and r.request.idempotency_key == request.idempotency_key
+                ),
+                None,
+            )
+            if replay:
+                if replay.request != request or replay.actor != principal.subject:
+                    raise Conflict("Private plan review idempotency key belongs to another request or author")
+                return replay
+            previous = private_review_heads(plan, reviews).get(request.review_kind)
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private plan review history changed; reload its current role head")
+            if request.decision != "withdraw":
+                plan = self.usable_private_capacity_plan(company_id, revision_id, environment_id)
+            review = prepare_private_plan_review(plan, request, reviews)
+            cur.execute(
+                """insert into private_plan_reviews
+                (review_id,company_id,case_key,capacity_revision_id,capacity_sha256,review_kind,sequence,previous_sha256,idempotency_key,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    review.review_id,
+                    company_id,
+                    plan.case_key,
+                    plan.revision_id,
+                    plan.content_sha256,
+                    review.review_kind,
+                    review.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    review.content_sha256,
+                    Jsonb(review.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_plan_review",
+                    event_type="private_plan_review",
+                    actor=review.actor,
+                    created_at=review.recorded_at,
+                    payload={
+                        "review_id": review.review_id,
+                        "sha256": review.content_sha256,
+                        "capacity_revision_id": revision_id,
+                        "review_kind": review.review_kind,
+                    },
+                )
+            )
+            return review
+
+    def list_private_baselines(self, company_id: str, case_key: str) -> list[PrivateBaseline]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        self.get_company(company_id)
+        with self._tx() as cur:
+            return [
+                PrivateBaseline.model_validate(r["record"])
+                for r in cur.execute(
+                    "select record from private_baselines where company_id=%s and case_key=%s order by sequence",
+                    (company_id, case_key),
+                ).fetchall()
+            ]
+
+    def freeze_private_baseline(
+        self, company_id: str, case_key: str, request: BaselineRequest, environment_id: str
+    ) -> PrivateBaseline:
+        principal = require_private_baseline_author(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            baselines = self.list_private_baselines(company_id, case_key)
+            replay = next((b for b in baselines if b.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private baseline idempotency key belongs to another request or author")
+                return replay
+            previous = baselines[-1] if baselines else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private baseline history changed; reload its current head")
+            plan = self.usable_private_capacity_plan(company_id, request.capacity_revision_id, environment_id)
+            baseline = prepare_private_baseline(
+                company_id,
+                case_key,
+                request,
+                plan,
+                self.list_private_plan_reviews(company_id, plan.revision_id),
+                previous,
+            )
+            cur.execute(
+                """insert into private_baselines
+                (baseline_id,company_id,case_key,sequence,previous_sha256,idempotency_key,capacity_revision_id,capacity_sha256,
+                 finance_review_id,finance_review_sha256,operating_review_id,operating_review_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    baseline.baseline_id,
+                    company_id,
+                    case_key,
+                    baseline.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    request.capacity_revision_id,
+                    request.expected_capacity_sha256,
+                    request.finance_review_id,
+                    request.finance_review_sha256,
+                    request.operating_review_id,
+                    request.operating_review_sha256,
+                    baseline.content_sha256,
+                    Jsonb(baseline.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_baseline",
+                    event_type="private_baseline_designation",
+                    actor=baseline.author,
+                    created_at=baseline.recorded_at,
+                    payload={
+                        "baseline_id": baseline.baseline_id,
+                        "sha256": baseline.content_sha256,
+                        "capacity_revision_id": plan.revision_id,
+                    },
+                )
+            )
+            return baseline
+
+    def private_baseline_status(self, company_id: str, baseline_id: str, environment_id: str) -> dict[str, Any]:
+        require_grant_reader(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            try:
+                if str(uuid.UUID(baseline_id)) != baseline_id:
+                    raise ValueError("Noncanonical baseline identifier")
+            except ValueError as exc:
+                raise NotFound(baseline_id) from exc
+            row = cur.execute(
+                "select record from private_baselines where company_id=%s and baseline_id=%s", (company_id, baseline_id)
+            ).fetchone()
+            if row is None:
+                raise NotFound(baseline_id)
+            baseline = PrivateBaseline.model_validate(row["record"])
+            plan = self._private_capacity_revision(company_id, baseline.request.capacity_revision_id)
+            underwriting = next(
+                (
+                    r
+                    for r in self.list_private_underwriting(company_id, plan.case_key)
+                    if r.revision_id == plan.request.underwriting_revision_id
+                ),
+                None,
+            )
+            if underwriting is None:
+                raise NotFound(plan.request.underwriting_revision_id)
+            financials = next(
+                (
+                    s
+                    for s in self.list_private_financial_snapshots(company_id, plan.case_key)
+                    if s.snapshot_id == underwriting.request.inputs.financial_snapshot_id
+                ),
+                None,
+            )
+            if financials is None:
+                raise NotFound(underwriting.request.inputs.financial_snapshot_id)
+            # Historical comparison needs current processing permission, but not
+            # current-source acceptance. Reproduce originals before reporting support.
+            raw = self.private_intake_source(
+                company_id, financials.request.intake_id, environment_id, accepted_only=False
+            )
+            verify_private_financial_snapshot(
+                financials, self._private_intake(company_id, financials.request.intake_id), raw
+            )
+            verify_private_capacity(plan, underwriting, financials)
+            try:
+                self.usable_private_financial_snapshot(company_id, financials.snapshot_id, environment_id)
+                source_current = True
+            except ValueError:
+                source_current = False
+            return private_baseline_view(
+                baseline,
+                plan,
+                self.list_private_plan_reviews(company_id, plan.revision_id),
+                self.list_private_baselines(company_id, baseline.case_key),
+                source_current=source_current,
+            )
 
     def list_private_capacity_plans(self, company_id: str, case_key: str) -> list[PrivateCapacityRevision]:
         require_grant_reader(company_id)
@@ -2198,6 +2448,8 @@ class PostgresRepository:
                 "private_financial_snapshots",
                 "private_underwriting",
                 "private_capacity_plans",
+                "private_plan_reviews",
+                "private_baselines",
             ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)
