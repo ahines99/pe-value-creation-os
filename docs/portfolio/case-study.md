@@ -102,8 +102,13 @@ The implemented result is an inspectable workflow that changes its recommendatio
 when evidence deteriorates. [Exact-build evidence and remaining requirements](progress-acceptance.md)
 remain separate from external finance/commercial review and observed executive
 comprehension, which have not been performed. Initiative/KPI lineage is implemented
-for explicit, disjoint source populations. Richer overlap allocations, broader KPI
-semantics and exact publication-time reconstruction remain open.
+for explicit, disjoint source populations. A separate
+[shared-pool lifecycle](allocation-lineage-review.html) now composes allocation
+policy with initiative splits, target/read corrections and recombination. It has
+its own [executive memo](allocation-lineage-memo.html); its figures are not later
+revisions of the primary case above. Automatic conversion of physical ownership,
+grouped exclusive alternatives and exact publication-time reconstruction remain
+unsupported or unverified as recorded in the acceptance map.
 
 A [practitioner worksheet](practitioner-review.md) and [sponsor package](../pilot/permissioned/README.md)
 are ready. A real pilot needs authorized records, management participation, an
@@ -113,6 +118,8 @@ Resume framing: **Built an evidence-linked PE value-creation research platform
 using public filings and constructed operating records, with deterministic
 EBITDA/cash models, capacity-aware planning, immutable revisions and executive review.**
 Do not describe modeled values as generated savings or imply a Progress client engagement.
+The [interview guide](interview-guide.md) provides role-specific resume bullets,
+a short introduction and evidence to use when answering reviewer questions.
 
 The earlier [Beacon case study](beacon-case-study.md) remains a fictional
 application and human-approval demonstration.

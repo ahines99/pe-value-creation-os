@@ -18,6 +18,24 @@ The [completion checklist](portfolio/remaining-work.md) gives the current ordere
 actions, owners and finish criteria. The earlier allocation and disjoint-lineage examples remain
 unchanged. The five-outcome goal is still active.
 
+Subsequent releases add the actual accounting-restatement comparison in
+[PR #37](https://github.com/ahines99/pe-value-creation-os/pull/37) and verified SS&C
+peer mapping in [PR #38](https://github.com/ahines99/pe-value-creation-os/pull/38).
+The latter passed all ten CI jobs, including 1,176 tests per supported Python
+version and 84 browser checks; thirteen published files matched its merge.
+These releases do not close exact historical publication timing, independent
+finance review or the performed pilot. The acceptance map records their build
+identities separately from the original PR #36 counts.
+
+The financial-definition review is released in
+[PR #39](https://github.com/ahines99/pe-value-creation-os/pull/39): all ten CI jobs
+passed, with 1,176 tests per supported Python version and 84 browser checks;
+nine published files matched the merge. Both executive adjustment registers
+have ten entries, including the four supplied annual/interim amortization
+exceptions. Their unexplained components remain unresolved and dependent
+earnings stay withheld. The executive entry and interview guide are prepared
+for their own release review; they do not establish practitioner acceptance.
+
 | Next work | Owner | Completion evidence |
 |---|---|---|
 | Shared-pool lifecycle release — complete in PR #36 | Codex | 1,154 tests on each supported Python version, 81 browser checks, 31 bundle conditions and verified published bytes; repeat relevant checks for subsequent changes |
@@ -44,8 +62,8 @@ public research and the constructed demonstration continue independently.
 | Public Progress case / OP-01, 02, 09 | [Case charter](pilot/progress-case-charter.md), reviewed 10-K/Q1/Q2 mappings, 241 annual/interim facts, calculated quarter cash with source lineage, acquisition perimeter flag, ShareFile contribution/residual bridge, reconciled revenue mix, four sourced research assessments, metric-specific public peer eligibility with withheld strict medians and [public baseline](portfolio/progress-baseline.html) | Remaining organic/perimeter explanations where available, wider candidate/definition review and reviewed commercial conclusions |
 | Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; annual/interim baseline measures with dependency-aware reconciliation; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity; [historical company equity bridge](portfolio/historical-valuation.html) with 13 dated source facts and explicit claim assumptions; shared-pool/KPI composition in PR #36 | Unresolved comparative amortization; independent review of adjustments, maintainability, allocation inputs and historical valuation assumptions; actual payoff inputs for any transaction |
 | Capacity-aware plan / OP-03, 08, 10–11 | [Constructed 100-day proposal](portfolio/operating-plan.html): seven packages, four resource budgets, dependency/capacity constraints, conflict explanations and schedule-linked economics | Validated effort/capacity evidence and actual company participation; [constructed contract/service/invoice records](portfolio/operating-sources.html) now constrain a separate forecast; [constructed execution receipts](portfolio/execution.html) now separate assignment, delivery, acceptance and steering (ADR 0020) |
-| Executive memo / OP-12–13 | [Integrated decision memo](portfolio/decision-memo.html): version-bound thesis/counterarguments, eight-entry adjustment register, three capacity-tested first waves, downside/cash/EV distinctions, embedded historical equity matrix and source appendix | Independent executive challenge, unresolved valuation diligence and final portfolio acceptance |
-| Underwriting-to-realization and pilot / OP-14–17 | Immutable case snapshots, exact-version reviews, frozen baselines, constructed actuals/claims and corrections; delivery-to-claim links; ten-revision physical-ownership and twelve-revision shared-pool/KPI exercises; constructed exit review; sponsor brief and pilot worksheets | Historical publication-time/accounting-restatement replay, independent attribution/learning review and private-data readiness; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
+| Executive memo / OP-12–13 | [Integrated decision memo](portfolio/decision-memo.html): version-bound thesis/counterarguments, ten-entry adjustment register, three capacity-tested first waves, downside/cash/EV distinctions, embedded historical equity matrix and source appendix | Independent executive challenge, unresolved valuation diligence and final portfolio acceptance |
+| Underwriting-to-realization and pilot / OP-14–17 | Immutable case snapshots, exact-version reviews, frozen baselines, constructed actuals/claims and corrections; delivery-to-claim links; ten-revision physical-ownership and twelve-revision shared-pool/KPI exercises; constructed exit review; actual accounting-restatement comparison with non-reliance history; sponsor brief and pilot worksheets | Exact historical public-availability timing, independent attribution/learning review and private-data readiness; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
 
 The [record-level source challenge](portfolio/operating-sources.html) now extends
 OP-06/08/11 with authored contract, service/vendor and invoice records. Notice

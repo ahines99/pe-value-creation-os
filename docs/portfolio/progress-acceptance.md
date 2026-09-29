@@ -21,6 +21,26 @@ suite passed 1,153 tests with one Windows symlink-privilege skip. These counts
 describe that exact implementation, not subsequent documentation changes or
 independent finance validation.
 
+The subsequent peer-source review was released in
+[PR #38](https://github.com/ahines99/pe-value-creation-os/pull/38), tested at
+`cd841b165cb9af25a80cf8b354ab6793e9cb16a1` and merged as
+`de2ee940ad9f6f1a2735dc15d208b72bbb831362` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36622008898)
+passed: 1,176 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Thirteen published
+files matched the merge. The four sourced candidates remain subject to
+metric-level exclusions; strict peer medians are still withheld.
+
+The financial-definition review was released in
+[PR #39](https://github.com/ahines99/pe-value-creation-os/pull/39), tested at
+`d172d3da31dda587d987c1436534d22d9bee51fb` and merged as
+`082beb0c972b562ad0e0fd659089cc0a977d7474` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36624637599)
+passed: 1,176 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Nine published files
+matched the merge. Both briefs now expose all four supplied annual/interim
+amortization exceptions. Their causes and independent finance review remain open.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -31,6 +51,13 @@ memo/exit pages, lineage authority and the rendered lineage page. It uses the ap
 and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
+
+The primary entry now follows one six-stop decision story, with the separate
+shared-pool and local application examples identified explicitly. The
+[presenter guide](progress-demo.md) and case study preserve period and example
+boundaries. Browser checks verify all route destinations, keyboard access and
+the landing conclusion against the saved memo. This provides automated route
+acceptance, not observed executive comprehension or practitioner endorsement.
 
 The [financial-definition review](../research/operating-partner/08-financial-definition-review.md)
 records the outcome of the selected-source investigation: supported earnings and
@@ -110,7 +137,7 @@ proof of correctness or completion.
 
 ## Remaining work and ownership
 
-1. **Codex:** follow the [step-by-step completion checklist](remaining-work.md), preserving PR #36 as the current verified implementation and the original OP requirements as the acceptance baseline.
+1. **Codex:** follow the [step-by-step completion checklist](remaining-work.md), retaining the exact-build release evidence above and the original OP requirements as the acceptance baseline. Local presentation changes and pending releases are not publication evidence.
 2. **Codex:** finish public-source, financial-definition, peer/thesis and historical-replay research. Preserve unsupported or adverse conclusions and explicitly identify any criterion that evidence cannot satisfy.
 3. **Codex:** consolidate the executive walkthrough, finalize portfolio packaging and execute acceptance and review corrections. A practitioner session is unperformed until someone participates; blank worksheet fields remain blank.
 4. **Codex:** build and test generic private ingestion and readiness controls with permitted fixtures, then adapt them to the sponsor's authorized scope. No company environment or permission is presumed.

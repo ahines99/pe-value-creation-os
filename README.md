@@ -1,69 +1,56 @@
 # PE Portfolio Value Creation Operating System
 
-Turns portfolio-company operating data into evidence-backed value-creation initiatives, deterministically sized EBITDA cases, a human-approved 100-day plan, and ongoing KPI monitoring.
+An evidence-backed decision workspace for PE operating partners: inspect a value
+thesis, separate EBITDA from cash, constrain a 100-day plan, and revisit the
+decision when the evidence changes.
 
-**Built for PE operating partners and portfolio-company executives, with technical diligence available throughout.** Assess modeled EBITDA, prioritize workstreams, inspect assumptions and evidence, record a human decision, and monitor the approved plan. Open the [portfolio site](https://ahines99.github.io/pe-value-creation-os/), [case study](docs/portfolio/case-study.md), [walkthrough](docs/portfolio/quickstart.md) or [actual synthetic output](docs/portfolio/demo-report.md).
+**Start with the [portfolio site](https://ahines99.github.io/pe-value-creation-os/)
+or [executive memo](https://ahines99.github.io/pe-value-creation-os/portfolio/decision-memo.html).**
+The primary case combines real Progress Software public filings with a clearly
+separate constructed operating exercise. Corrected evidence overturns an initially
+positive forecast, reopens the proposed first wave, and preserves earlier versions.
+No Progress engagement, authorized intervention or realized savings is claimed.
 
-![Executive portfolio workspace using fictional company data](docs/portfolio/screenshots/workspace-1440.png)
+![Progress reference case and the decision after the evidence challenge](docs/portfolio/screenshots/entry-1440.png)
 
-**Showcase status:** the executive workspace is implemented and tested. Explore portfolio priorities, investment memos, workstream contributions, source evidence and operating scorecards. Financial assumptions and audit details remain available within each workflow.
+## Follow the case
 
-**Progress review package:** start with the [current case study](docs/portfolio/case-study.md),
-[10-minute demonstration](docs/portfolio/progress-demo.md), [practitioner challenge packet](docs/portfolio/practitioner-review.md)
-and [requirement-by-requirement acceptance record](docs/portfolio/progress-acceptance.md).
-The constructed case becomes adverse when operating evidence changes. The latest
-memo reopens the first-wave preference and preserves original, close, accounting
-and exit-review history. No company sponsor, actual intervention or realized result is claimed.
+1. [Decision](https://ahines99.github.io/pe-value-creation-os/portfolio/decision-memo.html): recommendation, alternatives and the next evidence request.
+2. [Public baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html): filing provenance, earnings definitions, acquisition effects and peer limits.
+3. [Underwriting](https://ahines99.github.io/pe-value-creation-os/portfolio/underwriting.html): monthly earnings, cash, costs and downside in the constructed exercise.
+4. [100-day proposal](https://ahines99.github.io/pe-value-creation-os/portfolio/operating-plan.html): dependencies and weekly capacity linked to financial timing.
+5. [Evidence correction](https://ahines99.github.io/pe-value-creation-os/portfolio/source-review.html): changed eligibility and vendor evidence overturn the case.
+6. [Measurement history](https://ahines99.github.io/pe-value-creation-os/portfolio/lineage-review.html): scoped KPIs, accounting comparisons, claims and unassigned residuals.
 
-The financial/lifecycle implementation through [PR #32](https://github.com/ahines99/pe-value-creation-os/pull/32)
-passed all ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36493440351):
-1,047 tests per supported Python version, 39 evaluations and 54 browser checks.
-Those results are bound to that implementation; the acceptance record gives exact hashes and limits.
-[Historical v0.1.0 release evidence](docs/releases/0.1.0/evidence.md) and the
-[delegated showcase closeout](docs/portfolio/showcase-closeout.md) remain available.
-The [capability roadmap](docs/operating-partner-roadmap.md) retains open lifecycle,
-commercial-review and pilot work. Production acceptance remains separate.
+The [case study](docs/portfolio/case-study.md), [10-minute presenter guide](docs/portfolio/progress-demo.md)
+and [interview/resume guide](docs/portfolio/interview-guide.md) explain these boundaries.
+The [shared-pool lifecycle](https://ahines99.github.io/pe-value-creation-os/portfolio/allocation-lineage-review.html)
+is a separate advanced example, with its own memo and saved decisions.
 
-**Real-data research lane:** the [public-company pilot workflow](docs/pilot/public-company-research.md) reads authorized local Compustat caches and builds a private executive research memo with peer comparisons, source reconciliation and a diligence agenda. This is separate from the fictional operating showcase. Licensed data stays outside the public site; independent analyst acceptance and operational impact remain unvalidated.
+## What the engineering demonstrates
 
-**Executive decision packet:** [Read the Progress memo](https://ahines99.github.io/pe-value-creation-os/portfolio/decision-memo.html)
-for the public thesis, accounting review, competing capacity-tested first waves,
-adverse case, historical company equity bridge and next evidence request. Public facts and constructed operating
-scenarios remain separate; no company approval or realized result is claimed.
+Typed source contracts and Decimal calculations make financial claims inspectable.
+Immutable PostgreSQL revisions retain original assumptions, corrections and exact-version
+reviews. Capacity and dependency checks change proposed dates and economics together.
+Tenant controls and a separate human approval API keep operating authority outside
+the model's tools. Optional models propose and explain; the default demonstration
+runs without paid inference.
 
-**Public filing baseline (work in progress):** [Progress Software's historical
-financial baseline](https://ahines99.github.io/pe-value-creation-os/portfolio/progress-baseline.html)
-replays from 241 issuer-sourced annual/interim facts without vendor credentials.
-It now adds a reconciled revenue-mix extraction, acquisition contribution bridge
-and sourced investigate/defer/reject research assessments; organic growth remains
-unavailable where the disclosures do not establish it. A metric-specific peer exhibit
-shows reported margin context, exclusions and deliberately withheld strict medians.
-It separates quarterly and YTD periods, derives quarterly cash with source lineage,
-and flags the September 2026 acquisition as outside the historical financial
-perimeter. Earnings/cash definitions and unresolved accounting differences remain
-visible. The full company
-thesis and permissioned pilot remain in implementation;
-see the [case charter](docs/pilot/progress-case-charter.md) and
-[prepared pilot package](docs/pilot/permissioned/README.md).
+[Architecture](docs/architecture.md) · [Exact-build acceptance and gaps](docs/portfolio/progress-acceptance.md)
+· [Completion checklist](docs/portfolio/remaining-work.md)
 
-**Monthly economics (constructed exercise):** the [underwriting exhibits](https://ahines99.github.io/pe-value-creation-os/portfolio/underwriting.html)
-separate 24-month EBITDA, pre-tax cash, funding need and incremental EV sensitivity.
-They retain adverse scenarios, collection reversals and committed costs after scope
-exclusions. [Replay instructions and source boundaries](data/constructed/progress/README.md)
-make clear that these are assumed operating records, not actual Progress results.
-The [100-day operating proposal](https://ahines99.github.io/pe-value-creation-os/portfolio/operating-plan.html)
-now sequences dependencies against explicit weekly resource budgets and recalculates
-the same financial model. Capacity conflicts delay benefits while original costs
-remain. Assignments and acceptance gates are proposed and constructed; durable
-case revisions and exact-version research reviews are now stored separately from
-operating approvals. The [case-history walkthrough](https://ahines99.github.io/pe-value-creation-os/portfolio/case-history.html)
-preserves original/current forecasts and labels its two service-authored reviews
-as simulated. The [constructed realization review](https://ahines99.github.io/pe-value-creation-os/portfolio/realization.html)
-adds three monthly accounting comparisons, explicit claims, unassigned residuals
-and preserved source corrections. The [execution review](https://ahines99.github.io/pe-value-creation-os/portfolio/execution.html)
-adds simulated assignments, completion/acceptance receipts, steering holds and
-claim links that lose support when evidence is withdrawn. Actual human review,
-observed company results and validated causal attribution remain unperformed.
+The public exhibits are read-only. The separate local Beacon/Delta application
+demonstrates interactive approval, missing evidence, failure/recovery and KPI
+navigation using fictional businesses. See the [quickstart](docs/portfolio/quickstart.md).
+
+University LSEG/WRDS research is a [private research lane](docs/pilot/public-company-research.md).
+Public replay requires no vendor credentials or licensed extracts. Apache-2.0
+licenses the code; third-party data rights remain separate.
+
+A [sponsor package](docs/pilot/permissioned/README.md) and
+[practitioner worksheet](docs/portfolio/practitioner-review.md) are prepared.
+A performed pilot still needs a sponsor, authorized operating records, company
+decisions and observed results. Production deployment is later scope.
 
 ## Try it
 
@@ -155,7 +142,7 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
 | Public Progress case and constructed lifecycle | Ten case revisions with initiative/KPI lineage, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
-| CI (GitHub Actions) | Exact PR #32 evidence: ten successful jobs, 1,047 tests per Python version, 39 evaluations and 54 browser checks. Later changes require their own successful CI. HIGH and CRITICAL image findings fail regardless of fix availability. |
+| CI (GitHub Actions) | [PR #39 CI](https://github.com/ahines99/pe-value-creation-os/actions/runs/36624637599): ten successful jobs, 1,176 tests per supported Python version, 39 evaluations and 84 browser checks. Later changes require their own successful CI. HIGH and CRITICAL image findings fail regardless of fix availability. |
 | Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
 | Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
 | Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |

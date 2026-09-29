@@ -95,6 +95,30 @@ def main() -> None:
                         assert item.evaluate("e => e.open"), (name, index)
                 expanded = page.evaluate("document.documentElement.scrollWidth")
                 assert expanded <= width, (name, width, "expanded overflow", expanded)
+                if name == "landing":
+                    links = page.locator(".review-route a")
+                    destinations = [links.nth(i).get_attribute("href") for i in range(links.count())]
+                    assert destinations == [
+                        "portfolio/decision-memo.html",
+                        "portfolio/progress-baseline.html",
+                        "portfolio/underwriting.html",
+                        "portfolio/operating-plan.html",
+                        "portfolio/source-review.html",
+                        "portfolio/lineage-review.html",
+                    ]
+                    for destination in destinations:
+                        assert page.request.get(base + "/" + destination).status == 200
+                    payload = page.request.get(base + "/portfolio/decision-memo.json").json()
+                    assert payload["preference_status"] == "reopen_source_constrained_preference"
+                    assert payload["source_review"]["all_base_year_one_nonpositive"]
+                    assert payload["execution_authorized"] is False and payload["actual_realized_value"] is None
+                    assert "Every tested base first-year sequence is adverse" in page.locator(".memo").inner_text()
+                    assert "separate from the Progress research case" in page.locator("#workflow").inner_text()
+                    if width in (1440, 375):
+                        page.locator("#technical-exhibits").evaluate("e => e.open = false")
+                        page.locator("main").focus()
+                        page.locator("#operating-exercise").evaluate("e => e.scrollIntoView({block:'start'})")
+                        page.screenshot(path=str(output / f"primary-route-{width}.png"))
                 if name == "memo" and width == 1440:
                     page.locator("#evidence").screenshot(path=str(output / "memo-evidence-detail.png"))
                 if name == "execution":
