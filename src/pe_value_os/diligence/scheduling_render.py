@@ -11,8 +11,8 @@ from typing import Any
 from ..api.presentation import CSS
 from ..research.render import table
 from .scheduling import OperatingPlan, evaluate_plan
-from .underwriting import UnderwritingCase
-from .underwriting_render import amount
+from .underwriting_models import read_underwriting
+from .underwriting_render import amount, render_allocation
 
 
 def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
@@ -65,6 +65,22 @@ def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
         f"<p><strong>Cost discipline:</strong> {cell(report['cost_treatment'])}</p>"
         "<p><a href='underwriting.html'>Inspect the original economic assumptions</a> · <a href='progress-baseline.html'>Review the separate public-company baseline</a></p></section>"
     )
+    if "selected_initiatives" in report:
+        body += (
+            "<section class='panel'><h2>Work excluded from this selection</h2>"
+            f"<p>{cell(report['selection_treatment'])}</p>"
+            + table(
+                ["Work package", "Initiative", "Acceptance requirement retained for future selection"],
+                [
+                    [cell(t["title"]), cell(t["initiative_id"]), cell(t["acceptance_evidence"])]
+                    for t in report["excluded_tasks"]
+                ],
+                "Excluded work consumes no capacity in this proposal; it remains visible for a later explicit decision.",
+            )
+            + "</section>"
+        )
+        if "interaction_policy" in report["scheduled_financials"]:
+            body += render_allocation(report["scheduled_financials"])
     body += "<section class='panel' id='plan'><h2>100-day work and acceptance gates</h2>"
     body += table(
         ["Work / accountable role", "Start", "Finish", "Status / dependencies", "Required acceptance evidence"],
@@ -175,7 +191,7 @@ def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
 
 def build_operating_report(source: Path, underwriting: Path, output: Path) -> Path:
     plan = OperatingPlan.model_validate_json(source.read_bytes())
-    case = UnderwritingCase.model_validate_json(underwriting.read_bytes())
+    case = read_underwriting(underwriting.read_bytes())
     report = evaluate_plan(plan, case)
     html = render_plan(plan, report)
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")

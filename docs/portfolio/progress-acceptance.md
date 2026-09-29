@@ -30,6 +30,19 @@ and adversarial cases remain in the separate test suites below.
 
 ## Requirement-by-requirement evidence
 
+The current allocation increment adds a separate [six-revision review](allocation-review.html)
+and [executive memo](allocation-memo.html). `test_benefit_interactions.py`,
+`test_interaction_workflow.py`, `test_interaction_sources.py` and
+`test_allocation_demo.py` cover the population/shared-cost rules, saved selection,
+exact source pools and unchanged frozen claims. `check_allocation_review.py`
+reproduces six financial snapshots, accounting and five rendered exhibits through
+eight additional consistency conditions. Its browser coverage adds five pages to
+the existing 19-page suite. These are software acceptance checks, not independent
+finance validation or company outcomes. See [ADR 0027](../adr/0027-benefit-pool-allocation.md).
+The older rows below retain their historical evidence; richer pool allocation and
+exclusivity are now implemented within that ADR's explicit scope. Composition with
+physical split/merge KPI lineage and independent challenge remain open.
+
 “Implemented” below describes the indicated software behavior. “Open” means the
 complete outcome is not established. Passing tests does not replace external facts.
 
@@ -63,8 +76,8 @@ proof of correctness or completion.
 
 ## Remaining work and ownership
 
-1. **Codex:** maintain exact-build acceptance for the [initiative/KPI lineage](lineage-review.html) implementation; preserve its disjoint-population limits. [PR #34](https://github.com/ahines99/pe-value-creation-os/pull/34) records this increment's CI. Broader pool allocation remains separate work.
-2. **Codex:** complete the remaining interaction/allocation cases and targeted source/commercial diligence where public evidence can resolve them. Preserve unsupported or adverse conclusions.
+1. **Codex:** maintain exact-build acceptance for the [initiative/KPI lineage](lineage-review.html) implementation; preserve its disjoint-population limits. [PR #34](https://github.com/ahines99/pe-value-creation-os/pull/34) records this increment's CI. The separate allocation exercise now covers fixed shares and mutually exclusive choices; composition with physical KPI lineage remains open.
+2. **Codex:** complete explicit allocation/KPI-lineage composition and targeted source/commercial diligence where public evidence can resolve them. Preserve unsupported or adverse conclusions.
 3. **Codex:** maintain this packet and execute corrections from review. A human/practitioner session is unperformed until someone actually participates; blank worksheet fields remain blank.
 4. **Codex:** prepare the agreed private ingestion and readiness evidence once a sponsor defines scope. Generic readiness work may proceed, but no company environment or permission is presumed.
 5. **Alex, when available:** introduce a willing reviewer or authorized company sponsor. No immediate data, credentials or setup are requested.

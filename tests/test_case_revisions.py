@@ -342,13 +342,25 @@ def test_populated_legacy_upgrade_and_safe_downgrade(pg_repo, pg_database):
             upgrade(admin_url)
 
 
-def test_case_api_preserves_auth_csrf_and_exact_version(repo, monkeypatch):
+@pytest.mark.parametrize("policy", ["legacy", "allocation"])
+def test_case_api_preserves_auth_csrf_and_exact_version(repo, monkeypatch, policy):
     import json
     from types import SimpleNamespace
 
     from fastapi.testclient import TestClient
 
     from pe_value_os.api import app as api
+
+    submitted = draft()
+    if policy == "allocation":
+        from pe_value_os.diligence.interactions import InteractionCase
+
+        from .test_benefit_interactions import paired
+        from .test_interaction_workflow import plan_for, revision
+
+        raw, parent, alternative, _ = paired(mode="exclusive")
+        model = InteractionCase.model_validate(raw)
+        submitted = revision(model, plan_for(model, parent, alternative))
 
     tokens = {
         "writer": {
@@ -403,10 +415,11 @@ def test_case_api_preserves_auth_csrf_and_exact_version(repo, monkeypatch):
     saved = client.post(
         path + "/revisions",
         headers=h,
-        json={"expected_parent_revision_id": None, "draft": draft().model_dump(mode="json")},
+        json={"expected_parent_revision_id": None, "draft": submitted.model_dump(mode="json")},
     )
     assert saved.status_code == 201, saved.text
     record = CaseRevision.model_validate(saved.json())
+    assert record.draft == submitted
     review_path = f"/case-revisions/{record.revision_id}/reviews"
     body = request(record, mode="human").model_dump(mode="json")
     assert client.post(review_path, headers={"Authorization": "Bearer model"}, json=body).status_code == 404
@@ -427,7 +440,7 @@ def test_case_api_preserves_auth_csrf_and_exact_version(repo, monkeypatch):
         client.post(
             path + "/revisions",
             headers=h,
-            json={"expected_parent_revision_id": None, "draft": draft().model_dump(mode="json")},
+            json={"expected_parent_revision_id": None, "draft": submitted.model_dump(mode="json")},
         ).status_code
         == 409
     )

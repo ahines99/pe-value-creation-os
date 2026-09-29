@@ -10,14 +10,72 @@ from typing import Any
 
 from ..api.presentation import CSS
 from ..research.render import table
-from .underwriting import UnderwritingCase, evaluate
+from .interactions import InteractionCase
+from .underwriting import evaluate
+from .underwriting_models import UnderwritingModel, read_underwriting
 
 
 def amount(value: Any) -> str:
     return f"{Decimal(str(value)):,.0f}"
 
 
-def render_underwriting(case: UnderwritingCase, report: dict[str, Any]) -> str:
+def render_allocation(report: dict[str, Any]) -> str:
+    """Show effective scope beside the unchanged authored selection and rules."""
+    policy = report["interaction_policy"]
+    basis = report["selection_basis"]
+    base = next(s for s in report["scenarios"] if s["scenario_id"] == "base")
+    rules = {p["pool_id"]: p for p in policy["pools"]}
+    body = (
+        "<section class='panel' id='allocation'><h2>One economic pool, explicit choices</h2>"
+        f"<p><strong>Calculation selection:</strong> {escape(basis['mode'].replace('_', ' '))}. "
+        f"{escape('; '.join(basis['effective_selected_initiatives']) or 'None')}.</p>"
+        f"<p><strong>Recorded selection:</strong> {escape('; '.join(basis['recorded_selected_initiatives']) or 'None')}. "
+        f"{escape(policy['selection_rationale'])}</p><p>{escape(basis['authority'])}</p>"
+    )
+    body += table(
+        ["Economic pool / rule", "Member", "Population share", "Calculation scope", "Owner / rationale / challenge"],
+        [
+            [
+                escape(pool["pool_id"] + " / " + pool["mode"]),
+                escape(member["initiative_id"]),
+                f"{Decimal(str(member['population_share'])):.1%}",
+                "Selected; benefit blocked"
+                if member["initiative_id"] in pool["blocked_members"]
+                else "Selected"
+                if member["selected"]
+                else "Excluded",
+                "<br>".join(escape(rules[pool["pool_id"]][key]) for key in ("owner", "rationale", "invalidated_by")),
+            ]
+            for pool in base["interaction"]["pools"]
+            for member in pool["members"]
+        ],
+        "Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.",
+    )
+    body += "<p>Shares describe authored population scope. They are not probabilities or attribution of realized earnings.</p>"
+    for rule in policy["cost_allocations"]:
+        body += (
+            f"<details><summary>Cost explanation: {escape(rule['cost_id'])}</summary>"
+            f"<p>{escape(rule['owner'])}: {escape(rule['rationale'])} Challenge: {escape(rule['invalidated_by'])}</p>"
+            + table(
+                ["Date", "Owner", "Component", "Allocated amount"],
+                [
+                    [
+                        escape(str(e["day"])),
+                        escape(e["initiative_id"]),
+                        escape(e["component"]),
+                        f"{Decimal(str(e['amount'])):,.2f}",
+                    ]
+                    for e in base["interaction"]["cost_allocation_entries"]
+                    if e["reference"] == rule["cost_id"]
+                ],
+                "Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.",
+            )
+            + "</details>"
+        )
+    return body + "</section>"
+
+
+def render_underwriting(case: UnderwritingModel, report: dict[str, Any]) -> str:
     case.require_public()
     scenarios = report["scenarios"]
     base = next(s for s in scenarios if s["scenario_id"] == "base")
@@ -52,8 +110,16 @@ def render_underwriting(case: UnderwritingCase, report: dict[str, Any]) -> str:
         "<p><strong>Collections:</strong> existing receivables are collected earlier. The temporary cash advantage reverses on the original collection date; it creates no revenue, EBITDA or recurring valuation benefit.</p>"
         f"<p><strong>Included scope:</strong> {escape('; '.join(selected_titles) or 'None; retained commitments only')}.</p>"
         f"<p><strong>First-100-day cash:</strong> the base scenario includes {amount(base['day_100']['working_capital_cash'])} of temporary receivables timing. Review its later reversal alongside implementation spending.</p>"
-        "<p>Platform fees start at kickoff. Implementation expense, its payment and capitalized spend have separate dates. Shared committed foundation costs survive exclusion. Overlapping benefit pools require a combined driver before aggregation.</p></section>"
+        "<p>Platform fees start at kickoff. Implementation expense, its payment and capitalized spend have separate dates. Shared committed foundation costs survive exclusion. "
+        + (
+            "Overlapping benefit pools use the explicit allocation and exclusion rules below."
+            if isinstance(case, InteractionCase)
+            else "Overlapping benefit pools require a combined driver before aggregation."
+        )
+        + "</p></section>"
     )
+    if isinstance(case, InteractionCase):
+        body += render_allocation(report)
     body += (
         "<section class='panel' id='scenarios'><h2>Downside, base and upside</h2>"
         + table(
@@ -200,12 +266,17 @@ def render_underwriting(case: UnderwritingCase, report: dict[str, Any]) -> str:
     )
 
 
-def build_underwriting_report(source: Path, output: Path, excluded: frozenset[str] = frozenset()) -> Path:
-    case = UnderwritingCase.model_validate_json(source.read_bytes())
+def build_underwriting_report(
+    source: Path, output: Path, excluded: frozenset[str] = frozenset(), *, selected: frozenset[str] | None = None
+) -> Path:
+    case = read_underwriting(source.read_bytes())
     ids = frozenset(d.initiative_id for d in case.scenarios[0].drivers)
     if not excluded <= ids:
         raise ValueError("exclusion contains an unknown initiative")
-    report = evaluate(case, ids - excluded)
+    if selected is not None and excluded:
+        raise ValueError("select and exclude are mutually exclusive")
+    default = frozenset(case.interaction_policy.selected_initiatives) if isinstance(case, InteractionCase) else ids
+    report = evaluate(case, default - excluded if selected is None else selected)
     html = render_underwriting(case, report)
     html_path, json_path = output.with_suffix(".html"), output.with_suffix(".json")
     if source.resolve() in {html_path.resolve(), json_path.resolve()}:

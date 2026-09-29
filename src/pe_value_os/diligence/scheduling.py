@@ -14,8 +14,10 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
+from .interactions import InteractionCase
 from .models import Record
-from .underwriting import Collections, UnderwritingCase, evaluate
+from .underwriting import Collections, evaluate
+from .underwriting_models import UnderwritingModel, parse_underwriting
 
 VERSION = "capacity-schedule/1"
 
@@ -136,7 +138,7 @@ class OperatingPlan(Record):
                 raise ValueError("benefit gate must depend on every work package for its initiative")
         return self
 
-    def bind(self, case: UnderwritingCase) -> None:
+    def bind(self, case: UnderwritingModel) -> None:
         case.require_public()
         if self.case_id != case.case_id or self.start != case.start or self.underwriting_sha256 != fingerprint(case):
             raise ValueError("plan must bind the exact underwriting case and start date")
@@ -145,8 +147,21 @@ class OperatingPlan(Record):
             raise ValueError("benefit gates must cover the exact underwriting initiatives")
 
 
-def schedule(plan: OperatingPlan) -> dict[str, Any]:
+def schedule(plan: OperatingPlan, selected: frozenset[str] | None = None) -> dict[str, Any]:
     tasks = {t.task_id: t for t in plan.tasks}
+    excluded = []
+    if selected is not None:
+        if not selected <= {g.initiative_id for g in plan.benefit_gates}:
+            raise ValueError("schedule selection references an unknown initiative")
+        needed = {key for key, task in tasks.items() if task.initiative_id in selected}
+        frontier = set(needed)
+        while frontier:
+            frontier = {p for key in frontier for p in tasks[key].prerequisites} - needed
+            needed |= frontier
+        if any(tasks[key].initiative_id is not None and tasks[key].initiative_id not in selected for key in needed):
+            raise ValueError("selected work depends on an unselected initiative; resolve the choice explicitly")
+        excluded = [t.model_dump(mode="json") for t in plan.tasks if t.task_id not in needed]
+        tasks = {key: task for key, task in tasks.items() if key in needed}
     resources = {r.resource_id: r for r in plan.resources}
     used = {(resource, week): Decimal(0) for resource in resources for week in range(15)}
     occupants: dict[int, set[str]] = {week: set() for week in range(15)}
@@ -228,11 +243,11 @@ def schedule(plan: OperatingPlan) -> dict[str, Any]:
                 "No feasible full-week slot within 100 days; benefit remains unavailable pending a revised plan."
             )
     return {
-        "schedule_version": VERSION,
+        "schedule_version": "capacity-schedule/2" if selected is not None else VERSION,
         "plan_sha256": fingerprint(plan),
         "start": plan.start,
         "end": end,
-        "tasks": [results[key] for key in plan.priority_order],
+        "tasks": [results[key] for key in plan.priority_order if key in results],
         "capacity": [
             {
                 "resource_id": resource.resource_id,
@@ -254,20 +269,45 @@ def schedule(plan: OperatingPlan) -> dict[str, Any]:
         ],
         "authority": "Constructed proposed plan; no actual assignments, accepted deliverables, management decisions or authorization to execute.",
         "method": "Authored priority among dependency-ready tasks; earliest feasible non-preemptive full planning weeks. Seven-day weeks start on the case date; the final two days cannot fit a full-week package. Capacity is net of normal duties. Feasibility is conditional on the inputs, not optimality or observed execution.",
+        **(
+            {
+                "selected_initiatives": sorted(selected),
+                "excluded_tasks": excluded,
+                "selection_treatment": "Only selected initiatives and their required enablers consume modeled capacity. An unselected initiative cannot be an implicit prerequisite. Exclusion does not cancel retained financial commitments.",
+            }
+            if selected is not None
+            else {}
+        ),
     }
 
 
-def evaluate_plan(plan: OperatingPlan, case: UnderwritingCase) -> dict[str, Any]:
+def evaluate_plan(
+    plan: OperatingPlan, case: UnderwritingModel, *, selected: frozenset[str] | None = None
+) -> dict[str, Any]:
     plan.bind(case)
-    result = schedule(plan)
+    if isinstance(case, InteractionCase):
+        selected = frozenset(case.interaction_policy.selected_initiatives) if selected is None else selected
+        case.validate_selection(selected)
+    result = schedule(plan, selected)
     tasks = {t["task_id"]: t for t in result["tasks"]}
-    gates = {g.initiative_id: tasks[g.task_id] for g in plan.benefit_gates}
+    gates = {g.initiative_id: tasks[g.task_id] for g in plan.benefit_gates if g.task_id in tasks}
     raw = case.model_dump(mode="json")
     blocks: dict[str, frozenset[str]] = {}
     timing = []
     for scenario, original in zip(raw["scenarios"], case.scenarios, strict=True):
         suppressed = set()
         for driver, original_driver in zip(scenario["drivers"], original.drivers, strict=True):
+            if selected is not None and driver["initiative_id"] not in selected:
+                timing.append(
+                    {
+                        "scenario_id": scenario["scenario_id"],
+                        "initiative_id": original_driver.initiative_id,
+                        "original_effective_on": original_driver.effective_on,
+                        "scheduled_effective_on": None,
+                        "reason": "Excluded by the explicit selection; retained financial commitments remain.",
+                    }
+                )
+                continue
             gate = gates[driver["initiative_id"]]
             effective = (
                 None if gate["status"] == "blocked" else max(original_driver.effective_on, gate["benefit_ready_on"])
@@ -295,9 +335,9 @@ def evaluate_plan(plan: OperatingPlan, case: UnderwritingCase) -> dict[str, Any]
                 }
             )
         blocks[scenario["scenario_id"]] = frozenset(suppressed)
-    scheduled_case = UnderwritingCase.model_validate(raw)
-    original_report = evaluate(case)
-    revised_report = evaluate(scheduled_case, benefit_blocks=blocks)
+    scheduled_case = parse_underwriting(raw)
+    original_report = evaluate(case, selected)
+    revised_report = evaluate(scheduled_case, selected, benefit_blocks=blocks)
     return {
         **result,
         "case_id": case.case_id,
@@ -309,14 +349,16 @@ def evaluate_plan(plan: OperatingPlan, case: UnderwritingCase) -> dict[str, Any]
         "original_financials": original_report,
         "scheduled_financials": revised_report,
         "scheduled_case": scheduled_case.model_dump(mode="json"),
-        "cost_treatment": "All original dated expenses, fees and capex remain unchanged. Benefit suppression is not initiative rejection or cost cancellation. Avoiding or rescheduling a cost requires an explicit separate case revision.",
+        "cost_treatment": "All original dated expenses, fees and capex remain unchanged. Benefit suppression is not initiative rejection or cost cancellation. Avoiding or rescheduling a cost requires an explicit separate case revision."
+        if selected is None
+        else "Selected initiatives retain all their dated costs. Explicitly avoidable costs of unselected initiatives are excluded; retained commitments remain once. A blocked selected initiative keeps its costs. No cost is rescheduled by the capacity solver.",
         "report_sha256": hashlib.sha256(
             json.dumps(
                 {
                     "plan": fingerprint(plan),
                     "original": original_report["calculation_sha256"],
                     "scheduled": revised_report["calculation_sha256"],
-                    "version": VERSION,
+                    "version": result["schedule_version"],
                 },
                 sort_keys=True,
             ).encode()

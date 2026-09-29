@@ -1,0 +1,159 @@
+{
+  "schema_version": 2,
+  "classification": "public_research_with_constructed_exercise",
+  "author_role": "research_author",
+  "as_of": "2026-09-28",
+  "financial_sha256": "0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599",
+  "growth_sha256": "13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d",
+  "peers_sha256": "0d3ce42243e87a49189301bf36d75073ee4dbb0444ab2fb16283a6a27dc2782c",
+  "underwriting_sha256": "7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb",
+  "plan_sha256": "3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1",
+  "balances_sha256": "760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3",
+  "valuation_sha256": "0f3b379be1b0883640209be9be6e10efa322276cd6811c24f1a9676bf7c2918c",
+  "recommendation": "Proceed to bounded commercial and operating diligence. Hold any company-specific savings commitment until contract, cost-action and capacity evidence exists.",
+  "thesis": [
+    {
+      "point_id": "growth-quality",
+      "conclusion": "Reported growth is substantially acquisition-related; the residual is a diligence question, not a measured organic-growth result.",
+      "evidence_ids": [
+        "sharefile-contribution",
+        "renewal-timing",
+        "nuclia-perimeter",
+        "currency-definition"
+      ],
+      "counterargument": "License timing, currency, product mix and other acquisitions can explain part of the residual; it is not direct evidence of customer deterioration.",
+      "next_test": "Build a constant-perimeter product/customer bridge with renewal timing and currency, and reconcile it to reported revenue."
+    },
+    {
+      "point_id": "pricing-evidence",
+      "conclusion": "Broad repricing is not yet underwritable from consolidated filings.",
+      "evidence_ids": [
+        "pricing-headroom",
+        "revenue-definition"
+      ],
+      "counterargument": "Eligible cohorts may have pricing headroom, but public totals do not reveal contract notice, caps, channel concessions or retention response.",
+      "next_test": "Test a permissioned renewal cohort for enforceability, net realized uplift and combined churn sensitivity."
+    },
+    {
+      "point_id": "cost-evidence",
+      "conclusion": "Do not underwrite peer convergence or a second saving from the completed ShareFile transition-services exit.",
+      "evidence_ids": [
+        "peer-context",
+        "tsa-completed",
+        "integration-cost-out"
+      ],
+      "counterargument": "Specific avoidable costs may exist; accounting adjustments and peer ratios cannot establish the corresponding cash action.",
+      "next_test": "Reconcile vendor/staff commitments, implementation spending and incremental outcomes before accepting an operating case."
+    }
+  ],
+  "adjustment_review": [
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:stock_compensation",
+      "disposition": "retain_expense",
+      "rationale": "Noncash compensation remains an economic compensation cost; no incremental addback or automatic cash saving is accepted.",
+      "evidence_needed": "A compensation and dilution analysis, with a sustainable replacement-pay policy."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:restructuring",
+      "disposition": "retain_expense",
+      "rationale": "A restructuring label does not establish that comparable costs will stop recurring. No additional earnings adjustment is accepted.",
+      "evidence_needed": "Program-level cost schedule, cash commitments, repeat-program history and finance review."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:acquisition_expense",
+      "disposition": "retain_expense",
+      "rationale": "Acquisition-related expenditure may recur in an acquisitive model. No additional adjustment is accepted.",
+      "evidence_needed": "Transaction-specific invoices, continuing integration costs and a maintainability assessment."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:cyber_response",
+      "disposition": "retain_expense",
+      "rationale": "Reported response cost is not evidence that future security or remediation spending can be avoided.",
+      "evidence_needed": "Insurance/recovery reconciliation, continuing remediation costs and a reviewed scope."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:intangible_amortization",
+      "disposition": "already_in_bridge",
+      "rationale": "FY2025 acquired-intangible amortization is already in the calculated EBITDA bridge; adding it again would double count.",
+      "evidence_needed": "No second addback; retain the reported source and review comparability with earlier periods."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2025-11-30:debt_amortization",
+      "disposition": "already_in_bridge",
+      "rationale": "Debt discount/issuance amortization is already contained in interest expense used in the earnings bridge.",
+      "evidence_needed": "No second addback; financing cash and debt service belong in a separate cash/equity bridge."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2024-11-30:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
+      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+    },
+    {
+      "fact_id": "cik:0000876167:0000876167-26-000008:2023-11-30:intangible_amortization",
+      "disposition": "scope_unresolved",
+      "rationale": "The cash-flow row includes acquired intangibles and other amortization. Its scope differs from the two income-statement acquired-intangible rows; no forced zero residual or issuer-error claim.",
+      "evidence_needed": "Component-level explanation of other amortization and an independently reviewed common earnings definition. Dependent older-year EBITDA remains withheld."
+    }
+  ],
+  "options": [
+    {
+      "option_id": "collections-first",
+      "label": "Collections first (current proposal)",
+      "rationale": "Prioritize invoice eligibility and the temporary cash mechanism before service and pricing gates.",
+      "priority_order": [
+        "foundation",
+        "collections-review",
+        "collections-gate",
+        "pricing-review",
+        "pricing-gate",
+        "service-trial",
+        "service-gate",
+        "pricing-review-targeted",
+        "pricing-gate-targeted"
+      ],
+      "challenge": "Earlier collections work does not advance the assumed January collection date; service approval is delayed."
+    },
+    {
+      "option_id": "pricing-first",
+      "label": "Pricing first",
+      "rationale": "Reserve finance review for renewal eligibility first, retaining all original economic effective dates and commitments.",
+      "priority_order": [
+        "foundation",
+        "pricing-review",
+        "pricing-gate",
+        "collections-review",
+        "collections-gate",
+        "service-trial",
+        "service-gate",
+        "pricing-review-targeted",
+        "pricing-gate-targeted"
+      ],
+      "challenge": "Earlier readiness does not override contract/economic start dates; service approval is pushed later."
+    },
+    {
+      "option_id": "service-first",
+      "label": "Service first",
+      "rationale": "Reserve service validation and acceptance first; schedule remaining finance work into available capacity.",
+      "priority_order": [
+        "foundation",
+        "service-trial",
+        "service-gate",
+        "collections-review",
+        "collections-gate",
+        "pricing-review",
+        "pricing-gate",
+        "pricing-review-targeted",
+        "pricing-gate-targeted"
+      ],
+      "challenge": "Modeled advantage depends on a verifiable vendor cost action and safe service quality; freed hours alone are not earnings."
+    }
+  ],
+  "preferred_constructed_option": "service-first",
+  "conditional_choice_reason": "Among these three authored sequences, service-first restores the original base-case service start and leaves pricing and collections ready before their assumed economic dates. Prefer it only in the constructed exercise and only if the vendor cost action and quality gate can be evidenced. This is not a recommendation to deploy automation at Progress or a proof of optimality.",
+  "reopen_choice_if": [
+    "No committed vendor reduction or quality-safe service mechanism: withdraw the service benefit and reforecast with committed costs retained.",
+    "Resource availability differs from the proposed budgets: re-run scheduling and reconsider the sequence.",
+    "Contract eligibility, retention response or original collection dates differ: revise the economic assumptions, not just the task order."
+  ]
+}

@@ -21,7 +21,8 @@ from .models import Record
 from .operating_sources import source_forecast
 from .scheduling import OperatingPlan, evaluate_plan
 from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
-from .underwriting import UnderwritingCase, evaluate
+from .underwriting import evaluate
+from .underwriting_models import UnderwritingModel
 
 
 def digest(text: str) -> str:
@@ -30,7 +31,7 @@ def digest(text: str) -> str:
 
 class CasePayload(Record):
     schema_version: Literal[1] = 1
-    underwriting: UnderwritingCase
+    underwriting: UnderwritingModel
     operating_plan: OperatingPlan | None = None
     decision_question: str = Field(min_length=1)
     counterevidence: tuple[str, ...] = Field(min_length=1)
@@ -160,6 +161,8 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
             raise ValueError("revision must preserve the comparison calendar")
         if new.company != old.company:
             raise ValueError("revision must preserve the reference company")
+        if old.schema_version == 2 and new.schema_version != 2:
+            raise ValueError("an allocation-backed revision cannot discard its interaction policy")
         if not isinstance(draft.payload, LineageCasePayload) and {
             (d.initiative_id, d.kind, d.benefit_pool) for d in new.scenarios[0].drivers
         } != {(d.initiative_id, d.kind, d.benefit_pool) for d in old.scenarios[0].drivers}:
@@ -210,7 +213,11 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
                     "authority",
                     "method",
                     "cost_treatment",
+                    "selected_initiatives",
+                    "excluded_tasks",
+                    "selection_treatment",
                 )
+                if key in report
             },
             default=str,
             sort_keys=True,

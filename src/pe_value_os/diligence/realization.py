@@ -570,4 +570,15 @@ def realization_report(
             "historical_child_allocations": None,
             "authority": "Read-only identity mapping. Accounting and attribution retain their exact frozen initiative IDs; neither split shares nor KPI readings allocate historical financial claims to successors.",
         }
+    current_financial = json.loads(current.financial_result_json)
+    if "interaction_policy" in current_financial:
+        result["version"] = "constructed-realization/3"
+        result["allocation_comparability"] = {
+            "original_selected_initiatives": json.loads(original.financial_result_json)["selected_initiatives"],
+            "frozen_selected_initiatives": json.loads(frozen.financial_result_json)["selected_initiatives"],
+            "current_selected_initiatives": current_financial["selected_initiatives"],
+            "current_policy": current_financial["interaction_policy"],
+            "financial_attribution": None,
+            "authority": "Current modeled choices and population shares may differ from the frozen plan. Accounting observations and attribution retain their exact frozen initiative perimeter. Allocation policy and cost explanations do not change the counterfactual, redistribute earlier claims or establish observed impact.",
+        }
     return result

@@ -12,7 +12,8 @@ from .balances import BalanceBundle
 from .models import FactBundle, Record
 from .scheduling import OperatingPlan, fingerprint
 from .source_revisions import SourceCasePayload
-from .underwriting import UnderwritingCase, money, month_end
+from .underwriting import money, month_end
+from .underwriting_models import UnderwritingModel
 from .valuation import ValuationSpec, analyze_valuation
 
 
@@ -61,7 +62,7 @@ class ExitReviewPayload(Record):
     exit_assumptions: ExitAssumptions
 
     @property
-    def underwriting(self) -> UnderwritingCase:
+    def underwriting(self) -> UnderwritingModel:
         return self.source_basis.underwriting
 
     @property

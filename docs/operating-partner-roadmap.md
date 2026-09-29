@@ -15,7 +15,7 @@ public research and the constructed demonstration continue independently.
 | Outcome / tickets | Delivered increment | Still required |
 |---|---|---|
 | Public Progress case / OP-01, 02, 09 | [Case charter](pilot/progress-case-charter.md), reviewed 10-K/Q1/Q2 mappings, 241 annual/interim facts, calculated quarter cash with source lineage, acquisition perimeter flag, ShareFile contribution/residual bridge, reconciled revenue mix, four sourced research assessments, metric-specific public peer eligibility with withheld strict medians and [public baseline](portfolio/progress-baseline.html) | Remaining organic/perimeter explanations where available, wider candidate/definition review and reviewed commercial conclusions |
-| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; annual/interim baseline measures with dependency-aware reconciliation; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity; [historical company equity bridge](portfolio/historical-valuation.html) with 13 dated source facts and explicit claim assumptions | Independent review of the new adjustment register and unresolved comparative amortization; richer pool allocations/exclusivity; independent review of historical valuation assumptions and actual payoff inputs for any transaction |
+| Earnings, cash and valuation / OP-04, 05–07 | Calculation v2 fingerprints EV assumptions; corrected contribution wording; annual/interim baseline measures with dependency-aware reconciliation; [24-month constructed underwriting](portfolio/underwriting.html) with dated EBITDA/cash, funding, scenarios, retained shared costs, combined price/churn and EV sensitivity; [historical company equity bridge](portfolio/historical-valuation.html) with 13 dated source facts and explicit claim assumptions | Independent review of the new adjustment register and unresolved comparative amortization; independent allocation-input review and composition with physical KPI lineage; independent review of historical valuation assumptions and actual payoff inputs for any transaction |
 | Capacity-aware plan / OP-03, 08, 10–11 | [Constructed 100-day proposal](portfolio/operating-plan.html): seven packages, four resource budgets, dependency/capacity constraints, conflict explanations and schedule-linked economics | Validated effort/capacity evidence and actual company participation; [constructed contract/service/invoice records](portfolio/operating-sources.html) now constrain a separate forecast; [constructed execution receipts](portfolio/execution.html) now separate assignment, delivery, acceptance and steering (ADR 0020) |
 | Executive memo / OP-12–13 | [Integrated decision memo](portfolio/decision-memo.html): version-bound thesis/counterarguments, eight-entry adjustment register, three capacity-tested first waves, downside/cash/EV distinctions, embedded historical equity matrix and source appendix | Independent executive challenge, unresolved valuation diligence and final portfolio acceptance |
 | Underwriting-to-realization and pilot / OP-14–17 | [Original/current revision walkthrough](portfolio/case-history.html), immutable PostgreSQL case snapshots, exact-version research reviews, review-bound hypothetical-close baselines (ADR 0018), [three-month constructed realization review](portfolio/realization.html) with append-only sources/claims and correction handling (ADR 0019), sponsor brief and pilot worksheets | [Constructed delivery-to-claim links](portfolio/execution.html), late-acceptance rejections and withdrawn-support history now available; richer operating evidence, lifecycle/learning and independently challenged attribution; actual sponsor, authorized records, intervention and outcome evidence for the pilot |
@@ -55,7 +55,7 @@ The later [ten-revision exercise](portfolio/lineage-review.html) adds disjoint s
 ownership, explicit initiative/task splits and merges, immutable KPI targets and
 readings, weighted ratios and frozen-to-current financial comparability. Historical
 parent claims are never allocated to children. See [ADR 0026](adr/0026-initiative-and-kpi-lineage.md).
-Broader allocation interactions and independently reviewed maintainability remain open;
+Allocation/KPI-lineage composition and independently reviewed maintainability remain open;
 the earlier exit model is documented in [ADR 0025](adr/0025-constructed-exit-review.md).
 
 OP-13 now has a [current case study](portfolio/case-study.md),
@@ -67,6 +67,22 @@ internal engineering and presentation artifacts; no external score or pilot
 participation is inferred. The original OP-01?17 scope remains open where recorded.
 
 ## Recommended destination
+
+The [allocation decision increment](portfolio/allocation-demo.md) now implements
+OP-07's fixed population shares, mutually exclusive selection and retained shared
+cost explanations. It connects those choices to scheduling, exact source-pool
+assignments, saved revisions, frozen accounting and an executive memo. The separate
+six-revision example retains an adverse result; it does not replace the existing
+disjoint split/merge exercise. See [ADR 0027](adr/0027-benefit-pool-allocation.md).
+Earlier references above to richer pool allocation as open describe the previous
+release. Remaining overlap work is explicit composition with physical KPI lineage
+and independent validation of actual population/intervention assumptions.
+
+The full five-outcome goal remains active. Codex next owns wider public diligence,
+review-driven corrections, private-data pilot readiness and final portfolio
+acceptance. Alex's external prerequisites remain a company sponsor, authorized
+records and actual operator participation; no new input is needed for this
+engineering increment.
 
 Build **one defensible investment and operating-review case**: a reviewer can
 inspect the business, challenge a value-creation thesis, reconcile its economics,

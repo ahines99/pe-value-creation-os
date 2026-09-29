@@ -300,7 +300,12 @@ def cmd_underwriting(args: argparse.Namespace) -> int:
     from .diligence.underwriting_render import build_underwriting_report
 
     try:
-        result = build_underwriting_report(Path(args.input), Path(args.output), frozenset(args.exclude))
+        result = build_underwriting_report(
+            Path(args.input),
+            Path(args.output),
+            frozenset(args.exclude),
+            selected=None if args.select is None else frozenset(args.select),
+        )
     except (ValueError, OSError) as exc:
         print(
             f"Underwriting failed ({type(exc).__name__}); inspect model contracts and source policy.", file=sys.stderr
@@ -322,6 +327,27 @@ def cmd_operating_plan(args: argparse.Namespace) -> int:
         )
         return 2
     print(f"Constructed operating plan: {result}")
+    return 0
+
+
+def cmd_allocation_demo(args: argparse.Namespace) -> int:
+    from .diligence.allocation_demo import build_allocation_demo
+
+    try:
+        result = build_allocation_demo(
+            Path(args.underwriting),
+            Path(args.operating_plan),
+            Path(args.exercise),
+            Path(args.sources),
+            Path(args.output),
+        )
+    except (ValueError, OSError) as exc:
+        print(
+            f"Allocation demonstration failed ({type(exc).__name__}); inspect exact input bindings and the constructed policy.",
+            file=sys.stderr,
+        )
+        return 2
+    print(f"Constructed allocation review: {result}")
     return 0
 
 
@@ -604,10 +630,21 @@ def build_parser() -> argparse.ArgumentParser:
     underwriting = sub.add_parser("underwriting", help="evaluate a constructed monthly EBITDA/cash/valuation exercise")
     underwriting.add_argument("--input", required=True, help="typed constructed operating case JSON")
     underwriting.add_argument("--output", default="var/underwriting/report", help="output stem for HTML and JSON")
-    underwriting.add_argument(
+    underwriting_selection = underwriting.add_mutually_exclusive_group()
+    underwriting_selection.add_argument(
         "--exclude", action="append", default=[], help="exclude an initiative; retain committed costs"
     )
+    underwriting_selection.add_argument(
+        "--select",
+        action="append",
+        help="explicit hypothetical selection; repeat per initiative, without amending the saved policy",
+    )
     underwriting.set_defaults(fn=cmd_underwriting)
+    allocation = sub.add_parser("allocation-demo", help="replay an explicit constructed population-allocation decision")
+    for flag in ("underwriting", "operating-plan", "exercise", "sources"):
+        allocation.add_argument("--" + flag, required=True)
+    allocation.add_argument("--output", default="var/allocation-review/report")
+    allocation.set_defaults(fn=cmd_allocation_demo)
 
     public = sub.add_parser("public-diligence", help="reconcile public filing facts and render a sourced baseline")
     public.add_argument("--input", required=True, help="public fact bundle JSON (private sources rejected)")

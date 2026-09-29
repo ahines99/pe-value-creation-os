@@ -44,6 +44,11 @@ def main() -> None:
         "disclosure-history": "/portfolio/disclosure-history.html",
         "exit-review": "/portfolio/exit-review.html",
         "lineage-review": "/portfolio/lineage-review.html",
+        "allocation-review": "/portfolio/allocation-review.html",
+        "allocation-underwriting": "/portfolio/allocation-underwriting.html",
+        "allocation-plan": "/portfolio/allocation-operating-plan.html",
+        "allocation-sources": "/portfolio/allocation-sources.html",
+        "allocation-memo": "/portfolio/allocation-memo.html",
     }
     findings: list[dict[str, object]] = []
     with sync_playwright() as runtime:
@@ -266,6 +271,15 @@ def main() -> None:
                     if width in (1440, 375):
                         page.locator("#kpis").evaluate("e => e.scrollIntoView({block:'start'})")
                         page.screenshot(path=str(output / f"lineage-kpis-{width}.png"))
+                if name == "allocation-review":
+                    assert "One pool. An explicit choice." in page.locator("h1").inner_text()
+                    assert "pricing-targeted" in page.locator("#allocation").inner_text()
+                    payload = page.request.get(base + "/portfolio/allocation-review.json").json()
+                    assert len(payload["revisions"]) == 6 and payload["human_review_count"] == 0
+                    assert all(payload["source_review"]["continuity"].values())
+                    assert payload["allocation_comparability"]["financial_attribution"] is None
+                if name.startswith("allocation-"):
+                    assert "One economic pool, explicit choices" in page.locator("#allocation").inner_text()
                 if name == "public-baseline":
                     assert "stricter cohort" in page.locator("#peers").inner_text().lower()
                     assert "Withheld" in page.locator("#peers").inner_text()

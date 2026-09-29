@@ -1,0 +1,774 @@
+{
+  "schema_version": 1,
+  "classification": "constructed_operating_exercise",
+  "underwriting_sha256": "7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb",
+  "operating_plan_sha256": "3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1",
+  "months": [
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "allocation-oct-close",
+        "locator": "data/constructed/progress/allocation-realization.json#oct-close",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-10-01",
+        "end": "2026-10-31",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1005000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-338000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-50000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "570000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "180000"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "-5000"
+          }
+        ],
+        "controls": {
+          "revenue": "1005000",
+          "operating_expense": "-338000",
+          "implementation_expense": "-50000",
+          "operating_cash": "570000",
+          "working_capital_cash": "180000",
+          "capex_cash": "-5000",
+          "ebitda": "617000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "allocation-oct-close-counterfactual",
+        "locator": "data/constructed/progress/allocation-realization.json#oct-close-counterfactual",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-10-01",
+        "end": "2026-10-31",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": null,
+      "evidence": [
+        {
+          "evidence_id": "oct-close-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed exercise support: a matched renewal-cohort note attributes part of revenue to pricing after concessions; a vendor scope note assigns selected signed expense changes; implementation/capex invoices assign costs; a receivable aging note assigns USD 180,000 October collections timing with no earnings effect. None of these notes are company evidence or independent causal validation. Volume, mix, settlement timing and shifted work remain alternatives.",
+          "sha256": "633f21dbee9181de498d8508aaa057c76692a1d932df571a01653ca654dc7fc5"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "3000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "2000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-50000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "-90000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "working_capital_cash",
+          "initiative_id": "collections-timing",
+          "amount": "180000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "capex_cash",
+          "initiative_id": "service-automation",
+          "amount": "-5000",
+          "evidence_ids": [
+            "oct-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Import authored month-end scoped accounting comparison and explicit simulated claims."
+    },
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "allocation-nov-close-v1",
+        "locator": "data/constructed/progress/allocation-realization.json#nov-close-v1",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-11-01",
+        "end": "2026-11-30",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1020000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-344000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-16000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "673000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "-1000"
+          }
+        ],
+        "controls": {
+          "revenue": "1020000",
+          "operating_expense": "-344000",
+          "implementation_expense": "-16000",
+          "operating_cash": "673000",
+          "working_capital_cash": "0",
+          "capex_cash": "-1000",
+          "ebitda": "660000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "allocation-nov-close-v1-counterfactual",
+        "locator": "data/constructed/progress/allocation-realization.json#nov-close-v1-counterfactual",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-11-01",
+        "end": "2026-11-30",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": null,
+      "evidence": [
+        {
+          "evidence_id": "nov-close-v1-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed exercise support: a matched renewal-cohort note attributes part of revenue to pricing after concessions; a vendor scope note assigns selected signed expense changes; implementation/capex invoices assign costs; a receivable aging note assigns USD 180,000 October collections timing with no earnings effect. None of these notes are company evidence or independent causal validation. Volume, mix, settlement timing and shifted work remain alternatives.",
+          "sha256": "633f21dbee9181de498d8508aaa057c76692a1d932df571a01653ca654dc7fc5"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "14000",
+          "evidence_ids": [
+            "nov-close-v1-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "-4000",
+          "evidence_ids": [
+            "nov-close-v1-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-16000",
+          "evidence_ids": [
+            "nov-close-v1-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "10000",
+          "evidence_ids": [
+            "nov-close-v1-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "capex_cash",
+          "initiative_id": "service-automation",
+          "amount": "-1000",
+          "evidence_ids": [
+            "nov-close-v1-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Import authored month-end scoped accounting comparison and explicit simulated claims."
+    },
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "allocation-nov-close-v2",
+        "locator": "data/constructed/progress/allocation-realization.json#nov-close-v2",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-11-01",
+        "end": "2026-11-30",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1018000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-344000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-16000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "673000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "-1000"
+          }
+        ],
+        "controls": {
+          "revenue": "1018000",
+          "operating_expense": "-344000",
+          "implementation_expense": "-16000",
+          "operating_cash": "673000",
+          "working_capital_cash": "0",
+          "capex_cash": "-1000",
+          "ebitda": "658000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "allocation-nov-close-v2-counterfactual",
+        "locator": "data/constructed/progress/allocation-realization.json#nov-close-v2-counterfactual",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-11-01",
+        "end": "2026-11-30",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": "allocation-nov-close-v1",
+      "evidence": [
+        {
+          "evidence_id": "nov-close-v2-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed exercise support: a matched renewal-cohort note attributes part of revenue to pricing after concessions; a vendor scope note assigns selected signed expense changes; implementation/capex invoices assign costs; a receivable aging note assigns USD 180,000 October collections timing with no earnings effect. None of these notes are company evidence or independent causal validation. Volume, mix, settlement timing and shifted work remain alternatives.",
+          "sha256": "633f21dbee9181de498d8508aaa057c76692a1d932df571a01653ca654dc7fc5"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "12000",
+          "evidence_ids": [
+            "nov-close-v2-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "-4000",
+          "evidence_ids": [
+            "nov-close-v2-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-16000",
+          "evidence_ids": [
+            "nov-close-v2-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "10000",
+          "evidence_ids": [
+            "nov-close-v2-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "capex_cash",
+          "initiative_id": "service-automation",
+          "amount": "-1000",
+          "evidence_ids": [
+            "nov-close-v2-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Correct November revenue posting by USD 2,000 and reconsider attribution."
+    },
+    {
+      "observed": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "observed",
+        "source_id": "allocation-dec-close",
+        "locator": "data/constructed/progress/allocation-realization.json#dec-close",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-12-01",
+        "end": "2026-12-31",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1026000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-334000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "-3000"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "681000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1026000",
+          "operating_expense": "-334000",
+          "implementation_expense": "-3000",
+          "operating_cash": "681000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "689000"
+        }
+      },
+      "counterfactual": {
+        "schema_version": 1,
+        "classification": "constructed_operating_records",
+        "kind": "no_intervention_counterfactual",
+        "source_id": "allocation-dec-close-counterfactual",
+        "locator": "data/constructed/progress/allocation-realization.json#dec-close-counterfactual",
+        "case_id": "progress-constructed-allocation-v1",
+        "currency": "USD",
+        "unit_scale": 1,
+        "start": "2026-12-01",
+        "end": "2026-12-31",
+        "scope_explanation": "Separately authored allocation exercise: one renewal pool shared across two candidates, plus service and collections. Accounting amounts and claims illustrate the method; population shares do not distribute claims to either candidate.",
+        "method_and_limits": "Analyst-authored monthly scoped records and flat no-intervention counterfactual; no seasonality, inflation, acquisition or mix estimate is validated. The sourcebook difference is not a causal estimate. No Progress contracts, ledger, invoices or staff records were used.",
+        "rows": [
+          {
+            "row_id": "revenue",
+            "label": "Revenue",
+            "component": "revenue",
+            "amount": "1000000"
+          },
+          {
+            "row_id": "operating_expense",
+            "label": "Operating expense",
+            "component": "operating_expense",
+            "amount": "-340000"
+          },
+          {
+            "row_id": "implementation_expense",
+            "label": "Implementation expense",
+            "component": "implementation_expense",
+            "amount": "0"
+          },
+          {
+            "row_id": "operating_cash",
+            "label": "Operating cash",
+            "component": "operating_cash",
+            "amount": "660000"
+          },
+          {
+            "row_id": "working_capital_cash",
+            "label": "Working capital cash",
+            "component": "working_capital_cash",
+            "amount": "0"
+          },
+          {
+            "row_id": "capex_cash",
+            "label": "Capex cash",
+            "component": "capex_cash",
+            "amount": "0"
+          }
+        ],
+        "controls": {
+          "revenue": "1000000",
+          "operating_expense": "-340000",
+          "implementation_expense": "0",
+          "operating_cash": "660000",
+          "working_capital_cash": "0",
+          "capex_cash": "0",
+          "ebitda": "660000"
+        }
+      },
+      "corrects_source_id": null,
+      "evidence": [
+        {
+          "evidence_id": "dec-close-support",
+          "classification": "constructed_attribution_evidence",
+          "content": "Constructed exercise support: a matched renewal-cohort note attributes part of revenue to pricing after concessions; a vendor scope note assigns selected signed expense changes; implementation/capex invoices assign costs; a receivable aging note assigns USD 180,000 October collections timing with no earnings effect. None of these notes are company evidence or independent causal validation. Volume, mix, settlement timing and shifted work remain alternatives.",
+          "sha256": "633f21dbee9181de498d8508aaa057c76692a1d932df571a01653ca654dc7fc5"
+        }
+      ],
+      "allocations": [
+        {
+          "row_id": "revenue",
+          "initiative_id": "pricing-renewals",
+          "amount": "20000",
+          "evidence_ids": [
+            "dec-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_expense",
+          "initiative_id": "service-automation",
+          "amount": "4000",
+          "evidence_ids": [
+            "dec-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "implementation_expense",
+          "initiative_id": "service-automation",
+          "amount": "-3000",
+          "evidence_ids": [
+            "dec-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        },
+        {
+          "row_id": "operating_cash",
+          "initiative_id": "service-automation",
+          "amount": "18000",
+          "evidence_ids": [
+            "dec-close-support"
+          ],
+          "rationale": "Authored claim assigns this signed source difference to the named initiative; costs are retained with their direction and residuals remain unassigned.",
+          "confidence": "limited",
+          "alternative_explanation": "Volume/mix, supplier timing, shifted work or ordinary collections may explain part or all of the difference."
+        }
+      ],
+      "rationale": "Import authored month-end scoped accounting comparison and explicit simulated claims."
+    }
+  ],
+  "current_forecast_capture": "0.50",
+  "current_forecast_rationale": "Separate authored ownership-review challenge lowers base-case pricing capture to 50%; retained costs and capacity schedule remain explicit. This is not an estimate learned from three constructed accounting observations."
+}

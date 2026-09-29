@@ -23,6 +23,8 @@ def partition_book(source: SourceCasePayload) -> PartitionedSourceBook:
     if isinstance(source.operating_sources, PartitionedSourceBook):
         return source.operating_sources
     records = source.operating_sources
+    if not isinstance(records, OperatingSourceBook):
+        raise ValueError("alternative pool shares cannot be converted to physical source ownership")
     drivers: dict[str, str] = {d.kind: d.initiative_id for d in source.underwriting.scenarios[0].drivers}
     kinds = {"renewal": "pricing", "service_month": "service", "invoice": "collections"}
     return PartitionedSourceBook.model_validate(
@@ -103,6 +105,8 @@ def source_basis(
     prior = source_payload(parent.draft.payload)
     if prior is None:
         raise ValueError("lineage exercise requires a source-backed parent")
+    if not isinstance(prior.underwriting, UnderwritingCase):
+        raise ValueError("lineage exercise requires the legacy disjoint-population case")
     previous_book = partition_book(prior)
     current_rows = operating_records(book.records)
     lessons = []
@@ -143,6 +147,8 @@ def seed_lineage(parent: CaseRevision) -> RevisionDraft:
     prior = source_payload(parent.draft.payload)
     if prior is None:
         raise ValueError("lineage exercise requires a source-backed parent")
+    if not isinstance(prior.underwriting, UnderwritingCase):
+        raise ValueError("lineage exercise requires the legacy disjoint-population case")
     book = partition_book(prior)
     definitions = (
         definition(book, PARENT, "pricing-kpi-v1", "net_price_uplift", Decimal(1000000), numerator=Decimal(10000)),

@@ -143,8 +143,8 @@ EXPECTED_UNITS = {
 }
 
 
-class UnderwritingCase(Record):
-    schema_version: Literal[1] = 1
+class _UnderwritingInputs(Record):
+    schema_version: Literal[1, 2] = 1
     case_id: str = Field(min_length=1)
     company: str = Field(min_length=1)
     currency: str = Field(pattern=r"^[A-Z]{3}$")
@@ -191,7 +191,7 @@ class UnderwritingCase(Record):
             if expected_ids is not None and identities != expected_ids:
                 raise ValueError("scenarios must retain stable initiative identities")
             expected_ids = identities
-            if len({d.benefit_pool for d in scenario.drivers}) != len(scenario.drivers):
+            if self.schema_version == 1 and len({d.benefit_pool for d in scenario.drivers}) != len(scenario.drivers):
                 raise ValueError("overlapping benefit pools require a combined driver; independent sums are forbidden")
             for driver in scenario.drivers:
                 if not self.start <= driver.effective_on < end:
@@ -221,6 +221,12 @@ class UnderwritingCase(Record):
     def require_public(self) -> None:
         if any(e.classification not in {SourceClass.PUBLIC_FILING, SourceClass.CONSTRUCTED} for e in self.evidence):
             raise ValueError("public exercise rejects private source material")
+
+
+class UnderwritingCase(_UnderwritingInputs):
+    """Legacy single-driver-per-pool contract; serialization stays unchanged."""
+
+    schema_version: Literal[1] = 1
 
 
 class Entry(Record):
@@ -276,7 +282,26 @@ def _accrue(
 
 
 def ledger(
-    case: UnderwritingCase,
+    case: _UnderwritingInputs,
+    scenario: Scenario,
+    selected: frozenset[str],
+    suppressed_benefits: frozenset[str] = frozenset(),
+    *,
+    benefit_end_dates: dict[str, date] | None = None,
+) -> tuple[Entry, ...]:
+    if case.schema_version == 2:
+        from .interactions import InteractionCase, calculate_interaction
+
+        if not isinstance(case, InteractionCase):
+            raise ValueError("version 2 underwriting requires its explicit interaction policy")
+        return calculate_interaction(
+            case, scenario, selected, suppressed_benefits, benefit_end_dates=benefit_end_dates
+        )[0]
+    return _legacy_ledger(case, scenario, selected, suppressed_benefits, benefit_end_dates=benefit_end_dates)
+
+
+def _legacy_ledger(
+    case: _UnderwritingInputs,
     scenario: Scenario,
     selected: frozenset[str],
     suppressed_benefits: frozenset[str] = frozenset(),
@@ -450,17 +475,26 @@ def cash_profile(entries: tuple[Entry, ...], start: date, end: date) -> dict[str
 
 
 def evaluate(
-    case: UnderwritingCase,
+    case: _UnderwritingInputs,
     selected: frozenset[str] | None = None,
     *,
     benefit_blocks: dict[str, frozenset[str]] | None = None,
 ) -> dict[str, Any]:
     case.require_public()
+    interaction_case = None
+    if case.schema_version == 2:
+        from .interactions import InteractionCase
+
+        if not isinstance(case, InteractionCase):
+            raise ValueError("version 2 underwriting requires its explicit interaction policy")
+        interaction_case = case
     ids = frozenset(d.initiative_id for d in case.scenarios[0].drivers)
     if selected is None:
-        selected = ids
+        selected = frozenset(interaction_case.interaction_policy.selected_initiatives) if interaction_case else ids
     if not selected <= ids:
         raise ValueError("selection contains an unknown initiative")
+    if interaction_case:
+        interaction_case.validate_selection(selected)
     benefit_blocks = benefit_blocks or {}
     if not set(benefit_blocks) <= {s.scenario_id for s in case.scenarios} or any(
         not blocked <= ids for blocked in benefit_blocks.values()
@@ -469,7 +503,15 @@ def evaluate(
     end = month_end(case.start, case.months - 1)
     scenarios = []
     for scenario in case.scenarios:
-        entries = ledger(case, scenario, selected, benefit_blocks.get(scenario.scenario_id, frozenset()))
+        interaction = None
+        if interaction_case:
+            from .interactions import calculate_interaction
+
+            entries, interaction = calculate_interaction(
+                interaction_case, scenario, selected, benefit_blocks.get(scenario.scenario_id, frozenset())
+            )
+        else:
+            entries = ledger(case, scenario, selected, benefit_blocks.get(scenario.scenario_id, frozenset()))
         monthly: list[dict[str, Any]] = [
             {
                 "start": month_start(case.start, m),
@@ -501,10 +543,12 @@ def evaluate(
                 "assumptions": [a.model_dump(mode="json") for a in scenario.assumptions],
                 "drivers": [d.model_dump(mode="json") for d in scenario.drivers],
                 "costs": [c.model_dump(mode="json") for c in scenario.costs],
+                **({"interaction": interaction} if interaction is not None else {}),
             }
         )
+    version = "monthly-underwriting/3" if interaction_case else VERSION
     return {
-        "calculation_version": VERSION,
+        "calculation_version": version,
         "input_sha256": hashlib.sha256(case.model_dump_json().encode()).hexdigest(),
         "case_id": case.case_id,
         "company": case.company,
@@ -517,7 +561,7 @@ def evaluate(
                     "case": case.model_dump(mode="json"),
                     "selected": sorted(selected),
                     "benefit_blocks": {key: sorted(value) for key, value in benefit_blocks.items()},
-                    "version": VERSION,
+                    "version": version,
                 },
                 sort_keys=True,
             ).encode()
@@ -529,4 +573,19 @@ def evaluate(
         "scenarios": scenarios,
         "evidence": [e.model_dump(mode="json") for e in case.evidence],
         "review": "Constructed analytical exercise; no company approval or independent finance review.",
+        **(
+            {
+                "interaction_policy": interaction_case.interaction_policy.model_dump(mode="json"),
+                "selection_basis": {
+                    "mode": "recorded_policy"
+                    if selected == frozenset(interaction_case.interaction_policy.selected_initiatives)
+                    else "hypothetical_override",
+                    "recorded_selected_initiatives": sorted(interaction_case.interaction_policy.selected_initiatives),
+                    "effective_selected_initiatives": sorted(selected),
+                    "authority": "A calculation override does not amend the recorded policy or authorize work. Save a reviewed case revision to record a different decision.",
+                },
+            }
+            if interaction_case
+            else {}
+        ),
     }

@@ -18,7 +18,8 @@ from .models import FactBundle
 from .operating_sources_render import table as review_table
 from .peers import PeerContext
 from .scheduling import OperatingPlan
-from .underwriting import UnderwritingCase
+from .underwriting_models import read_underwriting
+from .underwriting_render import render_allocation
 from .valuation import ValuationSpec
 from .valuation_render import valuation_summary
 
@@ -92,7 +93,10 @@ def source_challenge_summary(report: dict[str, Any]) -> str:
     original = {o["option_id"]: o for o in report["constructed_options"]}
     preferred = next(o for o in review["options"] if o["option_id"] == report["brief"]["preferred_constructed_option"])
     base = _scenario(preferred, "base")
-    body = "<section class='panel' id='evidence-update'><p class='eyebrow'>Latest constructed evidence / Decision reopened</p><h2>Task order cannot substitute for a supported cost action.</h2>"
+    body = ""
+    if "interaction_policy" in review["latest_financials"]:
+        body += render_allocation(review["latest_financials"])
+    body += "<section class='panel' id='evidence-update'><p class='eyebrow'>Latest constructed evidence / Decision reopened</p><h2>Task order cannot substitute for a supported cost action.</h2>"
     body += f"<p><strong>{escape(review['recommendation'])}</strong></p><p>Authored exercise review {escape(str(review['exercise_effective_on']))}. The public research cutoff above remains unchanged; these future-dated operating records are fictional.</p>"
     body += review_table(
         ["Sequence", "Original base EBITDA", "Corrected base EBITDA", "Corrected cash", "Peak funding"],
@@ -420,13 +424,21 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         "A changed input invalidates the decision brief until explicitly revised.",
     )
     body += f"<p>Memo version {report['memo_version']} · Brief <code>{report['brief_sha256']}</code></p></div></details><p class='memo-sources'><a href='progress-baseline.html'>Public source appendix</a><a href='underwriting.html'>Original constructed underwriting</a><a href='operating-plan.html'>Original capacity proposal</a></p></section>"
-    return (
+    rendered = (
         "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
         f"<title>{escape(report['company'])} — executive decision memo</title><style>{CSS}{MEMO_CSS}</style></head><body>"
         "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#historical-valuation'>Valuation</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
         + body
         + "</main></body></html>"
     )
+    if report["memo_version"] == "executive-decision-packet/6":
+        for previous, current in (
+            ("underwriting", "allocation-underwriting"),
+            ("operating-plan", "allocation-operating-plan"),
+            ("case-history", "allocation-review"),
+        ):
+            rendered = rendered.replace(f"href='{previous}.html'", f"href='{current}.html'")
+    return rendered
 
 
 def build_decision_memo(
@@ -452,7 +464,7 @@ def build_decision_memo(
         FactBundle.model_validate_json(facts.read_bytes()),
         GrowthContext.model_validate_json(growth.read_bytes()),
         PeerContext.model_validate_json(peers.read_bytes()),
-        UnderwritingCase.model_validate_json(underwriting.read_bytes()),
+        read_underwriting(underwriting.read_bytes()),
         OperatingPlan.model_validate_json(plan.read_bytes()),
         BalanceBundle.model_validate_json(balances.read_bytes()),
         ValuationSpec.model_validate_json(valuation.read_bytes()),
