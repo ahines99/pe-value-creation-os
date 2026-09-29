@@ -41,6 +41,16 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_capacity import (
+    CapacityPlanRequest,
+    PrivateCapacityRevision,
+)
+from ..diligence.private_capacity import (
+    prepare_revision as prepare_private_capacity,
+)
+from ..diligence.private_capacity import (
+    verify_revision as verify_private_capacity,
+)
 from ..diligence.private_financials import (
     FinancialSnapshotRequest,
     PrivateFinancialSnapshot,
@@ -149,6 +159,13 @@ def now() -> datetime:
 
 
 class Repository(Protocol):
+    def list_private_capacity_plans(self, company_id: str, case_key: str) -> list[PrivateCapacityRevision]: ...
+    def record_private_capacity_plan(
+        self, company_id: str, case_key: str, request: CapacityPlanRequest, environment_id: str
+    ) -> PrivateCapacityRevision: ...
+    def usable_private_capacity_plan(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> PrivateCapacityRevision: ...
     def list_private_underwriting(self, company_id: str, case_key: str) -> list[PrivateUnderwritingRevision]: ...
     def record_private_underwriting(
         self, company_id: str, case_key: str, request: UnderwritingRequest, environment_id: str
@@ -331,8 +348,87 @@ class InMemoryRepository:
         self.private_intakes: dict[str, PrivateIntake] = {}
         self.private_sources: dict[str, bytes] = {}
         self.private_intake_reviews: dict[str, FinanceReview] = {}
+        self.private_capacity_plans: dict[str, PrivateCapacityRevision] = {}
         self.private_underwriting: dict[str, PrivateUnderwritingRevision] = {}
         self.private_financial_snapshots: dict[str, PrivateFinancialSnapshot] = {}
+
+    def list_private_capacity_plans(self, company_id: str, case_key: str) -> list[PrivateCapacityRevision]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        self.get_company(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_capacity_plans.values()
+                    if r.company_id == company_id and r.case_key == case_key
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def record_private_capacity_plan(
+        self, company_id: str, case_key: str, request: CapacityPlanRequest, environment_id: str
+    ) -> PrivateCapacityRevision:
+        principal = require_intake_writer(company_id)
+        with self.approval_transaction():
+            revisions = self.list_private_capacity_plans(company_id, case_key)
+            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private capacity idempotency key belongs to another request or author")
+                return replay
+            previous = revisions[-1] if revisions else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private capacity history changed; reload its current head")
+            underwriting = self.usable_private_underwriting(
+                company_id, request.underwriting_revision_id, environment_id
+            )
+            financials = self.usable_private_financial_snapshot(
+                company_id,
+                underwriting.request.inputs.financial_snapshot_id,
+                environment_id,
+            )
+            revision = prepare_private_capacity(company_id, case_key, request, underwriting, financials, previous)
+            self.private_capacity_plans[revision.revision_id] = revision
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_capacity",
+                    event_type="private_capacity_revision",
+                    actor=revision.author,
+                    created_at=revision.recorded_at,
+                    payload={
+                        "revision_id": revision.revision_id,
+                        "sha256": revision.content_sha256,
+                        "underwriting_revision_id": underwriting.revision_id,
+                    },
+                )
+            )
+            return revision
+
+    def usable_private_capacity_plan(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> PrivateCapacityRevision:
+        require_grant_reader(company_id)
+        with self.approval_transaction():
+            revision = self.private_capacity_plans.get(revision_id)
+            if revision is None or revision.company_id != company_id:
+                raise NotFound(revision_id)
+            if self.list_private_capacity_plans(company_id, revision.case_key)[-1].revision_id != revision_id:
+                raise ValueError("private capacity revision is superseded")
+            underwriting = self.usable_private_underwriting(
+                company_id,
+                revision.request.underwriting_revision_id,
+                environment_id,
+            )
+            financials = self.usable_private_financial_snapshot(
+                company_id,
+                underwriting.request.inputs.financial_snapshot_id,
+                environment_id,
+            )
+            verify_private_capacity(revision, underwriting, financials)
+            return revision
 
     def list_private_underwriting(self, company_id: str, case_key: str) -> list[PrivateUnderwritingRevision]:
         require_grant_reader(company_id)
@@ -1295,6 +1391,7 @@ class InMemoryRepository:
                 "private_intake_reviews",
                 "private_financial_snapshots",
                 "private_underwriting",
+                "private_capacity_plans",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -1546,6 +1643,7 @@ class InMemoryRepository:
                 "private_intake_reviews",
                 "private_financial_snapshots",
                 "private_underwriting",
+                "private_capacity_plans",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())

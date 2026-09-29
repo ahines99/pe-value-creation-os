@@ -106,10 +106,11 @@ Audit failure rolls back the snapshot. A populated downgrade is blocked, even
 when the migration owner has no active company scope. Whole-company offboarding
 removes snapshots with their sources while retaining minimal audit events.
 
-The snapshot is a reusable financial input. The next [private underwriting
-increment](underwriting.md) adds explicit scenarios and source-bound forecast
-revisions, with its own release gate. Capacity-plan association, explicitly
-reviewed frozen baseline designation,
+The snapshot is a reusable financial input. The [private underwriting
+increment](underwriting.md), released in PR #45, adds explicit scenarios and
+source-bound forecast revisions. The subsequent [private capacity plans](capacity-plans.md)
+associate resource proposals with forecast timing and also require separate release
+acceptance. Explicitly reviewed frozen baseline designation,
 same-scope counterfactual observations, attribution and executive memo composition
 still need integration. Merely subtracting two snapshot balances is not evidence
 of intervention impact. Source retention operations, actual company approvals,

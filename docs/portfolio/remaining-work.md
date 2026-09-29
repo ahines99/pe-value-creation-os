@@ -80,6 +80,17 @@ matched the merge. The local focused/regression suite passed 373 tests with one
 Windows symlink-privilege skip; migration round-trip passed at 0010. This remains
 fictional-fixture software validation, not company acceptance or a performed pilot.
 
+The private underwriting workflow was released in
+[PR #45](https://github.com/ahines99/pe-value-creation-os/pull/45), tested at
+`5e1de4fa6b23fdb00bfdb551a0972d2f4f41c396` and merged as
+`2a9f3e11b539e4e55d8930be541d13abe7f65953` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36639076145)
+passed: 1,421 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Seven published files
+matched the merge. The local focused/regression suite passed 387 tests with one
+Windows symlink-privilege skip; migration round-trip passed at 0011. These checks
+use fictional inputs and do not establish actual company review or pilot results.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -92,8 +103,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #44 is released and verified.
-The private-underwriting increment below has a separate release gate; its
+**Current status:** implementation through PR #45 is released and verified.
+The private-capacity increment below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -254,10 +265,12 @@ offboarding. Its CI and publication acceptance are verified.
 calculate monthly earnings/cash inputs from accepted original bytes, retaining
 exact source/finance/grant bindings and a human-reviewed accounting definition.
 Snapshots remain private and do not declare realized value or a frozen baseline.
-Its CI/publication acceptance is verified above. The next
-[private underwriting increment](../pilot/permissioned/underwriting.md) stores
-source-bound forecasts with explicit financial mappings and authored assumptions;
-it has a separate release gate. Capacity-plan association, frozen baseline review, counterfactual observations,
+Its CI/publication acceptance is verified above. The
+[private underwriting increment](../pilot/permissioned/underwriting.md) is released
+in PR #45. The next [private capacity-plan increment](../pilot/permissioned/capacity-plans.md)
+connects proposed resource/dependency schedules to forecast timing while preserving
+original financials and costs; it has a separate release gate. Exact-version
+finance/operating decisions, frozen baseline review, counterfactual observations,
 attribution and memo composition remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 

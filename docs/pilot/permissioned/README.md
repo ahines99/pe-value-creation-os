@@ -19,10 +19,11 @@ human grants and revocations with named operators, environment scope and audit
 history. The subsequent [source-custody and finance-review increment](intake-records.md)
 adds atomic stored bytes, quarantine/corrections and exact-version human decisions
 and is released in PR #43. The [financial-snapshot increment](financial-snapshots.md)
-is released in PR #44. The next [private underwriting increment](underwriting.md)
-connects accepted financials to immutable forecasts, distinguishing exact component
-mappings from human assumptions; its release acceptance is separate. Private
-capacity planning, reviewed frozen baselines, measurement/memo integration,
+is released in PR #44. The [private underwriting increment](underwriting.md),
+released in PR #45, connects accepted financials to immutable forecasts,
+distinguishing exact component mappings from human assumptions. Private
+[capacity planning](capacity-plans.md) now has its own implementation increment
+and release gate. Reviewed frozen baselines, measurement/memo integration,
 retention operations and actual company approval remain open.
 
 ### Who does what next

@@ -42,6 +42,16 @@ from ..diligence.execution import (
     prepare_execution,
     stream_key,
 )
+from ..diligence.private_capacity import (
+    CapacityPlanRequest,
+    PrivateCapacityRevision,
+)
+from ..diligence.private_capacity import (
+    prepare_revision as prepare_private_capacity,
+)
+from ..diligence.private_capacity import (
+    verify_revision as verify_private_capacity,
+)
 from ..diligence.private_financials import (
     FinancialSnapshotRequest,
     PrivateFinancialSnapshot,
@@ -131,6 +141,109 @@ class PostgresRepository:
     def _lock_private_company(self, cur: Any, company_id: str) -> None:
         if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
             raise NotFound(company_id)
+
+    def list_private_capacity_plans(self, company_id: str, case_key: str) -> list[PrivateCapacityRevision]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        self.get_company(company_id)
+        with self._tx() as cur:
+            return [
+                PrivateCapacityRevision.model_validate(r["record"])
+                for r in cur.execute(
+                    "select record from private_capacity_plans where company_id=%s and case_key=%s order by sequence",
+                    (company_id, case_key),
+                ).fetchall()
+            ]
+
+    def record_private_capacity_plan(
+        self, company_id: str, case_key: str, request: CapacityPlanRequest, environment_id: str
+    ) -> PrivateCapacityRevision:
+        principal = require_intake_writer(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            revisions = self.list_private_capacity_plans(company_id, case_key)
+            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private capacity idempotency key belongs to another request or author")
+                return replay
+            previous = revisions[-1] if revisions else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private capacity history changed; reload its current head")
+            underwriting = self.usable_private_underwriting(
+                company_id, request.underwriting_revision_id, environment_id
+            )
+            financials = self.usable_private_financial_snapshot(
+                company_id,
+                underwriting.request.inputs.financial_snapshot_id,
+                environment_id,
+            )
+            revision = prepare_private_capacity(company_id, case_key, request, underwriting, financials, previous)
+            cur.execute(
+                """insert into private_capacity_plans
+                (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,underwriting_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    revision.revision_id,
+                    company_id,
+                    case_key,
+                    revision.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    underwriting.content_sha256,
+                    revision.content_sha256,
+                    Jsonb(revision.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_capacity",
+                    event_type="private_capacity_revision",
+                    actor=revision.author,
+                    created_at=revision.recorded_at,
+                    payload={
+                        "revision_id": revision.revision_id,
+                        "sha256": revision.content_sha256,
+                        "underwriting_revision_id": underwriting.revision_id,
+                    },
+                )
+            )
+            return revision
+
+    def usable_private_capacity_plan(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> PrivateCapacityRevision:
+        require_grant_reader(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            try:
+                if str(uuid.UUID(revision_id)) != revision_id:
+                    raise ValueError("Noncanonical revision identifier")
+            except ValueError as exc:
+                raise NotFound(revision_id) from exc
+            row = cur.execute(
+                "select record from private_capacity_plans where company_id=%s and revision_id=%s",
+                (company_id, revision_id),
+            ).fetchone()
+            if row is None:
+                raise NotFound(revision_id)
+            revision = PrivateCapacityRevision.model_validate(row["record"])
+            if self.list_private_capacity_plans(company_id, revision.case_key)[-1].revision_id != revision_id:
+                raise ValueError("private capacity revision is superseded")
+            underwriting = self.usable_private_underwriting(
+                company_id,
+                revision.request.underwriting_revision_id,
+                environment_id,
+            )
+            financials = self.usable_private_financial_snapshot(
+                company_id,
+                underwriting.request.inputs.financial_snapshot_id,
+                environment_id,
+            )
+            verify_private_capacity(revision, underwriting, financials)
+            return revision
 
     def list_private_underwriting(self, company_id: str, case_key: str) -> list[PrivateUnderwritingRevision]:
         require_grant_reader(company_id)
@@ -2084,6 +2197,7 @@ class PostgresRepository:
                 "private_intake_reviews",
                 "private_financial_snapshots",
                 "private_underwriting",
+                "private_capacity_plans",
             ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)

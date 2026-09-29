@@ -1,8 +1,8 @@
 # Private financial inputs to incremental underwriting
 
 This increment adds private forecast revisions on top of the released
-[financial snapshots](financial-snapshots.md). It has a separate CI/publication
-gate in the [completion checklist](../../portfolio/remaining-work.md).
+[financial snapshots](financial-snapshots.md). PR #45 passed CI/publication
+acceptance as recorded in the [completion checklist](../../portfolio/remaining-work.md).
 All test companies, documentary references, grants and reviewers are fictional.
 No real company pilot, eligibility review or independent finance validation is
 represented.
@@ -101,8 +101,10 @@ revocation does not delete derived records or copies.
 ## Remaining workflow
 
 A successful calculation is neither finance/operating approval nor a frozen
-comparison baseline. Private capacity-plan association, exact-version human
-reviews, frozen baseline designation, observations/counterfactuals, attribution
+comparison baseline. The next [private capacity-plan increment](capacity-plans.md)
+connects proposed resource/dependency schedules to financial timing and has its
+own release gate. Exact-version human reviews, frozen baseline designation,
+observations/counterfactuals, attribution
 and memo composition remain subsequent integration work. The public constructed
 versions of these capabilities already exist and are not reused by relabeling
 private inputs. Source-retention operations and the actual

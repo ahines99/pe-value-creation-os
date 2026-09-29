@@ -195,11 +195,22 @@ class PrivateUnderwritingRevision(Record):
         raise ValueError("private underwriting cannot be exported as public exhibits")
 
 
-def calculate(inputs: PrivateUnderwritingInputs, snapshot: PrivateFinancialSnapshot) -> dict[str, Any]:
+def calculate(
+    inputs: PrivateUnderwritingInputs,
+    snapshot: PrivateFinancialSnapshot,
+    *,
+    benefit_blocks: dict[str, frozenset[str]] | None = None,
+) -> dict[str, Any]:
     """Reproducible arithmetic only; repository verifies current source authority."""
     inputs = PrivateUnderwritingInputs.model_validate(inputs.model_dump(mode="json"))
     inputs.bind(snapshot)
     selected = frozenset(inputs.selected_initiatives)
+    benefit_blocks = benefit_blocks or {}
+    ids = {d.initiative_id for d in inputs.scenarios[0].drivers}
+    if not set(benefit_blocks) <= {s.scenario_id for s in inputs.scenarios} or any(
+        not blocked <= ids for blocked in benefit_blocks.values()
+    ):
+        raise ValueError("benefit block references an unknown private scenario or initiative")
     with localcontext() as ctx:
         # Bounded inputs include the three-factor service-cost product; keep its
         # full intermediate precision before the shared cent-rounding convention.
@@ -210,7 +221,14 @@ def calculate(inputs: PrivateUnderwritingInputs, snapshot: PrivateFinancialSnaps
                 inputs.months,
                 inputs.multiples,
                 scenario,
-                single_pool_ledger(inputs.start, inputs.months, scenario, selected),
+                single_pool_ledger(
+                    inputs.start,
+                    inputs.months,
+                    scenario,
+                    selected,
+                    benefit_blocks.get(scenario.scenario_id, frozenset()),
+                ),
+                benefit_blocks.get(scenario.scenario_id, frozenset()),
             )
             for scenario in inputs.scenarios
         ]
