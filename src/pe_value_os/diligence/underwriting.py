@@ -143,6 +143,74 @@ EXPECTED_UNITS = {
 }
 
 
+def validate_inputs(
+    start: date,
+    months: int,
+    multiples: tuple[Decimal, ...],
+    evidence: tuple[EvidenceRef, ...],
+    scenarios: tuple[Scenario, ...],
+    schema_version: int,
+    assumption_class: SourceClass,
+) -> None:
+    """Shared structural validation; callers retain distinct provenance contracts."""
+    if start.day != 1:
+        raise ValueError("model starts on the first day of a calendar month")
+    if any(m <= 0 or not m.is_finite() for m in multiples):
+        raise ValueError("multiples must be finite and positive")
+    if len(set(multiples)) != len(multiples):
+        raise ValueError("multiples must be unique")
+    evidence_map = {e.evidence_id: e for e in evidence}
+    if len(evidence_map) != len(evidence) or not evidence_map:
+        raise ValueError("evidence IDs must be unique and nonempty")
+    if {s.scenario_id for s in scenarios} != {"downside", "base", "upside"} or len(scenarios) != 3:
+        raise ValueError("exactly one downside, base and upside scenario is required")
+    expected_ids: set[tuple[str, str, str]] | None = None
+    end = month_start(start, months)
+    for scenario in scenarios:
+        assumptions = {a.assumption_id: a for a in scenario.assumptions}
+        if len(assumptions) != len(scenario.assumptions):
+            raise ValueError("duplicate assumption ID")
+        for assumption in scenario.assumptions:
+            if any(e not in evidence_map for e in assumption.evidence_ids):
+                raise ValueError("assumption references unknown evidence")
+            if not any(evidence_map[e].classification == assumption_class for e in assumption.evidence_ids):
+                raise ValueError(f"operating assumptions require explicit {assumption_class.value} evidence")
+        ids = {d.initiative_id for d in scenario.drivers}
+        if not ids or len(ids) != len(scenario.drivers):
+            raise ValueError("initiative IDs must be unique and nonempty")
+        if "shared" in ids:
+            raise ValueError("shared is reserved for costs belonging to multiple initiatives")
+        identities: set[tuple[str, str, str]] = {(d.initiative_id, d.kind, d.benefit_pool) for d in scenario.drivers}
+        if expected_ids is not None and identities != expected_ids:
+            raise ValueError("scenarios must retain stable initiative identities")
+        expected_ids = identities
+        if schema_version == 1 and len({d.benefit_pool for d in scenario.drivers}) != len(scenario.drivers):
+            raise ValueError("overlapping benefit pools require a combined driver; independent sums are forbidden")
+        for driver in scenario.drivers:
+            if not start <= driver.effective_on < end:
+                raise ValueError("driver effective date must be inside model horizon")
+            for field, unit in EXPECTED_UNITS.items():
+                reference = getattr(driver, field, None)
+                if reference is not None and (reference not in assumptions or assumptions[reference].unit != unit):
+                    raise ValueError(f"invalid assumption reference or unit for {field}")
+            if isinstance(driver, Service):
+                if driver.cost_action == "none" and assumptions[driver.monthly_cost_action].value != 0:
+                    raise ValueError("no cost action cannot create financial savings")
+            if isinstance(driver, Collections) and driver.counterfactual_collection_on >= end:
+                raise ValueError("collection timing reversal must be visible within the horizon")
+        if len({c.cost_id for c in scenario.costs}) != len(scenario.costs):
+            raise ValueError("duplicate cost ID")
+        for cost in scenario.costs:
+            if len(set(cost.initiative_ids)) != len(cost.initiative_ids):
+                raise ValueError("cost initiative references must be unique")
+            if not set(cost.initiative_ids) <= ids:
+                raise ValueError("cost references unknown initiative")
+            if cost.amount not in assumptions or assumptions[cost.amount].unit != "currency":
+                raise ValueError("cost requires a currency assumption")
+            if not start <= cost.recognized_on < end or not start <= cost.paid_on < end:
+                raise ValueError("cost recognition and payment must be inside the explicit horizon")
+
+
 class _UnderwritingInputs(Record):
     schema_version: Literal[1, 2] = 1
     case_id: str = Field(min_length=1)
@@ -158,64 +226,15 @@ class _UnderwritingInputs(Record):
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
-        if self.start.day != 1:
-            raise ValueError("model starts on the first day of a calendar month")
-        if any(m <= 0 or not m.is_finite() for m in self.multiples):
-            raise ValueError("multiples must be finite and positive")
-        if len(set(self.multiples)) != len(self.multiples):
-            raise ValueError("multiples must be unique")
-        evidence = {e.evidence_id: e for e in self.evidence}
-        if len(evidence) != len(self.evidence) or not evidence:
-            raise ValueError("evidence IDs must be unique and nonempty")
-        if {s.scenario_id for s in self.scenarios} != {"downside", "base", "upside"} or len(self.scenarios) != 3:
-            raise ValueError("exactly one downside, base and upside scenario is required")
-        expected_ids: set[tuple[str, str, str]] | None = None
-        end = month_start(self.start, self.months)
-        for scenario in self.scenarios:
-            assumptions = {a.assumption_id: a for a in scenario.assumptions}
-            if len(assumptions) != len(scenario.assumptions):
-                raise ValueError("duplicate assumption ID")
-            for assumption in scenario.assumptions:
-                if any(e not in evidence for e in assumption.evidence_ids):
-                    raise ValueError("assumption references unknown evidence")
-                if not any(evidence[e].classification == SourceClass.CONSTRUCTED for e in assumption.evidence_ids):
-                    raise ValueError("operating assumptions require explicit constructed evidence")
-            ids = {d.initiative_id for d in scenario.drivers}
-            if not ids or len(ids) != len(scenario.drivers):
-                raise ValueError("initiative IDs must be unique and nonempty")
-            if "shared" in ids:
-                raise ValueError("shared is reserved for costs belonging to multiple initiatives")
-            identities: set[tuple[str, str, str]] = {
-                (d.initiative_id, d.kind, d.benefit_pool) for d in scenario.drivers
-            }
-            if expected_ids is not None and identities != expected_ids:
-                raise ValueError("scenarios must retain stable initiative identities")
-            expected_ids = identities
-            if self.schema_version == 1 and len({d.benefit_pool for d in scenario.drivers}) != len(scenario.drivers):
-                raise ValueError("overlapping benefit pools require a combined driver; independent sums are forbidden")
-            for driver in scenario.drivers:
-                if not self.start <= driver.effective_on < end:
-                    raise ValueError("driver effective date must be inside model horizon")
-                for field, unit in EXPECTED_UNITS.items():
-                    reference = getattr(driver, field, None)
-                    if reference is not None and (reference not in assumptions or assumptions[reference].unit != unit):
-                        raise ValueError(f"invalid assumption reference or unit for {field}")
-                if isinstance(driver, Service):
-                    if driver.cost_action == "none" and assumptions[driver.monthly_cost_action].value != 0:
-                        raise ValueError("no cost action cannot create financial savings")
-                if isinstance(driver, Collections) and driver.counterfactual_collection_on >= end:
-                    raise ValueError("collection timing reversal must be visible within the horizon")
-            if len({c.cost_id for c in scenario.costs}) != len(scenario.costs):
-                raise ValueError("duplicate cost ID")
-            for cost in scenario.costs:
-                if len(set(cost.initiative_ids)) != len(cost.initiative_ids):
-                    raise ValueError("cost initiative references must be unique")
-                if not set(cost.initiative_ids) <= ids:
-                    raise ValueError("cost references unknown initiative")
-                if cost.amount not in assumptions or assumptions[cost.amount].unit != "currency":
-                    raise ValueError("cost requires a currency assumption")
-                if not self.start <= cost.recognized_on < end or not self.start <= cost.paid_on < end:
-                    raise ValueError("cost recognition and payment must be inside the explicit horizon")
+        validate_inputs(
+            self.start,
+            self.months,
+            self.multiples,
+            self.evidence,
+            self.scenarios,
+            self.schema_version,
+            SourceClass.CONSTRUCTED,
+        )
         return self
 
     def require_public(self) -> None:
@@ -308,6 +327,21 @@ def _legacy_ledger(
     *,
     benefit_end_dates: dict[str, date] | None = None,
 ) -> tuple[Entry, ...]:
+    return single_pool_ledger(
+        case.start, case.months, scenario, selected, suppressed_benefits, benefit_end_dates=benefit_end_dates
+    )
+
+
+def single_pool_ledger(
+    start: date,
+    months: int,
+    scenario: Scenario,
+    selected: frozenset[str],
+    suppressed_benefits: frozenset[str] = frozenset(),
+    *,
+    benefit_end_dates: dict[str, date] | None = None,
+) -> tuple[Entry, ...]:
+    """Neutral arithmetic for disjoint benefit pools, without source reclassification."""
     # A source-level renewal term or service month can end before the model horizon.
     # Settlements generated by that accrual still retain their original lag dates.
     benefit_end_dates = benefit_end_dates or {}
@@ -334,8 +368,8 @@ def _legacy_ledger(
                     )
                 )
             continue
-        for index in range(case.months):
-            period = month_start(case.start, index)
+        for index in range(months):
+            period = month_start(start, index)
             if month_end(period) < driver.effective_on:
                 continue
             if active_until is not None and period > active_until:
@@ -474,6 +508,51 @@ def cash_profile(entries: tuple[Entry, ...], start: date, end: date) -> dict[str
     }
 
 
+def scenario_report(
+    start: date,
+    months: int,
+    multiples: tuple[Decimal, ...],
+    scenario: Scenario,
+    entries: tuple[Entry, ...],
+    suppressed_benefits: frozenset[str] = frozenset(),
+    interaction: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Dated incremental results shared by distinct public and private contracts."""
+    end = month_end(start, months - 1)
+    monthly: list[dict[str, Any]] = [
+        {
+            "start": month_start(start, m),
+            "end": month_end(start, m),
+            **totals(entries, month_start(start, m), month_end(start, m)),
+        }
+        for m in range(months)
+    ]
+    tail = totals(entries, end + timedelta(days=1), month_end(end, 12))
+    annual = totals(entries, month_start(start, 12), end)
+    return {
+        "scenario_id": scenario.scenario_id,
+        "suppressed_benefits": sorted(suppressed_benefits),
+        "monthly": monthly,
+        "day_100": totals(entries, start, start + timedelta(days=99)),
+        "year_one": totals(entries, start, month_end(start, 11)),
+        "year_two": annual,
+        "total": totals(entries, start, end),
+        "cash_settlement_after_horizon": tail["pre_tax_cash_proxy"],
+        **cash_profile(entries, start, end),
+        "valuation": [
+            {
+                "multiple": multiple,
+                "incremental_ev_sensitivity": money(annual["recurring_contribution"] * multiple),
+            }
+            for multiple in multiples
+        ],
+        "assumptions": [a.model_dump(mode="json") for a in scenario.assumptions],
+        "drivers": [d.model_dump(mode="json") for d in scenario.drivers],
+        "costs": [c.model_dump(mode="json") for c in scenario.costs],
+        **({"interaction": interaction} if interaction is not None else {}),
+    }
+
+
 def evaluate(
     case: _UnderwritingInputs,
     selected: frozenset[str] | None = None,
@@ -500,7 +579,6 @@ def evaluate(
         not blocked <= ids for blocked in benefit_blocks.values()
     ):
         raise ValueError("benefit block references an unknown scenario or initiative")
-    end = month_end(case.start, case.months - 1)
     scenarios = []
     for scenario in case.scenarios:
         interaction = None
@@ -512,39 +590,16 @@ def evaluate(
             )
         else:
             entries = ledger(case, scenario, selected, benefit_blocks.get(scenario.scenario_id, frozenset()))
-        monthly: list[dict[str, Any]] = [
-            {
-                "start": month_start(case.start, m),
-                "end": month_end(case.start, m),
-                **totals(entries, month_start(case.start, m), month_end(case.start, m)),
-            }
-            for m in range(case.months)
-        ]
-        tail = totals(entries, end + timedelta(days=1), month_end(end, 12))
-        annual = totals(entries, month_start(case.start, 12), end)
         scenarios.append(
-            {
-                "scenario_id": scenario.scenario_id,
-                "suppressed_benefits": sorted(benefit_blocks.get(scenario.scenario_id, frozenset())),
-                "monthly": monthly,
-                "day_100": totals(entries, case.start, case.start + timedelta(days=99)),
-                "year_one": totals(entries, case.start, month_end(case.start, 11)),
-                "year_two": annual,
-                "total": totals(entries, case.start, end),
-                "cash_settlement_after_horizon": tail["pre_tax_cash_proxy"],
-                **cash_profile(entries, case.start, end),
-                "valuation": [
-                    {
-                        "multiple": multiple,
-                        "incremental_ev_sensitivity": money(annual["recurring_contribution"] * multiple),
-                    }
-                    for multiple in case.multiples
-                ],
-                "assumptions": [a.model_dump(mode="json") for a in scenario.assumptions],
-                "drivers": [d.model_dump(mode="json") for d in scenario.drivers],
-                "costs": [c.model_dump(mode="json") for c in scenario.costs],
-                **({"interaction": interaction} if interaction is not None else {}),
-            }
+            scenario_report(
+                case.start,
+                case.months,
+                case.multiples,
+                scenario,
+                entries,
+                benefit_blocks.get(scenario.scenario_id, frozenset()),
+                interaction,
+            )
         )
     version = "monthly-underwriting/3" if interaction_case else VERSION
     return {

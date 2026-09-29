@@ -69,6 +69,17 @@ passed: 1,319 tests on each supported Python version, 84 browser checks,
 matched the merge. Local focused checks passed 55 tests, and migration round-trip
 passed at 0009. No actual private company records or performed pilot are represented.
 
+The private financial-snapshot workflow was released in
+[PR #44](https://github.com/ahines99/pe-value-creation-os/pull/44), tested at
+`cdbf05e772a133d5475f7c88ebc0f4ed1af526b6` and merged as
+`e97a5f6c52f268aaf61e3334b5deb2406313a4b5` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36636672315)
+passed: 1,356 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Nine published files
+matched the merge. The local focused/regression suite passed 373 tests with one
+Windows symlink-privilege skip; migration round-trip passed at 0010. This remains
+fictional-fixture software validation, not company acceptance or a performed pilot.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -81,8 +92,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #43 is released and verified.
-The private-financial-snapshot increment below has a separate release gate; its
+**Current status:** implementation through PR #44 is released and verified.
+The private-underwriting increment below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -239,12 +250,14 @@ under the current grant transaction. It blocks superseded/unaccepted analytical
 source reads, reproduces preflight and removes source bytes during whole-company
 offboarding. Its CI and publication acceptance are verified.
 
-**Current implementation increment:** [private financial snapshots](../pilot/permissioned/financial-snapshots.md)
+**Released in PR #44:** [private financial snapshots](../pilot/permissioned/financial-snapshots.md)
 calculate monthly earnings/cash inputs from accepted original bytes, retaining
 exact source/finance/grant bindings and a human-reviewed accounting definition.
 Snapshots remain private and do not declare realized value or a frozen baseline.
-This increment has its own pending CI/publication acceptance. Private underwriting,
-capacity-plan association, frozen baseline review, counterfactual observations,
+Its CI/publication acceptance is verified above. The next
+[private underwriting increment](../pilot/permissioned/underwriting.md) stores
+source-bound forecasts with explicit financial mappings and authored assumptions;
+it has a separate release gate. Capacity-plan association, frozen baseline review, counterfactual observations,
 attribution and memo composition remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 

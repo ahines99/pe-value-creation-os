@@ -18,10 +18,12 @@ The subsequent [processing-grant registry](processing-grants.md) records exact-p
 human grants and revocations with named operators, environment scope and audit
 history. The subsequent [source-custody and finance-review increment](intake-records.md)
 adds atomic stored bytes, quarantine/corrections and exact-version human decisions
-and is released in PR #43. The next [financial-snapshot increment](financial-snapshots.md)
-calculates versioned monthly private inputs under a recorded accounting definition;
-it has a separate release gate. Private underwriting, frozen baseline/measurement
-and memo integration, retention operations and actual company approval remain open.
+and is released in PR #43. The [financial-snapshot increment](financial-snapshots.md)
+is released in PR #44. The next [private underwriting increment](underwriting.md)
+connects accepted financials to immutable forecasts, distinguishing exact component
+mappings from human assumptions; its release acceptance is separate. Private
+capacity planning, reviewed frozen baselines, measurement/memo integration,
+retention operations and actual company approval remain open.
 
 ### Who does what next
 
@@ -157,10 +159,11 @@ claims, unassigned residuals and source corrections. It is suitable for showing
 a prospective sponsor the questions and outputs. It does not contain a real
 company ledger, validated counterfactual, accepted intervention or causal result.
 
-The current ingestion contracts deliberately accept only constructed records.
-Before a permissioned pilot uses private records, Codex must implement and test
-the authorized private-data lane, agreed source mappings, retention controls and
-permissioned work-acceptance evidence. Constructed delivery-to-claim links are
+The public realization contracts deliberately accept only constructed records.
+A separate private intake/financial lane now exists; it is not yet a complete
+private realization workflow. Before a permissioned pilot uses real records,
+Codex must complete and test the remaining integration, agreed source mappings,
+retention controls and permissioned work-acceptance evidence. Constructed delivery-to-claim links are
 now demonstrated in the [execution review](../../portfolio/execution.html): late
 acceptance blocks whole-month credit, and withdrawal invalidates support while
 preserving source accounting. These are rehearsal receipts only. Do not relabel company records as constructed
