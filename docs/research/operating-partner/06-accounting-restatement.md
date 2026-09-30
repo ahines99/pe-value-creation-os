@@ -61,6 +61,15 @@ dissemination record or original website publication log has been verified.
 
 ## Remaining acceptance
 
+A further September 29, 2026 search of the original accession, issuer filing
+indexes and exact-title/date announcement records did not establish a first
+dissemination timestamp. Available records add dates and an after-close description,
+not a verified clock time. This search result is not proof that no such record
+exists. The outstanding request is a contemporaneous dissemination receipt or
+publisher log with identified document, timezone and publication semantics for
+each required vintage. Retrieval time, SEC acceptance and the earliest discovered
+archive capture cannot substitute for that evidence. The requirement stays open.
+
 The accounting-error-restatement comparison and non-reliance handling are now
 implemented and locally tested. Release/CI/browser acceptance accompanies the
 implementation increment. OP-16 remains incomplete until defensible historical

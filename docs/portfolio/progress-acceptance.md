@@ -1,13 +1,71 @@
 # Progress case: acceptance evidence and remaining work
 
-**September 29, 2026 · internal engineering review · full five-outcome goal remains open**
+**September 29, 2026 · internal engineering review · eight-step showcase closeout remains open**
 
 This is the current review map for the public Progress case and constructed
 lifecycle. It supersedes the old Beacon narrative as the primary portfolio
 entry point. It does not erase the [historical application acceptance record](acceptance.md)
 or [delegated v0.1.0 showcase closeout](showcase-closeout.md).
 
+## Current eight-step showcase closeout
+
+This is the authoritative acceptance register for the requested showcase finish.
+Private-pilot feature expansion is later work; its unfinished features do not
+replace the public-case requirements below. Actual practitioner participation and
+historical timing cannot be inferred from passing software checks.
+
+| Requested step | Status | Evidence / remaining acceptance |
+|---|---|---|
+| 1. Release attribution | Complete | PR #50: ten CI jobs, 1,757 tests per Python, seven published files verified against merge `939c91e36f36885444fb8d397f62009a479268b4`. |
+| 2. Release executive attribution review | Complete | PR #51: ten CI jobs, 1,781 tests per Python, 84 public and 12 private browser checks; five changed published files match merge `781f1f4276919735c7fa55fad4339d1ff0ff1311`. The interface uses authenticated private data; static Pages is not the running private application. |
+| 3. Public-company diligence dispositions | Complete at public-research scope | [Final register](../research/operating-partner/09-public-diligence-disposition.md) covers acquisitions/perimeter, organic-growth limits, peers and retain/reject/defer decisions with explicit reopening evidence. Unavailable management facts remain unavailable. |
+| 4. Financial-definition exceptions | Disposition documented; component explanations unavailable | [Financial review](../research/operating-partner/08-financial-definition-review.md) retains all four differences, specified data requests and withheld dependent measures. No normalized earnings or independent finance approval claimed. |
+| 5. Historical disclosure timing | Open | Original/restated filings and chronology exist; exact first public availability remains unverified. SEC acceptance and an after-close announcement do not satisfy this requirement. |
+| 6. Executive narrative and interview package | Aligned and locally verified | Landing page, README, case study, demo, architecture, setup, screenshots and resume guide distinguish the public case, fictional approval demo and permissioned attribution interface. Closeout release evidence is linked below. |
+| 7. Final showcase acceptance | Local acceptance complete; exact release receipt required | Fresh locked checkout: 25 build/check commands, 31 consistency conditions, 147 focused tests and 84 public browser checks passed. The closeout PR records final exact-head CI, merge identity and publication verification; do not infer those from local checks alone. |
+| 8. Actual practitioner feedback | Prepared; session unperformed | [Review packet](practitioner-review.md) provides the session and response log. A real participant must supply comprehension evidence, objections and disposition; no score has been assigned. |
+
 ## What is verified
+
+### Final showcase package
+
+[PR #52](https://github.com/ahines99/pe-value-creation-os/pull/52) is the release
+record for this closeout package. Its final verification receipt identifies the
+tested head, CI run, merge and published-file hashes. Step 7 is satisfied only
+when that receipt confirms all ten CI jobs and exact publication; the PR's creation
+alone is not acceptance. This release gate does not close steps 5 or 8.
+
+A separate clean checkout at `ef785058e94277666293a7f59574f31919123088` used a
+fresh `uv sync --frozen --extra dev` environment and no vendor or model credentials.
+All 25 public build/check commands passed, including 15 primary-bundle and two
+sets of eight allocation conditions. Regenerated public JSON retained the same
+business values: recursive comparison, including embedded JSON, found changes
+only in generated revision UUIDs, recorded/created timestamps and content hashes.
+Fresh simulation histories are therefore not byte-identical release artifacts;
+publication is separately compared against the released Git blobs.
+
+The unchanged financial/research implementation passed 147 focused tests. Source
+checks verified 15 growth facts plus nine disclosure anchors, 126 peer facts and
+anchors, and 13 dated balance facts with five debt reconciliations. All 84 current
+public page/viewport checks passed at 1440, 768 and 375 pixels, including keyboard
+navigation and disclosures. Landing screenshots at all three widths and the
+private review tablet screenshots were visually inspected, supplementing the
+private desktop/phone release inspection. These are engineering checks, not
+independent financial or human usability validation.
+
+### Executive attribution interface
+
+The private executive review workspace was released in
+[PR #51](https://github.com/ahines99/pe-value-creation-os/pull/51), tested at
+`8707fcedd89a69f6d863f77a21da86c8b07fbcf8` and merged as
+`781f1f4276919735c7fa55fad4339d1ff0ff1311` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36654645174)
+passed: 1,781 tests on each supported Python version, 84 public and 12 private
+page/viewport checks, 31 bundle conditions and 39 installed-package evaluations.
+Five changed published files matched the merge. Local regression passed 243 tests;
+the final decision-history assertions separately passed both repository/session
+checks. The 24 new workspace tests and 12 browser checks use fictional records.
+The private application itself is not hosted by the static portfolio site.
 
 The financial/lifecycle implementation through [PR #36](https://github.com/ahines99/pe-value-creation-os/pull/36)
 was tested at `4bf92ab2539cdced14fcd0fcd384b484db13e7d7` and merged as
@@ -192,8 +250,8 @@ released and verified in PR #49. The [private attribution increment](../pilot/pe
 adds signed allocations, delivery-to-claim checks, residuals and separate finance
 review, released and verified in PR #50. The
 [private finance review workspace](../pilot/permissioned/review-workspace.md) adds
-an executive attribution page and exact-version human decision form, with a
-separate release gate. Private operating-source and delivery-cost reconciliation,
+an executive attribution page and exact-version human decision form, released
+and verified in PR #51. Private operating-source and delivery-cost reconciliation,
 executive memo, remaining pilot screens, retention operations and all
 real-company pilot evidence remain outstanding.
 
@@ -284,12 +342,10 @@ proof of correctness or completion.
 
 ## Remaining work and ownership
 
-1. **Codex:** follow the [step-by-step completion checklist](remaining-work.md), retaining the exact-build release evidence above and the original OP requirements as the acceptance baseline. Local presentation changes and pending releases are not publication evidence.
-2. **Codex:** finish public-source, financial-definition, peer/thesis and historical-replay research. Preserve unsupported or adverse conclusions and explicitly identify any criterion that evidence cannot satisfy.
-3. **Codex:** consolidate the executive walkthrough, finalize portfolio packaging and execute acceptance and review corrections. A practitioner session is unperformed until someone participates; blank worksheet fields remain blank.
-4. **Codex:** build and test generic private ingestion and readiness controls with permitted fixtures, then adapt them to the sponsor's authorized scope. No company environment or permission is presumed.
-5. **Alex, when available:** introduce a willing reviewer or authorized company sponsor. No immediate data, credentials or setup are requested.
-6. **Sponsor/company:** authorize records and processing, validate accounting and capacity, make intervention decisions, perform operations and review observed outcomes. Codex prepares mappings, calculations, review packets and reporting.
+1. **Codex:** verify the exact closeout release and append its receipt to PR #52. Retain this register as the acceptance index; pending publication is not a completed release.
+2. **Codex:** pursue historical dissemination evidence if a defensible source becomes available. Exact first-public-availability remains unmet. The four financial-definition exceptions retain their documented dispositions and specific component requests; unsupported adjustments remain withheld.
+3. **Alex:** introduce a willing practitioner when available. **Codex:** prepare the session, record actual objections and comprehension evidence, implement corrections and return material changes for reviewer disposition. Blank responses and scores remain blank until participation occurs.
+4. **Later pilot:** resume the [broader checklist](remaining-work.md) only after showcase work. Codex implements remaining private workflow and readiness work; an authorized sponsor must supply permitted records, accounting/capacity validation, operating decisions and observed outcomes. No company participation is presumed.
 
 The six-week diagnostic and any subsequent day-30/60/100 intervention cycle have
 separate authorization and clocks. Software work cannot manufacture elapsed

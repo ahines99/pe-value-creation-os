@@ -63,6 +63,31 @@ flowchart TB
 | PostgreSQL | System of record. Company isolation is enforced by row-level security on `pvc.companies`. | Evidence bytes |
 | Evidence store | Immutable source snapshots, content-addressed ids | Derived analysis |
 
+## Public research and the operating lifecycle
+
+The diagram above describes the diagnostic application. The primary portfolio case also uses `src/pe_value_os/diligence`: an explicitly separate public financial fact base and constructed operating inputs produce reproducible CLI artifacts. Decimal calculations carry source identifiers, financial definitions, input hashes and immutable revision relationships into the executive memo.
+
+```mermaid
+flowchart LR
+    F[Public financial facts] --> M[Version-bound decision memo]
+    O[Constructed operating records] --> U[Monthly underwriting]
+    U --> C[Capacity and dependencies]
+    C --> M
+    M --> R[Source corrections and retained history]
+    R --> A[Observed improvement, attribution and residual]
+    A --> E[Exit sensitivities and withheld claims]
+```
+
+Shared source pools are allocated explicitly so multiple initiatives cannot each claim the same baseline. Source corrections retain earlier decisions and costs; they can reverse an initially attractive plan. EBITDA, cash and equity sensitivities remain distinct. Published artifacts contain real public financial observations and labeled constructed operating examples, with no model or live database required to reproduce them. See the [case study](portfolio/case-study.md) and [diligence dispositions](research/operating-partner/09-public-diligence-disposition.md).
+
+## Permissioned records and human finance review
+
+The private workflow adds processing permission, source custody and finance acceptance before a financial snapshot can support underwriting. Capacity and a two-role baseline freeze precede reviewed counterfactuals, monthly observations, execution decisions and attribution proposals. These are company-scoped authenticated records, separate from public case generation and MCP model tools.
+
+The [executive finance interface](pilot/permissioned/review-workspace.md) loads a packet under the company's repository lock and checks current source, baseline, execution and review dependencies. A distinct human finance reviewer accepts, rejects, requests changes or withdraws against exact proposal and review heads. CSRF-protected forms retain decision history; permission revocation removes current use while allowing the defined historical metadata and withdrawal paths. Repository transactions and forced PostgreSQL row-level security enforce company boundaries beneath the UI.
+
+Tests and fictional browser captures establish these software behaviors. They do not establish an operating-company implementation, an independently validated normalized EBITDA figure or reconciled delivery costs. Remaining private workflow screens, cost reconciliation and operational acceptance belong to the later [permissioned pilot roadmap](portfolio/remaining-work.md). The [showcase acceptance register](portfolio/progress-acceptance.md) records the released scope and outstanding evidence.
+
 ## A diagnostic run
 
 ```mermaid

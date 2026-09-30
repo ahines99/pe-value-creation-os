@@ -2,8 +2,8 @@
 
 The private review workspace brings an exact attribution proposal, accounting
 comparison, frozen plan, delivery history and finance decision into one page.
-It is implemented with fictional acceptance fixtures; release verification is
-recorded separately in the [acceptance map](../../portfolio/progress-acceptance.md).
+It was released in PR #51 with fictional acceptance fixtures; exact-build
+verification is recorded in the [acceptance map](../../portfolio/progress-acceptance.md).
 It does not represent a performed company pilot.
 
 ## Open a review
