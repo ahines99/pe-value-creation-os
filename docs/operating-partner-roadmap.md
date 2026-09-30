@@ -65,11 +65,16 @@ comparisons. All observed differences remain unattributed. The subsequent
 [private execution increment](pilot/permissioned/execution.md) adds bounded human
 intervention decisions, delivery segments and prerequisite acceptance, released in
 [PR #49](https://github.com/ahines99/pe-value-creation-os/pull/49): ten CI jobs passed,
-1,701 tests per supported Python version and six published files verified. The next
+1,701 tests per supported Python version and six published files verified. The
 [private attribution increment](pilot/permissioned/attribution.md) adds signed claims,
-delivery-to-claim checks, residuals and separate finance review, with a separate
-release gate. Private operating-source and delivery-cost reconciliation, memo/review
-UX, retention, real finance approval and pilot readiness remain open.
+delivery-to-claim checks, residuals and separate finance review, released in
+[PR #50](https://github.com/ahines99/pe-value-creation-os/pull/50): ten CI jobs passed,
+1,757 tests per supported Python version and seven published files verified.
+The [private finance review workspace](pilot/permissioned/review-workspace.md) adds
+an executive attribution page and exact-version human decision form, with a separate
+release gate. Private operating-source and delivery-cost reconciliation, executive
+memo, remaining pilot screens, retention, real finance approval and pilot readiness
+remain open.
 
 | Next work | Owner | Completion evidence |
 |---|---|---|

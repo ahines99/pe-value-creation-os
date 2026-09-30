@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from decimal import Decimal, InvalidOperation
 from html import escape
-from typing import Any
+from typing import Any, Literal
 
 CSS = """
 :root {
@@ -269,9 +269,18 @@ def status_badge(value: str) -> str:
     return f"<span class='badge state-{state}' data-status='{escape(value)}'>{label(value)}</span>"
 
 
-def page(title: str, body: str, *, active: str = "portfolio", eyebrow: str | None = None) -> str:
+def page(
+    title: str,
+    body: str,
+    *,
+    active: str = "portfolio",
+    eyebrow: str | None = None,
+    private_origin: Literal["synthetic_test_fixture", "company_export", "mixed"] | None = None,
+) -> str:
     """Wrap trusted application markup in the shared, accessible workspace shell."""
     links = (("portfolio", "/", "Portfolio"), ("decisions", "/#decisions", "Decision desk"))
+    if active == "private":
+        links = (("private", "/private-reviews", "Private reviews"), ("portfolio", "/", "Portfolio"))
     navigation = "".join(
         f"<a class='nav-link' href='{href}'" + (" aria-current='page'" if active == key else "") + f">{text}</a>"
         for key, href, text in links
@@ -286,6 +295,26 @@ def page(title: str, body: str, *, active: str = "portfolio", eyebrow: str | Non
         if synthetic
         else "Recorded observations inherit the scope and limitations of their source data."
     )
+    methodology = (
+        "Evidence supports the diagnostic. Deterministic calculations size the value cases. "
+        "A human decides which initiatives enter the execution plan. Financial figures are modeled "
+        "in source units; they are not realized returns. " + source_note
+    )
+    outcome_note = "Modeled outcomes"
+    if private_origin is not None:
+        outcome_note = "Recorded observations and claims"
+        data_note = (
+            "Fictional private-workflow rehearsal"
+            if private_origin == "synthetic_test_fixture"
+            else "Permissioned private company data"
+        )
+        if private_origin == "mixed":
+            data_note = "Private review records; source origin shown per case"
+        methodology = (
+            "This private review separates frozen forecasts, accounting observations and initiative claims. "
+            "A finance decision records the reviewer's assessment; it does not establish causation or operating permission. "
+            "Current source and delivery support is checked separately from historical receipts."
+        )
     return (
         "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
         "<meta name='viewport' content='width=device-width,initial-scale=1'>"
@@ -305,10 +334,7 @@ def page(title: str, body: str, *, active: str = "portfolio", eyebrow: str | Non
         f"<main class='app-shell' id='main-content' tabindex='-1'>{kicker}{body}</main>"
         "<footer class='page-footer'><div class='footer-line'>"
         "<p><strong>Value Creation OS</strong> &nbsp; / &nbsp; Evidence. Value. Execution.</p>"
-        f"<p>{data_note} &middot; Modeled outcomes &middot; Human decision control</p></div>"
+        f"<p>{data_note} &middot; {outcome_note} &middot; Human decision control</p></div>"
         "<details id='methodology'><summary>Methodology &amp; technical boundaries</summary>"
-        "<p>Evidence supports the diagnostic. Deterministic calculations size the value cases. "
-        "A human decides which initiatives enter the execution plan. Financial figures are modeled "
-        "in source units; they are not realized returns. "
-        f"{source_note}</p></details></footer></body></html>"
+        f"<p>{methodology}</p></details></footer></body></html>"
     )

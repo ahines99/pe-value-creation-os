@@ -20,7 +20,7 @@ from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from .. import security
-from ..diligence import private_attribution
+from ..diligence import private_attribution, private_review
 from ..diligence.cases import (
     CaseReview,
     CaseRevision,
@@ -188,6 +188,116 @@ class PostgresRepository:
     def _lock_private_company(self, cur: Any, company_id: str) -> None:
         if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
             raise NotFound(company_id)
+
+    def private_attribution_review_packet(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> dict[str, Any]:
+        principal = require_grant_reader(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            proposal = self._private_attribution(company_id, revision_id)
+            observation = self._private_observation(company_id, proposal.request.observation_id)
+            counterfactual = self._private_counterfactual(company_id, observation.request.counterfactual_revision_id)
+            actual = next(
+                (
+                    row
+                    for row in self.list_private_financial_snapshots(company_id, proposal.case_key)
+                    if row.snapshot_id == observation.request.actual_snapshot_id
+                ),
+                None,
+            )
+            if actual is None:
+                raise NotFound(observation.request.actual_snapshot_id)
+            baseline, plan = self._private_execution_context(company_id, proposal.baseline_id)
+            events = self.list_private_execution_events(company_id, proposal.baseline_id)
+            reviews = self.list_private_attribution_reviews(company_id, revision_id)
+            head = private_attribution.attribution_review_head(proposal, reviews)
+            proposal_head = self.list_private_attributions(company_id, proposal.case_key, proposal.attribution_key)[-1]
+            checks = {
+                "baseline_supported": False,
+                "observation_supported": False,
+                "proposal_supported": False,
+                "finance_acceptance_supported": False,
+            }
+            if environment_id:
+                try:
+                    baseline_status = self.private_baseline_status(company_id, baseline.baseline_id, environment_id)
+                    checks["baseline_supported"] = bool(baseline_status["usable_for_comparison"])
+                except (security.ScopeError, ValueError, NotFound):
+                    pass
+                try:
+                    self.usable_private_observation(company_id, observation.observation_id, environment_id)
+                    checks["observation_supported"] = True
+                    self._current_private_attribution(company_id, revision_id, environment_id)
+                    checks["proposal_supported"] = True
+                    self.usable_private_attribution(company_id, revision_id, environment_id)
+                    checks["finance_acceptance_supported"] = True
+                except (security.ScopeError, ValueError, NotFound):
+                    pass  # Historical receipts remain scoped reads, never current support.
+            try:
+                require_finance_reviewer(company_id)
+                can_review = principal.subject != proposal.author
+            except security.ScopeError:
+                can_review = False
+            execution = private_execution_view(baseline, plan, events, baseline_supported=checks["baseline_supported"])
+            packet = {
+                "classification": "permissioned_private",
+                "origin": proposal.origin,
+                "company_id": company_id,
+                "company_name": self.get_company(company_id).name,
+                "case_key": proposal.case_key,
+                "currency": proposal.currency,
+                "unit_scale": 1,
+                "generated_at": private_review.packet_timestamp(),
+                "proposal": proposal.model_dump(mode="json"),
+                "observation": observation.model_dump(mode="json"),
+                "counterfactual": counterfactual.model_dump(mode="json"),
+                "actual_snapshot": actual.model_dump(mode="json"),
+                "baseline": baseline.model_dump(mode="json"),
+                "plan": plan.model_dump(mode="json"),
+                "execution": execution,
+                "reviews": [r.model_dump(mode="json") for r in reviews],
+                "current_proposal_revision_id": proposal_head.revision_id,
+                "current_review_sha256": head.content_sha256 if head else None,
+                "execution_head_sha256": events[-1].content_sha256 if events else None,
+                "checks": checks,
+                "viewer": principal.subject,
+                "can_record_substantive_review": can_review and checks["proposal_supported"],
+                "can_withdraw_review": can_review and head is not None and head.request.decision == "accept",
+                "causal_impact_proven": False,
+                "delivery_costs_reconciled_to_ledger": False,
+            }
+            packet["packet_sha256"] = private_review.packet_fingerprint(packet)
+            return packet
+
+    def private_review_index(self, company_id: str) -> list[dict[str, Any]]:
+        require_grant_reader(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            company = self.get_company(company_id)
+            heads: dict[tuple[str, str], private_attribution.PrivateAttribution] = {}
+            for row in self._private_attribution_records(company_id):
+                key = (row.case_key, row.attribution_key)
+                if key not in heads or row.sequence > heads[key].sequence:
+                    heads[key] = row
+            cards = []
+            for row in sorted(heads.values(), key=lambda r: r.recorded_at, reverse=True):
+                head = private_attribution.attribution_review_head(
+                    row, self.list_private_attribution_reviews(company_id, row.revision_id)
+                )
+                cards.append(
+                    dict(
+                        company_id=company_id,
+                        company_name=company.name,
+                        case_key=row.case_key,
+                        revision_id=row.revision_id,
+                        origin=row.origin,
+                        first_month=row.first_month.isoformat(),
+                        months=row.months,
+                        decision=head.request.decision if head else None,
+                    )
+                )
+            return cards
 
     def _private_attribution_records(self, company_id: str) -> list[private_attribution.PrivateAttribution]:
         require_grant_reader(company_id)

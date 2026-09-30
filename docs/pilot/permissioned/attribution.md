@@ -3,8 +3,8 @@
 The calculation and review contracts now connect signed proposed allocations to
 an exact private observation, frozen baseline and execution history. Both repositories
 and bounded human API routes persist proposals and separate finance decisions,
-with transactional window reservations. Full CI/publication acceptance has a
-separate release gate; implementation alone does not establish pilot readiness.
+with transactional window reservations. PR #50 passed all ten CI jobs and its
+seven changed published files matched the merge. This does not establish pilot readiness.
 No actual company records, finance decisions or intervention outcomes are represented.
 
 Validation covers calculation contracts, memory/PostgreSQL persistence, finance
@@ -119,9 +119,11 @@ support. Historical retrieval alone does not establish acceptance or permission.
 
 ## Remaining pilot work
 
-An integrated private executive memo and usable review interface remain unfinished,
-including operating-source and delivery-cost reconciliation. So do per-source
-expiry, legal holds, backup/copy disposal and final release acceptance.
+The [private finance review workspace](review-workspace.md) now has an implemented
+executive page and exact-version decision form, with a separate release gate.
+An integrated private executive memo, remaining pilot screens, operating-source
+and delivery-cost reconciliation remain unfinished. So do per-source expiry,
+legal holds and backup/copy disposal.
 
 The independent pilot entry gates, sponsor, authorized company data, actual
 review participation and elapsed operating measurements remain outstanding.
