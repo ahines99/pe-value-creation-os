@@ -1,17 +1,15 @@
-# Private financial attribution — implementation in progress
+# Private financial attribution and finance review
 
 The calculation and review contracts now connect signed proposed allocations to
-an exact private observation, frozen baseline and execution history. Repository
-persistence, API routes, transactional window reservations and their integration
-tests are still required. This is not a released or usable private pilot workflow.
+an exact private observation, frozen baseline and execution history. Both repositories
+and bounded human API routes persist proposals and separate finance decisions,
+with transactional window reservations. Full CI/publication acceptance has a
+separate release gate; implementation alone does not establish pilot readiness.
 No actual company records, finance decisions or intervention outcomes are represented.
 
-Local validation passed 25 new calculation/review-contract checks. The related
-observation, execution and attribution suite passed 170 tests with PostgreSQL
-enabled. The attribution tests currently exercise domain contracts using fictional
-in-memory source histories; they do not establish attribution persistence or API
-acceptance. Ruff, mypy and skill-contract lint also passed. Full CI and release
-acceptance remain separate gates after integration.
+Validation covers calculation contracts, memory/PostgreSQL persistence, finance
+review, concurrency, rollback, scoped access, migration and API behavior. Exact
+release-specific results belong in the [acceptance map](../../portfolio/progress-acceptance.md).
 
 ## What a proposal means
 
@@ -61,7 +59,7 @@ proposal and its evidence for historical reproduction.
 The proposal records an execution head and reproduces from that original history
 prefix. Current-use checking separately evaluates later history, so an unrelated
 later event need not invalidate an otherwise supported historical measurement.
-Repository integration must also recheck current observation, source, processing,
+Both repositories also recheck current observation, source, processing,
 counterfactual and baseline support under the company lock.
 
 Finance review is a separate append-only sequence by a human other than the
@@ -76,27 +74,54 @@ period window. They can bind a corrected observation and preserve the original
 proposal. Every request identifies the expected preceding version. Stored review
 decisions also identify the execution head reviewed.
 
-## Remaining integration and acceptance
+## Persistence and authorization
 
-1. Persist proposal and review sequences in both repositories, with exact source
-   foreign keys, forced company row-level security and insert/select-only runtime
-   permissions. Add populated-downgrade protection and whole-company offboarding.
-2. Serialize new writes, source/authority changes and review decisions. Require
-   current processing for substantive work; permit an authorized human to withdraw
-   support without reopening source records. Preserve same-author historical retries.
-3. On acceptance, reserve the measurement window against other accepted latest
-   proposal streams in the same case/baseline. Overlapping alternatives may exist
-   as proposals, but cannot both become current claim ledgers. A stale-source
-   accepted ledger retains its reservation until withdrawal or supersession.
-   This does not establish portfolio-level ownership across separate cases.
-4. Expose bounded, authenticated human API routes for history, proposal, review
-   and current-use checks. Do not add a private MCP or public-export route.
-5. Test source and review revocation, corrections, concurrent reservations,
-   idempotency, transaction rollback, row-level security, migration and API error
-   boundaries. Run the related observation/execution regression suites.
-6. Connect accepted claims and residuals to the private executive memo/review UX,
-   including explicit operating-source/cost-reconciliation exceptions. Release
-   only after exact-build CI and publication acceptance.
+Migration `0016` adds proposal and review sequences with exact observation,
+baseline, execution-head and predecessor foreign keys. Both tables have forced
+company row-level security and insert/select-only runtime permissions. Populated
+downgrades are blocked, including for a migration owner without company scope.
+Whole-company offboarding removes the records with their underlying source chain.
+
+Company locks serialize new writes, source/authority changes and review decisions.
+Receipts and minimal audit references commit atomically. Substantive work requires
+current processing permission. A finance reviewer can withdraw support after
+revocation without reopening source records. Same-author exact retries return
+their historical receipts without restoring any permission or current support.
+
+Acceptance reserves the measurement window against other accepted latest proposal
+streams in the same case/baseline. Overlapping alternatives may exist as proposals,
+but cannot both become current claim ledgers. A stale-source accepted ledger keeps
+its reservation until withdrawal or supersession. Empty, residual-only proposals
+do not reserve a window. This does not establish portfolio-level ownership across
+separate cases or baselines.
+
+## Human API
+
+All routes have prefix `/companies/{company_id}/private-attributions`.
+
+| Method and suffix | Purpose |
+|---|---|
+| `POST /cases/{case_key}/streams/{key}` | Append an operator-authored `AttributionRequest` |
+| `GET /cases/{case_key}/streams/{key}` | Historical proposal versions |
+| `POST /revisions/{revision_id}/reviews` | Append an `AttributionReviewRequest` by an authorized finance reviewer |
+| `GET /revisions/{revision_id}/reviews` | Historical finance decisions |
+| `GET /revisions/{revision_id}/usable` | Reproduce the original proposal and review evidence, then check current source, delivery and finance support |
+
+Writes require explicit bearer authentication and role checks before parsing a
+bounded 1 MiB body. Responses are non-cacheable; validation errors omit private
+input details. Model and service identities cannot use these human workflows.
+The server supplies the processing environment; withdrawal does not require it.
+There is no private MCP, public-export or source-system writeback route.
+
+The immutable proposal continues to say `finance_reviewed: false`; the separate
+review and current-use response identify whether that exact proposal has current
+support. Historical retrieval alone does not establish acceptance or permission.
+
+## Remaining pilot work
+
+An integrated private executive memo and usable review interface remain unfinished,
+including operating-source and delivery-cost reconciliation. So do per-source
+expiry, legal holds, backup/copy disposal and final release acceptance.
 
 The independent pilot entry gates, sponsor, authorized company data, actual
 review participation and elapsed operating measurements remain outstanding.

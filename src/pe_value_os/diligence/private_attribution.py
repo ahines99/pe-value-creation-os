@@ -503,6 +503,50 @@ def prepare_attribution_review(
     return result
 
 
+def require_current_execution_support(
+    record: PrivateAttribution,
+    observation: PrivateObservation,
+    baseline: PrivateBaseline,
+    plan: PrivateCapacityRevision,
+    events: list[PrivateExecutionEvent],
+) -> None:
+    calculate_attribution(
+        record.request,
+        observation,
+        baseline,
+        plan,
+        events,
+        now=datetime.now(UTC),
+        current_support=True,
+    )
+
+
+def verify_review_evidence(
+    record: PrivateAttribution,
+    reviews: list[AttributionReview],
+    observation: PrivateObservation,
+    baseline: PrivateBaseline,
+    plan: PrivateCapacityRevision,
+    events: list[PrivateExecutionEvent],
+) -> None:
+    """Reproduce support as it existed for each original acceptance."""
+    attribution_review_head(record, reviews)
+    for review in reviews:
+        prefix = execution_prefix(events, review.request.expected_execution_head_sha256)
+        if prefix and prefix[-1].recorded_at > review.recorded_at:
+            raise ValueError("attribution review predates its execution evidence")
+        if review.request.decision == "accept":
+            calculate_attribution(
+                record.request,
+                observation,
+                baseline,
+                plan,
+                prefix,
+                now=review.recorded_at,
+                current_support=True,
+            )
+
+
 def require_disjoint_accepted_windows(record: PrivateAttribution, accepted_heads: list[PrivateAttribution]) -> None:
     """Call under the company lock with latest, currently accepted stream heads.
 

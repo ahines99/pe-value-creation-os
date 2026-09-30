@@ -1,20 +1,23 @@
 """Signed claims reconcile; fictional acceptance never establishes causal impact."""
 
+import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, date, datetime
 from decimal import Decimal, localcontext
+from types import SimpleNamespace
 
 import pytest
 
 from pe_value_os import security
 from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore
-from pe_value_os.adapters.repositories import InMemoryRepository
+from pe_value_os.adapters.repositories import Conflict, InMemoryRepository, NotFound
 from pe_value_os.diligence import private_attribution as attribution
 from pe_value_os.diligence import private_execution as execution
 from pe_value_os.diligence.private_records import content_hash
 from tests.test_private_execution import acceptance, at, authorize, binding, delivery, evidence, record
 from tests.test_private_observations import actuals, observation_request, setup
 from tests.test_private_observations import clock as measurement_clock  # noqa: F401
-from tests.test_private_records import COMPANY, ENV, FINANCE, OPERATOR
+from tests.test_private_records import COMPANY, ENV, FINANCE, OPERATOR, actor, revoke
 
 NOVEMBER = date(2026, 11, 1)
 
@@ -316,3 +319,388 @@ def test_stream_correction_and_source_bindings_cannot_drift(memory, clock):
         calculate(case, clock, body(case).model_copy(update={"observation_sha256": "0" * 64}))
     with pytest.raises(ValueError, match="unavailable"):
         attribution.execution_prefix(case.events, "0" * 64)
+
+
+def save(repo, case, request=None, *, key="claims", person=OPERATOR):
+    with security.principal_scope(person):
+        return repo.record_private_attribution(COMPANY, "pilot-case", key, request or body(case), ENV)
+
+
+def finance_review(repo, proposal, request=None, *, person=FINANCE, environment=ENV):
+    with security.principal_scope(person):
+        return repo.review_private_attribution(
+            COMPANY, proposal.revision_id, request or review_body(proposal), environment
+        )
+
+
+def current(repo, proposal):
+    with security.principal_scope(OPERATOR):
+        return repo.usable_private_attribution(COMPANY, proposal.revision_id, ENV)
+
+
+def test_persisted_attribution_requires_finance_acceptance_and_preserves_originals(repo, clock):
+    case = complete(repo, clock)
+    observation_json = case.observation.model_dump_json()
+    proposal = save(repo, case)
+    with pytest.raises(ValueError, match="finance acceptance"):
+        current(repo, proposal)
+    accepted = finance_review(repo, proposal)
+    assert current(repo, proposal) == (proposal, accepted)
+    assert case.observation.model_dump_json() == observation_json
+    assert not proposal.finance_reviewed and not accepted.causal_impact_proven
+    with security.principal_scope(OPERATOR):
+        assert repo.list_private_attributions(COMPANY, "pilot-case", "claims") == [proposal]
+        assert repo.list_private_attribution_reviews(COMPANY, proposal.revision_id) == [accepted]
+        counts = repo.delete_company_data(COMPANY)
+        assert counts["private_attributions"] == counts["private_attribution_reviews"] == 1
+        with pytest.raises(NotFound):
+            repo.list_private_attribution_reviews(COMPANY, proposal.revision_id)
+
+
+def test_private_attribution_retries_and_withdrawal_survive_revoked_processing(repo, clock):
+    case = complete(repo, clock)
+    proposal = save(repo, case)
+    accepted = finance_review(repo, proposal)
+    revoke(repo, case.grant)
+    assert save(repo, case) == proposal and finance_review(repo, proposal) == accepted
+    with pytest.raises(security.ScopeError):
+        current(repo, proposal)
+    with pytest.raises(security.ScopeError):
+        save(repo, case, body(case, previous=proposal, key="new"))
+    withdrawn = finance_review(
+        repo, proposal, review_body(proposal, previous=accepted, decision="withdraw"), environment=""
+    )
+    with security.principal_scope(OPERATOR):
+        assert repo.list_private_attribution_reviews(COMPANY, proposal.revision_id) == [accepted, withdrawn]
+    with pytest.raises(security.ScopeError):
+        finance_review(repo, proposal, review_body(proposal, previous=withdrawn))
+
+
+def test_independent_review_idempotency_and_stale_heads(repo, clock):
+    case = complete(repo, clock)
+    proposal = save(repo, case, person=FINANCE)
+    with pytest.raises(ValueError, match="different human"):
+        finance_review(repo, proposal)
+    with pytest.raises(Conflict, match="another request or author"):
+        save(repo, case)
+    with pytest.raises(Conflict, match="history changed"):
+        save(repo, case, body(case, key="stale"))
+    with pytest.raises(security.ScopeError):
+        finance_review(repo, proposal, person=OPERATOR)
+    changed = body(case, previous=proposal, key="replacement").model_copy(
+        update={"expected_execution_head_sha256": None}
+    )
+    with pytest.raises(Conflict, match="execution history"):
+        save(repo, case, changed)
+
+
+def test_correction_withdrawal_reacceptance_and_window_reservation(repo, clock):
+    case = complete(repo, clock)
+    first = save(repo, case)
+    first_review = finance_review(repo, first)
+    alternate = save(repo, case, key="alternative")
+    with pytest.raises(ValueError, match="already reserves"):
+        finance_review(repo, alternate)
+    withdrawn = finance_review(repo, first, review_body(first, previous=first_review, decision="withdraw"))
+    second_review = finance_review(repo, alternate)
+    with pytest.raises(ValueError, match="already reserves"):
+        finance_review(repo, first, review_body(first, previous=withdrawn))
+    replacement = save(repo, case, body(case, [], previous=alternate, key="corrected"), key="alternative")
+    with pytest.raises(ValueError, match="superseded"):
+        current(repo, alternate)
+    reaccepted = finance_review(repo, first, review_body(first, previous=withdrawn))
+    assert current(repo, first)[1] == reaccepted
+    finance_review(repo, replacement)
+    assert current(repo, replacement)[0].request.allocations == ()
+    with security.principal_scope(OPERATOR):
+        assert repo.list_private_attribution_reviews(COMPANY, alternate.revision_id) == [second_review]
+
+
+def test_observation_correction_invalidates_claim_without_rewriting_it(repo, clock):
+    case = complete(repo, clock)
+    proposal = save(repo, case)
+    accepted = finance_review(repo, proposal)
+    with security.principal_scope(FINANCE):
+        newer = repo.record_private_observation(
+            COMPANY,
+            "pilot-case",
+            "november",
+            case.observation.request.model_copy(
+                update={
+                    "idempotency_key": "corrected",
+                    "expected_previous_sha256": case.observation.content_sha256,
+                    "rationale": "Corrected accounting-comparability attestation",
+                }
+            ),
+            ENV,
+        )
+    with pytest.raises(ValueError, match="superseded"):
+        current(repo, proposal)
+    case.observation = newer
+    corrected = save(repo, case, body(case, previous=proposal, key="corrected"))
+    with pytest.raises(ValueError, match="finance acceptance"):
+        current(repo, corrected)
+    with security.principal_scope(OPERATOR):
+        assert repo.list_private_attribution_reviews(COMPANY, proposal.revision_id) == [accepted]
+    finance_review(repo, corrected)
+    assert current(repo, corrected)[0] == corrected
+
+
+def test_later_execution_and_acceptance_withdrawal_are_checked_on_current_use(repo, clock):
+    case = complete(repo, clock)
+    proposal = save(repo, case)
+    accepted = finance_review(repo, proposal)
+    clock.value = datetime(2026, 12, 3, tzinfo=UTC)
+    stop = record(repo, case, execution.AuthorizationDecision(decision="stop"))
+    assert current(repo, proposal) == (proposal, accepted)
+    with pytest.raises(Conflict, match="execution history"):
+        finance_review(repo, proposal, review_body(proposal, previous=accepted, decision="withdraw"))
+    withdrawal = review_body(proposal, previous=accepted, decision="withdraw").model_copy(
+        update={"expected_execution_head_sha256": stop.content_sha256}
+    )
+    withdrawn = finance_review(repo, proposal, withdrawal)
+    reaccept = review_body(proposal, previous=withdrawn).model_copy(
+        update={"expected_execution_head_sha256": stop.content_sha256}
+    )
+    finance_review(repo, proposal, reaccept)
+    record(repo, case, acceptance([case.gate_work], prerequisites=(case.foundation,), decision="withdraw"))
+    with pytest.raises(ValueError, match="superseded"):
+        current(repo, proposal)
+
+
+def test_concurrent_acceptance_reserves_only_one_overlapping_stream(repo, clock):
+    case = complete(repo, clock)
+    proposals = [save(repo, case, key=key) for key in ("one", "two")]
+
+    def accept_one(proposal):
+        try:
+            finance_review(repo, proposal)
+            return "accepted"
+        except ValueError as exc:
+            assert "already reserves" in str(exc)
+            return "overlap"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert sorted(pool.map(accept_one, proposals)) == ["accepted", "overlap"]
+
+
+def test_distinct_observation_streams_cannot_duplicate_the_same_claim_window(repo, clock):
+    case = complete(repo, clock)
+    first = save(repo, case)
+    finance_review(repo, first)
+    with security.principal_scope(FINANCE):
+        alternative = repo.record_private_observation(
+            COMPANY, "pilot-case", "another-measurement", case.observation.request, ENV
+        )
+    assert alternative.measurement_key != case.observation.measurement_key
+    case.observation = alternative
+    second = save(repo, case, key="second-claims")
+    with pytest.raises(ValueError, match="already reserves"):
+        finance_review(repo, second)
+
+
+@pytest.mark.parametrize("field", ["observation_sha256", "expected_execution_head_sha256"])
+def test_database_rejects_missing_exact_observation_and_execution_references(pg_repo, clock, field):
+    import psycopg
+
+    case = complete(pg_repo, clock)
+    proposal = propose(case)
+    altered = proposal.model_copy(update={"request": proposal.request.model_copy(update={field: "0" * 64})})
+    altered = altered.model_copy(update={"content_sha256": content_hash(altered)})
+    attribution.PrivateAttribution.model_validate(altered.model_dump(mode="json"))
+    with security.principal_scope(OPERATOR):
+        with pytest.raises(psycopg.errors.ForeignKeyViolation), pg_repo.approval_transaction():
+            pg_repo._save_private_attribution(altered)
+        assert pg_repo.list_private_attributions(COMPANY, "pilot-case", "claims") == []
+
+
+@pytest.mark.parametrize("operation", ["proposal", "review"])
+def test_attribution_receipt_and_audit_rollback_are_atomic(repo, clock, monkeypatch, operation):
+    case = complete(repo, clock)
+    proposal = save(repo, case) if operation == "review" else None
+
+    def fail_audit(event):
+        raise RuntimeError("fixture audit failure")
+
+    monkeypatch.setattr(repo, "append_audit", fail_audit)
+    with pytest.raises(RuntimeError, match="fixture audit failure"):
+        finance_review(repo, proposal) if proposal else save(repo, case)
+    with security.principal_scope(OPERATOR):
+        records = (
+            repo.list_private_attribution_reviews(COMPANY, proposal.revision_id)
+            if proposal
+            else repo.list_private_attributions(COMPANY, "pilot-case", "claims")
+        )
+        assert records == []
+
+
+@pytest.mark.parametrize("kind", ["model", "service"])
+def test_models_services_and_foreign_scope_cannot_use_private_attribution(repo, clock, kind):
+    case = complete(repo, clock)
+    proposal = save(repo, case)
+    with pytest.raises(security.ScopeError):
+        save(repo, case, person=actor(kind=kind))
+    with security.principal_scope(actor(kind=kind)), pytest.raises(security.ScopeError):
+        repo.list_private_attribution_reviews(COMPANY, proposal.revision_id)
+    with security.principal_scope(actor(company="foreign")), pytest.raises(security.ScopeError):
+        repo.list_private_attributions(COMPANY, "pilot-case", "claims")
+    with security.principal_scope(OPERATOR), pytest.raises(NotFound):
+        repo.list_private_attribution_reviews(COMPANY, "not-a-uuid")
+
+
+def test_concurrent_revocation_serializes_with_attribution_acceptance(repo, clock, monkeypatch):
+    from threading import Event
+
+    case = complete(repo, clock)
+    proposal = save(repo, case)
+    original = attribution.prepare_attribution_review
+    entered, attempted, release = Event(), Event(), Event()
+
+    def wait_review(*args, **kwargs):
+        entered.set()
+        assert release.wait(10)
+        return original(*args, **kwargs)
+
+    def revoke_source():
+        attempted.set()
+        return revoke(repo, case.grant)
+
+    monkeypatch.setattr(attribution, "prepare_attribution_review", wait_review)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        decision = pool.submit(finance_review, repo, proposal)
+        try:
+            assert entered.wait(10)
+            revoked = pool.submit(revoke_source)
+            assert attempted.wait(10) and not revoked.done()
+        finally:
+            release.set()
+        decision.result(timeout=15)
+        revoked.result(timeout=15)
+    with pytest.raises(security.ScopeError):
+        current(repo, proposal)
+
+
+def test_attribution_api_bounded_human_writes_and_withdrawal_after_revocation(repo, clock, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from pe_value_os.api import app as api
+
+    case = complete(repo, clock)
+    people = {"operator": OPERATOR, "finance": FINANCE, "model": actor(kind="model")}
+    tokens = {
+        name: dict(
+            sub=p.subject,
+            pvc_companies=list(p.companies),
+            pvc_roles=list(p.roles),
+            pvc_principal_type=p.principal_type,
+            scope=" ".join(p.scopes),
+            client_id=p.client_id,
+        )
+        for name, p in people.items()
+    }
+    monkeypatch.setenv("PVC_DEV_TOKENS", json.dumps(tokens))
+    monkeypatch.setenv("PVC_PROCESSING_ENVIRONMENT_ID", ENV)
+    api.reset_auth()
+    api.set_ctx(SimpleNamespace(repo=repo))
+    path = f"/companies/{COMPANY}/private-attributions"
+    stream = path + "/cases/pilot-case/streams/claims"
+
+    def headers(person):
+        return {"Authorization": "Bearer " + person}
+
+    try:
+        with TestClient(api.app) as client:
+            request = body(case).model_dump(mode="json")
+            assert client.post(stream, json=request).status_code == 401
+            client.cookies.set("pvc_dev_session", "operator")
+            assert client.post(stream, json=request).status_code == 403
+            client.cookies.clear()
+            assert client.post(stream, content=b"private-invalid", headers=headers("model")).status_code == 404
+            invalid = client.post(stream, json={"secret": "private-fixture"}, headers=headers("operator"))
+            assert invalid.status_code == 422 and "private-fixture" not in invalid.text
+            assert client.post(stream, content=b" " * (1024 * 1024 + 1), headers=headers("operator")).status_code == 413
+            created = client.post(stream, json=request, headers=headers("operator"))
+            assert created.status_code == 201 and created.headers["cache-control"] == "no-store"
+            proposal = attribution.PrivateAttribution.model_validate(created.json())
+            revision = path + "/revisions/" + proposal.revision_id
+            assert client.get(revision + "/usable", headers=headers("operator")).status_code == 422
+            assert (
+                client.post(revision + "/reviews", content=b"private-invalid", headers=headers("operator")).status_code
+                == 404
+            )
+            accepted_response = client.post(
+                revision + "/reviews", json=review_body(proposal).model_dump(mode="json"), headers=headers("finance")
+            )
+            assert accepted_response.status_code == 201
+            accepted = attribution.AttributionReview.model_validate(accepted_response.json())
+            usable = client.get(revision + "/usable", headers=headers("operator"))
+            assert usable.json()["usable_for_reviewed_attribution"] and not usable.json()["causal_impact_proven"]
+            revoke(repo, case.grant)
+            assert client.get(revision + "/usable", headers=headers("operator")).status_code == 404
+            monkeypatch.delenv("PVC_PROCESSING_ENVIRONMENT_ID")
+            withdrew = client.post(
+                revision + "/reviews",
+                json=review_body(proposal, previous=accepted, decision="withdraw").model_dump(mode="json"),
+                headers=headers("finance"),
+            )
+            assert withdrew.status_code == 201
+            assert len(client.get(revision + "/reviews", headers=headers("operator")).json()["reviews"]) == 2
+            assert len(client.get(stream, headers=headers("operator")).json()["revisions"]) == 1
+    finally:
+        api.set_ctx(None)
+        api.reset_auth()
+
+
+def test_attribution_rls_immutability_and_populated_owner_downgrade_guard(pg_repo, pg_database, clock):
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+    import psycopg
+    from psycopg import sql
+
+    from pe_value_os.db.migrate import current as migration_current
+    from pe_value_os.db.migrate import downgrade, upgrade
+
+    case = complete(pg_repo, clock)
+    proposal = save(pg_repo, case)
+    finance_review(pg_repo, proposal)
+    tables = ("private_attributions", "private_attribution_reviews")
+    with psycopg.connect(pg_database[1], autocommit=True) as conn:
+        for table in tables:
+            assert conn.execute(sql.SQL("select count(*) from {}").format(sql.Identifier(table))).fetchone()[0] == 0
+        conn.execute("select set_config('pvc.companies',%s,false)", (COMPANY,))
+        for table in tables:
+            assert conn.execute(sql.SQL("select count(*) from {}").format(sql.Identifier(table))).fetchone()[0] == 1
+            for statement in ("delete from {}", "update {} set sequence=99"):
+                with pytest.raises(psycopg.errors.InsufficientPrivilege):
+                    conn.execute(sql.SQL(statement).format(sql.Identifier(table)))
+    parts = urlsplit(pg_database[0])
+    options = dict(parse_qsl(parts.query))
+    options["options"] = "-crole=pvc_migrator"
+    owner_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(options), parts.fragment))
+    head = migration_current(pg_database[0])
+    downgrade(pg_database[0], "0016")
+    with psycopg.connect(pg_database[0], autocommit=True) as conn:
+        owners = {
+            table: conn.execute(
+                "select pg_get_userbyid(relowner) from pg_class where oid=%s::regclass", (table,)
+            ).fetchone()[0]
+            for table in tables
+        }
+        try:
+            for table in tables:
+                conn.execute(sql.SQL("alter table {} owner to pvc_migrator").format(sql.Identifier(table)))
+            conn.execute("grant select,update on alembic_version to pvc_migrator")
+            with psycopg.connect(owner_url) as hidden:
+                assert hidden.execute("select count(*) from private_attribution_reviews").fetchone()[0] == 0
+            with pytest.raises(RuntimeError, match="Private attribution history"):
+                downgrade(owner_url, "0015")
+            assert migration_current(pg_database[0]) == "0016"
+            for table in tables:
+                assert conn.execute(
+                    "select relforcerowsecurity from pg_class where oid=%s::regclass", (table,)
+                ).fetchone()[0]
+        finally:
+            for table, owner in owners.items():
+                conn.execute(sql.SQL("alter table {} owner to {}").format(sql.Identifier(table), sql.Identifier(owner)))
+            upgrade(pg_database[0])
+            assert migration_current(pg_database[0]) == head
