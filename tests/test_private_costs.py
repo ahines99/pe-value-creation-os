@@ -12,11 +12,12 @@ from pe_value_os import security
 from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore
 from pe_value_os.adapters.repositories import InMemoryRepository
 from pe_value_os.diligence import private_costs as costs
+from pe_value_os.diligence.private_records import content_hash
 from tests.test_private_attribution import clock as attribution_clock  # noqa: F401
 from tests.test_private_attribution import complete
 from tests.test_private_execution import binding, evidence
 from tests.test_private_observations import clock as measurement_clock  # noqa: F401
-from tests.test_private_records import COMPANY, ENV, OPERATOR, actor, review
+from tests.test_private_records import COMPANY, ENV, FINANCE, OPERATOR, actor, review
 
 
 @pytest.fixture
@@ -94,6 +95,95 @@ def calculate(memory, case, request=None, sources=None, person=OPERATOR):
         )
 
 
+def propose(memory, case, request=None, previous=None, person=OPERATOR):
+    sources = [context(memory, case)]
+    with security.principal_scope(person):
+        return costs.prepare_cost_reconciliation(
+            COMPANY, request or body(case), case.baseline, case.plan, case.events, sources, previous, ENV
+        )
+
+
+def review_body(record, previous=None, decision="accept"):
+    return costs.CostReviewRequest(
+        idempotency_key="finance-" + decision,
+        expected_previous_sha256=previous.content_sha256 if previous else None,
+        expected_reconciliation_sha256=record.content_sha256,
+        expected_execution_head_sha256=record.request.expected_execution_head_sha256,
+        decision=decision,
+        rationale="Fictional reviewed reconciliation",
+        evidence=evidence(),
+        assessment=costs.CostReviewAssessment(
+            **{key: "Fictional assessment" for key in costs.CostReviewAssessment.model_fields}
+        )
+        if decision == "accept"
+        else None,
+    )
+
+
+def test_cost_revision_and_distinct_review_preserve_original_record(memory, case):
+    original = propose(memory, case)
+    with security.principal_scope(OPERATOR):
+        costs.verify_cost_reconciliation(original, case.baseline, case.plan, case.events, [context(memory, case)], ENV)
+        altered = original.model_copy(
+            update={"result": original.result.model_copy(update={"matched_cost": Decimal("999")})}
+        )
+        altered = altered.model_copy(update={"content_sha256": content_hash(altered)})
+        with pytest.raises(ValueError, match="cannot be reproduced"):
+            costs.verify_cost_reconciliation(
+                altered, case.baseline, case.plan, case.events, [context(memory, case)], ENV
+            )
+    with security.principal_scope(FINANCE):
+        accepted = costs.prepare_cost_review(original, review_body(original), [])
+        withdrawn = costs.prepare_cost_review(original, review_body(original, accepted, "withdraw"), [accepted])
+    assert costs.cost_review_head(original, [accepted, withdrawn]) == withdrawn
+    assert not original.result.finance_reviewed
+    request = body(case, []).model_copy(update={"expected_previous_sha256": original.content_sha256})
+    corrected = propose(memory, case, request, previous=original)
+    assert corrected.sequence == 2 and corrected.result.reported_less_matched == 30
+    assert original.result.reported_less_matched == 0
+    with pytest.raises(ValueError, match="hash"):
+        costs.PrivateCostReconciliation.model_validate(
+            original.model_copy(update={"currency": "EUR"}).model_dump(mode="json")
+        )
+    with pytest.raises(ValueError, match="public"):
+        accepted.require_public()
+
+
+def test_company_reservations_limit_shared_rows_and_changed_accounting_capacity(memory, case):
+    first = propose(memory, case, body(case, [allocation(case, amount="30")]))
+    second = propose(memory, case, body(case, [allocation(case, event=case.gate_work, amount="20")]))
+    costs.require_cost_reservations(first, [second])
+    third = propose(memory, case, body(case, [allocation(case, amount="1")]))
+    with pytest.raises(ValueError, match="shared company ledger row"):
+        costs.require_cost_reservations(third, [first, second])
+    with pytest.raises(ValueError, match="repeats"):
+        costs.require_cost_reservations(first, [first])
+    changed = second.model_dump(mode="json")
+    changed["result"]["ledger_rows"][1]["ledger_cost"] = "51"
+    forged = costs.PrivateCostReconciliation.model_construct(**changed)
+    changed["content_sha256"] = content_hash(forged)
+    revised = costs.PrivateCostReconciliation.model_validate(changed)
+    with pytest.raises(ValueError, match="changed scope or amount"):
+        costs.require_cost_reservations(first, [revised])
+
+
+@pytest.mark.parametrize("problem", ["self", "head", "proposal", "execution", "withdraw", "assessment"])
+def test_finance_review_requires_independence_exact_version_and_assessment(memory, case, problem):
+    original = propose(memory, case, person=FINANCE if problem == "self" else OPERATOR)
+    request = review_body(original, decision="withdraw" if problem == "withdraw" else "accept")
+    if problem in {"head", "proposal", "execution"}:
+        field = {
+            "head": "expected_previous_sha256",
+            "proposal": "expected_reconciliation_sha256",
+            "execution": "expected_execution_head_sha256",
+        }[problem]
+        request = request.model_copy(update={field: "f" * 64})
+    elif problem == "assessment":
+        request = request.model_copy(update={"assessment": None})
+    with security.principal_scope(FINANCE), pytest.raises(ValueError):
+        costs.prepare_cost_review(original, request, [])
+
+
 def test_cost_match_retains_expense_capex_residuals_without_posting_again(memory, case):
     with localcontext() as decimal_context:
         decimal_context.prec = 3
@@ -147,6 +237,10 @@ def test_rejects_wrong_versions_and_unsupported_allocations(memory, case, proble
 
 def test_rejects_tampered_bytes_withdrawn_source_and_model_identity(memory, case):
     source = context(memory, case)
+    reader = actor(scopes=("pvc.read",))
+    assert calculate(memory, case, person=reader).reported_cost == 30
+    with pytest.raises(security.ScopeError):
+        propose(memory, case, person=reader)
     with pytest.raises(ValueError, match="no longer matches"):
         calculate(memory, case, sources=[replace(source, raw=source.raw + b" ")])
     with pytest.raises(security.ScopeError):

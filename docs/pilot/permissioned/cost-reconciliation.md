@@ -1,10 +1,15 @@
 # Private delivery-cost reconciliation
 
-The calculation contract is implemented and has 21 focused fictional-fixture
-checks. It is not yet integrated into either repository, the human API or the
+The calculation, versioned proposal and distinct human finance-review contracts
+are implemented, including exact-source reproduction and company-wide source-row
+reservation arithmetic. They are not yet integrated into either repository, the human API or the
 review workspace. No persisted finance acceptance or cross-stream reservation
 is represented. The existing workspace continues to identify delivery costs as
 unreconciled until those integration and review gates are implemented and met.
+
+Local validation passed 29 contract checks. After separating read-only calculation
+from proposal creation, the affected permission/tampering check separately passed.
+These checks use fictional records and do not establish actual finance approval.
 
 ## Financial meaning
 
@@ -54,6 +59,19 @@ the source can contain unrelated company activity.
 `all_project_costs_captured`, `finance_reviewed`,
 `cross_stream_reservations_checked` and `additional_ebitda_or_cash_posting` remain
 false. Historical event validity is distinct from active operating permission.
+
+Proposals preserve their baseline stream, author, source bindings and calculated
+result. Corrections append a version instead of editing the original. Separate
+finance decisions require a reviewer other than the proposal author, the exact
+proposal and execution history, all five assessments for acceptance, and the
+preceding review hash. Withdrawal requires a preceding acceptance. Review does
+not rewrite the proposal's flags or turn incomplete matching into full matching.
+
+Reservation arithmetic compares the assigned amounts of other accepted company
+ledgers, preserving charge/credit capacity separately and rejecting changed row
+scope or capacity. A stale source must retain its reservation until withdrawal or
+replacement. Atomic collection of these ledgers, current baseline validation and
+all persistence/concurrency guarantees require the repository integration below.
 
 ## Required integration before use
 
