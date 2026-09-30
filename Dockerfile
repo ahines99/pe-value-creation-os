@@ -12,7 +12,7 @@
 
 # Base images are pinned by digest (multi-arch index) so a rebuild cannot silently pick up a different image.
 # Dependabot (.github/dependabot.yml) proposes digest updates; the runtime stage also applies OS security updates.
-FROM ghcr.io/astral-sh/uv:0.12.18@sha256:3adc3706091ce7c2fe595e669628caedd6d951551b92b258b7e7dbe06d9440bc AS uv
+FROM ghcr.io/astral-sh/uv:0.12.21@sha256:a7aed3216253ee804de3e2d8afa5073baa1a177335345d43845cd4165e43b711 AS uv
 
 # ---- build stage: resolve and install runtime dependencies from uv.lock ----------------------------------
 FROM python:3.12-alpine3.24@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111 AS build
