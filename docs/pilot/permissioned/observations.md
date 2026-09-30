@@ -126,8 +126,10 @@ the new records along with their source chain.
 ## Remaining pilot work
 
 The subsequent [private execution increment](execution.md) adds bounded human
-authorization, delivery segments and task acceptance, with a separate release
-gate. Attribution and delivery-to-claim reconciliation, private executive memo
+authorization, delivery segments and task acceptance, released in PR #49. The next
+[private attribution increment](attribution.md) adds signed allocations, delivery-to-claim
+checks, residuals and separate finance review, with a separate release gate.
+Operating-source and delivery-cost reconciliation, private executive memo
 composition and a usable pilot review interface remain open, as do per-source
 retention expiry, legal holds and backup/copy disposal. The
 [pilot entry gates](../pilot-plan.md), sponsor, real authorized records, reviewer

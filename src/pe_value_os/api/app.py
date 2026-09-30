@@ -34,6 +34,8 @@ from ..diligence.cases import ReviewRequest, RevisionDraft, compare_revisions
 from ..diligence.close_baseline import CloseBaselineRequest, close_baseline_view
 from ..diligence.execution import ExecutionRequest
 from ..diligence.models import Record
+from ..diligence.private_attribution import AttributionRequest as PrivateAttributionRequest
+from ..diligence.private_attribution import AttributionReviewRequest
 from ..diligence.private_baselines import (
     BaselineRequest,
     PlanReviewRequest,
@@ -272,6 +274,72 @@ def private_execution_history(company_id: str, baseline_id: str, request: Reques
 def private_execution_status(company_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
     with case_request(p, request):
         return get_ctx().repo.private_execution_status(company_id, baseline_id, processing_environment())
+
+
+@app.post("/companies/{company_id}/private-attributions/cases/{case_key}/streams/{key}", status_code=201)
+async def record_private_attribution(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_intake_writer(company_id)
+        body = parse_private(PrivateAttributionRequest, await bounded_private_body(request, 1024 * 1024))
+        result = await run_in_threadpool(
+            get_ctx().repo.record_private_attribution, company_id, case_key, key, body, processing_environment()
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-attributions/cases/{case_key}/streams/{key}")
+def private_attribution_history(
+    company_id: str, case_key: str, key: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "revisions": [
+                r.model_dump(mode="json") for r in get_ctx().repo.list_private_attributions(company_id, case_key, key)
+            ],
+            "historical_records_only": True,
+            "causal_impact_proven": False,
+        }
+
+
+@app.post("/companies/{company_id}/private-attributions/revisions/{revision_id}/reviews", status_code=201)
+async def review_private_attribution(
+    company_id: str, revision_id: str, request: Request, p: Principal
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        require_finance_reviewer(company_id)
+        body = parse_private(AttributionReviewRequest, await bounded_private_body(request, 1024 * 1024))
+        environment = "" if body.decision == "withdraw" else processing_environment()
+        result = await run_in_threadpool(
+            get_ctx().repo.review_private_attribution, company_id, revision_id, body, environment
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-attributions/revisions/{revision_id}/reviews")
+def private_attribution_reviews(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "reviews": [
+                r.model_dump(mode="json")
+                for r in get_ctx().repo.list_private_attribution_reviews(company_id, revision_id)
+            ],
+            "historical_records_only": True,
+            "causal_impact_proven": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-attributions/revisions/{revision_id}/usable")
+def usable_private_attribution(company_id: str, revision_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        proposal, review = get_ctx().repo.usable_private_attribution(company_id, revision_id, processing_environment())
+        return {
+            "revision": proposal.model_dump(mode="json"),
+            "review": review.model_dump(mode="json"),
+            "usable_for_reviewed_attribution": True,
+            "causal_impact_proven": False,
+        }
 
 
 @app.post("/companies/{company_id}/private-counterfactuals/cases/{case_key}/streams/{key}", status_code=201)

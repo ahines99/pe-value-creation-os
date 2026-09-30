@@ -22,6 +22,7 @@ from decimal import Decimal
 from typing import Any, Protocol
 
 from .. import security
+from ..diligence import private_attribution
 from ..diligence.cases import (
     CaseReview,
     CaseRevision,
@@ -205,6 +206,30 @@ def now() -> datetime:
 
 
 class Repository(Protocol):
+    def list_private_attributions(
+        self, company_id: str, case_key: str, key: str
+    ) -> list[private_attribution.PrivateAttribution]: ...
+    def record_private_attribution(
+        self,
+        company_id: str,
+        case_key: str,
+        key: str,
+        request: private_attribution.AttributionRequest,
+        environment_id: str,
+    ) -> private_attribution.PrivateAttribution: ...
+    def list_private_attribution_reviews(
+        self, company_id: str, revision_id: str
+    ) -> list[private_attribution.AttributionReview]: ...
+    def review_private_attribution(
+        self,
+        company_id: str,
+        revision_id: str,
+        request: private_attribution.AttributionReviewRequest,
+        environment_id: str,
+    ) -> private_attribution.AttributionReview: ...
+    def usable_private_attribution(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> tuple[private_attribution.PrivateAttribution, private_attribution.AttributionReview]: ...
     def list_private_execution_events(self, company_id: str, baseline_id: str) -> list[PrivateExecutionEvent]: ...
     def record_private_execution(
         self, company_id: str, baseline_id: str, request: PrivateExecutionRequest, environment_id: str
@@ -431,10 +456,216 @@ class InMemoryRepository:
         self.private_counterfactual_reviews: dict[str, CounterfactualReview] = {}
         self.private_observations: dict[str, PrivateObservation] = {}
         self.private_execution_events: dict[str, PrivateExecutionEvent] = {}
+        self.private_attributions: dict[str, private_attribution.PrivateAttribution] = {}
+        self.private_attribution_reviews: dict[str, private_attribution.AttributionReview] = {}
         self.private_baselines: dict[str, PrivateBaseline] = {}
         self.private_capacity_plans: dict[str, PrivateCapacityRevision] = {}
         self.private_underwriting: dict[str, PrivateUnderwritingRevision] = {}
         self.private_financial_snapshots: dict[str, PrivateFinancialSnapshot] = {}
+
+    def _private_attribution_records(self, company_id: str) -> list[private_attribution.PrivateAttribution]:
+        require_grant_reader(company_id)
+        with self._lock:
+            return [
+                private_attribution.PrivateAttribution.model_validate(r.model_dump(mode="json"))
+                for r in self.private_attributions.values()
+                if r.company_id == company_id
+            ]
+
+    def _private_attribution_review_records(
+        self, company_id: str, revision_id: str
+    ) -> list[private_attribution.AttributionReview]:
+        require_grant_reader(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    private_attribution.AttributionReview.model_validate(r.model_dump(mode="json"))
+                    for r in self.private_attribution_reviews.values()
+                    if r.company_id == company_id and r.attribution_revision_id == revision_id
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def _save_private_attribution(self, record: private_attribution.PrivateAttribution) -> None:
+        self.private_attributions[record.revision_id] = record
+
+    def _save_private_attribution_review(
+        self, record: private_attribution.AttributionReview, proposal: private_attribution.PrivateAttribution
+    ) -> None:
+        self.private_attribution_reviews[record.review_id] = record
+
+    def _private_attribution(self, company_id: str, revision_id: str) -> private_attribution.PrivateAttribution:
+        require_grant_reader(company_id)
+        result = next((r for r in self._private_attribution_records(company_id) if r.revision_id == revision_id), None)
+        if result is None:
+            raise NotFound(revision_id)
+        return private_attribution.PrivateAttribution.model_validate(result.model_dump(mode="json"))
+
+    def list_private_attributions(
+        self, company_id: str, case_key: str, key: str
+    ) -> list[private_attribution.PrivateAttribution]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        validate_grant_key(key)
+        self.get_company(company_id)
+        return sorted(
+            (
+                r
+                for r in self._private_attribution_records(company_id)
+                if r.case_key == case_key and r.attribution_key == key
+            ),
+            key=lambda r: r.sequence,
+        )
+
+    def list_private_attribution_reviews(
+        self, company_id: str, revision_id: str
+    ) -> list[private_attribution.AttributionReview]:
+        self._private_attribution(company_id, revision_id)
+        return self._private_attribution_review_records(company_id, revision_id)
+
+    def record_private_attribution(
+        self,
+        company_id: str,
+        case_key: str,
+        key: str,
+        request: private_attribution.AttributionRequest,
+        environment_id: str,
+    ) -> private_attribution.PrivateAttribution:
+        principal = require_intake_writer(company_id)
+        request = private_attribution.AttributionRequest.model_validate(request.model_dump(mode="json"))
+        with self.approval_transaction():
+            revisions = self.list_private_attributions(company_id, case_key, key)
+            retry = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
+            if retry:
+                if retry.request != request or retry.author != principal.subject:
+                    raise Conflict("Private attribution idempotency key belongs to another request or author")
+                return retry
+            previous = revisions[-1] if revisions else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private attribution history changed; reload its current head")
+            observation = self.usable_private_observation(company_id, request.observation_id, environment_id)
+            baseline, plan = self._private_execution_context(company_id, observation.baseline_id)
+            events = self.list_private_execution_events(company_id, baseline.baseline_id)
+            if request.expected_execution_head_sha256 != (events[-1].content_sha256 if events else None):
+                raise Conflict("Private execution history changed; reload its current head")
+            result = private_attribution.prepare_attribution(
+                company_id, case_key, key, request, observation, baseline, plan, events, previous
+            )
+            self._save_private_attribution(result)
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_attribution",
+                    event_type="private_attribution_revision",
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "revision_id": result.revision_id,
+                        "sha256": result.content_sha256,
+                        "observation_id": observation.observation_id,
+                    },
+                )
+            )
+            return result
+
+    def _current_private_attribution(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> private_attribution.PrivateAttribution:
+        result = self._private_attribution(company_id, revision_id)
+        if (
+            self.list_private_attributions(company_id, result.case_key, result.attribution_key)[-1].revision_id
+            != revision_id
+        ):
+            raise ValueError("private attribution is superseded")
+        observation = self.usable_private_observation(company_id, result.request.observation_id, environment_id)
+        baseline, plan = self._private_execution_context(company_id, result.baseline_id)
+        events = self.list_private_execution_events(company_id, result.baseline_id)
+        private_attribution.verify_attribution(result, observation, baseline, plan, events)
+        private_attribution.require_current_execution_support(result, observation, baseline, plan, events)
+        return result
+
+    def _check_private_attribution_reservations(self, proposal: private_attribution.PrivateAttribution) -> None:
+        heads: dict[str, private_attribution.PrivateAttribution] = {}
+        for candidate in self._private_attribution_records(proposal.company_id):
+            if (candidate.case_key, candidate.baseline_id) != (proposal.case_key, proposal.baseline_id):
+                continue
+            previous = heads.get(candidate.attribution_key)
+            if previous is None or candidate.sequence > previous.sequence:
+                heads[candidate.attribution_key] = candidate
+        accepted = []
+        for candidate in heads.values():
+            review = private_attribution.attribution_review_head(
+                candidate, self.list_private_attribution_reviews(candidate.company_id, candidate.revision_id)
+            )
+            if review and review.request.decision == "accept":
+                accepted.append(candidate)
+        private_attribution.require_disjoint_accepted_windows(proposal, accepted)
+
+    def review_private_attribution(
+        self,
+        company_id: str,
+        revision_id: str,
+        request: private_attribution.AttributionReviewRequest,
+        environment_id: str,
+    ) -> private_attribution.AttributionReview:
+        principal = require_finance_reviewer(company_id)
+        request = private_attribution.AttributionReviewRequest.model_validate(request.model_dump(mode="json"))
+        with self.approval_transaction():
+            proposal = self._private_attribution(company_id, revision_id)
+            reviews = self.list_private_attribution_reviews(company_id, revision_id)
+            retry = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
+            if retry:
+                if retry.request != request or retry.author != principal.subject:
+                    raise Conflict("Attribution review idempotency key belongs to another request or author")
+                return retry
+            previous = private_attribution.attribution_review_head(proposal, reviews)
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Attribution review history changed; reload its current head")
+            events = self.list_private_execution_events(company_id, proposal.baseline_id)
+            if request.expected_execution_head_sha256 != (events[-1].content_sha256 if events else None):
+                raise Conflict("Private execution history changed; reload its current head")
+            if request.decision != "withdraw":
+                proposal = self._current_private_attribution(company_id, revision_id, environment_id)
+            if request.decision == "accept":
+                self._check_private_attribution_reservations(proposal)
+            result = private_attribution.prepare_attribution_review(proposal, request, reviews)
+            if events and events[-1].recorded_at > result.recorded_at:
+                raise ValueError("attribution review predates its execution history")
+            self._save_private_attribution_review(result, proposal)
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_attribution_review",
+                    event_type="private_attribution_review",
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "review_id": result.review_id,
+                        "sha256": result.content_sha256,
+                        "revision_id": revision_id,
+                    },
+                )
+            )
+            return result
+
+    def usable_private_attribution(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> tuple[private_attribution.PrivateAttribution, private_attribution.AttributionReview]:
+        require_grant_reader(company_id)
+        with self.approval_transaction():
+            result = self._current_private_attribution(company_id, revision_id, environment_id)
+            reviews = self.list_private_attribution_reviews(company_id, revision_id)
+            review = private_attribution.attribution_review_head(result, reviews)
+            if review is None or review.request.decision != "accept":
+                raise ValueError("attribution requires current finance acceptance")
+            observation = self.usable_private_observation(company_id, result.request.observation_id, environment_id)
+            baseline, plan = self._private_execution_context(company_id, result.baseline_id)
+            events = self.list_private_execution_events(company_id, result.baseline_id)
+            private_attribution.verify_review_evidence(result, reviews, observation, baseline, plan, events)
+            self._check_private_attribution_reservations(result)
+            return result, review
 
     def _private_execution_context(
         self, company_id: str, baseline_id: str
@@ -1959,6 +2190,8 @@ class InMemoryRepository:
                 "private_counterfactual_reviews",
                 "private_observations",
                 "private_execution_events",
+                "private_attributions",
+                "private_attribution_reviews",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -2217,6 +2450,8 @@ class InMemoryRepository:
                 "private_counterfactual_reviews",
                 "private_observations",
                 "private_execution_events",
+                "private_attributions",
+                "private_attribution_reviews",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())

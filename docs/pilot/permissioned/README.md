@@ -25,11 +25,14 @@ distinguishing exact component mappings from human assumptions. Private
 [capacity planning](capacity-plans.md) is released in PR #46 and
 [reviewed baselines](reviewed-baselines.md) in PR #47. The subsequent
 [private-observation increment](observations.md) adds reviewed counterfactuals,
-whole-month actuals and frozen-plan comparisons, with a separate release gate.
+whole-month actuals and frozen-plan comparisons, released in PR #48.
 All differences remain unattributed. The subsequent [private execution increment](execution.md)
 adds bounded human intervention decisions, delivery segments, prerequisite acceptance
-and correction/withdrawal history, with its own release gate. Attribution and
-delivery-to-claim reconciliation, memo/review UX, retention operations
+and correction/withdrawal history, released in PR #49. The next
+[private attribution increment](attribution.md) adds signed allocations,
+delivery-to-claim checks, residuals and separate finance review, with a separate
+release gate. Private operating-source and delivery-cost reconciliation,
+memo/review UX, retention operations
 and actual company approval remain open.
 
 ### Who does what next

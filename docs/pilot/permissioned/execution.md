@@ -129,8 +129,10 @@ Whole-company offboarding removes the execution receipts with their source chain
 
 ## Remaining pilot work
 
-Private attribution and delivery-to-claim reconciliation, an integrated executive
-memo and usable review interface remain unfinished. So do per-source expiry,
+The next [private attribution increment](attribution.md) adds signed allocations,
+delivery-to-claim checks, explicit residuals and separate finance review, with its
+own release gate. Operating-source and delivery-cost reconciliation, an integrated
+executive memo and usable review interface remain unfinished. So do per-source expiry,
 legal holds, backup/copy disposal, authenticated staging and the other
 [pilot entry gates](../pilot-plan.md). Sponsor authority, real source records,
 actual management review and operating activity cannot be supplied by a test fixture.

@@ -149,16 +149,17 @@ def setup(repo, **kwargs):
     )
 
 
-def actuals(repo, anchor, clock):
-    clock.value = AFTER_CLOSE
+def actuals(repo, anchor, clock, *, first_month=OCTOBER):
+    next_month = observations.month_start(first_month, 1)
+    clock.value = datetime(next_month.year, next_month.month, 2, 18, tzinfo=UTC)
     ledger = json.loads((FIXTURES / "ledger.json").read_bytes())
     for row, amount in zip(ledger["rows"], ("1120", "-20", "320", "50", "700", "30", "120"), strict=True):
-        row.update(period="2026-10-01", amount=amount)
+        row.update(period=first_month.isoformat(), amount=amount)
     raw = json.dumps(ledger).encode()
     policy = json.loads((FIXTURES / "policy.json").read_bytes())
-    policy["first_month"] = "2026-10-01"
+    policy["first_month"] = first_month.isoformat()
     for control, amount in zip(policy["controls"], ("1100", "-320", "-50", "700", "30", "-120"), strict=True):
-        control.update(period="2026-10-01", amount=amount)
+        control.update(period=first_month.isoformat(), amount=amount)
     policy = IntakePolicy.model_validate(policy)
     with security.principal_scope(OWNER):
         grant = repo.record_private_grant(
@@ -177,9 +178,9 @@ def actuals(repo, anchor, clock):
         )
     manifest = json.loads((FIXTURES / "manifest.json").read_bytes())
     manifest.update(
-        export_id="fixture-october",
-        extracted_at=AFTER_CLOSE.isoformat(),
-        data_cutoff="2026-10-31",
+        export_id=f"fixture-{first_month.isoformat()}",
+        extracted_at=clock.value.isoformat(),
+        data_cutoff=observations.month_end(first_month).isoformat(),
         source_sha256=hashlib.sha256(raw).hexdigest(),
         policy_sha256=fingerprint(policy),
     )
@@ -190,7 +191,7 @@ def actuals(repo, anchor, clock):
         expected_previous_sha256=None,
         policy=policy,
         manifest=IntakeManifest.model_validate(manifest),
-        rationale="Fictional October records",
+        rationale="Fictional monthly records",
     )
     with security.principal_scope(OPERATOR):
         source = repo.record_private_intake(COMPANY, "actuals", request, raw, ENV)

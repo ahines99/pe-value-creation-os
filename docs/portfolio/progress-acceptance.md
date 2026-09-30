@@ -138,6 +138,19 @@ matched the merge. The new focused suite passed 81 tests; migration round-trip
 passed at 0014. Differences remain explicitly unattributed. These fictional-fixture
 checks do not establish actual company review, realized value or a performed pilot.
 
+The private intervention and delivery workflow was released in
+[PR #49](https://github.com/ahines99/pe-value-creation-os/pull/49), tested at
+`6b6830d089b4e298641ddfb30a75985b305ae01a` and merged as
+`e743249f9c5d64e84a08382e2c076f34a368b7d1` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36649675120)
+passed: 1,701 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Six published files
+matched the merge. The execution workflow has 64 new checks; migration round-trip
+passed at 0015. The related local regression suite passed 605 tests with one
+Windows symlink-privilege skip before the final capacity-identity guard; that guard
+and valid authorization path separately passed three focused checks. These are
+fictional-fixture software checks, not company authority or actual operating work.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -163,8 +176,10 @@ adds reviewed counterfactuals, accepted whole-month actuals and unattributed
 frozen-plan comparisons, released and verified in PR #48. The subsequent
 [private execution increment](../pilot/permissioned/execution.md) records bounded
 human intervention decisions, delivery segments and exact prerequisite acceptance,
-with its own release gate. Private attribution and delivery-to-claim reconciliation,
-memo/review UX, retention operations and all
+released and verified in PR #49. The next [private attribution increment](../pilot/permissioned/attribution.md)
+adds signed allocations, delivery-to-claim checks, residuals and separate finance
+review with a separate release gate. Private operating-source and delivery-cost
+reconciliation, memo/review UX, retention operations and all
 real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence
