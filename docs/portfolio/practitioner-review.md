@@ -27,10 +27,14 @@ No introduction has been sent by the project agent. After a session, record the
 reviewer's actual words separately from presenter interpretation, retain objections
 even if unresolved, and return material corrections for reviewer disposition.
 
-Send the [case study](case-study.md), [memo](decision-memo.html),
+Send the [participant brief](practitioner-brief.md), [case study](case-study.md), [memo](decision-memo.html),
 [demonstration](progress-demo.md) and [acceptance matrix](progress-acceptance.md).
 Record actual commit and revision hashes from the consistency-check receipt.
 Agree the reviewer's scope; do not score areas outside their competence.
+
+Use the participant brief for the opening unaided reading. The expected-response
+table below is a facilitator reference, not an answer sheet to read aloud before
+recording the reviewer's own explanation.
 
 | Field | Actual entry |
 |---|---|
