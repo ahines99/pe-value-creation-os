@@ -29,6 +29,10 @@ authority, confirm actual capacity or perform a company-side action. Real pilot
 entry gates and company review remain necessary. Plan review and baseline
 designation alone still do not authorize an intervention.
 
+One declared human identity cannot fill multiple independent resource budgets in
+the same authorization. Shared people must be modeled with a combined capacity
+resource and a newly reviewed plan; separate labels cannot multiply their capacity.
+
 Subsequent `hold`, `stop` or `withdraw` decisions remove current recorded support.
 They take effect at their server recording timestamp. They can be recorded even
 after source processing is revoked, the baseline is superseded or source review

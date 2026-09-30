@@ -66,6 +66,8 @@ class AuthorizationTerms(Record):
             raise ValueError("authorization task IDs must be unique")
         if len({a.resource_id for a in self.assignments}) != len(self.assignments):
             raise ValueError("authorization assigns each resource once")
+        if len({a.operator_subject for a in self.assignments}) != len(self.assignments):
+            raise ValueError("one human identity cannot supply multiple independent resource capacity commitments")
         return self
 
 

@@ -172,6 +172,13 @@ def test_named_authorization_delivery_and_distinct_review_preserve_frozen_plan(r
             event.require_public()
 
 
+def test_one_person_cannot_be_double_counted_as_independent_capacity():
+    raw = terms().model_dump(mode="json")
+    raw["assignments"].append({**raw["assignments"][0], "resource_id": "second-resource"})
+    with pytest.raises(ValueError, match="multiple independent resource"):
+        execution.AuthorizationTerms.model_validate(raw)
+
+
 @pytest.mark.parametrize(
     "invalid", ["backdated", "past_horizon", "unknown_task", "missing_dependency", "unassigned", "model_assignment"]
 )
