@@ -24,13 +24,13 @@ For the current priority—polished portfolio showcase first, production afterwa
 
 ## Status
 
-As of 2026-09-27. The September 27 audit found additional engineering defects after the earlier September 23 review. Remediation and current verification are tracked in [docs/audit-remediation.md](docs/audit-remediation.md). Earlier green CI, test counts and live-model reports are historical, not proof of the current worktree. Nothing has been applied to AWS in this remediation.
+As of 2026-09-27, with five tickets (PVC-001, 006, 030, 083, 130) closed on 2026-09-30 from CI evidence: **83 Done, 12 Built, 16 Blocked.** The September 27 audit found additional engineering defects after the earlier September 23 review. Remediation and current verification are tracked in [docs/audit-remediation.md](docs/audit-remediation.md). Earlier green CI, test counts and live-model reports are historical, not proof of the current worktree. Nothing has been applied to AWS in this remediation.
 
 Ticket statuses describe acceptance scope, not a production-completion percentage. **Done** refers to the listed engineering criteria; a release additionally requires its environment and human gates. **Built** requires target-environment validation. **Blocked** identifies missing external acceptance, not a claim that every associated engineering check passed. Reopened acceptance below is intentionally unchecked.
 
 | Release gate | State |
 |---|---|
-| R0.1 Vertical slice | Automated fixture coverage exists. Human MCP skill session (PVC-070), repository protection (PVC-001/006) and Compose acceptance (PVC-030) remain open. |
+| R0.1 Vertical slice | Automated fixture coverage exists. Repository protection (PVC-001/006) and Compose acceptance (PVC-030) were closed on September 30 with CI evidence. The human MCP skill session (PVC-070) remains open. |
 | R0.5 Pilot-ready | Requires current engineering validation, deployed staging, domain/policy and threat-model sign-offs, provider approval, fresh live proposer/narrator evaluation and pilot-source conformance. |
 | R1.0 Production | Requires the pilot, conditional provisioning decision, production checks, recovery drill, accepted SLOs/retention, pen test, on-call and second-company onboarding before a separate launch approval. |
 
@@ -97,11 +97,11 @@ Start data-access conversations with the pilot portco (inputs to PVC-111/113) du
 ### PVC-001: Initialize version control
 `P0 · S · R0.1 · deps: —`
 
-**Status: Blocked on a person, decision, or pilot company.** Private remote created (github.com/ahines99/pe-value-creation-os) and pushed; work is in PR #1. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Done (September 30).** The repository was made public, and `main` is protected: 10 required status checks, strict (branches must be up to date), enforced for admins. Evidence: `gh api repos/ahines99/pe-value-creation-os/branches/main/protection`.
 
 At the start the project was not a git repository.
 - [x] `git init`, a Python `.gitignore` (venv, caches, `.env`), and an initial commit of the current scaffold.
-- [ ] Remote repository created, with branch protection on `main`.
+- [x] Remote repository created, with branch protection on `main`.
 
 ### PVC-002: Fix test configuration
 `P0 · S · R0.1 · deps: PVC-001`
@@ -142,10 +142,10 @@ Move `src/*` into `src/pe_value_os/` and add a hatchling build system, following
 ### PVC-006: Continuous integration
 `P0 · S · R0.1 · deps: PVC-004`
 
-**Status: Blocked on a person, decision, or pilot company.** CI is configured for lint, types and tests on Python 3.12, 3.13 and 3.14 with PostgreSQL. Historical PR checks passed before remediation; current changes require a fresh CI run. Requiring it for merges needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Done (September 30).** Lint, types and tests on Python 3.12, 3.13 and 3.14 are among the 10 checks `main` requires before a merge. Evidence: [main CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516) and the branch-protection settings above.
 
 - [x] A GitHub Actions workflow runs lint, types, and tests on Python 3.12, 3.13, and 3.14.
-- [ ] CI is required for merges to `main`.
+- [x] CI is required for merges to `main`.
 
 ### PVC-007: Architecture decision records
 `P2 · S · R0.1 · deps: PVC-001`
@@ -292,9 +292,9 @@ Logo and dollar retention by cohort, split into voluntary and involuntary churn.
 ### PVC-030: Postgres and migrations
 `P0 · M · R0.1 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** Alembic creates every table. CI is configured to run an isolated upgrade/downgrade round trip against PostgreSQL 18. Fresh local evidence is in the remediation ledger; historical CI does not validate this worktree. `docker compose up db` hasn't been run because this machine has no Docker.
+**Status: Done (September 30).** The required `compose-smoke` CI job runs `docker compose up` for the stack: the `db` container starts and reports healthy, and the `migrate` container applies every Alembic migration before the services start. The test jobs run the upgrade/downgrade round trip against PostgreSQL. Evidence: [main CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516), job `compose-smoke`.
 
-- [ ] `docker compose up db` starts Postgres. The Alembic migration creates every table in the handoff's data model.
+- [x] `docker compose up db` starts Postgres. The Alembic migration creates every table in the handoff's data model.
 - [x] Upgrade and downgrade are tested in CI against a Postgres service container.
 
 ### PVC-031: Repository layer
@@ -612,9 +612,9 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-083: CI evaluation gate
 `P1 · M · R0.5 · deps: PVC-081, PVC-082`
 
-**Status: Blocked on a person, decision, or pilot company.** CI runs the deterministic gate against `evals/thresholds.toml`; fresh local results are in the remediation ledger. Current scheduled execution has not been verified. The nightly deterministic job runs all cases from the default branch. Paid nightly evaluation additionally requires `PVC_RUN_LIVE_EVALS=true` and the `ANTHROPIC_API_KEY` secret; it runs `--suite all --proposer model --gate`, including proposer and narrator. Adding a secret alone does not activate it. Blocking merges on the gate needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
+**Status: Done (September 30).** `evals` (`pvc eval --suite all --gate` against `evals/thresholds.toml`) is a required check, so a merge is blocked when scores fall below the thresholds. The scheduled `nightly-evals` workflow runs the full deterministic suite with the gate and passed on September 27, 28, 29 and 30 ([latest run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36704515619)). The optional model-backed nightly job described next is live-model evaluation, tracked in PVC-072. The nightly deterministic job runs all cases from the default branch. Paid nightly evaluation additionally requires `PVC_RUN_LIVE_EVALS=true` and the `ANTHROPIC_API_KEY` secret; it runs `--suite all --proposer model --gate`, including proposer and narrator. Adding a secret alone does not activate it. Blocking merges on the gate needs branch protection. GitHub refuses branch protection on private repositories under the free plan (HTTP 403). It needs GitHub Pro, or the repository made public; that decision is the project owner's.
 
-- [ ] Merges are blocked when scores drop below thresholds recorded in the repo. The full suite runs nightly.
+- [x] Merges are blocked when scores drop below thresholds recorded in the repo. The full suite runs nightly.
 
 ### PVC-084: Cost and latency reporting
 `P2 · S · R0.5 · deps: PVC-080, PVC-101`
@@ -822,9 +822,9 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-130: Container images
 `P0 · S · R0.5 · deps: PVC-004`
 
-**Status: Built, not yet run in its target environment.** The multi-stage image (non-root, uid 10001) has a historical CI build/scan record. The changed image requires a fresh build and strict scan that rejects all HIGH/CRITICAL findings. `docker compose up` for the full local stack hasn't been run because this machine has no Docker.
+**Status: Done (September 30).** The multi-stage `Dockerfile` runs as non-root uid 10001. The required `compose-smoke` job builds it and brings up db, migrate, MCP server, approval API and worker, all healthy; the required `container-scan` job scans it and fails on HIGH/CRITICAL findings. Evidence: [main CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516).
 
-- [ ] A multi-stage Dockerfile with a non-root user. `docker compose up` runs db, MCP server, approval API, and worker locally.
+- [x] A multi-stage Dockerfile with a non-root user. `docker compose up` runs db, MCP server, approval API, and worker locally.
 
 ### PVC-131: Staging environment as code
 `P0 · L · R0.5 · deps: PVC-130`
