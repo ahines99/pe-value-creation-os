@@ -1,8 +1,14 @@
 # Review the project in ten minutes
 
-This walkthrough is for PE operating partners, investment professionals and portfolio-company executives, with a technical diligence path for engineering reviewers. Review a synthetic investment case, inspect the evidence, make a decision and follow its execution record. No realized customer savings or production acceptance are claimed.
+This walkthrough is for PE operating partners, investment professionals and portfolio-company executives, with a technical diligence path for engineering reviewers. Start with the Progress public research case, then use the separate fictional application to exercise human decisions. No realized customer savings or production acceptance are claimed.
 
-For a two-minute read-only introduction, open the [project introduction](../index.html), [portfolio overview](examples/workspace.html), [Beacon investment memo](examples/beacon-pricing.html), [execution KPIs](examples/beacon-kpis.html) and [Delta evidence pause](examples/delta-broken.html). Those captures cannot submit decisions.
+## Start with the Progress decision
+
+Open the [project introduction](../index.html) and follow its six-stop review route. The [ten-minute Progress demonstration](progress-demo.md) explains the decision, real public financial evidence, constructed operating mechanisms, source corrections, attributed versus observed improvement, and exit sensitivities. The [case study](case-study.md) and [interview guide](interview-guide.md) explain the commercial judgment and engineering.
+
+These published pages are read-only. Public filings are real; operating records, ownership decisions and initiative outcomes are constructed examples. The [diligence disposition register](../research/operating-partner/09-public-diligence-disposition.md) explains which theses proceed to investigation, change or stop. Consult the [current acceptance register](progress-acceptance.md) before making validation claims.
+
+For a preview of the separate fictional application, open the [portfolio overview](examples/workspace.html), [Beacon investment memo](examples/beacon-pricing.html), [execution KPIs](examples/beacon-kpis.html) and [Delta evidence pause](examples/delta-broken.html). Those captures cannot submit decisions.
 
 ## Run the five-scenario demonstration
 
@@ -16,7 +22,7 @@ uv run pvc eval --suite all --gate
 
 The demo needs no database, cloud account or model key. Its Markdown report appears at `var/demo-report.md`. Review a success path, human-principal approval, missing evidence, partial failure and recovery. The approval in this automated command is simulated; it does not replace a real human acceptance session.
 
-## Open the actual review workspace
+## Run the separate fictional approval workspace
 
 Start Docker Desktop with Linux containers, then run:
 
@@ -33,7 +39,9 @@ The command builds the application, starts PostgreSQL and migrations, generates 
 5. **Execution and KPIs.** Follow the memo's KPI link to retain the selected run context. Read baseline, day-100 target, run-rate target and any observations together. Missing observations should remain explicit; approval alone proves no business outcome.
 6. **Delta's evidence pause.** Review the named missing or stale inputs and suspicious-content findings. A credible process stops when the fact base is insufficient.
 
-The redesigned application presents executive summaries first and places identifiers, formulas and provenance in supporting detail. Use the keyboard to inspect focus order, and narrow the viewport to check that decisions and evidence remain usable. Record any confusing language or visual defect in the human acceptance feedback.
+The application presents executive summaries first and places identifiers, formulas and provenance in supporting detail. Use the keyboard to inspect focus order, and narrow the viewport to check that decisions and evidence remain usable. Record any confusing language or visual defect in the human acceptance feedback.
+
+The released [private finance review workspace](../pilot/permissioned/review-workspace.md) additionally supports attribution assessment, rejection, change requests and withdrawal against exact proposal versions. The default Beacon/Delta seed does not create its permissioned source, frozen baseline and attribution records. Its fictional browser fixtures verify the interface; they do not establish a configured company pilot. Static Pages does not host this authenticated application.
 
 Create fresh runs for another decision path with `python scripts/showcase.py seed`. Existing runs and evidence remain available. Local sign-in lasts one hour in the browser; setup's token remains in ignored `var/local-showcase/settings.json`. Never use this dev configuration for an internet-facing service.
 
@@ -59,4 +67,4 @@ Optional telemetry: `python scripts/showcase.py up --observability` starts Grafa
 
 Follow [the pinned client installation instructions](../skills_distribution.md). The bundled stdio configuration explicitly selects the fixture adapter, deterministic rules and four synthetic company scopes. It installs the server extra and needs no provider API key. Its in-memory state is separate from the Docker browser workspace; use the HTTP MCP endpoint at `http://localhost:18001/mcp` for the same persisted showcase runs.
 
-Record your actual human session using [the acceptance checklist](acceptance.md). Scripted checks are engineering evidence; they are not attributed to you.
+Record an actual practitioner session using the [review packet](practitioner-review.md), linked from the [current acceptance register](progress-acceptance.md). The [older application checklist](acceptance.md) remains available for the Beacon/Delta workflow. Scripted checks are engineering evidence; they are not attributed to you.

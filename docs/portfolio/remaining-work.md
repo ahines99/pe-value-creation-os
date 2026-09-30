@@ -1,9 +1,11 @@
 # Completion checklist: portfolio first, permissioned pilot afterward
 
-Updated September 29, 2026. This is the remaining sequence for the existing
-five-outcome goal. It preserves the original requirements in the
+Updated September 29, 2026. The immediate goal is the
+[eight-step showcase closeout](progress-acceptance.md#current-eight-step-showcase-closeout).
+The broader sequence below preserves the later permissioned-pilot requirements in the
 [operating-partner roadmap](../operating-partner-roadmap.md); it is not a new
-feature backlog or an estimate of work already delivered.
+feature backlog or an estimate of work already delivered. Finish showcase acceptance
+before resuming private-pilot feature expansion.
 
 ## Current baseline
 
@@ -162,9 +164,9 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #50 is released and verified.
-The private-review workspace below has a separate release gate; its
-local presence does not establish publication or pilot readiness. Historical counts
+**Current status:** implementation through PR #51 is released and verified.
+The current eight-step showcase closeout has a separate final acceptance gate;
+released private functionality does not establish pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
 Maintain one requirement map that distinguishes implemented behavior, unresolved
@@ -337,8 +339,8 @@ acceptance, released and verified in PR #49. The [private attribution increment]
 adds signed allocations, delivery-to-claim checks, explicit residuals and separate
 finance review, released and verified in PR #50. The
 [private finance review workspace](../pilot/permissioned/review-workspace.md) adds
-an executive attribution page and exact-version human decision form, with a
-separate release gate. Private operating-source and delivery-cost reconciliation,
+an executive attribution page and exact-version human decision form, released
+and verified in PR #51. Private operating-source and delivery-cost reconciliation,
 executive memo and remaining pilot screens remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 

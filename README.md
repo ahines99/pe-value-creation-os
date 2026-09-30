@@ -24,6 +24,10 @@ No Progress engagement, authorized intervention or realized savings is claimed.
 
 The [case study](docs/portfolio/case-study.md), [10-minute presenter guide](docs/portfolio/progress-demo.md)
 and [interview/resume guide](docs/portfolio/interview-guide.md) explain these boundaries.
+The [public diligence register](docs/research/operating-partner/09-public-diligence-disposition.md)
+records acquisition, growth, peer and thesis conclusions, including evidence that
+would reopen each decision. Exact historical publication timing and actual
+practitioner validation remain open in the acceptance register.
 The [shared-pool lifecycle](https://ahines99.github.io/pe-value-creation-os/portfolio/allocation-lineage-review.html)
 is a separate advanced example, with its own memo and saved decisions.
 

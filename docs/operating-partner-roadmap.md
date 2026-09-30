@@ -71,8 +71,8 @@ delivery-to-claim checks, residuals and separate finance review, released in
 [PR #50](https://github.com/ahines99/pe-value-creation-os/pull/50): ten CI jobs passed,
 1,757 tests per supported Python version and seven published files verified.
 The [private finance review workspace](pilot/permissioned/review-workspace.md) adds
-an executive attribution page and exact-version human decision form, with a separate
-release gate. Private operating-source and delivery-cost reconciliation, executive
+an executive attribution page and exact-version human decision form, released
+and verified in PR #51. Private operating-source and delivery-cost reconciliation, executive
 memo, remaining pilot screens, retention, real finance approval and pilot readiness
 remain open.
 

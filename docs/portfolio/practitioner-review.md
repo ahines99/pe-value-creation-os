@@ -14,6 +14,19 @@ for publication.
 
 ## Prepare and record the session
 
+Suggested introduction for Alex to send when a reviewer is available:
+
+> Would you spend 35 minutes challenging a PE decision-support portfolio case?
+> It combines public Progress Software filings with a separately constructed
+> operating exercise. I would value your judgment on whether the decision is
+> understandable, a headline figure is traceable, and the proposed next evidence
+> requests are useful. This is a review of the work, not an endorsement or request
+> for company data. I will ask permission before retaining or quoting feedback.
+
+No introduction has been sent by the project agent. After a session, record the
+reviewer's actual words separately from presenter interpretation, retain objections
+even if unresolved, and return material corrections for reviewer disposition.
+
 Send the [case study](case-study.md), [memo](decision-memo.html),
 [demonstration](progress-demo.md) and [acceptance matrix](progress-acceptance.md).
 Record actual commit and revision hashes from the consistency-check receipt.

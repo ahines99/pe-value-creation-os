@@ -120,7 +120,7 @@ support. Historical retrieval alone does not establish acceptance or permission.
 ## Remaining pilot work
 
 The [private finance review workspace](review-workspace.md) now has an implemented
-executive page and exact-version decision form, with a separate release gate.
+executive page and exact-version decision form, released and verified in PR #51.
 An integrated private executive memo, remaining pilot screens, operating-source
 and delivery-cost reconciliation remain unfinished. So do per-source expiry,
 legal holds and backup/copy disposal.
