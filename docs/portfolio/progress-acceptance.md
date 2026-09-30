@@ -1,6 +1,8 @@
 # Progress case: acceptance evidence and remaining work
 
-**September 29, 2026 · internal engineering review · eight-step showcase closeout remains open**
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the detailed acceptance evidence for the Progress case; where it differs from STATUS.md, STATUS.md is right.
+
+**Updated September 30, 2026 · internal engineering review · showcase released; steps 5 and 8 remain open**
 
 This is the current review map for the public Progress case and constructed
 lifecycle. It supersedes the old Beacon narrative as the primary portfolio
@@ -22,7 +24,7 @@ historical timing cannot be inferred from passing software checks.
 | 4. Financial-definition exceptions | Disposition documented; component explanations unavailable | [Financial review](../research/operating-partner/08-financial-definition-review.md) retains all four differences, specified data requests and withheld dependent measures. No normalized earnings or independent finance approval claimed. |
 | 5. Historical disclosure timing | Open | Original/restated filings and chronology exist; exact first public availability remains unverified. SEC acceptance and an after-close announcement do not satisfy this requirement. |
 | 6. Executive narrative and interview package | Aligned and locally verified | Landing page, README, case study, demo, architecture, setup, screenshots and resume guide distinguish the public case, fictional approval demo and permissioned attribution interface. Closeout release evidence is linked below. |
-| 7. Final showcase acceptance | Local acceptance complete; exact release receipt required | Fresh locked checkout: 25 build/check commands, 31 consistency conditions, 147 focused tests and 84 public browser checks passed. The closeout PR records final exact-head CI, merge identity and publication verification; do not infer those from local checks alone. |
+| 7. Final showcase acceptance | Complete. Release receipt: closeout PR #52 merged as `77e40fa`; [PR-head CI](https://github.com/ahines99/pe-value-creation-os/actions/runs/36657682471) and [main CI](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516) each passed ten jobs; all files under `docs/` match the published site. | Fresh locked checkout: 25 build/check commands, 31 consistency conditions, 147 focused tests and 84 public browser checks passed. The closeout PR records final exact-head CI, merge identity and publication verification; do not infer those from local checks alone. |
 | 8. Actual practitioner feedback | Prepared; session unperformed | [Review packet](practitioner-review.md) provides the session and response log. A real participant must supply comprehension evidence, objections and disposition; no score has been assigned. |
 
 ## What is verified
@@ -342,7 +344,7 @@ proof of correctness or completion.
 
 ## Remaining work and ownership
 
-1. **Codex:** verify the exact closeout release and append its receipt to PR #52. Retain this register as the acceptance index; pending publication is not a completed release.
+1. **Done:** the closeout release was verified (see step 7 above). This register remains the detailed evidence index.
 2. **Codex:** pursue historical dissemination evidence if a defensible source becomes available. Exact first-public-availability remains unmet. The four financial-definition exceptions retain their documented dispositions and specific component requests; unsupported adjustments remain withheld.
 3. **Alex:** introduce a willing practitioner when available. **Codex:** prepare the session, record actual objections and comprehension evidence, implement corrections and return material changes for reviewer disposition. Blank responses and scores remain blank until participation occurs.
 4. **Later pilot:** resume the [broader checklist](remaining-work.md) only after showcase work. Codex implements remaining private workflow and readiness work; an authorized sponsor must supply permitted records, accounting/capacity validation, operating decisions and observed outcomes. No company participation is presumed.

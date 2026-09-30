@@ -1,5 +1,7 @@
 # Roadmap to Production
 
+> **For current status, see [STATUS.md](docs/STATUS.md).** This file is kept as the original 111-ticket plan, frozen on September 27; where it differs from STATUS.md, STATUS.md is right.
+
 Current portfolio next phase: [operating-partner capability roadmap](docs/operating-partner-roadmap.md).
 The [delegated showcase closeout](docs/portfolio/showcase-closeout.md) completes
 the portfolio engineering milestone; it does not close the human or production

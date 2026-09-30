@@ -1,5 +1,7 @@
 # 01. PE Portfolio Value Creation Operating System
 
+> **For current status, see [STATUS.md](docs/STATUS.md).** This file is kept as the original design specification; where it differs from STATUS.md, STATUS.md is right.
+
 ## Implementation-agent handoff
 
 > **Revision 4 (2026-09-27).** Implementation and audit remediation are local; deployment and human acceptance remain open. [Current state](#current-state-2026-09-27) distinguishes implemented controls from acceptance. [ROADMAP.md](ROADMAP.md) carries the release gates and [audit remediation](docs/audit-remediation.md) carries fresh verification.
@@ -26,7 +28,7 @@ The repository contains a working implementation and repairs for the September 2
 | Area | Implementation and acceptance boundary |
 |---|---|
 | Deterministic core | Decimal calculations, versioned metrics, sufficiency, prioritization and baselines; multi-product pricing is `price-waterfall/2`. |
-| Persistence | In-memory/PostgreSQL repositories, RLS, append-only runtime audit, evidence stores; migrations through `0003`. Persisted contracts are snapshot-tested. |
+| Persistence | In-memory/PostgreSQL repositories, RLS, append-only runtime audit, evidence stores; migrations through `0016` (the later ones add case revisions, close baselines, the realization ledger and the permissioned private chain). Persisted contracts are snapshot-tested. |
 | Workflow | Immutable input/policy snapshots, checkpoints, review rounds, leased/fenced worker writes and linked replacement runs for explicit input refresh. |
 | MCP | 22 tools, 3 resources, 1 prompt; auth, strict arguments, company scope and numeric source catalog. Interactive proposals, drafts and submission share evidence, sufficiency, eligibility, freshness and overlap validation. |
 | Approval/KPIs | Human approval API; each retained initiative requires a monitorable KPI. Durable notification delivery is at least once with a stable idempotency key. |

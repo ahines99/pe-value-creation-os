@@ -1,5 +1,7 @@
 # Completion checklist: portfolio first, permissioned pilot afterward
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the detailed pilot-preparation checklist; where it differs from STATUS.md, STATUS.md is right.
+
 Updated September 29, 2026. The immediate goal is the
 [eight-step showcase closeout](progress-acceptance.md#current-eight-step-showcase-closeout).
 The broader sequence below preserves the later permissioned-pilot requirements in the
