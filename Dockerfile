@@ -15,7 +15,7 @@
 FROM ghcr.io/astral-sh/uv:0.12.18@sha256:3adc3706091ce7c2fe595e669628caedd6d951551b92b258b7e7dbe06d9440bc AS uv
 
 # ---- build stage: resolve and install runtime dependencies from uv.lock ----------------------------------
-FROM python:3.12-alpine3.24@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111 AS build
+FROM python:3.14-alpine3.24@sha256:9e9fde4d32eedce0b661d9ab91e826b62dddf28e928c230ec55f1866cac66b01 AS build
 
 COPY --from=uv /uv /usr/local/bin/uv
 
@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --extra server --no-dev --no-editable
 
 # ---- runtime stage ----------------------------------------------------------------------------------------
-FROM python:3.12-alpine3.24@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111 AS runtime
+FROM python:3.14-alpine3.24@sha256:9e9fde4d32eedce0b661d9ab91e826b62dddf28e928c230ec55f1866cac66b01 AS runtime
 
 LABEL org.opencontainers.image.title="pe-value-creation-os" \
       org.opencontainers.image.description="PE Value Creation OS: MCP server, approval API, worker" \
