@@ -301,8 +301,8 @@ def ai_findings(ai: AiAssessment, policy: PolicyConfig) -> list[DraftFinding]:
                 DraftFinding(
                     f"ai_{c.workflow}",
                     FindingType.DATA_GAP,
-                    f"Unsized candidate: {c.workflow}",
-                    f"{c.workflow} cannot be sized; data needed: {'; '.join(c.data_needed)}.",
+                    f"{c.workflow.replace('_', ' ').capitalize()} not sized",
+                    f"Data needed: {'; '.join(c.data_needed)}.",
                     Confidence.LOW,
                     [],
                 )

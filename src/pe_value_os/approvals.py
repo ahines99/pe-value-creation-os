@@ -155,6 +155,11 @@ def _decide(
     diff: dict[str, Any] = {}
     if decision == ApprovalDecision.APPROVED:
         approved, diff = apply_edits(plan.plan, remove_initiatives or [])
+        if not any(ws["initiatives"] for ws in approved["workstreams"]):
+            # Approving an empty scope would complete the run with no plan and zero the portfolio.
+            raise ApprovalError(
+                "Every initiative is excluded, so there is nothing to approve. Reject the plan or request changes."
+            )
         try:
             kpi.check_monitorable(approved)
         except kpi.UnmonitorableKpi as e:

@@ -213,8 +213,9 @@ CSS += """
 def money(value: Any, *, compact: bool = False) -> str:
     """Format financial units without asserting an unspecified currency.
 
-    Full amounts display at most two decimal places. Compact amounts are deliberately
-    approximate and should be paired with a full figure for decision making.
+    Full amounts of 1,000 or more display in whole units; smaller amounts keep two decimal places
+    unless they are whole. Compact amounts always carry one decimal place, are deliberately
+    approximate, and should be paired with a full figure for decision making.
     """
     try:
         amount = Decimal(str(value))
@@ -225,9 +226,10 @@ def money(value: Any, *, compact: bool = False) -> str:
     if compact:
         for scale, suffix in ((Decimal("1e9"), "bn"), (Decimal("1e6"), "m"), (Decimal("1e3"), "k")):
             if abs(amount) >= scale:
-                return f"{amount / scale:,.2f}".rstrip("0").rstrip(".") + suffix
-    rendered = f"{amount:,.2f}"
-    return rendered.rstrip("0").rstrip(".") if "." in rendered else rendered
+                return f"{amount / scale:,.1f}{suffix}"
+    if abs(amount) >= 1000 or amount == amount.to_integral_value():
+        return f"{amount:,.0f}"
+    return f"{amount:,.2f}"
 
 
 def label(value: str) -> str:
@@ -242,8 +244,21 @@ def label(value: str) -> str:
         "ai_and_automation": "AI and automation",
         "gtm_efficiency": "Go-to-market efficiency",
     }
-    readable = replacements.get(value, value.replace("_", " ").replace("-", " ").capitalize())
-    return escape(readable)
+    if value in replacements:
+        return escape(replacements[value])
+    words = f" {value.replace('_', ' ').replace('-', ' ')} ".replace(" s and m ", " S&M ").split()
+    readable = " ".join(_WORDS.get(w.lower(), w.lower()) for w in words)
+    return escape(readable[:1].upper() + readable[1:])
+
+
+# Abbreviations that stay upper case (or take their usual form) when an identifier is shown as text.
+_WORDS = {
+    **{w: w.upper() for w in ("ai", "arr", "mrr", "nrr", "grr", "acv", "arpa", "cac", "ltv", "ebitda", "kpi", "sla")},
+    **{w: w.upper() for w in ("csat", "nps", "gtm", "mfn", "sku")},
+    "s&m": "S&M",
+    "tier1": "tier-1",
+    "tier2": "tier-2",
+}
 
 
 def status_badge(value: str) -> str:
@@ -267,6 +282,24 @@ def status_badge(value: str) -> str:
     }
     state = value if value in states else "neutral"
     return f"<span class='badge state-{state}' data-status='{escape(value)}'>{label(value)}</span>"
+
+
+ERROR_PAGES = {
+    401: ("Sign in required", "Sign in to open this page."),
+    403: ("Access not allowed", "Your account cannot view or change this record."),
+    404: ("Not found", "This record does not exist, or it belongs to a company your account cannot access."),
+}
+
+
+def error_page(status_code: int) -> str:
+    """Browser page for 401/403/404; API clients keep JSON errors."""
+    title, message = ERROR_PAGES.get(status_code, ("Something went wrong", "The request could not be completed."))
+    action = "Sign in" if status_code == 401 else "Back to portfolio"
+    body = (
+        f"<section class='panel empty-state'><p class='eyebrow'>Error {status_code}</p><h1>{escape(title)}</h1>"
+        f"<p>{escape(message)}</p><p><a class='button' href='/'>{action}</a></p></section>"
+    )
+    return page(title, body, active="login" if status_code == 401 else "portfolio")
 
 
 def page(
