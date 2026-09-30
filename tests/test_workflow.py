@@ -57,7 +57,7 @@ async def test_pricing_leak_end_to_end(ctx):
         assert [p.rank for p in ranking] == list(range(1, len(ranking) + 1))
         plan = ctx.repo.latest_plan(rec.run_id)
         titles = [i["title"] for ws in plan.plan["workstreams"] for i in ws["initiatives"]]
-        assert "Discount governance in mid_market" in titles
+        assert "Discount governance in mid-market" in titles
         for o in ctx.repo.list_opportunities(rec.run_id):
             vc = ctx.repo.get_value_case("beacon-pricing", o.opportunity_id)
             assert vc.inputs_hash and o.evidence_ids

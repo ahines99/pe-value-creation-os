@@ -462,4 +462,4 @@ def test_kpi_display_distinguishes_fraction_month_and_ticket_units(executive):
     assert "81.2%" in text
     assert "12.25 months" in text
     assert "0.125 tickets / customer / month" in text
-    assert "Not observed" in text  # A target is not a measured result.
+    assert "None yet" in text  # A target is not a measured result.

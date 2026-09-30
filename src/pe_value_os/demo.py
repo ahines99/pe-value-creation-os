@@ -122,10 +122,12 @@ def run_demo(verbose: bool = True, report_path: Path | None = None) -> int:
         st = ctx.repo.get_run(beacon_run).run_state()
         defs = ctx.repo.list_kpi_definitions("beacon-pricing")
         obs = kpi.refresh_company(ctx.repo, ctx.adapter, "beacon-pricing", ctx.policy, force=True)
+    by_id = {d.kpi_id: d for d in defs}
     say(
         f"- Worker tick resumed {report.runs_executed} run(s); run is **{st.status.value}**; "
         f"{len(defs)} KPIs activated; {len(obs)} KPI observations recorded "
-        f"({sum(o.status == 'on_track' for o in obs)} on track)."
+        f"({sum(kpi.covers_plan_period(by_id[o.kpi_id], o) for o in obs)} after the plan started; "
+        "earlier readings are baselines)."
     )
     api.set_ctx(None)
 

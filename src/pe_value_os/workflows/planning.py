@@ -181,7 +181,7 @@ def _kpi(o: Opportunity, data: CompanyData, policy: PolicyConfig) -> PlanKpi | N
         kpi_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"kpi:{o.opportunity_id}:{rule.metric}")),
         opportunity_id=o.opportunity_id,
         metric=rule.metric,
-        description=rule.description + (f" ({params['segment']})" if "segment" in params else ""),
+        description=rule.description + (f" ({params['segment'].replace('_', '-')})" if "segment" in params else ""),
         baseline=base.value,
         day_100_target=q_ratio(base.value + (target - base.value) * frac),
         run_rate_target=target,

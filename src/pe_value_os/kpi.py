@@ -182,9 +182,18 @@ def refresh_company(
     return out
 
 
+def covers_plan_period(d: KpiDefinition, o: KpiObservation) -> bool:
+    """True when the reading covers a month ending after the plan started. Earlier readings are baselines,
+    so they cannot show a plan as on or off track. A reading without a source period counts from the start date."""
+    if o.period_end is None:
+        return o.observed_at.date() >= d.start_date
+    return add_months(o.period_end, 1) - timedelta(days=1) > d.start_date
+
+
 def detect_variance(d: KpiDefinition, history: list[KpiObservation], policy: PolicyConfig) -> list[KpiAlert]:
     """Alerts for the latest observation. Threshold: the KPI has just gone off track (a KPI that stays off track is
-    reported in every digest but alerts once). Trend: N consecutive wrong-way moves."""
+    reported in every digest but alerts once). Trend: N consecutive wrong-way moves. Pre-plan readings are ignored."""
+    history = [o for o in history if covers_plan_period(d, o)]
     if not history:
         return []
     last = history[-1]
@@ -231,7 +240,11 @@ def build_digest(
     latest: dict[str, KpiObservation] = {}
     for o in repo.list_kpi_observations(company_id):
         latest[o.kpi_id] = o
-    off = [(defs[k], o) for k, o in latest.items() if k in defs and o.status == "off_track"]
+    off = [
+        (defs[k], o)
+        for k, o in latest.items()
+        if k in defs and o.status == "off_track" and covers_plan_period(defs[k], o)
+    ]
     if not off:
         return None
     lines = [f"- {d.description}: {o.value} vs target {o.target} (as of {o.period_end})" for d, o in off]

@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from decimal import Decimal
 from html import escape, unescape
 from typing import Any
 
 from ..domain.baselines import REGISTRY
-from ..domain.calc import add_months
 from ..domain.kpi_models import KpiDefinition, KpiObservation
 from ..domain.models import Finding
 from ..domain.project_models import Opportunity, ValueCase
 from ..domain.runs import ApprovalRecord, PlanRecord, RunRecord, Status
+from ..kpi import covers_plan_period
 from .presentation import label, money, page, status_badge
 
 
@@ -52,7 +51,7 @@ def _evidence(ids: list[str], run_id: str) -> str:
     return (
         "<div class='evidence-links'>"
         + "".join(
-            f"<a href='/evidence/{_e(e)}/review?run_id={_e(run_id)}' title='Evidence {_e(e)}'>Source {n:02d} <span aria-hidden='true'>↗</span></a>"
+            f"<a href='/evidence/{_e(e)}/review?run_id={_e(run_id)}' title='Evidence {_e(e)}'>Source {n:02d}</a>"
             for n, e in enumerate(dict.fromkeys(ids), 1)
         )
         + "</div>"
@@ -282,7 +281,7 @@ def review_page(
         + "</p></div>",
         f"<div>{status_badge(display_status)}<p class='metric-note'>As of {_e(run.updated_at.strftime('%d %b %Y · %H:%M UTC'))}</p></div></header>",
         "<nav class='section-nav' aria-label='Plan sections'><a href='#executive'>Decision brief</a><a href='#workstreams'>Execution plan</a><a href='#evidence'>Value cases &amp; evidence</a><a href='#decision'>Decision record</a>",
-        f"<a href='/companies/{_e(run.company_id)}/kpis?run_id={_e(run.run_id)}'>Operating performance ↗</a></nav>",
+        f"<a href='/companies/{_e(run.company_id)}/kpis?run_id={_e(run.run_id)}'>Operating performance</a></nav>",
     ]
     if run.status.value == "failed":
         state = workflow_state or {}
@@ -426,15 +425,8 @@ def review_page(
     return page(f"{name} · Plan review", "".join(h))
 
 
-def _after_plan_start(d: KpiDefinition, o: KpiObservation) -> bool:
-    """True when the reading covers a month ending after the plan started. Earlier readings are baselines,
-    so they cannot show a plan as on or off track."""
-    covered = add_months(o.period_end, 1) - timedelta(days=1) if o.period_end else o.observed_at.date()
-    return covered > d.start_date
-
-
 def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
-    measured = [o for o in history if _after_plan_start(d, o)]
+    measured = [o for o in history if covers_plan_period(d, o)]
     latest = measured[-1] if measured else None
     h = [
         "<article class='panel kpi-card'><div class='panel-header'><div>",
@@ -444,12 +436,12 @@ def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
     ]
     for name, value in [
         ("Baseline", d.baseline),
-        ("Latest actual", latest.value if latest else None),
+        ("Latest post-plan reading", latest.value if latest else None),
         ("Day-100 target", d.day_100_target),
         ("Run-rate target", d.run_rate_target),
     ]:
         h.append(
-            f"<div><span class='metric-label'>{name}</span><strong class='metric-value'>{_metric(d.metric, value) if value is not None else 'Not observed'}</strong></div>"
+            f"<div><span class='metric-label'>{name}</span><strong class='metric-value'>{_metric(d.metric, value) if value is not None else 'None yet'}</strong></div>"
         )
     h.append("</div>")
     if latest:
@@ -482,7 +474,9 @@ def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
             "<div class='table-wrap' tabindex='0' role='region' aria-label='Recorded KPI observations'><table class='data-table'><caption>Recorded observations, most recent first</caption><thead><tr><th scope='col'>Observed / source period</th><th scope='col'>Actual</th><th scope='col'>Dated target</th><th scope='col'>Status</th><th scope='col'>Evidence</th></tr></thead><tbody>"
         )
         for o in reversed(history):
-            badge = status_badge(o.status) if _after_plan_start(d, o) else "<span class='badge'>Pre-plan reading</span>"
+            badge = (
+                status_badge(o.status) if covers_plan_period(d, o) else "<span class='badge'>Pre-plan reading</span>"
+            )
             h.append(
                 f"<tr><th scope='row'>{_e(o.observed_at.strftime('%d %b %Y %H:%M UTC'))}<small>{_e(o.period_end or 'Period not specified')}</small></th><td>{_metric(d.metric, o.value)}</td><td>{_metric(d.metric, o.target)}</td><td>{badge}</td><td>{_evidence(o.evidence_ids, d.run_id)}</td></tr>"
             )
@@ -524,7 +518,7 @@ def kpi_page(
             h.append(
                 f"<details class='disclosure'><summary>Earlier plan · {_e(definitions[0].start_date)} · Run {_e(run_id[:8])}</summary>"
             )
-        measured = {d.kpi_id: [o for o in by.get(d.kpi_id, []) if _after_plan_start(d, o)] for d in definitions}
+        measured = {d.kpi_id: [o for o in by.get(d.kpi_id, []) if covers_plan_period(d, o)] for d in definitions}
         latest = [m[-1] for m in measured.values() if m]
         off = sum(o.status == "off_track" for o in latest)
         plan_label = (
@@ -533,7 +527,7 @@ def kpi_page(
             else ("Most recently activated plan" if index == 0 else "Earlier plan")
         )
         h.append(
-            f"<section class='stack'><div class='section-heading'><div><p class='eyebrow'>{plan_label} · {_e(currency or 'Currency metrics use source units')}</p><h2>Operating scorecard</h2><p class='metric-note'>Start {_e(definitions[0].start_date)} · Plan <code>{_e(plan_id[:8])}</code> · Run <code>{_e(run_id[:8])}</code></p></div><a href='/runs/{_e(run_id)}/review'>View approved plan ↗</a></div><div class='metrics-grid'>"
+            f"<section class='stack'><div class='section-heading'><div><p class='eyebrow'>{plan_label} · {_e(currency or 'Currency metrics use source units')}</p><h2>Operating scorecard</h2><p class='metric-note'>Start {_e(definitions[0].start_date)} · Plan <code>{_e(plan_id[:8])}</code> · Run <code>{_e(run_id[:8])}</code></p></div><a href='/runs/{_e(run_id)}/review'>View approved plan &rarr;</a></div><div class='metrics-grid'>"
         )
         h.append(_card("Measures in this plan", str(len(definitions)), "Each KPI remains tied to its own approved run"))
         h.append(_card("On track", str(len(latest) - off), "Latest post-plan reading versus its dated target"))

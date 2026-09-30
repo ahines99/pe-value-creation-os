@@ -74,6 +74,15 @@ def _duplicate_entities(customers: list[Customer]) -> list[list[str]]:
     return [ids for ids in by_domain.values() if len(ids) > 1]
 
 
+_TITLES = {"pnl": "P&L", "arr": "ARR", "crm_opportunities": "CRM opportunities"}
+
+
+def _title(name: object) -> str:
+    """Readable dataset name for gap text shown to reviewers."""
+    key = str(getattr(name, "value", name))
+    return _TITLES.get(key, key.replace("_", " ").capitalize())
+
+
 def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> SufficiencyResult:
     if analysis not in policy.sufficiency:
         raise ValueError(f"Unknown analysis {analysis!r}; valid: {sorted(policy.sufficiency)}")
@@ -90,7 +99,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="row_errors",
                     dataset=name,
                     blocking=required,
-                    detail=f"'{name}' has no valid rows ({len(ds.row_errors)} invalid); first: {ds.row_errors[0]}",
+                    detail=f"{_title(name)} has no valid rows ({len(ds.row_errors)} invalid); first: {ds.row_errors[0]}",
                 )
             )
             continue
@@ -100,7 +109,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="missing_dataset",
                     dataset=name,
                     blocking=required,
-                    detail=f"Dataset '{name}' is {'missing' if ds is None else 'empty'}",
+                    detail=f"{_title(name)} dataset is {'missing' if ds is None else 'empty'}",
                 )
             )
             continue
@@ -112,7 +121,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="stale_dataset",
                     dataset=name,
                     blocking=required,
-                    detail=f"'{name}' as_of {ds.as_of.date()} is {age} days old "
+                    detail=f"{_title(name)} extract dated {ds.as_of.date()} is {age} days old "
                     f"(limit {policy.freshness.max_age_days})",
                 )
             )
@@ -125,7 +134,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                         code="stale_series",
                         dataset=name,
                         blocking=required,
-                        detail=f"'{name}' latest data month is {months[-1].isoformat()}, which ended {lag} days before "
+                        detail=f"{_title(name)} latest data month is {months[-1].isoformat()}, which ended {lag} days before "
                         f"the reference date (limit {policy.freshness.max_age_days})",
                     )
                 )
@@ -141,7 +150,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="insufficient_history",
                     dataset=name,
                     blocking=required,
-                    detail=f"'{name}' spans {span} months; {rule.min_months} required",
+                    detail=f"{_title(name)} spans {span} months; {rule.min_months} required",
                 )
             )
         if kind in MONTHLY_SERIES and months:
@@ -152,7 +161,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                         code="month_gaps",
                         dataset=name,
                         blocking=required,
-                        detail=f"'{name}' is missing months: {', '.join(m.isoformat() for m in missing)}",
+                        detail=f"{_title(name)} is missing months: {', '.join(m.isoformat() for m in missing)}",
                     )
                 )
         foreign = sorted({c for r in ds.records if (c := getattr(r, "currency", None)) and c != data.profile.currency})
@@ -163,7 +172,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="currency_mismatch",
                     dataset=name,
                     blocking=required,
-                    detail=f"'{name}' has {n_foreign} rows in {', '.join(foreign)}; company currency is "
+                    detail=f"{_title(name)} has {n_foreign} rows in {', '.join(foreign)}; company currency is "
                     f"{data.profile.currency}. Amounts are never converted or summed across currencies.",
                 )
             )
@@ -175,7 +184,7 @@ def check(data: CompanyData, analysis: str, policy: PolicyConfig) -> Sufficiency
                     code="row_errors",
                     dataset=name,
                     blocking=required and rate > ROW_ERROR_RATE_MAX,
-                    detail=f"'{name}' has {n_err} invalid rows ({rate:.2%}); first: {ds.row_errors[0]}",
+                    detail=f"{_title(name)} has {n_err} invalid rows ({rate:.2%}); first: {ds.row_errors[0]}",
                 )
             )
         if kind == DatasetKind.CUSTOMERS:

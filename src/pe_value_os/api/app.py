@@ -68,7 +68,7 @@ from ..diligence.private_records import (
 from ..diligence.private_review import review_note_request
 from ..diligence.private_underwriting import UnderwritingRequest
 from ..diligence.realization import AttributionRequest, ObservationRequest
-from ..domain.runs import ApprovalDecision, RunRecord
+from ..domain.runs import ApprovalDecision, RunRecord, Status
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
@@ -140,7 +140,8 @@ def current_principal(request: Request) -> security.Principal:
     token = (
         auth[7:].strip() if auth.lower().startswith("bearer ") else request.headers.get("x-amzn-oidc-accesstoken", "")
     )
-    if not token and os.environ.get("PVC_ENV") == "dev":
+    if not token and not auth and os.environ.get("PVC_ENV") == "dev":
+        # An explicit but empty Authorization header must not fall back to the browser session.
         token = request.cookies.get("pvc_dev_session", "")
     if not token:
         raise HTTPException(401, "Missing bearer token", headers={"WWW-Authenticate": "Bearer"})
@@ -964,6 +965,10 @@ def home(request: Request) -> Response:
             if plan is not None:
                 plans[run.run_id] = plan
             gaps[run.run_id] = sum(f.finding_type.value == "data_gap" for f in ctx.repo.list_findings(run.run_id))
+        for run in runs:  # earlier assessments still awaiting a decision appear on the decision desk
+            if run.status == Status.AWAITING_APPROVAL and latest[run.company_id].run_id != run.run_id:
+                if records := ctx.repo.list_approvals(run.run_id):
+                    decisions[run.run_id] = records[-1]
     return HTMLResponse(
         views.home_page(
             runs,
@@ -1220,8 +1225,8 @@ def approval_metrics(p: Principal) -> dict[str, Any]:
 
 
 def _wants_html(request: Request) -> bool:
-    """A browser navigation (page load), as opposed to an API or form call."""
-    return request.method in {"GET", "HEAD"} and "text/html" in request.headers.get("accept", "")
+    """A browser page load or form post, as opposed to an API call."""
+    return "text/html" in request.headers.get("accept", "")
 
 
 def _browser_error(request: Request, status_code: int, headers: dict[str, str] | None = None) -> Response:

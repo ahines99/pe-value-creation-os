@@ -91,7 +91,7 @@ def home_page(
     earlier_pending = [
         run
         for run in ordered
-        if latest[run.company_id].run_id != run.run_id and run.status.value == "awaiting_approval"
+        if latest[run.company_id].run_id != run.run_id and current_status(run) == "awaiting_approval"
     ]
     pending = sum(current_status(run) == "awaiting_approval" for run in current) + len(earlier_pending)
     blocked = sum(run.status.value in {"needs_evidence", "failed"} for run in current)
@@ -177,7 +177,7 @@ def home_page(
     for run in actions:
         profile = companies.get(run.company_id)
         action = "Review and decide" if run.status.value == "awaiting_approval" else "Resolve assessment blockers"
-        earlier = f" · Earlier assessment of {run.created_at:%d %b %Y}" if run in earlier_pending else ""
+        earlier = f" · Earlier assessment of {run.created_at:%d %b %Y, %H:%M UTC}" if run in earlier_pending else ""
         h.append(
             f"<div class='initiative-row'><div><strong>{escape(profile.name if profile else run.company_id)}</strong>"
             f"<p class='muted'>{label(run.status.value)}{earlier}</p></div>"

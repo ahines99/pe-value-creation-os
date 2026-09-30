@@ -171,6 +171,12 @@ def _decide(
         unknown = set(exclude_opportunities or []) - known
         if unknown:
             raise ApprovalError(f"Unknown opportunities: {sorted(unknown)}")
+        planned = {i["opportunity_id"] for ws in plan.plan["workstreams"] for i in ws["initiatives"]}
+        if planned and planned <= set(exclude_opportunities or []):
+            # The revised plan would be empty; that is a rejection, not a change request.
+            raise ApprovalError(
+                "Every initiative is excluded, so no revised plan can be built. Reject the plan instead."
+            )
         edits["exclude_opportunities"] = sorted(exclude_opportunities or [])
     rec = ctx.repo.record_decision(req.approval_id, decision, principal.subject, rationale, edits, diff)
     changed = bool(diff)

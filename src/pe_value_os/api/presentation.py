@@ -7,7 +7,7 @@ their text arguments; callers must escape dynamic content used to build a body.
 from __future__ import annotations
 
 import os
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from html import escape
 from typing import Any, Literal
 
@@ -223,13 +223,16 @@ def money(value: Any, *, compact: bool = False) -> str:
         return escape(str(value))
     if not amount.is_finite():
         return "Not available"
-    if compact:
+    if compact and abs(amount) >= 1000:
         for scale, suffix in ((Decimal("1e9"), "bn"), (Decimal("1e6"), "m"), (Decimal("1e3"), "k")):
-            if abs(amount) >= scale:
-                return f"{amount / scale:,.1f}{suffix}"
-    if abs(amount) >= 1000 or amount == amount.to_integral_value():
-        return f"{amount:,.0f}"
-    return f"{amount:,.2f}"
+            scaled = (amount / scale).quantize(Decimal("0.1"), ROUND_HALF_UP)
+            if abs(scaled) >= 1:  # choose the scale after rounding, so 999,950 reads 1.0m, not 1,000.0k
+                return f"{scaled:,.1f}{suffix}"
+    cents = amount.quantize(Decimal("0.01"), ROUND_HALF_UP)
+    if abs(cents) >= 1000 or cents == cents.to_integral_value():
+        whole = amount.quantize(Decimal(1), ROUND_HALF_UP)
+        return f"{abs(whole) if whole == 0 else whole:,.0f}"
+    return f"{abs(cents) if cents == 0 else cents:,.2f}"
 
 
 def label(value: str) -> str:
@@ -256,6 +259,9 @@ _WORDS = {
     **{w: w.upper() for w in ("ai", "arr", "mrr", "nrr", "grr", "acv", "arpa", "cac", "ltv", "ebitda", "kpi", "sla")},
     **{w: w.upper() for w in ("csat", "nps", "gtm", "mfn", "sku")},
     "s&m": "S&M",
+    **{w: w.upper() for w in ("cogs", "fte", "api", "g&a", "r&d")},
+    "saas": "SaaS",
+    "pct": "%",
     "tier1": "tier-1",
     "tier2": "tier-2",
 }

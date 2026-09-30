@@ -79,8 +79,7 @@ def unit_economics_findings(m: SaasMetrics, policy: PolicyConfig) -> list[DraftF
                 "cac_payback",
                 FindingType.OBSERVATION,
                 "CAC payback above policy threshold",
-                f"CAC payback is {payback} months against a policy maximum of "
-                f"{s.cac_payback_months_max} ({m.metrics['cac_payback_months'].variant}).",
+                f"CAC payback is {payback:.1f} months against a policy maximum of {s.cac_payback_months_max}.",
                 Confidence.MEDIUM,
                 ev("cac_payback_months"),
             )
@@ -149,8 +148,8 @@ def pricing_findings(pw: PriceWaterfall, policy: PolicyConfig) -> list[DraftFind
             DraftFinding(
                 "dispersion",
                 FindingType.OBSERVATION,
-                f"Wide discount dispersion in {hd.segment}",
-                f"New-deal discount standard deviation in {hd.segment} is {_pct(hd.discount_sd)} "
+                f"Wide discount dispersion in {hd.segment.replace('_', '-')}",
+                f"New-deal discount standard deviation in {hd.segment.replace('_', '-')} is {_pct(hd.discount_sd)} "
                 f"(mean {_pct(hd.mean_discount_rate)}, {hd.lines} deals) against a policy maximum "
                 f"of {_pct(s.discount_sd_max)}.",
                 Confidence.HIGH,
@@ -333,13 +332,14 @@ class RuleBasedProposer:
         if "dispersion" in f or "quarter_end" in f:
             seg = f["dispersion"].metadata["segment"] if "dispersion" in f else None
             reasons = [f[k].statement for k in ("dispersion", "quarter_end") if k in f]
+            where = f" in {seg.replace('_', '-')}" if seg else ""
             out.append(
                 _proposal(
                     p,
                     "discount_governance",
                     lever=Lever.PRICING,
                     baseline_metric="discounted_arr",
-                    title=f"Discount governance{f' in {seg}' if seg else ''}",
+                    title=f"Discount governance{where}",
                     confidence=Confidence.MEDIUM,
                     rationale=" ".join(reasons),
                     evidence_ids=ev,
@@ -403,7 +403,7 @@ class RuleBasedProposer:
                     "voluntary_churn_reduction",
                     lever=Lever.RETENTION,
                     baseline_metric="addressable_churned_arr",
-                    title=f"Reduce voluntary churn{f' in {seg}' if seg else ''}",
+                    title="Reduce voluntary churn" + (f" in {seg.replace('_', '-')}" if seg else ""),
                     confidence=Confidence.MEDIUM if signals else Confidence.LOW,
                     rationale=" ".join(f[k].statement for k in ["worst_segment", "front_loaded", *signals] if k in f)
                     or f"Company GRR {grr} is below policy minimum {p.screening.grr_min}.",
