@@ -115,6 +115,18 @@ matched the merge. The local focused/regression suite passed 467 tests with one
 Windows symlink-privilege skip; migration round-trip passed at 0012. These checks
 use fictional inputs and do not establish management commitment or pilot results.
 
+The private human-review and frozen-baseline workflow was released in
+[PR #47](https://github.com/ahines99/pe-value-creation-os/pull/47), tested at
+`3a79d8c961b4d5a539b40856bec37863dbdfe761` and merged as
+`607299a92e24178b8ad984f082cf1cb544a35fd5` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36643048658)
+passed: 1,556 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Nine published files
+matched the merge. Local focused checks added 66 tests; the related regression
+suite passed 461 tests with one Windows symlink-privilege skip. Migration
+round-trip passed at 0013. These are fictional-fixture software checks, not
+actual human company review, operating authorization or pilot results.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -134,9 +146,10 @@ monthly inputs with exact source/review/grant bindings and explicit accounting
 definitions; CI/publication acceptance is verified in PR #44. The
 [private underwriting increment](../pilot/permissioned/underwriting.md) is released
 in PR #45. [Private capacity plans](../pilot/permissioned/capacity-plans.md)
-are released in PR #46. The next [reviewed-baseline increment](../pilot/permissioned/reviewed-baselines.md)
-adds exact-version finance/operating decisions and immutable comparison designations,
-with its own release gate. Private actuals/counterfactuals, attribution, intervention
+are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-baselines.md)
+are released in PR #47. The next [private-observation increment](../pilot/permissioned/observations.md)
+adds reviewed counterfactuals, accepted whole-month actuals and unattributed
+frozen-plan comparisons, with a separate release gate. Private attribution, intervention
 permission/delivery evidence, memo/review UX, retention operations and all
 real-company pilot evidence remain outstanding.
 

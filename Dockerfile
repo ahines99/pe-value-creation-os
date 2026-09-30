@@ -62,7 +62,8 @@ COPY infra/docker/healthcheck.py infra/docker/bootstrap_db.py /app/ops/
 
 # Amazon RDS CA bundle so libpq can use sslmode=verify-full (server certificate and hostname checked).
 # Pinned by checksum; when AWS rotates the bundle, update RDS_CA_SHA256 (docs/deployment.md).
-ARG RDS_CA_SHA256=sha256:e5bb2084ccf45087bda1c9bffdea0eb15ee67f0b91646106e466714f9de3c7e3
+# Refreshed from the AWS endpoint after verifying 111 CA roots and their self-signatures/validity.
+ARG RDS_CA_SHA256=sha256:fe45bbebf92ad3e27a583bbb2ddd1553c521ed4d49af5514dc0a40372ea5395c
 ADD --checksum=${RDS_CA_SHA256} --chmod=0444 https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
     /app/certs/rds-global-bundle.pem
 

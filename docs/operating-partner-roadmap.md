@@ -54,9 +54,13 @@ ten CI jobs passed, 1,421 tests per supported Python version and seven published
 files verified. [Private capacity plans](pilot/permissioned/capacity-plans.md)
 are released in [PR #46](https://github.com/ahines99/pe-value-creation-os/pull/46):
 ten CI jobs passed, 1,490 tests per supported Python version and eight published
-files verified. The next [reviewed-baseline increment](pilot/permissioned/reviewed-baselines.md)
-adds exact-version decisions and comparison designations, with its own release gate.
-Private actuals/counterfactuals, attribution, intervention/delivery evidence,
+files verified. [Reviewed baselines](pilot/permissioned/reviewed-baselines.md)
+are released in [PR #47](https://github.com/ahines99/pe-value-creation-os/pull/47):
+ten CI jobs passed, 1,556 tests per supported Python version and nine published
+files verified. The next [private-observation increment](pilot/permissioned/observations.md)
+adds finance-reviewed counterfactuals and whole-month actual comparisons, with a
+separate release gate. All observed differences remain unattributed. Private
+attribution, intervention/delivery evidence,
 memo/review UX, retention, real finance approval and pilot readiness remain open.
 
 | Next work | Owner | Completion evidence |

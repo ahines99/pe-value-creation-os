@@ -101,6 +101,20 @@ from ..diligence.private_grants import (
 from ..diligence.private_grants import (
     validate_key as validate_grant_key,
 )
+from ..diligence.private_observations import (
+    CounterfactualRequest,
+    CounterfactualReview,
+    CounterfactualReviewRequest,
+    PrivateCounterfactual,
+    PrivateObservation,
+    PrivateObservationRequest,
+    counterfactual_review_head,
+    prepare_counterfactual,
+    prepare_counterfactual_review,
+    verify_counterfactual,
+    verify_observation,
+)
+from ..diligence.private_observations import prepare_observation as prepare_private_observation
 from ..diligence.private_records import (
     FinanceReview,
     FinanceReviewRequest,
@@ -186,6 +200,24 @@ def now() -> datetime:
 
 
 class Repository(Protocol):
+    def list_private_counterfactuals(self, company_id: str, case_key: str, key: str) -> list[PrivateCounterfactual]: ...
+    def record_private_counterfactual(
+        self, company_id: str, case_key: str, key: str, request: CounterfactualRequest, environment_id: str
+    ) -> PrivateCounterfactual: ...
+    def list_private_counterfactual_reviews(self, company_id: str, revision_id: str) -> list[CounterfactualReview]: ...
+    def review_private_counterfactual(
+        self, company_id: str, revision_id: str, request: CounterfactualReviewRequest, environment_id: str
+    ) -> CounterfactualReview: ...
+    def usable_private_counterfactual(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> tuple[PrivateCounterfactual, CounterfactualReview]: ...
+    def list_private_observations(self, company_id: str, case_key: str, key: str) -> list[PrivateObservation]: ...
+    def record_private_observation(
+        self, company_id: str, case_key: str, key: str, request: PrivateObservationRequest, environment_id: str
+    ) -> PrivateObservation: ...
+    def usable_private_observation(
+        self, company_id: str, observation_id: str, environment_id: str
+    ) -> PrivateObservation: ...
     def list_private_plan_reviews(self, company_id: str, revision_id: str) -> list[PrivatePlanReview]: ...
     def review_private_capacity(
         self, company_id: str, revision_id: str, request: PlanReviewRequest, environment_id: str
@@ -385,10 +417,253 @@ class InMemoryRepository:
         self.private_sources: dict[str, bytes] = {}
         self.private_intake_reviews: dict[str, FinanceReview] = {}
         self.private_plan_reviews: dict[str, PrivatePlanReview] = {}
+        self.private_counterfactuals: dict[str, PrivateCounterfactual] = {}
+        self.private_counterfactual_reviews: dict[str, CounterfactualReview] = {}
+        self.private_observations: dict[str, PrivateObservation] = {}
         self.private_baselines: dict[str, PrivateBaseline] = {}
         self.private_capacity_plans: dict[str, PrivateCapacityRevision] = {}
         self.private_underwriting: dict[str, PrivateUnderwritingRevision] = {}
         self.private_financial_snapshots: dict[str, PrivateFinancialSnapshot] = {}
+
+    def _private_counterfactual(self, company_id: str, record_id: str) -> PrivateCounterfactual:
+        require_grant_reader(company_id)
+        result = self.private_counterfactuals.get(record_id)
+        if result is None or result.company_id != company_id:
+            raise NotFound(record_id)
+        return PrivateCounterfactual.model_validate(result.model_dump(mode="json"))
+
+    def list_private_counterfactuals(self, company_id: str, case_key: str, key: str) -> list[PrivateCounterfactual]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        validate_grant_key(key)
+        self.get_company(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_counterfactuals.values()
+                    if r.company_id == company_id and r.case_key == case_key and r.counterfactual_key == key
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def _private_observation(self, company_id: str, record_id: str) -> PrivateObservation:
+        require_grant_reader(company_id)
+        result = self.private_observations.get(record_id)
+        if result is None or result.company_id != company_id:
+            raise NotFound(record_id)
+        return PrivateObservation.model_validate(result.model_dump(mode="json"))
+
+    def list_private_observations(self, company_id: str, case_key: str, key: str) -> list[PrivateObservation]:
+        require_grant_reader(company_id)
+        validate_grant_key(case_key)
+        validate_grant_key(key)
+        self.get_company(company_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_observations.values()
+                    if r.company_id == company_id and r.case_key == case_key and r.measurement_key == key
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def list_private_counterfactual_reviews(self, company_id: str, revision_id: str) -> list[CounterfactualReview]:
+        self._private_counterfactual(company_id, revision_id)
+        with self._lock:
+            return sorted(
+                (
+                    r
+                    for r in self.private_counterfactual_reviews.values()
+                    if r.company_id == company_id and r.counterfactual_revision_id == revision_id
+                ),
+                key=lambda r: r.sequence,
+            )
+
+    def _private_measurement_baseline(
+        self, company_id: str, baseline_id: str, environment_id: str
+    ) -> tuple[PrivateBaseline, PrivateFinancialSnapshot]:
+        view = self.private_baseline_status(company_id, baseline_id, environment_id)
+        if not view["usable_for_comparison"]:
+            raise ValueError("private comparison baseline is no longer currently supported")
+        baseline = PrivateBaseline.model_validate(view["baseline"])
+        anchor = next(
+            (
+                s
+                for s in self.list_private_financial_snapshots(company_id, baseline.case_key)
+                if s.content_sha256 == baseline.financial_snapshot_sha256
+            ),
+            None,
+        )
+        if anchor is None:
+            raise NotFound(baseline.financial_snapshot_sha256)
+        return baseline, anchor
+
+    def record_private_counterfactual(
+        self, company_id: str, case_key: str, key: str, request: CounterfactualRequest, environment_id: str
+    ) -> PrivateCounterfactual:
+        principal = require_intake_writer(company_id)
+        request = CounterfactualRequest.model_validate(request.model_dump(mode="json"))
+        with self.approval_transaction():
+            revisions = self.list_private_counterfactuals(company_id, case_key, key)
+            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private counterfactual idempotency key belongs to another request or author")
+                return replay
+            previous = revisions[-1] if revisions else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private counterfactual history changed; reload its current head")
+            baseline, anchor = self._private_measurement_baseline(company_id, request.baseline_id, environment_id)
+            result = prepare_counterfactual(company_id, case_key, key, request, baseline, anchor, previous)
+            self.private_counterfactuals[result.revision_id] = result
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_counterfactual",
+                    event_type="private_counterfactual_revision",
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "revision_id": result.revision_id,
+                        "sha256": result.content_sha256,
+                        "baseline_id": baseline.baseline_id,
+                    },
+                )
+            )
+            return result
+
+    def _current_private_counterfactual(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> PrivateCounterfactual:
+        result = self._private_counterfactual(company_id, revision_id)
+        if (
+            self.list_private_counterfactuals(company_id, result.case_key, result.counterfactual_key)[-1].revision_id
+            != revision_id
+        ):
+            raise ValueError("private counterfactual is superseded")
+        baseline, anchor = self._private_measurement_baseline(company_id, result.request.baseline_id, environment_id)
+        verify_counterfactual(result, baseline, anchor)
+        return result
+
+    def review_private_counterfactual(
+        self, company_id: str, revision_id: str, request: CounterfactualReviewRequest, environment_id: str
+    ) -> CounterfactualReview:
+        principal = require_finance_reviewer(company_id)
+        request = CounterfactualReviewRequest.model_validate(request.model_dump(mode="json"))
+        with self.approval_transaction():
+            proposal = self._private_counterfactual(company_id, revision_id)
+            reviews = self.list_private_counterfactual_reviews(company_id, revision_id)
+            replay = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Counterfactual review idempotency key belongs to another request or author")
+                return replay
+            previous = counterfactual_review_head(proposal, reviews)
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Counterfactual review history changed; reload its current head")
+            if request.decision != "withdraw":
+                proposal = self._current_private_counterfactual(company_id, revision_id, environment_id)
+            result = prepare_counterfactual_review(proposal, request, reviews)
+            self.private_counterfactual_reviews[result.review_id] = result
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_counterfactual_review",
+                    event_type="private_counterfactual_review",
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "review_id": result.review_id,
+                        "sha256": result.content_sha256,
+                        "revision_id": revision_id,
+                    },
+                )
+            )
+            return result
+
+    def usable_private_counterfactual(
+        self, company_id: str, revision_id: str, environment_id: str
+    ) -> tuple[PrivateCounterfactual, CounterfactualReview]:
+        require_grant_reader(company_id)
+        with self.approval_transaction():
+            result = self._current_private_counterfactual(company_id, revision_id, environment_id)
+            review = counterfactual_review_head(
+                result, self.list_private_counterfactual_reviews(company_id, revision_id)
+            )
+            if review is None or review.request.decision != "accept":
+                raise ValueError("counterfactual requires current finance acceptance")
+            return result, review
+
+    def record_private_observation(
+        self, company_id: str, case_key: str, key: str, request: PrivateObservationRequest, environment_id: str
+    ) -> PrivateObservation:
+        principal = require_snapshot_writer(company_id)
+        request = PrivateObservationRequest.model_validate(request.model_dump(mode="json"))
+        with self.approval_transaction():
+            observations = self.list_private_observations(company_id, case_key, key)
+            replay = next((r for r in observations if r.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private observation idempotency key belongs to another request or author")
+                return replay
+            previous = observations[-1] if observations else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private observation history changed; reload its current head")
+            proposal, review = self.usable_private_counterfactual(
+                company_id, request.counterfactual_revision_id, environment_id
+            )
+            baseline, anchor = self._private_measurement_baseline(
+                company_id, proposal.request.baseline_id, environment_id
+            )
+            actual = self.usable_private_financial_snapshot(company_id, request.actual_snapshot_id, environment_id)
+            result = prepare_private_observation(
+                company_id, case_key, key, request, proposal, review, baseline, actual, anchor, previous
+            )
+            self.private_observations[result.observation_id] = result
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_observation",
+                    event_type="private_observation",
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "observation_id": result.observation_id,
+                        "sha256": result.content_sha256,
+                        "counterfactual_revision_id": proposal.revision_id,
+                        "actual_snapshot_id": actual.snapshot_id,
+                    },
+                )
+            )
+            return result
+
+    def usable_private_observation(
+        self, company_id: str, observation_id: str, environment_id: str
+    ) -> PrivateObservation:
+        require_grant_reader(company_id)
+        with self.approval_transaction():
+            result = self._private_observation(company_id, observation_id)
+            if (
+                self.list_private_observations(company_id, result.case_key, result.measurement_key)[-1].observation_id
+                != observation_id
+            ):
+                raise ValueError("private observation is superseded")
+            proposal, review = self.usable_private_counterfactual(
+                company_id, result.request.counterfactual_revision_id, environment_id
+            )
+            baseline, anchor = self._private_measurement_baseline(
+                company_id, proposal.request.baseline_id, environment_id
+            )
+            actual = self.usable_private_financial_snapshot(
+                company_id, result.request.actual_snapshot_id, environment_id
+            )
+            verify_observation(result, proposal, review, baseline, actual, anchor)
+            return result
 
     def _private_capacity_revision(self, company_id: str, revision_id: str) -> PrivateCapacityRevision:
         require_grant_reader(company_id)
@@ -1595,6 +1870,9 @@ class InMemoryRepository:
                 "private_capacity_plans",
                 "private_plan_reviews",
                 "private_baselines",
+                "private_counterfactuals",
+                "private_counterfactual_reviews",
+                "private_observations",
             )
             before = {name: copy.deepcopy(getattr(self, name)) for name in fields}
             try:
@@ -1849,6 +2127,9 @@ class InMemoryRepository:
                 "private_capacity_plans",
                 "private_plan_reviews",
                 "private_baselines",
+                "private_counterfactuals",
+                "private_counterfactual_reviews",
+                "private_observations",
             ):
                 rows = getattr(self, name)
                 counts[name] = sum(row.company_id == company_id for row in rows.values())
