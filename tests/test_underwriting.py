@@ -7,7 +7,15 @@ from pathlib import Path
 import pytest
 from scripts.build_underwriting_example import example
 
-from pe_value_os.diligence.underwriting import Entry, UnderwritingCase, cash_profile, evaluate, ledger, totals
+from pe_value_os.diligence.underwriting import (
+    Entry,
+    UnderwritingCase,
+    cash_profile,
+    evaluate,
+    ledger,
+    month_start,
+    totals,
+)
 from pe_value_os.diligence.underwriting_render import build_underwriting_report
 
 
@@ -60,6 +68,7 @@ def test_worked_price_churn_interaction_cash_lags_and_day_100():
 
 def test_expense_payment_and_capex_are_not_double_counted():
     raw = simplified(uplift="0", churn="0", setup="100", capex="50", **{"service-fee": "60"}).model_dump(mode="json")
+    months = raw["months"]
     for scenario in raw["scenarios"]:
         scenario["costs"] = [
             {
@@ -80,22 +89,47 @@ def test_expense_payment_and_capex_are_not_double_counted():
                 "paid_on": "2026-10-10",
                 "retained_if_excluded": False,
             },
+            # A recurring fee is one posting per month. The first is paid a month in arrears, the rest on the day.
+            *[
+                {
+                    "cost_id": f"recurring-{i}",
+                    "initiative_ids": ["service-automation"],
+                    "kind": "recurring",
+                    "amount": "service-fee",
+                    "recognized_on": month_start(date(2026, 10, 1), i).replace(day=15).isoformat(),
+                    "paid_on": "2026-11-20"
+                    if i == 0
+                    else month_start(date(2026, 10, 1), i).replace(day=15).isoformat(),
+                    "retained_if_excluded": False,
+                }
+                for i in range(months)
+            ],
+        ]
+    result = base(UnderwritingCase.model_validate(raw))
+    assert result["monthly"][0]["incremental_ebitda"] == -160
+    assert result["monthly"][0]["pre_tax_cash_proxy"] == -50
+    assert result["monthly"][1]["pre_tax_cash_proxy"] == -220  # setup 100 + October's fee in arrears + November's
+    assert result["total"]["incremental_ebitda"] == -100 - 60 * months
+    assert result["total"]["pre_tax_cash_proxy"] == -150 - 60 * months
+
+
+def test_recurring_cost_must_be_posted_every_month():
+    """A single 'recurring' row would silently drop every later month's cost and overstate value."""
+    raw = simplified(uplift="0", churn="0", **{"service-fee": "60"}).model_dump(mode="json")
+    for scenario in raw["scenarios"]:
+        scenario["costs"] = [
             {
                 "cost_id": "recurring",
                 "initiative_ids": ["service-automation"],
                 "kind": "recurring",
                 "amount": "service-fee",
                 "recognized_on": "2026-10-15",
-                "paid_on": "2026-11-20",
+                "paid_on": "2026-10-15",
                 "retained_if_excluded": False,
-            },
+            }
         ]
-    result = base(UnderwritingCase.model_validate(raw))
-    assert result["monthly"][0]["incremental_ebitda"] == -160
-    assert result["monthly"][0]["pre_tax_cash_proxy"] == -50
-    assert result["monthly"][1]["pre_tax_cash_proxy"] == -160
-    assert result["total"]["incremental_ebitda"] == -160
-    assert result["total"]["pre_tax_cash_proxy"] == -210
+    with pytest.raises(ValueError, match="must be posted every month"):
+        UnderwritingCase.model_validate(raw)
 
 
 def test_collection_timing_reverses_and_never_creates_earnings_or_ev():
