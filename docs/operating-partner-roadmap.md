@@ -57,9 +57,11 @@ ten CI jobs passed, 1,490 tests per supported Python version and eight published
 files verified. [Reviewed baselines](pilot/permissioned/reviewed-baselines.md)
 are released in [PR #47](https://github.com/ahines99/pe-value-creation-os/pull/47):
 ten CI jobs passed, 1,556 tests per supported Python version and nine published
-files verified. The next [private-observation increment](pilot/permissioned/observations.md)
-adds finance-reviewed counterfactuals and whole-month actual comparisons, with a
-separate release gate. All observed differences remain unattributed. The subsequent
+files verified. The [private-observation increment](pilot/permissioned/observations.md)
+is released in [PR #48](https://github.com/ahines99/pe-value-creation-os/pull/48):
+ten CI jobs passed, 1,637 tests per supported Python version and six published
+files verified. It adds finance-reviewed counterfactuals and whole-month actual
+comparisons. All observed differences remain unattributed. The subsequent
 [private execution increment](pilot/permissioned/execution.md) adds bounded human
 intervention decisions, delivery segments and prerequisite acceptance, with its
 own release gate. Private attribution and delivery-to-claim reconciliation,
