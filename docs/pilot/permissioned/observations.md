@@ -125,7 +125,9 @@ the new records along with their source chain.
 
 ## Remaining pilot work
 
-Attribution, intervention authorization/delivery evidence, private executive memo
+The subsequent [private execution increment](execution.md) adds bounded human
+authorization, delivery segments and task acceptance, with a separate release
+gate. Attribution and delivery-to-claim reconciliation, private executive memo
 composition and a usable pilot review interface remain open, as do per-source
 retention expiry, legal holds and backup/copy disposal. The
 [pilot entry gates](../pilot-plan.md), sponsor, real authorized records, reviewer

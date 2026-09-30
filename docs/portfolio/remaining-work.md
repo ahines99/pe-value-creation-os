@@ -114,6 +114,17 @@ suite passed 461 tests with one Windows symlink-privilege skip. Migration
 round-trip passed at 0013. These are fictional-fixture software checks, not
 actual human company review, operating authorization or pilot results.
 
+The private counterfactual and monthly-observation workflow was released in
+[PR #48](https://github.com/ahines99/pe-value-creation-os/pull/48), tested at
+`a40caaa7f62ef5095ccc7ebbb0e629416208cc22` and merged as
+`4560a744260246158082e7c02ba8360c6ac76771` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36647436171)
+passed: 1,637 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Six published files
+matched the merge. The new focused suite passed 81 tests; migration round-trip
+passed at 0014. Differences remain explicitly unattributed. These fictional-fixture
+checks do not establish actual company review, realized value or a performed pilot.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -126,8 +137,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #47 is released and verified.
-The private-observation increment below has a separate release gate; its
+**Current status:** implementation through PR #48 is released and verified.
+The private-execution increment below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -292,11 +303,13 @@ Its CI/publication acceptance is verified above. The
 [private underwriting increment](../pilot/permissioned/underwriting.md) is released
 in PR #45, and [private capacity plans](../pilot/permissioned/capacity-plans.md)
 are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-baselines.md)
-are released in PR #47. The subsequent [private-observation increment](../pilot/permissioned/observations.md)
+are released in PR #47. The [private-observation increment](../pilot/permissioned/observations.md)
 adds authored and finance-reviewed counterfactuals, accepted whole-month actuals,
-frozen-plan variance and explicitly unattributed differences, with a separate
-release gate. Private attribution,
-intervention authorization/delivery evidence, executive memo and pilot review UX
+frozen-plan variance and explicitly unattributed differences, released and verified
+in PR #48. A subsequent [private execution increment](../pilot/permissioned/execution.md)
+adds bounded human intervention decisions, delivery segments and prerequisite
+acceptance, with its own release gate. Private attribution and delivery-to-claim
+reconciliation, executive memo and pilot review UX
 remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 

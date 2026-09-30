@@ -26,8 +26,10 @@ distinguishing exact component mappings from human assumptions. Private
 [reviewed baselines](reviewed-baselines.md) in PR #47. The subsequent
 [private-observation increment](observations.md) adds reviewed counterfactuals,
 whole-month actuals and frozen-plan comparisons, with a separate release gate.
-All differences remain unattributed. Attribution, intervention/delivery evidence,
-memo/review UX, retention operations
+All differences remain unattributed. The subsequent [private execution increment](execution.md)
+adds bounded human intervention decisions, delivery segments, prerequisite acceptance
+and correction/withdrawal history, with its own release gate. Attribution and
+delivery-to-claim reconciliation, memo/review UX, retention operations
 and actual company approval remain open.
 
 ### Who does what next

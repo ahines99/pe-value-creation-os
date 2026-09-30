@@ -46,6 +46,7 @@ from ..diligence.private_baselines import (
     require_reviewer as require_private_plan_reviewer,
 )
 from ..diligence.private_capacity import CapacityPlanRequest
+from ..diligence.private_execution import PrivateExecutionRequest, reducing_support
 from ..diligence.private_financials import FinancialSnapshotRequest, require_snapshot_writer
 from ..diligence.private_grants import GrantRequest, permission_status
 from ..diligence.private_intake import MAX_BYTES, parse_private
@@ -227,6 +228,50 @@ def private_grant_history(
 class PrivateUpload(Record):
     intake: IntakeRequest
     source_base64: str = Field(min_length=1, max_length=((MAX_BYTES + 2) // 3) * 4)
+
+
+@app.post("/companies/{company_id}/private-execution/baselines/{baseline_id}/events/{kind}", status_code=201)
+async def record_private_execution(
+    company_id: str,
+    baseline_id: str,
+    kind: Literal["authorization", "delivery", "acceptance"],
+    request: Request,
+    p: Principal,
+) -> dict[str, Any]:
+    with case_request(p, request, write=True):
+        if kind == "authorization":
+            require_private_baseline_author(company_id)
+        elif kind == "acceptance":
+            require_private_plan_reviewer(company_id, "operating")
+        else:
+            require_intake_writer(company_id)
+        body = parse_private(PrivateExecutionRequest, await bounded_private_body(request, 1024 * 1024))
+        if body.payload.kind != kind:
+            raise ValueError("execution event kind differs from the requested route")
+        environment = "" if reducing_support(body) else processing_environment()
+        result = await run_in_threadpool(
+            get_ctx().repo.record_private_execution, company_id, baseline_id, body, environment
+        )
+        return result.model_dump(mode="json")
+
+
+@app.get("/companies/{company_id}/private-execution/baselines/{baseline_id}/events")
+def private_execution_history(company_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return {
+            "events": [
+                e.model_dump(mode="json") for e in get_ctx().repo.list_private_execution_events(company_id, baseline_id)
+            ],
+            "historical_records_only": True,
+            "automated_action_executed": False,
+            "causal_value_claim": False,
+        }
+
+
+@app.get("/companies/{company_id}/private-execution/baselines/{baseline_id}/status")
+def private_execution_status(company_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
+    with case_request(p, request):
+        return get_ctx().repo.private_execution_status(company_id, baseline_id, processing_environment())
 
 
 @app.post("/companies/{company_id}/private-counterfactuals/cases/{case_key}/streams/{key}", status_code=201)

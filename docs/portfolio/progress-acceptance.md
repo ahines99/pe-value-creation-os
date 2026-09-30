@@ -127,6 +127,17 @@ suite passed 461 tests with one Windows symlink-privilege skip. Migration
 round-trip passed at 0013. These are fictional-fixture software checks, not
 actual human company review, operating authorization or pilot results.
 
+The private counterfactual and monthly-observation workflow was released in
+[PR #48](https://github.com/ahines99/pe-value-creation-os/pull/48), tested at
+`a40caaa7f62ef5095ccc7ebbb0e629416208cc22` and merged as
+`4560a744260246158082e7c02ba8360c6ac76771` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36647436171)
+passed: 1,637 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Six published files
+matched the merge. The new focused suite passed 81 tests; migration round-trip
+passed at 0014. Differences remain explicitly unattributed. These fictional-fixture
+checks do not establish actual company review, realized value or a performed pilot.
+
 The new [review consistency command](../../scripts/check_progress_review.py)
 additionally checks the linked bundle. Its CI receipt records all inspected hashes
 and the current exit revision. The lineage update expands it to 15 conditions: exit inputs, original
@@ -147,10 +158,13 @@ definitions; CI/publication acceptance is verified in PR #44. The
 [private underwriting increment](../pilot/permissioned/underwriting.md) is released
 in PR #45. [Private capacity plans](../pilot/permissioned/capacity-plans.md)
 are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-baselines.md)
-are released in PR #47. The next [private-observation increment](../pilot/permissioned/observations.md)
+are released in PR #47. The [private-observation increment](../pilot/permissioned/observations.md)
 adds reviewed counterfactuals, accepted whole-month actuals and unattributed
-frozen-plan comparisons, with a separate release gate. Private attribution, intervention
-permission/delivery evidence, memo/review UX, retention operations and all
+frozen-plan comparisons, released and verified in PR #48. The subsequent
+[private execution increment](../pilot/permissioned/execution.md) records bounded
+human intervention decisions, delivery segments and exact prerequisite acceptance,
+with its own release gate. Private attribution and delivery-to-claim reconciliation,
+memo/review UX, retention operations and all
 real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence
