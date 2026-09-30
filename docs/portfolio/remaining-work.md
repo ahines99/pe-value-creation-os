@@ -138,6 +138,18 @@ Windows symlink-privilege skip before the final capacity-identity guard; that gu
 and valid authorization path separately passed three focused checks. These are
 fictional-fixture software checks, not company authority or actual operating work.
 
+The private attribution and separate finance-review workflow was released in
+[PR #50](https://github.com/ahines99/pe-value-creation-os/pull/50), tested at
+`e15b8552b85e5d0832995f6c0854a71f101a2d0d` and merged as
+`939c91e36f36885444fb8d397f62009a479268b4` with identical trees.
+All ten [CI jobs](https://github.com/ahines99/pe-value-creation-os/actions/runs/36652115051)
+passed: 1,757 tests on each supported Python version, 84 browser checks,
+31 bundle conditions and 39 installed-package evaluations. Seven published files
+matched the merge. The attribution workflow has 56 new checks; the related local
+regression suite passed 662 tests with one Windows symlink-privilege skip.
+Migration round-trip passed at 0016. These are fictional-fixture checks, not
+independent company finance acceptance, proof of causal impact or a performed pilot.
+
 Existing capabilities include public financial facts, separate EBITDA/cash/value
 models, a constrained 100-day plan, executive memos, immutable reviews and
 baselines, source corrections, allocation controls, KPI history and constructed
@@ -150,8 +162,8 @@ an actually performed permissioned pilot. Production deployment is later scope.
 
 ### 1. Reconcile the completion inventory — Codex
 
-**Current status:** implementation through PR #49 is released and verified.
-The private-attribution increment below has a separate release gate; its
+**Current status:** implementation through PR #50 is released and verified.
+The private-review workspace below has a separate release gate; its
 local presence does not establish publication or pilot readiness. Historical counts
 remain attached to their original builds in this checklist and the acceptance map.
 
@@ -321,11 +333,13 @@ adds authored and finance-reviewed counterfactuals, accepted whole-month actuals
 frozen-plan variance and explicitly unattributed differences, released and verified
 in PR #48. A subsequent [private execution increment](../pilot/permissioned/execution.md)
 adds bounded human intervention decisions, delivery segments and prerequisite
-acceptance, released and verified in PR #49. The next [private attribution increment](../pilot/permissioned/attribution.md)
+acceptance, released and verified in PR #49. The [private attribution increment](../pilot/permissioned/attribution.md)
 adds signed allocations, delivery-to-claim checks, explicit residuals and separate
-finance review with a separate release gate. Private operating-source and delivery-cost
-reconciliation, executive memo and pilot review UX
-remain open, as do per-source expiry deletion,
+finance review, released and verified in PR #50. The
+[private finance review workspace](../pilot/permissioned/review-workspace.md) adds
+an executive attribution page and exact-version human decision form, with a
+separate release gate. Private operating-source and delivery-cost reconciliation,
+executive memo and remaining pilot screens remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 
 Use a distinct permissioned-input contract and processing/export boundary. Add

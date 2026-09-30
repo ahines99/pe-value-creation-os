@@ -18,7 +18,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from typing import Annotated, Any, Literal
-from urllib.parse import quote
+from urllib.parse import parse_qsl, quote
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -63,13 +63,14 @@ from ..diligence.private_records import (
     require_finance_reviewer,
     require_intake_writer,
 )
+from ..diligence.private_review import review_note_request
 from ..diligence.private_underwriting import UnderwritingRequest
 from ..diligence.realization import AttributionRequest, ObservationRequest
 from ..domain.runs import ApprovalDecision, RunRecord
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
-from . import views
+from . import private_review_views, views
 
 log = get_logger(__name__)
 configure_telemetry("pvc-api")
@@ -274,6 +275,103 @@ def private_execution_history(company_id: str, baseline_id: str, request: Reques
 def private_execution_status(company_id: str, baseline_id: str, request: Request, p: Principal) -> dict[str, Any]:
     with case_request(p, request):
         return get_ctx().repo.private_execution_status(company_id, baseline_id, processing_environment())
+
+
+@app.get("/private-reviews", response_class=HTMLResponse)
+def private_review_index(request: Request, p: Principal) -> HTMLResponse:
+    with case_request(p, request):
+        if not p.is_human or not p.has_scope("pvc.read"):
+            raise security.deny("Private review requires a scoped human reader", "private_review_index")
+        cards = []
+        for company_id in sorted(p.companies):
+            try:
+                cards.extend(get_ctx().repo.private_review_index(company_id))
+            except NotFound:
+                continue
+        return HTMLResponse(private_review_views.index_page(cards))
+
+
+def _private_review_response(
+    company_id: str,
+    revision_id: str,
+    *,
+    error: str | None = None,
+    status_code: int = 200,
+    submitted: dict[str, str] | None = None,
+) -> HTMLResponse:
+    packet = get_ctx().repo.private_attribution_review_packet(
+        company_id, revision_id, os.environ.get("PVC_PROCESSING_ENVIRONMENT_ID", "").strip()
+    )
+    csrf = secrets.token_urlsafe(32)
+    html = private_review_views.review_page(
+        packet,
+        csrf,
+        "review-" + secrets.token_hex(16),
+        error=error,
+        submitted=submitted,
+    )
+    response = HTMLResponse(html, status_code=status_code)
+    response.set_cookie(
+        "pvc_private_review_csrf",
+        csrf,
+        httponly=True,
+        samesite="strict",
+        secure=os.environ.get("PVC_ENV") != "dev",
+        max_age=1800,
+    )
+    return response
+
+
+@app.get("/companies/{company_id}/private-reviews/{revision_id}", response_class=HTMLResponse)
+def private_review_page(company_id: str, revision_id: str, request: Request, p: Principal) -> HTMLResponse:
+    with case_request(p, request):
+        return _private_review_response(company_id, revision_id)
+
+
+@app.post("/companies/{company_id}/private-reviews/{revision_id}/decision", response_class=HTMLResponse)
+async def private_review_decision(company_id: str, revision_id: str, request: Request, p: Principal) -> Response:
+    with case_request(p, request):
+        require_finance_reviewer(company_id)
+        raw = await bounded_private_body(request, 64 * 1024)
+        if request.headers.get("content-type", "").split(";", 1)[0].lower() != "application/x-www-form-urlencoded":
+            raise HTTPException(415, "Private review requires a URL-encoded form")
+        pairs = parse_qsl(
+            raw.decode("utf-8", errors="strict"), keep_blank_values=True, max_num_fields=20, errors="strict"
+        )
+        fields = dict(pairs)
+        if len(fields) != len(pairs):
+            raise ValueError("duplicate private review form field")
+        csrf = request.cookies.get("pvc_private_review_csrf", "")
+        if not csrf or not secrets.compare_digest(fields.get("csrf", "").encode(), csrf.encode()):
+            return await run_in_threadpool(
+                _private_review_response,
+                company_id,
+                revision_id,
+                error="This form expired. Review the current version before submitting again.",
+                status_code=403,
+                submitted=fields,
+            )
+        try:
+            body = review_note_request(fields)
+            environment = "" if body.decision == "withdraw" else processing_environment()
+            await run_in_threadpool(
+                get_ctx().repo.review_private_attribution, company_id, revision_id, body, environment
+            )
+        except (ValueError, Conflict) as exc:
+            changed = isinstance(exc, Conflict)
+            return await run_in_threadpool(
+                _private_review_response,
+                company_id,
+                revision_id,
+                error=(
+                    "The reviewed version changed. Inspect the updated evidence and submit a new decision."
+                    if changed
+                    else "The decision could not be recorded. Acceptance needs all five assessments and current source, delivery and version support."
+                ),
+                status_code=409 if changed else 422,
+                submitted=fields,
+            )
+        return RedirectResponse(private_review_views.review_path(company_id, revision_id), status_code=303)
 
 
 @app.post("/companies/{company_id}/private-attributions/cases/{case_key}/streams/{key}", status_code=201)

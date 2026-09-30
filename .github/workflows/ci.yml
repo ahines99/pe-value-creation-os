@@ -62,6 +62,11 @@ jobs:
           docker build -f infra/Dockerfile.browser -t pvc-browser-check .
           mkdir -p var/browser-checks
           docker run --rm --network none -v "$PWD/docs:/site:ro" -v "$PWD/var/browser-checks:/artifacts" pvc-browser-check /site /artifacts
+      - name: Check fictional private finance review across desktop, tablet and phone widths
+        run: |
+          uv run python tests/browser/capture_private_review.py var/private-review-workspace/site
+          mkdir -p var/browser-checks/private-review
+          docker run --rm --network none --entrypoint python -v "$PWD/var/private-review-workspace/site:/site:ro" -v "$PWD/var/browser-checks/private-review:/artifacts" -v "$PWD/scripts/check_private_review_browser.py:/check-private.py:ro" pvc-browser-check /check-private.py /site /artifacts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
