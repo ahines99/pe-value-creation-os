@@ -149,8 +149,11 @@ in PR #45. [Private capacity plans](../pilot/permissioned/capacity-plans.md)
 are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-baselines.md)
 are released in PR #47. The next [private-observation increment](../pilot/permissioned/observations.md)
 adds reviewed counterfactuals, accepted whole-month actuals and unattributed
-frozen-plan comparisons, with a separate release gate. Private attribution, intervention
-permission/delivery evidence, memo/review UX, retention operations and all
+frozen-plan comparisons, with a separate release gate. The subsequent
+[private execution increment](../pilot/permissioned/execution.md) records bounded
+human intervention decisions, delivery segments and exact prerequisite acceptance,
+with its own release gate. Private attribution and delivery-to-claim reconciliation,
+memo/review UX, retention operations and all
 real-company pilot evidence remain outstanding.
 
 ## Requirement-by-requirement evidence

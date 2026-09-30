@@ -295,8 +295,10 @@ are released in PR #46. [Reviewed baselines](../pilot/permissioned/reviewed-base
 are released in PR #47. The subsequent [private-observation increment](../pilot/permissioned/observations.md)
 adds authored and finance-reviewed counterfactuals, accepted whole-month actuals,
 frozen-plan variance and explicitly unattributed differences, with a separate
-release gate. Private attribution,
-intervention authorization/delivery evidence, executive memo and pilot review UX
+release gate. A subsequent [private execution increment](../pilot/permissioned/execution.md)
+adds bounded human intervention decisions, delivery segments and prerequisite
+acceptance, with its own release gate. Private attribution and delivery-to-claim
+reconciliation, executive memo and pilot review UX
 remain open, as do per-source expiry deletion,
 legal holds, backup/copy disposal and pilot readiness.
 

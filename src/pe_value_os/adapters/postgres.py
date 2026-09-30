@@ -76,6 +76,11 @@ from ..diligence.private_capacity import (
 from ..diligence.private_capacity import (
     verify_revision as verify_private_capacity,
 )
+from ..diligence.private_execution import PrivateExecutionEvent, PrivateExecutionRequest
+from ..diligence.private_execution import execution_view as private_execution_view
+from ..diligence.private_execution import prepare_event as prepare_private_execution
+from ..diligence.private_execution import reducing_support as execution_reducing_support
+from ..diligence.private_execution import require_author as require_private_execution_author
 from ..diligence.private_financials import (
     FinancialSnapshotRequest,
     PrivateFinancialSnapshot,
@@ -182,6 +187,105 @@ class PostgresRepository:
     def _lock_private_company(self, cur: Any, company_id: str) -> None:
         if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
             raise NotFound(company_id)
+
+    def _private_execution_context(
+        self, company_id: str, baseline_id: str
+    ) -> tuple[PrivateBaseline, PrivateCapacityRevision]:
+        require_grant_reader(company_id)
+        try:
+            if str(uuid.UUID(baseline_id)) != baseline_id:
+                raise ValueError("Noncanonical baseline identifier")
+        except ValueError as exc:
+            raise NotFound(baseline_id) from exc
+        with self._tx() as cur:
+            row = cur.execute(
+                "select record from private_baselines where company_id=%s and baseline_id=%s", (company_id, baseline_id)
+            ).fetchone()
+            if row is None:
+                raise NotFound(baseline_id)
+            baseline = PrivateBaseline.model_validate(row["record"])
+            return baseline, self._private_capacity_revision(company_id, baseline.request.capacity_revision_id)
+
+    def list_private_execution_events(self, company_id: str, baseline_id: str) -> list[PrivateExecutionEvent]:
+        self._private_execution_context(company_id, baseline_id)
+        with self._tx() as cur:
+            return [
+                PrivateExecutionEvent.model_validate(r["record"])
+                for r in cur.execute(
+                    "select record from private_execution_events where company_id=%s and baseline_id=%s order by sequence",
+                    (company_id, baseline_id),
+                ).fetchall()
+            ]
+
+    def record_private_execution(
+        self, company_id: str, baseline_id: str, request: PrivateExecutionRequest, environment_id: str
+    ) -> PrivateExecutionEvent:
+        request = PrivateExecutionRequest.model_validate(request.model_dump(mode="json"))
+        principal = require_private_execution_author(company_id, request)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            baseline, plan = self._private_execution_context(company_id, baseline_id)
+            events = self.list_private_execution_events(company_id, baseline_id)
+            replay = next((e for e in events if e.request.idempotency_key == request.idempotency_key), None)
+            if replay:
+                if replay.request != request or replay.author != principal.subject:
+                    raise Conflict("Private execution idempotency key belongs to another request or author")
+                return replay
+            previous = events[-1] if events else None
+            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
+                raise Conflict("Private execution history changed; reload its current head")
+            if not execution_reducing_support(request):
+                view = self.private_baseline_status(company_id, baseline_id, environment_id)
+                if not view["usable_for_comparison"]:
+                    raise ValueError("private execution requires a currently supported baseline")
+            result = prepare_private_execution(company_id, baseline, plan, request, events)
+            cur.execute(
+                """insert into private_execution_events
+                (event_id,company_id,case_key,baseline_id,baseline_sha256,sequence,previous_sha256,idempotency_key,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    result.event_id,
+                    company_id,
+                    result.case_key,
+                    baseline_id,
+                    request.baseline_sha256,
+                    result.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    result.content_sha256,
+                    Jsonb(result.model_dump(mode="json")),
+                ),
+            )
+            self.append_audit(
+                AuditEvent(
+                    run_id=None,
+                    company_id=company_id,
+                    step="private_execution",
+                    event_type="private_execution_" + request.payload.kind,
+                    actor=result.author,
+                    created_at=result.recorded_at,
+                    payload={
+                        "event_id": result.event_id,
+                        "baseline_id": baseline_id,
+                        "sha256": result.content_sha256,
+                        "kind": request.payload.kind,
+                    },
+                )
+            )
+            return result
+
+    def private_execution_status(self, company_id: str, baseline_id: str, environment_id: str) -> dict[str, Any]:
+        require_grant_reader(company_id)
+        with self.approval_transaction(), self._tx() as cur:
+            self._lock_private_company(cur, company_id)
+            baseline, plan = self._private_execution_context(company_id, baseline_id)
+            view = self.private_baseline_status(company_id, baseline_id, environment_id)
+            return private_execution_view(
+                baseline,
+                plan,
+                self.list_private_execution_events(company_id, baseline_id),
+                baseline_supported=view["usable_for_comparison"],
+            )
 
     def _private_counterfactual(self, company_id: str, record_id: str) -> PrivateCounterfactual:
         require_grant_reader(company_id)
@@ -2777,6 +2881,7 @@ class PostgresRepository:
                 "private_counterfactuals",
                 "private_counterfactual_reviews",
                 "private_observations",
+                "private_execution_events",
             ):
                 counts[table] = cur.execute(
                     f"select count(*) as n from {table} where company_id=%s", (company_id,)
