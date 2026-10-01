@@ -19,12 +19,12 @@ from .private_records import (
     FinanceReview,
     PrivateIntake,
     authorize_source,
-    content_hash,
     require_finance_reviewer,
     require_intake_writer,
     verify_source,
 )
 from .realization import COMPONENTS, ENTRY_COMPONENT
+from .record_chain import seal, verify_link
 from .underwriting import Entry, month_end, month_start, totals
 
 
@@ -95,10 +95,9 @@ class PrivateFinancialSnapshot(Record):
     @model_validator(mode="after")
     def integrity(self) -> Self:
         validate_key(self.case_key)
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private financial snapshot hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private financial history requires its predecessor")
+        verify_link(
+            self, "private financial snapshot hash mismatch", "private financial history requires its predecessor"
+        )
         return self
 
     def require_public(self) -> None:
@@ -222,10 +221,8 @@ def prepare_snapshot(
         period_totals=total,
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateFinancialSnapshot.model_construct(**payload))
-    return PrivateFinancialSnapshot.model_validate(payload)
+    return seal(PrivateFinancialSnapshot, payload)
 
 
 def verify_snapshot(snapshot: PrivateFinancialSnapshot, record: PrivateIntake, raw: bytes) -> None:

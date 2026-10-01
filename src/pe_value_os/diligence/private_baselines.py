@@ -14,7 +14,8 @@ from .models import Record
 from .private_capacity import PrivateCapacityRevision
 from .private_grants import validate_key
 from .private_intake import SHA, require_operator
-from .private_records import KEY, UUID, content_hash
+from .private_records import KEY, UUID
+from .record_chain import content_hash, seal, verify_link
 
 ReviewKind = Literal["finance", "operating"]
 
@@ -129,10 +130,7 @@ class PrivateBaseline(Record):
     @model_validator(mode="after")
     def integrity(self) -> Self:
         validate_key(self.case_key)
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private baseline hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private baseline requires its predecessor")
+        verify_link(self, "private baseline hash mismatch", "private baseline requires its predecessor")
         return self
 
     def require_public(self) -> None:
@@ -217,10 +215,8 @@ def prepare_review(
         request=request,
         actor=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivatePlanReview.model_construct(**payload))
-    return PrivatePlanReview.model_validate(payload)
+    return seal(PrivatePlanReview, payload)
 
 
 def accepted_reviews(
@@ -304,10 +300,8 @@ def prepare_baseline(
         frozen_forecast=copy.deepcopy(frozen),
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateBaseline.model_construct(**payload))
-    return PrivateBaseline.model_validate(payload)
+    return seal(PrivateBaseline, payload)
 
 
 def baseline_view(

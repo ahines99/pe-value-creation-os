@@ -18,6 +18,7 @@ from pydantic import AwareDatetime, Field, field_validator, model_validator
 from .. import security
 from .models import Record
 from .realization import COMPONENTS, Component
+from .record_chain import canonical_sha256
 from .underwriting import month_end, month_start
 
 MAX_BYTES = 10 * 1024 * 1024
@@ -39,7 +40,7 @@ def parse_private(model: type[R], raw: bytes) -> R:
 
 
 def fingerprint(record: Record) -> str:
-    return hashlib.sha256(json.dumps(record.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
+    return canonical_sha256(record.model_dump(mode="json"))
 
 
 class AccountMapping(Record):

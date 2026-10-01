@@ -19,8 +19,9 @@ from .models import Record, SourceClass
 from .private_financials import PrivateFinancialSnapshot
 from .private_grants import validate_key
 from .private_intake import SHA
-from .private_records import KEY, UUID, content_hash, require_intake_writer
+from .private_records import KEY, UUID, require_intake_writer
 from .realization import Component
+from .record_chain import seal, verify_link
 from .underwriting import EvidenceRef, Scenario, scenario_report, single_pool_ledger, validate_inputs
 
 
@@ -185,10 +186,9 @@ class PrivateUnderwritingRevision(Record):
         validate_key(self.case_key)
         if (self.company_id, self.case_key) != (self.request.inputs.company_id, self.request.inputs.case_key):
             raise ValueError("private underwriting revision scope mismatch")
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private underwriting revision hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private underwriting history requires its predecessor")
+        verify_link(
+            self, "private underwriting revision hash mismatch", "private underwriting history requires its predecessor"
+        )
         return self
 
     def require_public(self) -> None:
@@ -295,10 +295,8 @@ def prepare_revision(
         forecast=calculate(request.inputs, snapshot),
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateUnderwritingRevision.model_construct(**payload))
-    return PrivateUnderwritingRevision.model_validate(payload)
+    return seal(PrivateUnderwritingRevision, payload)
 
 
 def verify_revision(revision: PrivateUnderwritingRevision, snapshot: PrivateFinancialSnapshot) -> None:

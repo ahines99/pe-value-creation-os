@@ -14,10 +14,11 @@ from .models import Record
 from .private_financials import PrivateFinancialSnapshot
 from .private_grants import validate_key
 from .private_intake import SHA
-from .private_records import KEY, UUID, content_hash, require_intake_writer
+from .private_records import KEY, UUID, require_intake_writer
 from .private_underwriting import PrivateUnderwritingInputs, PrivateUnderwritingRevision
 from .private_underwriting import calculate as calculate_forecast
 from .private_underwriting import verify_revision as verify_underwriting
+from .record_chain import seal, verify_link
 from .scheduling import Resource, WorkPackage, _PlanningInputs, apply_benefit_timing, schedule
 
 
@@ -93,10 +94,9 @@ class PrivateCapacityRevision(Record):
         validate_key(self.case_key)
         if self.case_key != self.request.plan.case_id:
             raise ValueError("private capacity revision scope mismatch")
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private capacity revision hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private capacity history requires its predecessor")
+        verify_link(
+            self, "private capacity revision hash mismatch", "private capacity history requires its predecessor"
+        )
         return self
 
     def require_public(self) -> None:
@@ -186,10 +186,8 @@ def prepare_revision(
         schedule_result=calculate(request.plan, underwriting, financials),
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateCapacityRevision.model_construct(**payload))
-    return PrivateCapacityRevision.model_validate(payload)
+    return seal(PrivateCapacityRevision, payload)
 
 
 def verify_revision(

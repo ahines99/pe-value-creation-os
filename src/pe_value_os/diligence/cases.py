@@ -19,6 +19,7 @@ from .exit_review import ExitReviewPayload, evaluate_exit, exit_payload
 from .lineage import LINEAGE_PAYLOAD_TYPES, AllocatedLineageCasePayload, LineageCasePayload, evaluate_lineage
 from .models import Record
 from .operating_sources import source_forecast
+from .record_chain import content_hash, seal_json
 from .scheduling import OperatingPlan, evaluate_plan
 from .source_revisions import SourceCasePayload, financial_snapshot, source_payload
 from .underwriting import evaluate
@@ -91,8 +92,7 @@ class CaseRevision(Record):
 
     @model_validator(mode="after")
     def verify_content(self) -> Self:
-        raw = self.model_dump(mode="json", exclude={"content_sha256"})
-        if digest(json.dumps(raw, sort_keys=True)) != self.content_sha256:
+        if content_hash(self) != self.content_sha256:
             raise ValueError("revision content hash mismatch")
         return self
 
@@ -238,7 +238,7 @@ def prepare_revision(case: InvestmentCase, draft: RevisionDraft, parent: CaseRev
     }
     # Normalize datetime serialization before signing the immutable envelope.
     raw["recorded_at"] = raw["recorded_at"].replace("+00:00", "Z")
-    return CaseRevision.model_validate({**raw, "content_sha256": digest(json.dumps(raw, sort_keys=True))})
+    return seal_json(CaseRevision, raw)
 
 
 def prepare_review(

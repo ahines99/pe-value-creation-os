@@ -15,7 +15,8 @@ from .private_baselines import PrivateBaseline, require_baseline_author, require
 from .private_capacity import PrivateCapacityRevision
 from .private_grants import validate_key
 from .private_intake import SHA, Amount, Control
-from .private_records import KEY, UUID, content_hash, require_intake_writer
+from .private_records import KEY, UUID, require_intake_writer
+from .record_chain import seal, verify_link
 
 
 class EvidenceBinding(Record):
@@ -162,10 +163,7 @@ class PrivateExecutionEvent(Record):
     @model_validator(mode="after")
     def integrity(self) -> Self:
         validate_key(self.case_key)
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private execution event hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private execution history requires its predecessor")
+        verify_link(self, "private execution event hash mismatch", "private execution history requires its predecessor")
         return self
 
     def require_public(self) -> None:
@@ -432,10 +430,8 @@ def prepare_event(
         origin=baseline.origin,
         author=principal.subject,
         recorded_at=datetime.now(UTC),
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateExecutionEvent.model_construct(**payload))
-    result = PrivateExecutionEvent.model_validate(payload)
+    result = seal(PrivateExecutionEvent, payload)
     with localcontext() as ctx:
         ctx.prec = 40
         state.append(result)
