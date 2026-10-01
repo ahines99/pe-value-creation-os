@@ -425,7 +425,8 @@ def test_concurrent_authorization_and_revocation_cannot_leave_active_permission(
     from threading import Event
 
     case = setup(repo)
-    module = importlib.import_module(type(repo).__module__)
+    # Both backends run the shared record rules defined beside InMemoryRepository.
+    module = importlib.import_module("pe_value_os.adapters.repositories")
     original = module.prepare_private_execution
     entered, attempted, release = Event(), Event(), Event()
 
