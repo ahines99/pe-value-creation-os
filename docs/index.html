@@ -7,122 +7,374 @@
 <meta name="description" content="An operating partner workspace: trace investment hypotheses to evidence, challenge deterministic value cases, approve a 100-day plan and monitor its KPIs. Public-company research and constructed operating exercises by Alex Hines.">
 <title>Value Creation OS | Evidence to execution</title>
 <style>
-:root{color-scheme:light;--navy:#132c3c;--deep:#0c2231;--ink:#172c3d;--muted:#586772;--teal:#21685d;--copper:#9b5a32;--paper:#f4f3ee;--line:#dce1dd;--white:#fff}
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:var(--teal);text-underline-offset:4px}a:hover{text-decoration-thickness:2px}:focus-visible{outline:3px solid #c87f42;outline-offset:5px;border-radius:2px}::selection{background:#cce1d9}h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.14}h1{font-weight:500;font-size:clamp(42px,5.05vw,72px);letter-spacing:-.05em}h2{font-size:clamp(28px,3vw,40px);font-weight:500;letter-spacing:-.035em}h3{font-size:20px;letter-spacing:-.025em;font-weight:600}svg{display:block;max-width:100%}.wrap{max-width:1280px;padding:0 40px;margin:auto}.skip{position:fixed;z-index:5;top:10px;left:10px;transform:translateY(-150%);background:#fff;padding:12px 18px}.skip:focus{transform:translateY(0)}
-.site-header{background:var(--deep);color:#fff}.nav{display:flex;align-items:center;justify-content:space-between;gap:30px;min-height:88px}.brand{display:flex;align-items:center;gap:13px;text-decoration:none;color:#fff;flex-shrink:0}.brand-mark{display:grid;place-items:center;width:38px;height:38px;border:1px solid #577b78;border-radius:8px;color:#b2d2bf}.brand-name{font-size:18px;font-weight:650;letter-spacing:-.035em;line-height:1.2}.brand-name small{display:block;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.2em;color:#b0c2c8;margin-top:6px}.nav-links{display:flex;align-items:center;gap:24px}.nav-links a{font-size:12px;color:#ced9dd;text-decoration:none}.nav-links a:last-child{border:1px solid #47616c;padding:8px 13px;border-radius:4px}.hero{padding:76px 0 64px;display:grid;grid-template-columns:minmax(0,1.14fr) minmax(0,1fr);gap:65px;align-items:center}.eyebrow{display:block;color:var(--copper);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:20px}.hero h1 em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--teal);letter-spacing:-.045em}.lead{font-size:17px;color:var(--muted);max-width:560px;margin-top:25px;line-height:1.8}.actions{display:flex;gap:13px;flex-wrap:wrap;margin-top:30px}.button{display:inline-flex;align-items:center;justify-content:center;padding:12px 19px;min-height:46px;border:1px solid var(--teal);border-radius:5px;background:var(--teal);color:#fff;text-decoration:none;font-size:12px;font-weight:650}.button:hover{background:#174f46}.button.secondary{background:transparent;color:var(--ink);border-color:#b9c6bd}.button.secondary:hover{background:#eaf0e8}.micro{font-size:11px;color:var(--muted);line-height:1.65}.hero .micro{margin-top:20px}.memo{position:relative;background:var(--navy);border-radius:11px;box-shadow:0 20px 45px #10293913;color:#fff;padding:29px 31px;border-top:3px solid #a0bbaa}.memo-top{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;border-bottom:1px solid #38505e;padding-bottom:20px}.memo-top small{display:block;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#b8cdd0}.memo-top h2{font-size:23px;margin-top:9px;letter-spacing:-.025em}.tag{font-size:9px;font-weight:650;letter-spacing:.045em;display:inline-block;border-radius:4px;padding:5px 8px;background:#294b48;color:#d2e9d9;border:1px solid #45665c;white-space:nowrap}.memo-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#bbced6;margin-top:24px}.amount{font-size:clamp(37px,3.9vw,51px);letter-spacing:-.055em;font-weight:500;line-height:1.2;margin-top:8px;font-variant-numeric:tabular-nums}.memo .micro{color:#c0d1d5;margin-top:7px}.memo-metrics{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:17px;margin-top:25px;padding-top:20px;border-top:1px solid #38505e}.memo-metrics dt{font-size:9px;color:#bccdd4;line-height:1.6}.memo-metrics dd{margin:5px 0 0;font-size:21px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.memo-bottom{display:flex;justify-content:space-between;gap:15px;margin-top:22px;font-size:10px;color:#bfd1d4}.memo-bottom a{color:#deecdf}.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:30px;padding:26px 0}.pillar{display:flex;gap:15px;align-items:flex-start}.pillar span{font-size:11px;color:var(--copper);font-variant-numeric:tabular-nums;margin-top:1px}.pillar strong{display:block;font-size:13px;font-weight:650}.pillar p{font-size:12px;color:var(--muted);margin-top:3px}
-.section{padding:73px 0;border-bottom:1px solid var(--line)}.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:30px}.section-head .eyebrow{margin-bottom:13px}.section-head>p{max-width:410px;font-size:13px;color:var(--muted)}.case-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:26px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px;min-width:0}.card p{font-size:13px;color:var(--muted)}.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:23px}.company-id{display:flex;align-items:center;gap:13px}.monogram{width:43px;height:43px;border:1px solid #cbdcd2;background:#eaf3ed;color:var(--teal);border-radius:7px;font:22px Georgia,serif;display:grid;place-items:center}.company-id h3{font-size:20px}.company-id p{font-size:11px;margin-top:4px}.status{font-size:9px;line-height:1.3;text-transform:uppercase;letter-spacing:.05em;background:#edf5ef;color:#235f50;border:1px solid #c7ddce;padding:6px 8px;border-radius:4px;white-space:nowrap}.status.warn{background:#fff5df;color:#825411;border-color:#e8d7b2}.thesis{font-size:17px!important;line-height:1.65;color:var(--ink)!important;margin:4px 0 23px}.contribution{padding:11px 0}.contribution>div:first-child{display:flex;justify-content:space-between;gap:18px;font-size:12px}.contribution strong{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}.track{background:#e8eee7;height:5px;margin-top:9px;border-radius:2px}.track span{display:block;height:100%;background:var(--teal);border-radius:2px}.contribution:last-of-type .track span{background:#a47855}.card-bottom{border-top:1px solid var(--line);padding-top:20px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.text-link{font-size:12px;font-weight:650}.case-side{display:flex;flex-direction:column;gap:22px}.case-side .card{flex:1}.case-side h3{font-size:22px}.case-side .eyebrow{margin-bottom:12px}.case-side p{margin-top:13px}.gap-list{list-style:none;padding:0;margin:20px 0 0}.gap-list li{display:flex;justify-content:space-between;gap:15px;border-top:1px solid var(--line);padding:11px 0;font-size:12px}.gap-list span{color:#825411;font-size:11px}.risk-note{background:#eeeae0;border-left:3px solid #a17a4d;padding:21px 24px;border-radius:0 6px 6px 0}.risk-note strong{font-size:13px}.risk-note p{font-size:12px;color:var(--muted);margin-top:8px}.workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:23px;counter-reset:steps}.step{border-top:2px solid var(--teal);padding-top:21px}.step-number{display:block;font-size:10px;letter-spacing:.1em;color:var(--copper);margin-bottom:16px}.step h3{font-size:19px}.step p{font-size:13px;color:var(--muted);margin-top:13px}.step a{font-size:12px;display:inline-block;margin-top:17px}.boundary{margin-top:29px;font-size:12px;color:var(--muted);max-width:850px}.engineering{background:var(--navy);color:#fff;margin-top:72px;border-radius:12px;padding:40px}.engineering .eyebrow{color:#c4d7bd}.engineering h2{max-width:580px}.engineering p{color:#bfd1d8;font-size:13px}.engineering .section-head>p{max-width:360px}.architecture{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:30px 0}.architecture div{background:#223e4e;border:1px solid #415968;border-radius:6px;padding:17px 14px;position:relative}.architecture span{font-size:9px;color:#c3d6c4;display:block;margin-bottom:12px;letter-spacing:.08em}.architecture strong{font-size:12px;line-height:1.5;display:block;font-weight:550}.engineering-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;padding-top:5px}.engineering-grid h3{font-size:16px;margin-bottom:12px}.engineering-grid p{font-size:12px}.engineering-links{margin-top:28px;border-top:1px solid #45606c;padding-top:21px;display:flex;gap:24px;flex-wrap:wrap}.engineering-links a{color:#d8e8dc;font-size:12px}.proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px;margin-top:26px}.proof-item{background:#fff;border:1px solid var(--line);border-radius:9px;padding:23px}.proof-item h3{font-size:16px}.proof-item p{font-size:12px;color:var(--muted);margin:11px 0 15px}.proof-item a{font-size:12px;font-weight:600}.try-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:60px;align-items:start}.try-grid .eyebrow{margin-bottom:14px}.try-grid p{color:var(--muted);font-size:14px;margin-top:19px}.code-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:13px 18px;border-bottom:1px solid #d5ded5;background:#e8eee6;color:#506451;border-radius:7px 7px 0 0}.code{margin:0;overflow-x:auto;background:#fff;border:1px solid var(--line);border-top:0;padding:20px 18px;font:12px/1.9 ui-monospace,SFMono-Regular,Consolas,monospace;border-radius:0 0 7px 7px}.try-grid .micro{font-size:11px;margin-top:12px}.try-grid code{font:12px ui-monospace,monospace}.scope{border-top:1px solid var(--line);padding-top:21px;margin-top:25px}.scope summary{font-size:12px;font-weight:600;cursor:pointer;min-height:36px}.scope ul{font-size:12px;color:var(--muted);padding-left:18px}.scope li+li{margin-top:8px}.footer{padding:29px 0 35px;font-size:11px;color:var(--muted)}.footer .wrap{display:flex;justify-content:space-between;gap:24px;align-items:center}.footer strong{font-weight:600;color:var(--ink)}.footer-links{display:flex;gap:18px}
-@media(max-width:1050px){.hero{gap:35px;padding-top:54px}.memo{padding:25px}.wrap{padding:0 28px}.nav-links{gap:17px}.memo-metrics{gap:11px}.engineering{padding:31px}.architecture{grid-template-columns:repeat(3,minmax(0,1fr))}.try-grid{gap:35px}.workflow{gap:18px}}
-@media(max-width:760px){.wrap{padding:0 20px}.nav{padding:20px 0;flex-wrap:wrap;gap:19px}.nav-links{width:100%;border-top:1px solid #304552;padding-top:14px;gap:22px;flex-wrap:wrap}.nav-links a{font-size:11px}.nav-links a:last-child{margin-left:auto;padding:6px 10px}.hero{grid-template-columns:minmax(0,1fr);gap:34px;padding:40px 0}.hero h1{font-size:51px;max-width:620px}.lead{font-size:16px}.memo{padding:26px}.memo .amount{font-size:45px}.pillars{grid-template-columns:minmax(0,1fr);gap:19px;padding:25px 0}.section{padding:45px 0}.section-head{display:block;margin-bottom:24px}.section-head>p{margin-top:18px;max-width:560px}.case-grid,.try-grid{grid-template-columns:minmax(0,1fr);gap:23px}.workflow{grid-template-columns:repeat(2,minmax(0,1fr));gap:29px 23px}.card{padding:23px}.engineering{padding:27px 23px;margin-top:44px}.architecture{grid-template-columns:repeat(2,minmax(0,1fr))}.engineering-grid,.proof{grid-template-columns:minmax(0,1fr);gap:22px}.engineering-grid{padding-top:13px}.engineering-links{gap:18px}.footer .wrap{flex-direction:column;align-items:flex-start;gap:15px}}
-@media(max-width:420px){.wrap{padding:0 16px}.hero h1{font-size:44px}.nav-links{gap:15px}.nav-links a:last-child{margin-left:0}.memo{padding:22px}.memo-top{flex-wrap:wrap;gap:12px}.memo-metrics{grid-template-columns:1.4fr 1fr 1fr;gap:9px}.memo-metrics dd{font-size:19px}.memo .amount{font-size:41px}.card-header{flex-wrap:wrap}.actions .button{flex-grow:1}.workflow{grid-template-columns:minmax(0,1fr)}.contribution>div:first-child{font-size:11px;gap:12px}.engineering{padding:25px 20px}.engineering-links{flex-direction:column;gap:13px}.architecture div{padding:15px 12px}.section-head h2{font-size:30px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{body{background:#fff;font-size:10pt}.site-header{background:#fff;color:#000}.brand,.brand-name small{color:#000}.nav-links,.skip,.actions{display:none}.wrap{padding:0}.hero{padding-top:25px;gap:30px}h1{font-size:35pt}.memo,.engineering{background:#fff;color:#000;box-shadow:none;border:1px solid #999}.memo p,.memo .micro,.memo-label,.memo-top small,.memo-metrics dt,.memo-bottom,.engineering p,.engineering .eyebrow,.engineering-links a{color:#333}.architecture div{background:#fff;border-color:#999}.architecture span{color:#333}.section{padding:25px 0}.card,.memo,.step,.proof-item{break-inside:avoid}.engineering{margin-top:25px}.footer{padding-top:15px}a{color:#111}}
-.case-points{padding-left:20px;color:var(--muted);font-size:13px;line-height:1.8}.case-points li+li{margin-top:10px}.review-route{list-style:none;padding:0}.review-route .eyebrow{margin-bottom:13px}.memo .memo-metrics dd{font-size:clamp(12px,1.3vw,18px)}.memo .decision-state{font-size:clamp(36px,3.5vw,50px);line-height:1.12;letter-spacing:-.04em;margin-bottom:20px}
-
-/* Design system v2 (Attio-led): neutral surfaces, one accent, colour reserved for status. */
+/* Value Creation OS landing page. Tokens match the application stylesheet (src/pe_value_os/api/presentation.py);
+   see docs/design-system.md. Text tokens meet WCAG AA on every surface used here. */
 @font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/InterVariable-latin.woff2") format("woff2")}
-:root{--navy:#18181b;--deep:#18181b;--ink:#171717;--muted:#52525b;--faint:#8e8e93;--teal:#2f5bea;--copper:#8e8e93;--paper:#fff;--line:#ebebeb;--line-strong:#dfdfe2;--subtle:#fafafa;--mutedbg:#f4f4f5}
-body{background:#fff;color:#171717;font:15px/1.6 "Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-a{color:var(--teal);text-decoration-color:#d5defb;text-underline-offset:3px}a:hover{color:#2349c9;text-decoration-color:currentColor;text-decoration-thickness:1px}
-:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px}::selection{background:#eef2fe}[tabindex='-1']:focus{outline:none}
-h1{font-weight:600;font-size:clamp(40px,5vw,64px);letter-spacing:-.035em;line-height:1.08}h2{font-weight:600;font-size:clamp(26px,2.8vw,36px);letter-spacing:-.025em}h3{font-weight:600;letter-spacing:-.01em}
-.skip{border:1px solid var(--line-strong);border-radius:6px;color:#171717}
-.site-header{background:rgba(255,255,255,.92);color:#171717;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4;backdrop-filter:saturate(1.4) blur(8px)}
-.nav{min-height:60px}.brand{color:#171717;gap:10px}.brand-mark{width:28px;height:28px;border:0;border-radius:6px;background:#18181b;color:#fff}.brand-mark svg{width:16px;height:16px}
-.brand-name{font-size:15px;font-weight:600;letter-spacing:-.01em}.brand-name small{text-transform:none;letter-spacing:0;font-size:12px;font-weight:400;color:var(--faint);margin-top:1px}
-.nav-links{gap:20px}.nav-links a{color:var(--muted);font-size:13px;font-weight:500}.nav-links a:hover{color:#171717}
-.nav-links a:last-child{border:1px solid var(--line-strong);border-radius:6px;padding:6px 12px;color:#171717;background:#fff}
-.eyebrow,.section-head .eyebrow{color:var(--faint);font-size:13px;font-weight:500;letter-spacing:0;text-transform:none;margin-bottom:10px}
-.hero h1 em{font-family:inherit;font-style:normal;font-weight:600;color:var(--faint);letter-spacing:-.035em}
-.lead{color:var(--muted);font-size:17px;line-height:1.65}.micro{color:var(--faint);font-size:12px}
-.button{background:#18181b;border-color:#18181b;border-radius:6px;font-size:14px;font-weight:500;min-height:40px;padding:8px 16px}.button:hover{background:#2c2c30}
-.button.secondary{background:#fff;color:#171717;border-color:var(--line-strong)}.button.secondary:hover{background:var(--mutedbg)}
-.memo{background:#fff;color:#171717;border:1px solid var(--line);border-top:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgb(0 0 0/4%),0 12px 32px rgb(0 0 0/6%)}
-.memo h2,.memo .decision-state,.memo .amount{color:#171717;font-weight:600}
-.memo-top,.memo-metrics{border-color:var(--line)}
-.memo-top small,.memo-label,.memo-metrics dt,.memo-bottom,.memo .micro,.memo p{color:var(--faint);text-transform:none;letter-spacing:0}
-.memo-top small,.memo-label{font-size:12px}.memo-metrics dt{font-size:12px}.memo-metrics dd{color:#171717;font-weight:600}
-.memo-bottom a{color:var(--teal)}
-.tag{background:var(--mutedbg);color:var(--muted);border-color:var(--line-strong);font-size:12px;font-weight:500;letter-spacing:0;padding:2px 8px}
-.pillars{border-color:var(--line)}.pillar span{color:var(--faint)}.pillar strong{font-weight:600}.pillar p{color:var(--muted)}
-.section{border-bottom-color:var(--line)}.section-head>p{color:var(--muted)}
-.card{border-color:var(--line);border-radius:10px;background:#fff}.card p{color:var(--muted)}
-.monogram{font:600 14px "Inter",system-ui,sans-serif;width:32px;height:32px;border-radius:6px;background:var(--mutedbg);color:var(--muted);border-color:var(--line)}
-.status{text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;padding:2px 8px;background:#effaf3;color:#16653a;border-color:#cdebd8}
-.status.warn{background:#fff8eb;color:#8a5300;border-color:#f1dfb6}
-.thesis{color:#171717!important}
-.track{background:var(--mutedbg);height:6px;border-radius:3px}.track span{background:var(--teal);border-radius:3px}.contribution:last-of-type .track span{background:var(--faint)}
-.card-bottom{border-color:var(--line)}.text-link{font-weight:500;font-size:13px}
-.gap-list li{border-color:var(--line)}.gap-list span{color:#8a5300}
-.risk-note{background:var(--subtle);border:1px solid var(--line);border-radius:10px}.risk-note p{color:var(--muted)}
-.step{border-top:1px solid var(--line-strong)}.step-number{color:var(--faint);letter-spacing:0;font-size:12px}.step h3{font-size:17px}.step p{color:var(--muted)}
-.engineering{background:var(--subtle);color:#171717;border:1px solid var(--line);border-radius:12px}
-.engineering .eyebrow{color:var(--faint)}.engineering p{color:var(--muted)}
-.architecture div{background:#fff;border-color:var(--line);border-radius:8px}.architecture span{color:var(--faint);letter-spacing:0;font-size:12px}.architecture strong{font-weight:500;color:#171717}
-.engineering-links{border-color:var(--line)}.engineering-links a{color:var(--teal)}
-.proof-item{border-color:var(--line);border-radius:10px}.proof-item p{color:var(--muted)}.proof-item a{font-weight:500}
-.code-label{background:var(--subtle);color:var(--muted);border-color:var(--line);text-transform:none;letter-spacing:0;font-size:12px;border-radius:8px 8px 0 0}
-.code{border-color:var(--line);border-radius:0 0 8px 8px}
-.scope{border-color:var(--line)}.scope summary{font-weight:500}.scope ul{color:var(--muted)}
-.footer{color:var(--faint);font-size:12px}.footer strong{color:#171717}
-.case-points{color:var(--muted)}
-@media(max-width:760px){.nav-links{border-top-color:var(--line)}.site-header{position:static}}
+:root{
+  color-scheme:light;
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,monospace;
+  --bg:#ffffff;--bg-subtle:#fafafa;--bg-muted:#f4f4f5;
+  --border:#ebebed;--border-strong:#dcdce0;
+  --text:#171717;--text-2:#4d4d55;--text-3:#66666e;
+  --primary:#18181b;--primary-hover:#323238;
+  --accent:#2f5bea;--accent-hover:#2349c9;--accent-soft:#eef2fe;--accent-line:#c9d5fa;
+  --ok:#16653a;--ok-bg:#effaf3;--ok-line:#bfe3cc;
+  --warn:#8a5300;--warn-bg:#fff8eb;--warn-line:#efd9a7;
+  --bad:#b42318;
+  --r-sm:4px;--r-md:6px;--r-lg:8px;--r-xl:12px;
+  --shadow-raised:0 1px 2px rgb(0 0 0 / 4%),0 4px 16px rgb(0 0 0 / 5%);
+  --ease:cubic-bezier(.2,0,0,1);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 var(--font);font-feature-settings:"ss01";-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--accent-hover);text-decoration-color:currentColor}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[tabindex='-1']:focus{outline:none}
+::selection{background:var(--accent-line);color:var(--text)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{color:var(--text);font-weight:600;text-wrap:balance}
+h1{font-size:clamp(40px,5.4vw,64px);line-height:1.05;letter-spacing:-.035em}
+h2{font-size:clamp(28px,3.1vw,40px);line-height:1.12;letter-spacing:-.028em}
+h3{font-size:16px;line-height:24px;letter-spacing:-.011em}
+svg{display:block;max-width:100%}
+code{font:13px/1.5 var(--mono)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 32px}
+.skip{position:fixed;z-index:20;top:8px;left:8px;transform:translateY(-200%);background:var(--bg);color:var(--text);padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);box-shadow:var(--shadow-raised);text-decoration:none}
+.skip:focus{transform:translateY(0)}
+.quiet{color:var(--text-3)}
+
+/* Header */
+.site-header{position:sticky;top:0;z-index:10;background:rgb(255 255 255 / 92%);border-bottom:1px solid var(--border);-webkit-backdrop-filter:saturate(1.4) blur(8px);backdrop-filter:saturate(1.4) blur(8px)}
+.nav{display:flex;align-items:center;gap:32px;min-height:60px}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;flex-shrink:0}
+.brand-mark{width:28px;height:28px;display:grid;place-items:center;border-radius:var(--r-md);background:var(--primary);color:#fff}
+.brand-mark svg{width:16px;height:16px}
+.brand-name{font-size:15px;font-weight:600;line-height:1.2;letter-spacing:-.011em}
+.brand-name small{display:block;font-size:12px;font-weight:400;letter-spacing:0;color:var(--text-3);margin-top:1px}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-links a{display:inline-flex;align-items:center;min-height:32px;white-space:nowrap;padding:4px 10px;border-radius:var(--r-md);color:var(--text-2);font-size:14px;font-weight:500;text-decoration:none}
+.nav-links a:hover{background:var(--bg-muted);color:var(--text)}
+.nav-cta{margin-left:auto}
+
+/* Buttons */
+.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 16px;border:1px solid var(--primary);border-radius:var(--r-md);background:var(--primary);color:#fff;font-size:14px;font-weight:500;line-height:22px;text-decoration:none;white-space:nowrap;transition:background-color .15s var(--ease),border-color .15s var(--ease)}
+.button:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:#fff}
+.button.secondary{background:var(--bg);color:var(--text);border-color:var(--border-strong)}
+.button.secondary:hover{background:var(--bg-muted);border-color:#c8c8cd;color:var(--text)}
+.button.small{min-height:32px;padding:4px 12px;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.more-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px;font-size:14px}
+
+/* Hero */
+.hero{padding:96px 0 0;text-align:center}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;min-height:28px;padding:3px 12px;border:1px solid var(--border-strong);border-radius:999px;background:var(--bg);color:var(--text-2);font-size:13px;font-weight:500;margin-bottom:24px}
+.hero-pill span{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.hero h1{max-width:860px;margin:0 auto}
+.lead{max-width:640px;margin:24px auto 0;font-size:18px;line-height:1.6;color:var(--text-2)}
+.hero .actions{justify-content:center;margin-top:32px}
+.micro{font-size:13px;line-height:1.55;color:var(--text-3)}
+.hero>.micro{max-width:620px;margin:20px auto 0}
+
+/* Product preview: the current decision, as it appears in the memo */
+.preview{max-width:1040px;margin:64px auto 0;text-align:left;background:var(--bg);border:1px solid var(--border-strong);border-radius:var(--r-xl);box-shadow:var(--shadow-raised);overflow:hidden}
+.preview-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.preview-bar small{display:block;font-size:12px;line-height:16px;color:var(--text-3)}
+.preview-bar h2{font-size:14px;line-height:20px;letter-spacing:-.006em}
+.tag{display:inline-flex;align-items:center;min-height:22px;padding:1px 8px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--bg-muted);color:var(--text-2);font-size:12px;font-weight:500;line-height:18px;white-space:nowrap}
+.preview-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+.preview-decision{padding:28px;border-right:1px solid var(--border)}
+.memo-label{display:block;font-size:13px;color:var(--text-3)}
+.decision-state{margin-top:8px;font-size:clamp(32px,3.4vw,44px);font-weight:600;line-height:1.08;letter-spacing:-.032em}
+.preview-decision .micro{margin-top:16px;color:var(--text-2);font-size:14px}
+.memo-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0 0;padding-top:16px;border-top:1px solid var(--border)}
+.memo-metrics dt{font-size:12px;line-height:18px;color:var(--text-3)}
+.memo-metrics dd{margin:2px 0 0;font-size:16px;font-weight:600;letter-spacing:-.011em}
+.preview-figures{padding:28px;min-width:0}
+.preview-figures h3{font-size:14px;line-height:20px}
+.preview-figures p{font-size:13px;color:var(--text-3);margin-top:2px}
+.figure-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px;font-variant-numeric:tabular-nums}
+.figure-table th,.figure-table td{padding:10px 0;border-bottom:1px solid var(--border);text-align:right;vertical-align:baseline}
+.figure-table th:first-child,.figure-table td:first-child{text-align:left;padding-right:12px}
+.figure-table thead th{font-size:12px;font-weight:500;line-height:16px;color:var(--text-3);vertical-align:bottom;padding-left:12px}
+.figure-table tbody th{font-weight:500;font-variant-numeric:normal}
+.figure-table tbody tr:last-child>*{border-bottom:0}
+.figure-table thead th:first-child{padding-left:0}
+.figure-table .neg{color:var(--text);font-weight:600}
+.figure-table .was{color:var(--text-3)}
+.preview-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;padding:12px 20px;border-top:1px solid var(--border);background:var(--bg-subtle);font-size:13px;color:var(--text-3)}
+.preview-foot a{font-weight:500;text-decoration:none}.preview-foot a:hover{text-decoration:underline}
+
+/* Principles */
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;margin-top:80px;padding:32px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pillar{display:flex;gap:12px}
+.pillar span{font-size:13px;color:var(--text-3);font-variant-numeric:tabular-nums;line-height:22px}
+.pillar strong{display:block;font-size:15px;font-weight:600;line-height:22px}
+.pillar p{font-size:14px;color:var(--text-2);margin-top:2px}
+
+/* Sections */
+.section{padding:80px 0;border-bottom:1px solid var(--border)}
+.section:last-of-type{border-bottom:0}
+.section-head{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px 64px;align-items:end;margin-bottom:40px}
+.eyebrow{display:block;font-size:14px;font-weight:500;color:var(--text-3);margin-bottom:12px}
+.section-head>p{font-size:16px;line-height:1.6;color:var(--text-2)}
+.boundary{margin-top:24px;font-size:14px;color:var(--text-2);max-width:820px}
+
+/* Cards */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:28px;min-width:0}
+.card p{font-size:14px;color:var(--text-2)}
+.case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.case-grid .card{display:flex;flex-direction:column}
+.case-grid .card-bottom{margin-top:auto}
+.case-grid .thesis+*{margin-bottom:24px}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.company-id{display:flex;align-items:center;gap:12px;min-width:0}
+.monogram{width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-muted);color:var(--text-2);font-size:14px;font-weight:600}
+.company-id h3{font-size:18px;line-height:24px}
+.company-id p{font-size:13px;color:var(--text-3)}
+.status{display:inline-flex;align-items:center;gap:6px;min-height:22px;padding:1px 8px;border:1px solid var(--ok-line);border-radius:var(--r-sm);background:var(--ok-bg);color:var(--ok);font-size:12px;font-weight:500;line-height:18px;white-space:nowrap}
+.status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.status.warn{border-color:var(--warn-line);background:var(--warn-bg);color:var(--warn)}
+.thesis{font-size:18px!important;line-height:1.55;color:var(--text)!important;letter-spacing:-.011em;margin-bottom:16px}
+.case-points{margin:0;padding-left:20px;font-size:14px;color:var(--text-2)}
+.case-points li+li{margin-top:8px}
+.card-bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.text-link{font-size:14px;font-weight:500;text-decoration:none}.text-link:hover{text-decoration:underline}
+.risk-note{margin-top:20px;padding:24px 28px;border:1px solid var(--border);border-radius:var(--r-xl);background:var(--bg-subtle)}
+.risk-note strong{display:block;font-size:15px;font-weight:600}
+.risk-note p{font-size:14px;color:var(--text-2);margin-top:6px}
+
+/* Guided route and exhibit cards */
+.proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0;padding:0;list-style:none}
+.proof-item{display:flex;flex-direction:column;align-items:flex-start;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;min-width:0;transition:border-color .15s var(--ease)}
+.proof-item:hover{border-color:var(--border-strong)}
+.proof-item .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px}
+.proof-item .eyebrow b{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg-subtle);color:var(--text);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.proof-item h3{font-size:16px}
+.proof-item p{font-size:14px;color:var(--text-2);margin:8px 0 16px}
+.proof-item>a{margin-top:auto;font-size:14px;font-weight:500;text-decoration:none}
+.proof-item>a:hover{text-decoration:underline}
+.link-list{list-style:none;margin:12px 0 0;padding:0;width:100%}
+.link-list li{border-top:1px solid var(--border)}
+.link-list a{display:flex;align-items:center;min-height:40px;padding:8px 0;font-size:14px;text-decoration:none}
+.link-list a:hover{text-decoration:underline}
+.scope{margin-top:32px;border:1px solid var(--border);border-radius:var(--r-xl);background:var(--bg)}
+.scope summary{display:block;list-style:none;min-height:48px;padding:12px 20px;font-size:14px;font-weight:500;line-height:22px;cursor:pointer;border-radius:calc(var(--r-xl) - 1px)}
+.scope summary::-webkit-details-marker{display:none}
+.scope summary:before{content:"";display:inline-block;width:7px;height:7px;margin:0 12px 2px 0;border:solid var(--text-3);border-width:0 1.5px 1.5px 0;transform:rotate(-45deg);vertical-align:middle;transition:transform .15s var(--ease)}
+.scope[open] summary:before{transform:rotate(45deg);margin-bottom:5px}
+.scope summary:hover{background:var(--bg-subtle)}
+.scope[open] summary{border-bottom:1px solid var(--border);border-radius:calc(var(--r-xl) - 1px) calc(var(--r-xl) - 1px) 0 0}
+.scope>.proof{padding:20px}
+.scope>.proof .proof-item{background:var(--bg-subtle)}
+.scope>ul{margin:0;padding:16px 20px 20px 40px;font-size:14px;color:var(--text-2)}
+.scope>ul li+li{margin-top:8px}
+
+/* Workflow */
+.workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.step{display:flex;flex-direction:column;align-items:flex-start;padding-top:20px;border-top:1px solid var(--border-strong)}
+.step p{margin-bottom:16px}
+.step a{margin-top:auto!important}
+.step-number{display:block;font-size:13px;font-weight:500;color:var(--text-3);margin-bottom:12px;font-variant-numeric:tabular-nums}
+.step p{font-size:14px;color:var(--text-2);margin-top:8px}
+.step a{display:inline-block;margin-top:16px;font-size:14px;font-weight:500;text-decoration:none}
+.step a:hover{text-decoration:underline}
+
+/* Engineering */
+.architecture{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 48px;padding:0;list-style:none;counter-reset:node}
+.architecture li{position:relative;padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle)}
+.architecture li+li:before{content:"";position:absolute;left:-13px;top:50%;width:13px;border-top:1px solid var(--border-strong)}
+.architecture span{display:block;font-size:12px;color:var(--text-3);margin-bottom:8px}
+.architecture strong{display:block;font-size:14px;font-weight:600;line-height:20px}
+.engineering-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+.engineering-grid h3{margin-bottom:8px}
+.engineering-grid p{font-size:14px;color:var(--text-2)}
+.engineering-links{display:flex;flex-wrap:wrap;gap:12px 32px;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);font-size:14px}
+.engineering-links a{font-weight:500;text-decoration:none}.engineering-links a:hover{text-decoration:underline}
+.verification{margin-top:48px}
+
+/* Try it */
+.try-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:start}
+.try-grid h2+p{margin-top:16px;font-size:16px;color:var(--text-2)}
+.try-grid .actions{margin-top:28px}
+.try-grid .micro{margin-top:16px}
+.terminal{border:1px solid var(--border-strong);border-radius:var(--r-xl);overflow:hidden;background:var(--bg)}
+.code-label{display:flex;align-items:center;min-height:40px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg-subtle);font-size:13px;color:var(--text-2)}
+.code{margin:0;padding:20px 16px;overflow-x:auto;font:13px/1.8 var(--mono);color:var(--text)}
+.code .comment{color:var(--text-3)}
+
+/* Footer */
+.footer{border-top:1px solid var(--border);background:var(--bg-subtle);padding:32px 0 40px;font-size:13px;color:var(--text-2)}
+.footer .wrap{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.footer strong{color:var(--text);font-weight:600}
+.footer-links{display:flex;flex-wrap:wrap;gap:4px 20px}
+.footer-links a{display:inline-flex;align-items:center;min-height:32px;color:var(--text-2);text-decoration:none}
+.footer-links a:hover{color:var(--text);text-decoration:underline}
+
+@media(max-width:1050px){
+  .wrap{padding:0 24px}
+  .nav{gap:16px}
+  .architecture{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .architecture li:nth-child(4):before{display:none}
+  .workflow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .try-grid{gap:40px}
+}
+@media(max-width:860px){
+  .preview-body{grid-template-columns:minmax(0,1fr)}
+  .preview-decision{border-right:0;border-bottom:1px solid var(--border)}
+  .section-head{grid-template-columns:minmax(0,1fr);gap:16px;margin-bottom:32px}
+  .case-grid,.try-grid{grid-template-columns:minmax(0,1fr)}
+  .proof{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .engineering-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+  .pillars{grid-template-columns:minmax(0,1fr);gap:20px}
+  .site-header{position:static}
+  .nav{flex-wrap:wrap;gap:4px 12px;padding:10px 0}
+  .nav-links{order:3;width:100%;flex:none;margin:0 -10px;gap:0;flex-wrap:wrap}
+  .nav-links a{min-height:44px;font-size:14px}
+}
+@media(max-width:760px){
+  .hero{padding-top:56px}
+  .lead{font-size:17px}
+  .preview{margin-top:48px}
+  .preview-decision,.preview-figures{padding:20px}
+  .preview-bar,.preview-foot{padding-left:20px;padding-right:20px}
+  .pillars{margin-top:56px}
+  .section{padding:64px 0}
+  .card{padding:20px}
+  .risk-note{padding:20px}
+  .proof{grid-template-columns:minmax(0,1fr);gap:12px}
+  .proof-item{padding:20px}
+  .button,.button.small{min-height:44px}
+  .text-link,.proof-item>a,.step a,.preview-foot a,.engineering-links a,.more-links a,.footer-links a{display:inline-flex;align-items:center;min-height:40px}
+  .step p{margin-bottom:8px}
+  .footer .wrap{flex-direction:column}
+}
+@media(max-width:480px){
+  .wrap{padding:0 16px}
+  .hero{text-align:left}
+  .hero-pill{margin-bottom:20px}
+  .hero h1,.lead,.hero>.micro{margin-left:0;margin-right:0}
+  .hero .actions{justify-content:flex-start}
+  .actions .button{flex:1 1 100%}
+  .preview-bar{flex-wrap:wrap}
+  .memo-metrics{gap:8px}
+  .memo-metrics dd{font-size:14px}
+  .figure-table{font-size:13px}
+  .figure-table thead th{padding-left:8px}
+  .card-header{flex-wrap:wrap}
+  .workflow,.architecture{grid-template-columns:minmax(0,1fr)}
+  .architecture li:before{display:none}
+  .nav-links a{padding:4px 8px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+@media(forced-colors:active){.status:before,.hero-pill span{forced-color-adjust:none;background:CanvasText}}
+@media print{
+  @page{margin:14mm 12mm}
+  body{font-size:10pt;color:#000}
+  .site-header{position:static;backdrop-filter:none}
+  .nav-links,.nav-cta,.skip,.actions{display:none}
+  .wrap{padding:0}
+  .hero{padding-top:16px}
+  h1{font-size:30pt}
+  .preview{box-shadow:none;border-color:#999}
+  .section{padding:24px 0}
+  .card,.preview,.proof-item,.step,.risk-note,.architecture li{break-inside:avoid}
+  .status,.tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:#111}
+}
+@media print{details::details-content{content-visibility:visible}}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header"><div class="wrap"><nav class="nav" aria-label="Main"><a class="brand" href="#main"><span class="brand-mark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 19V12M9 19V8M15 19V11M21 19V4" stroke="currentColor" stroke-width="2.5"/><path d="M2 22H22" stroke="currentColor" stroke-opacity=".5"/></svg></span><span class="brand-name">Value Creation OS<small>Operating partner workspace</small></span></a><div class="nav-links"><a href="#investment-case">Investment case</a><a href="#workflow">Local demo</a><a href="#engineering">Engineering</a><a href="https://github.com/ahines99/pe-value-creation-os">Source &nearr;</a></div></nav></div></header>
-<main tabindex="-1" id="main" class="wrap">
+<header class="site-header"><div class="wrap"><nav class="nav" aria-label="Main"><a class="brand" href="#main"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V12M10 19V7M15 19V10M20 19V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="brand-name">Value Creation OS<small>Operating partner workspace</small></span></a><div class="nav-links"><a href="#investment-case">Investment case</a><a href="#operating-exercise">Guided review</a><a href="#workflow">Local demo</a><a href="#engineering">Engineering</a></div><a class="button secondary small nav-cta" href="https://github.com/ahines99/pe-value-creation-os">Source <span aria-hidden="true">&nearr;</span></a></nav></div></header>
+<main tabindex="-1" id="main">
+<div class="wrap">
 <section class="hero" aria-labelledby="hero-title">
-<div><span class="eyebrow">Private equity / Evidence to decision</span>
-<h1 id="hero-title">Build a value case.<br><em>Then challenge it.</em></h1>
+<p class="hero-pill"><span aria-hidden="true"></span>Private equity &middot; Evidence to decision</p>
+<h1 id="hero-title">Build a value case.<br><span class="quiet">Then challenge it.</span></h1>
 <p class="lead">An operating partner workspace for deciding what belongs in the first 100 days. Trace the evidence, separate earnings from cash, and revisit the plan when the facts change.</p>
-<div class="actions"><a class="button" href="portfolio/decision-memo.html">Read the executive decision &rarr;</a><a class="button secondary" href="#investment-case">Follow the case</a></div>
-<p class="micro">A portfolio project by Alex Hines. Progress Software public research with a separate constructed operating exercise. No company engagement or realized savings claimed.</p></div>
-<aside class="memo" aria-label="Progress reference case decision">
-<div class="memo-top"><div><small>Current research case</small><h2>Progress Software</h2></div><span class="tag">Public + constructed</span></div>
-<span class="memo-label">After the evidence challenge</span><div class="amount decision-state">Rework the<br>first wave.</div>
+<div class="actions"><a class="button" href="portfolio/decision-memo.html">Read the executive decision <span aria-hidden="true">&rarr;</span></a><a class="button secondary" href="#investment-case">Follow the case</a></div>
+<p class="micro">A portfolio project by Alex Hines. Progress Software public research with a separate constructed operating exercise. No company engagement or realized savings claimed.</p>
+
+<aside class="preview memo" aria-label="Progress reference case decision">
+<div class="preview-bar"><div><small>Current research case &middot; Executive decision memo</small><h2>Progress Software</h2></div><span class="tag">Public + constructed</span></div>
+<div class="preview-body">
+<div class="preview-decision">
+<span class="memo-label">After the evidence challenge</span><p class="decision-state">Rework the first wave.</p>
 <p class="micro">Contract constraints and corrected vendor evidence overturn the positive constructed case. Every tested base first-year sequence is adverse.</p>
 <dl class="memo-metrics"><div><dt>Economics</dt><dd>Reopened</dd></div><div><dt>History</dt><dd>Retained</dd></div><div><dt>Company action</dt><dd>Unapproved</dd></div></dl>
-<div class="memo-bottom"><span>Research judgment &middot; No operating authorization</span><a href="portfolio/decision-memo.html#choices">Inspect the choices &rarr;</a></div>
-</aside></section>
+</div>
+<div class="preview-figures">
+<h3>Year-one base case by task sequence</h3>
+<p>Constructed exercise &middot; USD thousands</p>
+<table class="figure-table">
+<thead><tr><th scope="col">Sequence</th><th scope="col">Original EBITDA</th><th scope="col">Corrected EBITDA</th><th scope="col">Corrected cash</th></tr></thead>
+<tbody>
+<tr><th scope="row">Collections first</th><td class="was">219.0</td><td class="neg">&minus;163.2</td><td class="neg">&minus;181.9</td></tr>
+<tr><th scope="row">Pricing first</th><td class="was">214.9</td><td class="neg">&minus;163.2</td><td class="neg">&minus;181.9</td></tr>
+<tr><th scope="row">Service first</th><td class="was">228.3</td><td class="neg">&minus;163.2</td><td class="neg">&minus;181.9</td></tr>
+</tbody></table>
+</div>
+</div>
+<div class="preview-foot"><span>Research judgment &middot; No operating authorization</span><a href="portfolio/decision-memo.html#choices">Inspect the choices &rarr;</a></div>
+</aside>
+</section>
+
 <div class="pillars" aria-label="Operating principles"><div class="pillar"><span>01</span><div><strong>Trace the claim</strong><p>Facts, assumptions and unknowns stay distinct.</p></div></div><div class="pillar"><span>02</span><div><strong>Test the decision</strong><p>Costs, downside and scarce capacity stay visible.</p></div></div><div class="pillar"><span>03</span><div><strong>Preserve the history</strong><p>Revisions do not rewrite the approved baseline.</p></div></div></div>
+
 <section class="section" id="investment-case">
-<div class="section-head"><div><span class="eyebrow">The case / Two evidence layers</span><h2>What should management<br>do next?</h2></div><p>The public record supports further diligence. The constructed exercise shows how the system challenges an operating proposal before anyone acts.</p></div>
-<div class="case-grid"><article class="card"><div class="card-header"><div class="company-id"><span class="monogram" aria-hidden="true">P</span><div><h3>The public company</h3><p>Progress Software / Issuer filings</p></div></div><span class="status">Reported evidence</span></div>
+<div class="section-head"><div><span class="eyebrow">The case &middot; Two evidence layers</span><h2>What should management<br>do next?</h2></div><p>The public record supports further diligence. The constructed exercise shows how the system challenges an operating proposal before anyone acts.</p></div>
+<div class="case-grid"><article class="card"><div class="card-header"><div class="company-id"><span class="monogram" aria-hidden="true">P</span><div><h3>The public company</h3><p>Progress Software &middot; Issuer filings</p></div></div><span class="status">Reported evidence</span></div>
 <p class="thesis">Separate acquisition-driven growth, accounting definitions and peer context before underwriting an improvement.</p>
 <ul class="case-points"><li>Financial statements reconcile to sourced rows and explicit units.</li><li>Unresolved amortization scope blocks dependent earnings measures.</li><li>Peer margins inform questions; they do not establish achievable savings.</li></ul>
 <div class="card-bottom"><a class="text-link" href="portfolio/progress-baseline.html">Inspect the public evidence &rarr;</a><span class="micro">Selected historical sources</span></div></article>
-<div class="case-side"><article class="card"><div class="card-header"><div class="company-id"><span class="monogram" aria-hidden="true">C</span><div><h3>The operating exercise</h3><p>Constructed contracts, costs and observations</p></div></div><span class="status warn">Revise the proposal</span></div>
+<article class="card"><div class="card-header"><div class="company-id"><span class="monogram" aria-hidden="true">C</span><div><h3>The operating exercise</h3><p>Constructed contracts, costs and observations</p></div></div><span class="status warn">Revise the proposal</span></div>
 <p class="thesis">A positive forecast must survive contract eligibility, a real cost-release mechanism and implementation constraints.</p>
 <p>The demonstrated source correction removes unsupported vendor savings while retaining committed costs. Changing the sequence alone does not repair the case.</p>
-<div class="card-bottom"><a class="text-link" href="portfolio/source-review.html">Follow the evidence correction &rarr;</a></div></article>
-<aside class="risk-note"><strong>The next decision is bounded diligence.</strong><p>Obtain contract, cost-action and capacity evidence before a company-specific commitment. The pilot package defines the minimum scope and accountable reviewers.</p></aside></div></div>
+<div class="card-bottom"><a class="text-link" href="portfolio/source-review.html">Follow the evidence correction &rarr;</a><span class="micro">Constructed exercise</span></div></article></div>
+<aside class="risk-note"><strong>The next decision is bounded diligence.</strong><p>Obtain contract, cost-action and capacity evidence before a company-specific commitment. The pilot package defines the minimum scope and accountable reviewers.</p></aside>
 </section>
+
 <section class="section" id="operating-exercise">
-<div class="section-head"><div><span class="eyebrow">Guided review / About 10 minutes</span><h2>Follow one decision<br>from evidence to measurement.</h2></div><p>Use this six-stop route for the primary case. Additional examples below are separate demonstrations, not successive stages of one company engagement.</p></div>
+<div class="section-head"><div><span class="eyebrow">Guided review &middot; About 10 minutes</span><h2>Follow one decision<br>from evidence to measurement.</h2></div><p>Use this six-stop route for the primary case. Additional examples below are separate demonstrations, not successive stages of one company engagement.</p></div>
 <ol class="proof review-route" aria-label="Primary case walkthrough">
-<li class="proof-item"><span class="eyebrow">01 / Decision</span><h3>Start with the recommendation</h3><p>See the current judgment, alternatives and the evidence that would reopen it.</p><a href="portfolio/decision-memo.html">Read the executive memo &rarr;</a></li>
-<li class="proof-item"><span class="eyebrow">02 / Evidence</span><h3>Trace the public baseline</h3><p>Inspect earnings definitions, acquisition effects and the limits of peer comparison.</p><a href="portfolio/progress-baseline.html">Open the filing analysis &rarr;</a></li>
-<li class="proof-item"><span class="eyebrow">03 / Economics</span><h3>Separate the financial effects</h3><p>Follow monthly EBITDA, pre-tax cash, costs, downside and incremental value assumptions.</p><a href="portfolio/underwriting.html">Inspect constructed underwriting &rarr;</a></li>
-<li class="proof-item"><span class="eyebrow">04 / Capacity</span><h3>Constrain the first 100 days</h3><p>See how dependencies and weekly resource limits change dates and modeled benefits.</p><a href="portfolio/operating-plan.html">Review the proposed plan &rarr;</a></li>
-<li class="proof-item"><span class="eyebrow">05 / Challenge</span><h3>Watch the case change</h3><p>Trace the source correction, retained costs and reopened decision against earlier versions.</p><a href="portfolio/source-review.html">Review the correction &rarr;</a></li>
-<li class="proof-item"><span class="eyebrow">06 / Measurement</span><h3>Challenge the claimed result</h3><p>Compare scoped KPIs, accounting differences, claims and residuals without rewriting history.</p><a href="portfolio/lineage-review.html">Inspect the lifecycle &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>1</b>Decision</span><h3>Start with the recommendation</h3><p>See the current judgment, alternatives and the evidence that would reopen it.</p><a href="portfolio/decision-memo.html">Read the executive memo &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>2</b>Evidence</span><h3>Trace the public baseline</h3><p>Inspect earnings definitions, acquisition effects and the limits of peer comparison.</p><a href="portfolio/progress-baseline.html">Open the filing analysis &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>3</b>Economics</span><h3>Separate the financial effects</h3><p>Follow monthly EBITDA, pre-tax cash, costs, downside and incremental value assumptions.</p><a href="portfolio/underwriting.html">Inspect constructed underwriting &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>4</b>Capacity</span><h3>Constrain the first 100 days</h3><p>See how dependencies and weekly resource limits change dates and modeled benefits.</p><a href="portfolio/operating-plan.html">Review the proposed plan &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>5</b>Challenge</span><h3>Watch the case change</h3><p>Trace the source correction, retained costs and reopened decision against earlier versions.</p><a href="portfolio/source-review.html">Review the correction &rarr;</a></li>
+<li class="proof-item"><span class="eyebrow"><b>6</b>Measurement</span><h3>Challenge the claimed result</h3><p>Compare scoped KPIs, accounting differences, claims and residuals without rewriting history.</p><a href="portfolio/lineage-review.html">Inspect the lifecycle &rarr;</a></li>
 </ol>
 <p class="boundary">All operating records, reviews and outcomes in this exercise are constructed. The <a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-demo.md">presenter guide</a> explains the period and example boundaries at each stop.</p>
 <details class="scope" id="technical-exhibits"><summary>Additional financial and technical exhibits</summary>
-<div class="proof"><article class="proof-item"><h3>Financial definitions and history</h3><p><a href="portfolio/historical-valuation.html">Historical company equity sensitivity</a></p><p><a href="portfolio/exit-review.html">Constructed exit sensitivity</a></p><p><a href="portfolio/disclosure-history.html">Acquisition disclosure revisions</a></p><p><a href="portfolio/accounting-restatement.html">Accounting restatement and non-reliance</a></p><p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/research/operating-partner/08-financial-definition-review.md">Financial-definition review</a></p></article>
-<article class="proof-item"><h3>Separate allocation examples</h3><p>These use a different shared-benefit population and their own saved decisions.</p><p><a href="portfolio/allocation-review.html">Shared-pool selection and exclusions</a></p><p><a href="portfolio/allocation-lineage-review.html">Shared-pool KPI and initiative history</a></p><p><a href="portfolio/allocation-lineage-memo.html">Corresponding executive memo</a></p></article>
-<article class="proof-item"><h3>Inspect the underlying records</h3><p><a href="portfolio/operating-sources.html">Contract, service and invoice evidence</a></p><p><a href="portfolio/case-history.html">Original assumptions and review history</a></p><p><a href="portfolio/realization.html">Initial accounting comparison</a></p><p><a href="portfolio/execution.html">Delivery and evidence withdrawal</a></p></article></div></details>
+<div class="proof"><article class="proof-item"><h3>Financial definitions and history</h3><ul class="link-list"><li><a href="portfolio/historical-valuation.html">Historical company equity sensitivity</a></li><li><a href="portfolio/exit-review.html">Constructed exit sensitivity</a></li><li><a href="portfolio/disclosure-history.html">Acquisition disclosure revisions</a></li><li><a href="portfolio/accounting-restatement.html">Accounting restatement and non-reliance</a></li><li><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/research/operating-partner/08-financial-definition-review.md">Financial-definition review</a></li></ul></article>
+<article class="proof-item"><h3>Separate allocation examples</h3><p>These use a different shared-benefit population and their own saved decisions.</p><ul class="link-list"><li><a href="portfolio/allocation-review.html">Shared-pool selection and exclusions</a></li><li><a href="portfolio/allocation-lineage-review.html">Shared-pool KPI and initiative history</a></li><li><a href="portfolio/allocation-lineage-memo.html">Corresponding executive memo</a></li></ul></article>
+<article class="proof-item"><h3>Inspect the underlying records</h3><ul class="link-list"><li><a href="portfolio/operating-sources.html">Contract, service and invoice evidence</a></li><li><a href="portfolio/case-history.html">Original assumptions and review history</a></li><li><a href="portfolio/realization.html">Initial accounting comparison</a></li><li><a href="portfolio/execution.html">Delivery and evidence withdrawal</a></li></ul></article></div></details>
 </section>
 
-<section class="section" id="workflow"><div class="section-head"><div><span class="eyebrow">Separate local application / Human approval</span><h2>Try the approval workflow.</h2></div><p>The fictional Beacon and Delta companies demonstrate authentication, approval, controlled pauses and KPI navigation. They are separate from the Progress research case.</p></div><div class="workflow"><article class="step"><span class="step-number">01 / DIAGNOSE</span><h3>Establish the fact base</h3><p>Review company diagnostics and evidence quality. Missing or suspicious inputs remain visible to the reviewer.</p><a href="portfolio/examples/delta-broken.html">See a controlled pause &rarr;</a></article><article class="step"><span class="step-number">02 / UNDERWRITE</span><h3>Challenge the value case</h3><p>Inspect baseline, improvement, realization, cost and timing assumptions behind low, base and high scenarios.</p><a href="portfolio/examples/beacon-pricing.html">Inspect the memo &rarr;</a></article><article class="step"><span class="step-number">03 / DECIDE</span><h3>Authorize the scope</h3><p>A human approves, requests changes or rejects. The decision is recorded; model-callable tools cannot approve a plan.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Try a local decision &rarr;</a></article><article class="step"><span class="step-number">04 / MONITOR</span><h3>Follow the approved plan</h3><p>Review KPI definitions and observations in context. A target, a seeded observation and a realized return are different facts.</p><a href="portfolio/examples/beacon-kpis.html">Inspect execution KPIs &rarr;</a></article></div><p class="boundary">These application pages are read-only captures of the fictional demo. Start the local workspace for interactive decisions, evidence review and KPI navigation.</p></section>
-<section class="engineering" id="engineering"><div class="section-head"><div><span class="eyebrow">Technical diligence / Contracts and controls</span><h2>The control system behind the investment case.</h2></div><p>Optional models propose ideas and narrative. Typed tools own evidence and calculations. Durable state preserves decisions and recovery.</p></div><div class="architecture" aria-label="System flow from evidence through KPI monitoring"><div><span>01 / INPUT</span><strong>Immutable evidence</strong></div><div><span>02 / CONTRACT</span><strong>Scoped MCP tools</strong></div><div><span>03 / FINANCIAL CORE</span><strong>Deterministic sizing</strong></div><div><span>04 / AUTHORITY</span><strong>Human approval API</strong></div><div><span>05 / EXECUTION</span><strong>Persisted KPI state</strong></div></div><div class="engineering-grid"><article><h3>Traceable financial claims</h3><p>Server-issued quantity references bind numbers to company, period, unit and evidence. Model proposals and narrative are validated against that record.</p></article><article><h3>Durable execution</h3><p>PostgreSQL checkpoints, worker leases and idempotency support recovery. The approved plan and its decision remain inspectable.</p></article><article><h3>Explicit access boundaries</h3><p>Company scope, row-level security and a separate human approval audience keep authority outside the model's tool surface.</p></article></div><div class="engineering-links"><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/architecture.md">Architecture and tradeoffs &rarr;</a><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Versioned verification evidence &rarr;</a><a href="https://github.com/ahines99/pe-value-creation-os">Inspect the implementation &rarr;</a></div></section>
-<div class="proof" aria-label="Verification paths"><article class="proof-item"><h3>Behavior, beyond a screenshot</h3><p>Unit and integration tests, adversarial evaluation cases, and a real Compose workflow. Exact commits and coverage scope are recorded.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Open the evidence index &rarr;</a></article><article class="proof-item"><h3>Reproducible distribution</h3><p>Installed-package checks, synthetic fixtures and a deterministic demo let a reviewer inspect the work without paid inference.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Reproduce the showcase &rarr;</a></article><article class="proof-item"><h3>Acceptance with boundaries</h3><p>The practitioner review is prepared but unperformed. Current limitations and remaining production gates are recorded alongside automated evidence.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Read the acceptance record &rarr;</a></article></div>
-<section class="section" id="try"><div class="try-grid"><div><span class="eyebrow">Explore the workspace</span><h2>Bring the operating review<br>to your own screen.</h2><p>Follow the Progress public case above, then use the separate fictional Beacon/Delta workspace for interactive decisions. The five-scenario CLI demonstration exercises approval, missing evidence, failure and recovery without Docker.</p><div class="actions"><a class="button" href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Open the guided walkthrough &rarr;</a><a class="button secondary" href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/case-study.md">Read the case study</a> <a href='https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-demo.md'>10-minute Progress demo</a> <a href='https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/practitioner-review.md'>Practitioner review packet</a></div><p class="micro">Python 3.12+ and uv. Docker Desktop with Linux containers for the browser workspace. No provider key is needed for the default rules-based showcase.</p></div><div><div class="code-label">From a checkout of the reviewed commit</div><pre class="code"><code>uv sync --frozen --extra dev
+<section class="section" id="workflow"><div class="section-head"><div><span class="eyebrow">Separate local application &middot; Human approval</span><h2>Try the approval workflow.</h2></div><p>The fictional Beacon and Delta companies demonstrate authentication, approval, controlled pauses and KPI navigation. They are separate from the Progress research case.</p></div>
+<div class="workflow"><article class="step"><span class="step-number">01 &middot; Diagnose</span><h3>Establish the fact base</h3><p>Review company diagnostics and evidence quality. Missing or suspicious inputs remain visible to the reviewer.</p><a href="portfolio/examples/delta-broken.html">See a controlled pause &rarr;</a></article><article class="step"><span class="step-number">02 &middot; Underwrite</span><h3>Challenge the value case</h3><p>Inspect baseline, improvement, realization, cost and timing assumptions behind low, base and high scenarios.</p><a href="portfolio/examples/beacon-pricing.html">Inspect the memo &rarr;</a></article><article class="step"><span class="step-number">03 &middot; Decide</span><h3>Authorize the scope</h3><p>A human approves, requests changes or rejects. The decision is recorded; model-callable tools cannot approve a plan.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Try a local decision &rarr;</a></article><article class="step"><span class="step-number">04 &middot; Monitor</span><h3>Follow the approved plan</h3><p>Review KPI definitions and observations in context. A target, a seeded observation and a realized return are different facts.</p><a href="portfolio/examples/beacon-kpis.html">Inspect execution KPIs &rarr;</a></article></div>
+<p class="boundary">These application pages are read-only captures of the fictional demo. Start the local workspace for interactive decisions, evidence review and KPI navigation.</p></section>
+
+<section class="section" id="engineering"><div class="section-head"><div><span class="eyebrow">Technical diligence &middot; Contracts and controls</span><h2>The control system behind the investment case.</h2></div><p>Optional models propose ideas and narrative. Typed tools own evidence and calculations. Durable state preserves decisions and recovery.</p></div>
+<ol class="architecture" aria-label="System flow from evidence through KPI monitoring"><li><span>01 &middot; Input</span><strong>Immutable evidence</strong></li><li><span>02 &middot; Contract</span><strong>Scoped MCP tools</strong></li><li><span>03 &middot; Financial core</span><strong>Deterministic sizing</strong></li><li><span>04 &middot; Authority</span><strong>Human approval API</strong></li><li><span>05 &middot; Execution</span><strong>Persisted KPI state</strong></li></ol>
+<div class="engineering-grid"><article><h3>Traceable financial claims</h3><p>Server-issued quantity references bind numbers to company, period, unit and evidence. Model proposals and narrative are validated against that record.</p></article><article><h3>Durable execution</h3><p>PostgreSQL checkpoints, worker leases and idempotency support recovery. The approved plan and its decision remain inspectable.</p></article><article><h3>Explicit access boundaries</h3><p>Company scope, row-level security and a separate human approval audience keep authority outside the model's tool surface.</p></article></div>
+<div class="engineering-links"><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/architecture.md">Architecture and tradeoffs &rarr;</a><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Versioned verification evidence &rarr;</a><a href="https://github.com/ahines99/pe-value-creation-os">Inspect the implementation &rarr;</a></div>
+<div class="proof verification" aria-label="Verification paths"><article class="proof-item"><h3>Behavior, beyond a screenshot</h3><p>Unit and integration tests, adversarial evaluation cases, and a real Compose workflow. Exact commits and coverage scope are recorded.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Open the evidence index &rarr;</a></article><article class="proof-item"><h3>Reproducible distribution</h3><p>Installed-package checks, synthetic fixtures and a deterministic demo let a reviewer inspect the work without paid inference.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Reproduce the showcase &rarr;</a></article><article class="proof-item"><h3>Acceptance with boundaries</h3><p>The practitioner review is prepared but unperformed. Current limitations and remaining production gates are recorded alongside automated evidence.</p><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-acceptance.md">Read the acceptance record &rarr;</a></article></div>
+</section>
+
+<section class="section" id="try"><div class="try-grid"><div><span class="eyebrow">Explore the workspace</span><h2>Bring the operating review to your own screen.</h2><p>Follow the Progress public case above, then use the separate fictional Beacon/Delta workspace for interactive decisions. The five-scenario CLI demonstration exercises approval, missing evidence, failure and recovery without Docker.</p><div class="actions"><a class="button" href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/quickstart.md">Open the guided walkthrough <span aria-hidden="true">&rarr;</span></a><a class="button secondary" href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/case-study.md">Read the case study</a></div><p class="more-links"><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/progress-demo.md">10-minute Progress demo</a><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio/practitioner-review.md">Practitioner review packet</a></p><p class="micro">Python 3.12+ and uv. Docker Desktop with Linux containers for the browser workspace. No provider key is needed for the default rules-based showcase.</p></div>
+<div><div class="terminal"><div class="code-label">From a checkout of the reviewed commit</div><pre class="code"><code>uv sync --frozen --extra dev
 uv run pvc demo
 
-# Browser workspace: Docker must be running
-python scripts/showcase.py up</code></pre><p class="micro">The setup command prints the local URL and approver token. Keep that token out of recordings and public artifacts.</p><details class="scope"><summary>What this showcase does and does not establish</summary><ul><li>The local operating demo uses synthetic businesses and outcomes. The separate Progress research case uses public filings and clearly labeled analyst assumptions. No customer savings or investment returns are claimed.</li><li>The default uses rules. Current live-model acceptance and real-source reconciliation require separate evaluation.</li><li>Core application/database checks and optional observability-image findings have separate evidence records.</li><li>AWS deployment, production identity, security review, operational readiness and launch decisions remain in the <a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio-finalization-roadmap.md">production roadmap</a>.</li></ul></details></div></div></section>
+<span class="comment"># Browser workspace: Docker must be running</span>
+python scripts/showcase.py up</code></pre></div><p class="micro">The setup command prints the local URL and approver token. Keep that token out of recordings and public artifacts.</p><details class="scope"><summary>What this showcase does and does not establish</summary><ul><li>The local operating demo uses synthetic businesses and outcomes. The separate Progress research case uses public filings and clearly labeled analyst assumptions. No customer savings or investment returns are claimed.</li><li>The default uses rules. Current live-model acceptance and real-source reconciliation require separate evaluation.</li><li>Core application/database checks and optional observability-image findings have separate evidence records.</li><li>AWS deployment, production identity, security review, operational readiness and launch decisions remain in the <a href="https://github.com/ahines99/pe-value-creation-os/blob/main/docs/portfolio-finalization-roadmap.md">production roadmap</a>.</li></ul></details></div></div></section>
+</div>
 </main>
-<footer class="footer"><div class="wrap"><p><strong>Alex Hines / Value Creation OS</strong><br>Private equity operations &middot; Applied AI engineering</p><div class="footer-links"><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/LICENSE">Apache-2.0</a><a href="https://github.com/ahines99/pe-value-creation-os/security/policy">Security</a><a href="https://github.com/ahines99/pe-value-creation-os">GitHub</a></div></div></footer>
+<footer class="footer"><div class="wrap"><p><strong>Alex Hines &middot; Value Creation OS</strong><br>Private equity operations &middot; Applied AI engineering</p><div class="footer-links"><a href="https://github.com/ahines99/pe-value-creation-os/blob/main/LICENSE">Apache-2.0</a><a href="https://github.com/ahines99/pe-value-creation-os/security/policy">Security</a><a href="https://github.com/ahines99/pe-value-creation-os">GitHub</a></div></div></footer>
 </body>
 </html>
