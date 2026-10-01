@@ -9,12 +9,12 @@ from html import escape
 from typing import Any
 
 from ..adapters.repositories import Repository
-from ..api.presentation import CSS
 from ..research.render import table
 from .balances import BalanceBundle
 from .cases import CaseRevision, InvestmentCase, ReviewRequest, RevisionDraft
 from .close_baseline import CloseBaseline
 from .execution_demo import ExecutionExercise
+from .exhibit_style import exhibit_page
 from .exit_demo import exit_draft
 from .exit_review import ExitAssumptions, ExitReviewPayload
 from .lineage import LineageCasePayload
@@ -131,8 +131,22 @@ def render_lineage(report: dict[str, Any], download: str) -> str:
         "<p>Every contract keeps one owner. Costs stay in the ledger once. Prior KPI readings keep the target and population used when they were authored.</p></div>"
         "<aside class='hero-aside'><span class='metric-label'>Decision boundary</span><p>Accept the traceable rehearsal. Rework the adverse operating case before a pilot.</p>"
         "<p>Constructed records · simulated reviews · no company intervention or realized value</p></aside></section>"
-        "<section class='panel' id='history'><h2>Ten revisions; one preserved accounting record</h2>"
     )
+    latest_base = next(s for s in latest["scenarios"] if s["scenario_id"] == "base")
+    body += "<div class='metrics-grid'>"
+    for label, value, note in (
+        ("Case revisions", str(len(revisions)), "One preserved accounting record"),
+        ("KPI definitions", str(len(kpis["definitions"])), "All authored definitions remain inspectable"),
+        ("KPI readings", str(len(kpis["observations"])), "Constructed readings; corrections are explicit"),
+        (
+            "Current year-one EBITDA",
+            money(latest_base["year_one"]["incremental_ebitda"])
+            + f" <span class='x-unit'>{escape(latest['currency'])}</span>",
+            "Base scenario · latest revision",
+        ),
+    ):
+        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{value}</strong><span class='metric-note'>{escape(note)}</span></div>"
+    body += "</div><section class='panel' id='history'><h2>Ten revisions; one preserved accounting record</h2>"
     rows = []
     for revision in revisions:
         result = json.loads(revision["financial_result_json"])
@@ -279,11 +293,16 @@ def render_lineage(report: dict[str, Any], download: str) -> str:
         + "</pre></details>"
     )
     body += f"<p><a href='{escape(download, quote=True)}' download>Download the complete ten-revision lifecycle</a> · <a href='decision-memo.html'>Executive decision memo</a> · <a href='exit-review.html'>Earlier exit sensitivity exhibit</a></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
-        f"<title>Initiative and KPI history — Value Creation OS</title><style>{CSS}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}.primary-nav{{flex-wrap:wrap}}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='../index.html'>Value Creation OS · Lifecycle</a><nav class='primary-nav' aria-label='Lineage review sections'>"
-        "<a class='nav-link' href='#history'>Decisions</a><a class='nav-link' href='#lineage'>Ownership</a><a class='nav-link' href='#kpis'>KPI history</a><a class='nav-link' href='#authority'>Accounting</a></nav></div></header>"
-        "<main id='main' tabindex='-1' class='app-shell'>" + body + "</main></body></html>"
+    return exhibit_page(
+        title="Initiative and KPI history — Value Creation OS",
+        kind="Initiative lifecycle",
+        provenance="Constructed exercise",
+        nav=[
+            ("#history", "Decisions"),
+            ("#lineage", "Ownership"),
+            ("#kpis", "KPI history"),
+            ("#authority", "Accounting"),
+        ],
+        nav_label="Lineage review sections",
+        body=body,
     )

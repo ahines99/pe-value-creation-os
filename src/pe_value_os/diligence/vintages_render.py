@@ -8,8 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
+from .exhibit_style import exhibit_page
 from .vintages import AllocationHistory, analyze_vintages
 
 
@@ -97,14 +97,18 @@ def render_vintages(report: dict[str, Any], json_name: str) -> str:
         f"<p><a href='{escape(json_name, quote=True)}' download>Download both vintages and cutoff results</a> · "
         "<a href='decision-memo.html'>Executive memo</a> · <a href='progress-baseline.html'>Public baseline</a></p></section>"
     )
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Progress Software — disclosure revision</title><style>{CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Disclosure sections'>"
-        "<a class='nav-link' href='#allocation'>Allocation</a><a class='nav-link' href='#judgment'>Judgment</a>"
-        "<a class='nav-link' href='#timing'>Timing</a><a class='nav-link' href='#evidence'>Evidence</a></nav></div></header>"
-        "<main id='main' tabindex='-1' class='app-shell'>" + body + "</main></body></html>"
+    return exhibit_page(
+        title="Progress Software — disclosure revision",
+        kind="Disclosure history",
+        provenance="Public filings",
+        nav=[
+            ("#allocation", "Allocation"),
+            ("#judgment", "Judgment"),
+            ("#timing", "Timing"),
+            ("#evidence", "Evidence"),
+        ],
+        nav_label="Disclosure sections",
+        body=body,
     )
 
 

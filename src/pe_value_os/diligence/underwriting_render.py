@@ -8,8 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
+from .exhibit_style import exhibit_page
 from .interactions import InteractionCase
 from .underwriting import evaluate
 from .underwriting_models import UnderwritingModel, read_underwriting
@@ -102,12 +102,12 @@ def render_underwriting(case: UnderwritingModel, report: dict[str, Any]) -> str:
         ),
         ("Funding need", base["maximum_dated_funding_need"], "Base scenario · peak on modeled cash dates"),
     ):
-        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{amount(value)}</strong><span class='metric-note'>{escape(note)}</span></div>"
+        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{amount(value)} <span class='x-unit'>{escape(case.currency)}</span></strong><span class='metric-note'>{escape(note)}</span></div>"
     body += (
-        "</div><section class='panel'><h2>Three economic mechanisms</h2>"
-        "<p><strong>Renewal pricing:</strong> an assumed eligible revenue cohort, captured price uplift and incremental churn combine once; variable servicing cost changes with the net revenue effect.</p>"
-        "<p><strong>Service intervention:</strong> successful resolution releases capacity. Financial benefit is capped by avoided work, an explicit vendor-spend action and addressable spend. A zero cost action produces zero gross financial savings.</p>"
-        "<p><strong>Collections:</strong> existing receivables are collected earlier. The temporary cash advantage reverses on the original collection date; it creates no revenue, EBITDA or recurring valuation benefit.</p>"
+        "</div><section class='panel'><h2>Three economic mechanisms</h2><dl class='definition-list'>"
+        "<div><dt>Renewal pricing</dt><dd>An assumed eligible revenue cohort, captured price uplift and incremental churn combine once; variable servicing cost changes with the net revenue effect.</dd></div>"
+        "<div><dt>Service intervention</dt><dd>Successful resolution releases capacity. Financial benefit is capped by avoided work, an explicit vendor-spend action and addressable spend. A zero cost action produces zero gross financial savings.</dd></div>"
+        "<div><dt>Collections</dt><dd>Existing receivables are collected earlier. The temporary cash advantage reverses on the original collection date; it creates no revenue, EBITDA or recurring valuation benefit.</dd></div></dl>"
         f"<p><strong>Included scope:</strong> {escape('; '.join(selected_titles) or 'None; retained commitments only')}.</p>"
         f"<p><strong>First-100-day cash:</strong> the base scenario includes {amount(base['day_100']['working_capital_cash'])} of temporary receivables timing. Review its later reversal alongside implementation spending.</p>"
         "<p>Platform fees start at kickoff. Implementation expense, its payment and capitalized spend have separate dates. Shared committed foundation costs survive exclusion. "
@@ -167,6 +167,7 @@ def render_underwriting(case: UnderwritingModel, report: dict[str, Any]) -> str:
             ["Signed component", "First 100 days", "Year one", "Year two"],
             [[label, *(amount(base[p][key]) for p in ("day_100", "year_one", "year_two"))] for label, key in rows],
             "The first six lines sum to EBITDA. EBITDA plus the timing adjustment, receivables movement and capex equals cash. Implementation expense is not deducted twice.",
+            totals=(6, 10),
         )
         + f"<p>{escape(report['cash_definition'])}</p><p>After month 24, the base scenario has {amount(base['cash_settlement_after_horizon'])} of scheduled incremental cash settlement. This is disclosed separately, not silently discarded.</p>"
         + f"<p><strong>Base cash-proxy recovery:</strong> {escape(str(base['cash_proxy_recovery_date'] or base['cash_proxy_recovery_state'].replace('_', ' ')))}. This is recovery after the final negative cumulative balance within the modeled horizon; it includes collection reversals and is not actual payback evidence.</p></section>"
@@ -258,11 +259,12 @@ def render_underwriting(case: UnderwritingModel, report: dict[str, Any]) -> str:
             + "</details>"
         )
     body += f"<p>{escape(report['review'])}</p><p class='muted'>Calculation {escape(report['calculation_version'])} · SHA-256 <code>{report['calculation_sha256']}</code></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Constructed underwriting — {escape(case.company)}</title><style>{CSS}</style></head><body><a class='skip-link' href='#main'>Skip to content</a>"
-        "<header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Underwriting</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#scenarios'>Scenarios</a><a class='nav-link' href='#bridges'>Economics</a><a class='nav-link' href='#assumptions'>Assumptions</a></nav></div></header>"
-        f"<main class='app-shell' id='main' tabindex='-1'>{body}</main></body></html>"
+    return exhibit_page(
+        title=f"Constructed underwriting — {case.company}",
+        kind="Underwriting",
+        provenance="Constructed exercise",
+        nav=[("#scenarios", "Scenarios"), ("#bridges", "Economics"), ("#assumptions", "Assumptions")],
+        body=body,
     )
 
 

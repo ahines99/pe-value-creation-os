@@ -8,9 +8,9 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
 from .balances import BalanceBundle
+from .exhibit_style import exhibit_page
 from .models import FactBundle
 from .valuation import ValuationSpec, analyze_valuation
 
@@ -185,12 +185,18 @@ def render_valuation(report: dict[str, Any], json_name: str = "historical-valuat
         )
         + "</details></section>"
     )
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Progress Software — historical equity bridge</title><style>{CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Valuation sections'><a class='nav-link' href='#historical-valuation'>Sensitivity</a><a class='nav-link' href='#assumptions'>Assumptions</a><a class='nav-link' href='#evidence'>Evidence</a><a class='nav-link' href='#limits'>Limits</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title="Progress Software — historical equity bridge",
+        kind="Historical equity bridge",
+        provenance="Public filings · authored assumptions",
+        nav=[
+            ("#historical-valuation", "Sensitivity"),
+            ("#assumptions", "Assumptions"),
+            ("#evidence", "Evidence"),
+            ("#limits", "Limits"),
+        ],
+        nav_label="Valuation sections",
+        body=body,
     )
 
 

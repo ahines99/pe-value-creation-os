@@ -8,8 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
+from .exhibit_style import exhibit_page
 from .restatements import RestatementHistory, analyze_restatement
 
 
@@ -128,16 +128,18 @@ def render_restatement(report: dict[str, Any], json_name: str) -> str:
         "<a href='disclosure-history.html'>Acquisition disclosure comparison</a> · "
         "<a href='decision-memo.html'>Current executive memo</a></p></section>"
     )
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
-        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Progress Software — accounting restatement</title><style>{CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='../index.html'>Value Creation OS · Diligence</a>"
-        "<nav class='primary-nav' aria-label='Restatement sections'><a class='nav-link' href='#decision'>Decision</a>"
-        "<a class='nav-link' href='#chronology'>Chronology</a><a class='nav-link' href='#numbers'>Numbers</a>"
-        "<a class='nav-link' href='#sources'>Sources</a></nav></div></header>"
-        "<main id='main' tabindex='-1' class='app-shell'>" + body + "</main></body></html>"
+    return exhibit_page(
+        title="Progress Software — accounting restatement",
+        kind="Accounting restatement",
+        provenance="Public filings",
+        nav=[
+            ("#decision", "Decision"),
+            ("#chronology", "Chronology"),
+            ("#numbers", "Numbers"),
+            ("#sources", "Sources"),
+        ],
+        nav_label="Restatement sections",
+        body=body,
     )
 
 

@@ -12,11 +12,11 @@ from typing import Any
 from .. import security
 from ..adapters.evidence_store import FileSystemEvidenceStore
 from ..adapters.repositories import InMemoryRepository
-from ..api.presentation import CSS
 from ..domain.source_models import CompanyProfile
 from ..research.render import table
 from .cases import CasePayload, ReviewRequest, RevisionDraft, compare_revisions
 from .close_baseline import CloseBaselineRequest, close_baseline_view
+from .exhibit_style import exhibit_page
 from .scheduling import OperatingPlan
 from .underwriting import UnderwritingCase
 from .underwriting_render import amount
@@ -238,12 +238,12 @@ def render_case_history(report: dict[str, Any], json_name: str = "case-history.j
             + "</details>"
         )
     body += f"<p>{escape(report['note'])}</p><p><a href='{escape(json_name, quote=True)}' download>Download the complete case history and frozen forecast JSON</a></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Case revision history — constructed exercise</title><style>"
-        + CSS
-        + "</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Case history</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#history'>History</a><a class='nav-link' href='#comparison'>Comparison</a><a class='nav-link' href='#evidence'>Evidence</a></nav></div></header><main class='app-shell' id='main' tabindex='-1'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title="Case revision history — constructed exercise",
+        kind="Case history",
+        provenance="Constructed exercise",
+        nav=[("#history", "History"), ("#comparison", "Comparison"), ("#evidence", "Evidence")],
+        body=body,
     )
 
 

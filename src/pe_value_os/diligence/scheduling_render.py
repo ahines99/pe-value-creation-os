@@ -8,8 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
+from .exhibit_style import exhibit_page
 from .scheduling import OperatingPlan, evaluate_plan
 from .underwriting_models import read_underwriting
 from .underwriting_render import amount, render_allocation
@@ -27,6 +27,7 @@ def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
     original = {s["scenario_id"]: s for s in report["original_financials"]["scenarios"]}
     revised = {s["scenario_id"]: s for s in report["scheduled_financials"]["scenarios"]}
     base = revised["base"]
+    currency = cell(report["scheduled_financials"]["currency"])
     body = (
         "<section class='hero'><div><p class='eyebrow'>Constructed operating exercise / 100-day plan</p>"
         "<h1>Sequence the work. Reprice the delay.</h1>"
@@ -57,7 +58,8 @@ def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
             "Dated cash; original cost commitments retained",
         ),
     ):
-        body += f"<div class='metric-card'><span class='metric-label'>{cell(label)}</span><strong class='metric-value'>{cell(value)}</strong><span class='metric-note'>{cell(note)}</span></div>"
+        unit = "" if label == "Work packages scheduled" else f" <span class='x-unit'>{currency}</span>"
+        body += f"<div class='metric-card'><span class='metric-label'>{cell(label)}</span><strong class='metric-value'>{cell(value)}{unit}</strong><span class='metric-note'>{cell(note)}</span></div>"
     body += (
         "</div><section class='panel'><h2>Proposed first-wave decision</h2>"
         f"<p>{cell(plan.sequencing_rationale)}</p><p>{cell(report['authority'])}</p>"
@@ -181,11 +183,12 @@ def render_plan(plan: OperatingPlan, report: dict[str, Any]) -> str:
     body += f"<p>{cell(report['method'])}</p></section>"
     body += "<section class='panel'><h2>Steering and evidence still due</h2><p>Days 30, 60 and 100 are proposed review checkpoints. Review source exceptions and eligibility; then intervention and quality evidence; then financial variance, attribution and unresolved claims. A failed acceptance gate requires a revised forecast, not a retroactive success claim.</p><p><a href='case-history.html'>Case history</a> preserves original forecasts and exact-version research reviews separately. Actual assignments, accepted deliverables and financial actuals remain unobserved; the attribution ledger remains implementation work.</p>"
     body += f"<details><summary>Calculation lineage</summary><p>Plan {cell(plan.plan_id)} · revision {cell(plan.revision_id)}</p><p>Original underwriting <code>{report['original_underwriting_sha256']}</code></p><p>Plan <code>{report['plan_sha256']}</code></p><p>Report <code>{report['report_sha256']}</code></p><p>{cell(report['schedule_version'])} · {cell(report['scheduled_financials']['calculation_version'])}</p></details></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>100-day operating plan — constructed exercise</title><style>{CSS}</style></head><body><a class='skip-link' href='#main'>Skip to content</a>"
-        "<header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Operating plan</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#plan'>Plan</a><a class='nav-link' href='#economics'>Economics</a><a class='nav-link' href='#capacity'>Capacity</a></nav></div></header>"
-        f"<main class='app-shell' id='main' tabindex='-1'>{body}</main></body></html>"
+    return exhibit_page(
+        title="100-day operating plan — constructed exercise",
+        kind="Operating plan",
+        provenance="Constructed exercise",
+        nav=[("#plan", "Plan"), ("#economics", "Economics"), ("#capacity", "Capacity")],
+        body=body,
     )
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from datetime import timedelta
 from decimal import Decimal
 from html import escape
@@ -10,10 +11,10 @@ from pathlib import Path
 from typing import Any
 
 from ..adapters.repositories import Repository
-from ..api.presentation import CSS
 from ..research.render import table
 from .cases import InvestmentCase, ReviewRequest, RevisionDraft
 from .close_baseline import CloseBaseline
+from .exhibit_style import exhibit_page
 from .interactions import InteractionCase
 from .operating_sources import AllocatedSourceBook, OperatingSourceBook, operating_records, source_forecast
 from .operating_sources_render import render_sources
@@ -192,7 +193,10 @@ def replay_allocation(
     }
 
 
-def render_allocation_demo(report: dict[str, Any], download: str) -> str:
+def render_allocation_demo(
+    report: dict[str, Any], download: str, *, extra: str = "", title: str = "Benefit allocation review"
+) -> str:
+    """Render the allocation exhibit; ``extra`` is trusted section markup placed before the evidence section."""
     latest = json.loads(report["revisions"][-1]["financial_result_json"])
     base = next(s for s in latest["scenarios"] if s["scenario_id"] == "base")
     decision = (
@@ -251,7 +255,10 @@ def render_allocation_demo(report: dict[str, Any], download: str) -> str:
         + "</section>"
     )
     body += render_allocation(latest)
-    body += "<section class='panel' id='evidence'><h2>Review the decision and its limits</h2><p>Population shares do not allocate historical financial claims. A blocked or excluded share is not reassigned automatically. Shared commitments are posted once, with a separate explanation of ownership.</p>"
+    body += (
+        extra
+        + "<section class='panel' id='evidence'><h2>Review the decision and its limits</h2><p>Population shares do not allocate historical financial claims. A blocked or excluded share is not reassigned automatically. Shared commitments are posted once, with a separate explanation of ownership.</p>"
+    )
     body += table(
         ["Continuity check", "Result"],
         [[escape(k), "Preserved" if v else "Failed"] for k, v in report["source_review"]["continuity"].items()],
@@ -264,11 +271,12 @@ def render_allocation_demo(report: dict[str, Any], download: str) -> str:
         "<a href='lineage-review.html'>Separate initiative split/merge exercise</a></p>"
         "<p>This is a separate authored decision exercise. Its simulated reviews do not establish a company sponsor, independent finance validation, operating approval or real pilot outcomes.</p></section>"
     )
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Benefit allocation review</title><style>{CSS}</style></head><body><a class='skip-link' href='#main'>Skip to content</a>"
-        "<header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#history'>Decision history</a><a class='nav-link' href='#allocation'>Allocation</a><a class='nav-link' href='#evidence'>Evidence</a></nav></div></header>"
-        f"<main class='app-shell' id='main' tabindex='-1'>{body}</main></body></html>"
+    return exhibit_page(
+        title=title,
+        kind="Allocation review",
+        provenance="Constructed exercise",
+        nav=[("#history", "Decision history"), ("#allocation", "Allocation"), ("#evidence", "Evidence")],
+        body=body,
     )
 
 
@@ -293,7 +301,8 @@ def build_allocation_demo(
             "allocation walkthrough requires a demonstrated capacity constraint on the deferred alternative"
         )
     source_name = "allocation-lineage-sources" if include_lineage else "allocation-sources"
-    replay, render = replay_allocation, render_allocation_demo
+    render: Callable[[dict[str, Any], str], str] = render_allocation_demo
+    replay = replay_allocation
     if include_lineage:
         from .allocation_lineage_demo import render_allocated_lineage, replay_allocated_lineage
 
