@@ -30,10 +30,12 @@ All differences remain unattributed. The subsequent [private execution increment
 adds bounded human intervention decisions, delivery segments, prerequisite acceptance
 and correction/withdrawal history, released in PR #49. The next
 [private attribution increment](attribution.md) adds signed allocations,
-delivery-to-claim checks, residuals and separate finance review, with a separate
-release gate. Private operating-source and delivery-cost reconciliation,
-memo/review UX, retention operations
-and actual company approval remain open.
+delivery-to-claim checks, residuals and separate finance review, released in PR #50.
+The executive attribution review screen was released in PR #51. Delivery-cost
+reconciliation exists only as a calculator and review contracts on the unmerged
+`feat/private-cost-reconciliation` branch. Private operating-source reconciliation,
+the private decision memo and remaining screens, retention operations and actual
+company approval remain open.
 
 ### Who does what next
 

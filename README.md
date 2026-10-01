@@ -142,11 +142,13 @@ The model supplies judgment: which levers to investigate, scenario assumptions, 
 
 ## Status
 
+The current one-page summary, including open items and who owns them, is [docs/STATUS.md](docs/STATUS.md).
+
 | Area | State |
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
 | Public Progress case and constructed lifecycle | Ten case revisions with initiative/KPI lineage, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
-| CI (GitHub Actions) | [PR #39 CI](https://github.com/ahines99/pe-value-creation-os/actions/runs/36624637599): ten successful jobs, 1,176 tests per supported Python version, 39 evaluations and 84 browser checks. Later changes require their own successful CI. HIGH and CRITICAL image findings fail regardless of fix availability. |
+| CI (GitHub Actions) | [Main-branch CI at PR #52](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516): ten successful jobs, 1,781 tests per supported Python version, 39 evaluations and 96 browser checks (84 public, 12 private-review). Later changes require their own successful CI. HIGH and CRITICAL image findings with a fix fail the build. |
 | Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
 | Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
 | Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |

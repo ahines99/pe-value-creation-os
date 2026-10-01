@@ -1,5 +1,7 @@
 # Historical application showcase acceptance record
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the historical application acceptance record; where it differs from STATUS.md, STATUS.md is right.
+
 For the current Progress case, use the [acceptance matrix](progress-acceptance.md).
 The entries below retain their original dates and scope; they do not describe
 the later public-research and constructed-lifecycle implementation.

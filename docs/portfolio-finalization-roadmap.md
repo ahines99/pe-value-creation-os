@@ -1,5 +1,7 @@
 # Portfolio finalization: execution and owner roadmap
 
+> **For current status, see [STATUS.md](STATUS.md).** This file is kept as the history of the v0.1.0 release; where it differs from STATUS.md, STATUS.md is right.
+
 ## Superseding showcase decision
 
 September 27, 2026: Alex authorized delegated recommendations and showcase
@@ -17,7 +19,7 @@ describe the earlier acceptance contract and are superseded for showcase closure
 **Current candidate:** `31ebfe9938d6fe92232749632eba5224c0eaffaa` passed all ten
 [main-branch CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36367128767):
 499 tests on each Python version, 39 evaluations and 18 rendered browser checks,
-plus package, Compose, infrastructure and security checks. The draft release now
+plus package, Compose, infrastructure and security checks. The published `v0.1.0` release
 contains matching packages, source, screenshots, reports, manifest and checksums.
 See the [current evidence index](releases/0.1.0/evidence.md). Human acceptance and
 final promotion remain open. Earlier verification below is retained as history.

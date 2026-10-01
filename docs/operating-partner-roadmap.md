@@ -1,5 +1,7 @@
 # Operating-partner capability roadmap
 
+> **For current status, see [STATUS.md](STATUS.md).** This file is kept as the research and capability plan with per-PR evidence; where it differs from STATUS.md, STATUS.md is right.
+
 Prepared September 27, 2026 (America/New_York). Five research agents audited the
 repository and consulted primary sources; the coordinator consolidated their
 recommendations. Reviewed code: `8a6a540`; released application code: `31ebfe9`.

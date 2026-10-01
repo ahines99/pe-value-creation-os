@@ -1,5 +1,7 @@
 # Showcase closeout and next-phase boundary
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the history of the v0.1.0 showcase closeout; where it differs from STATUS.md, STATUS.md is right.
+
 Decision date: September 27, 2026 (America/New_York). Release code:
 `31ebfe9938d6fe92232749632eba5224c0eaffaa`, version `0.1.0`.
 

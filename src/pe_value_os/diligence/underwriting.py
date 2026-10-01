@@ -209,6 +209,25 @@ def validate_inputs(
                 raise ValueError("cost requires a currency assumption")
             if not start <= cost.recognized_on < end or not start <= cost.paid_on < end:
                 raise ValueError("cost recognition and payment must be inside the explicit horizon")
+        # A recurring cost is one posting per month, not a rate. Without this check a single row would silently
+        # understate every later month (and overstate value). A charge that stops early is entered as explicit
+        # zero-amount months, so the gap is a stated assumption.
+        recurring_months: dict[tuple[str, ...], set[date]] = {}
+        for cost in scenario.costs:
+            if cost.kind == "recurring":
+                recurring_months.setdefault(tuple(sorted(cost.initiative_ids)), set()).add(
+                    month_start(cost.recognized_on)
+                )
+        for owners, posted in recurring_months.items():
+            first = min(posted)
+            expected = {month_start(first, i) for i in range(months) if month_start(first, i) < end}
+            missing = sorted(expected - posted)
+            if missing:
+                raise ValueError(
+                    f"recurring costs for {', '.join(owners)} must be posted every month from {first:%Y-%m} through "
+                    f"the horizon; {len(missing)} month(s) missing, first {missing[0]:%Y-%m}. Add the months "
+                    "(zero-amount if the charge stops) or classify a one-time cost as implementation."
+                )
 
 
 class _UnderwritingInputs(Record):
