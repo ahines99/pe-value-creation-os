@@ -210,7 +210,7 @@ def test_approve_with_edits_records_diff_and_resumes(env):
 def test_review_page_and_csrf_form(env):
     ctx, run_id, client = env
     r = client.get(f"/runs/{run_id}/review", headers=H("approver-beacon"))
-    assert r.status_code == 200 and "Plan review" in r.text and "Discount governance in mid_market" in r.text
+    assert r.status_code == 200 and "Plan review" in r.text and "Discount governance in mid-market" in r.text
     assert "<script" not in r.text.lower()
     csrf = re.search(r"name='csrf' value='([^']+)'", r.text).group(1)
     bad = client.post(
@@ -268,8 +268,117 @@ def test_kpi_page(env):
     with security.principal_scope(security.system_principal("beacon-pricing")):
         kpi.refresh_company(ctx.repo, ctx.adapter, "beacon-pricing", ctx.policy, force=True)
     r = client.get("/companies/beacon-pricing/kpis", headers=H("approver-beacon"))
-    assert r.status_code == 200 and "Average new-deal discount" in r.text and "on_track" in r.text
+    assert r.status_code == 200 and "Average new-deal discount" in r.text
+    # The fixture data ends before today's approval, so every reading is a baseline, not progress.
+    assert (
+        "Pre-plan reading" in r.text and "Awaiting post-plan data" in r.text and "data-status='on_track'" not in r.text
+    )
     assert client.get("/companies/beacon-pricing/kpis", headers=H("approver-cedar")).status_code == 404
+
+
+def test_kpi_status_uses_only_readings_after_the_plan_started():
+    from datetime import UTC, date, datetime
+    from decimal import Decimal
+
+    from pe_value_os.api.review_views import _kpi_card
+    from pe_value_os.domain.kpi_models import KpiDefinition, KpiObservation
+
+    d = KpiDefinition(
+        kpi_id="k",
+        company_id="c",
+        plan_id="p",
+        run_id="r",
+        metric="gross_margin",
+        description="Gross margin",
+        baseline=Decimal("0.70"),
+        day_100_target=Decimal("0.72"),
+        run_rate_target=Decimal("0.75"),
+        direction="increase",
+        cadence_days=30,
+        source="fixture",
+        start_date=date(2026, 9, 30),
+        created_at=datetime(2026, 9, 30, tzinfo=UTC),
+    )
+
+    def obs(period_end, status):
+        return KpiObservation(
+            observation_id=str(period_end),
+            kpi_id="k",
+            company_id="c",
+            observed_at=datetime(2026, 11, 5, tzinfo=UTC),
+            period_end=period_end,
+            value=Decimal("0.70"),
+            target=Decimal("0.70"),
+            status=status,
+            variance=Decimal(0),
+        )
+
+    before = [obs(date(2026, 8, 1), "on_track"), obs(date(2026, 9, 1), "on_track")]  # September ends on the start date
+    card = _kpi_card(d, before)
+    assert (
+        "Awaiting post-plan data" in card and "data-status='on_track'" not in card and "% of the baseline" not in card
+    )
+    card = _kpi_card(d, [*before, obs(date(2026, 10, 1), "off_track")])
+    assert "data-status='off_track'" in card and "% of the baseline" in card
+
+
+def test_approving_with_every_initiative_removed_is_refused(env):
+    ctx, run_id, client = env
+    with security.principal_scope(security.system_principal("beacon-pricing")):
+        plan = ctx.repo.latest_plan(run_id).plan
+    every = [i["opportunity_id"] for ws in plan["workstreams"] for i in ws["initiatives"]]
+    r = client.post(
+        f"/runs/{run_id}/approvals",
+        headers=H("approver-beacon"),
+        json={"decision": "approved", "remove_initiatives": every},
+    )
+    assert r.status_code == 422 and "nothing to approve" in r.text
+    form = client.post(
+        f"/runs/{run_id}/approvals/form",
+        headers=H("approver-beacon"),
+        data={"decision": "approved", "csrf": _csrf(client, run_id), "remove_initiatives": every},
+    )
+    assert form.status_code == 422 and "nothing to approve" in form.text and "<form" in form.text
+    assert all(a.decision is None for a in _approvals(ctx, run_id))
+
+
+def _csrf(client, run_id):
+    client.get(f"/runs/{run_id}/review", headers=H("approver-beacon"))
+    return client.cookies["pvc_csrf"]
+
+
+def test_json_decisions_need_a_bearer_token(env):
+    ctx, run_id, client = env
+    client.cookies.set("pvc_dev_session", "approver-beacon")
+    r = client.post(f"/runs/{run_id}/approvals", json={"decision": "approved"})
+    assert r.status_code == 403 and "bearer" in r.text
+    assert all(a.decision is None for a in _approvals(ctx, run_id))
+
+
+def test_browsers_get_sign_in_or_an_error_page_and_api_clients_get_json(env):
+    _, run_id, client = env
+    browser = {"Accept": "text/html,application/xhtml+xml"}
+    signed_out = client.get(f"/runs/{run_id}/review", headers=browser, follow_redirects=False)
+    assert signed_out.status_code == 303 and signed_out.headers["location"] == "/"
+    assert client.get(f"/runs/{run_id}").json()["detail"]
+    other = client.get(f"/runs/{run_id}/review", headers={**browser, **H("approver-cedar")})
+    assert (
+        other.status_code == 404 and other.headers["content-type"].startswith("text/html") and "Not found" in other.text
+    )
+    missing = client.get("/runs/no-such-run/review", headers={**browser, **H("approver-beacon")})
+    assert missing.status_code == 404 and "Back to portfolio" in missing.text
+    api_missing = client.get("/runs/no-such-run", headers=H("approver-beacon"))
+    assert api_missing.status_code == 404 and api_missing.headers["content-type"].startswith("application/json")
+
+
+def test_money_and_labels_read_as_text():
+    from pe_value_os.api.presentation import label, money
+
+    assert money("380649.7") == "380,650" and money("12.5") == "12.50" and money("7") == "7"
+    assert money("3642580.8", compact=True) == "3.6m" and money("5000000", compact=True) == "5.0m"
+    assert label("s_and_m_expense") == "S&amp;M expense" and label("ai_automation") == "AI automation"
+    assert label("legacy_price_book_arr") == "Legacy price book ARR"
+    assert label("tier1_tickets_per_customer_month") == "Tier-1 tickets per customer month"
 
 
 def test_approval_needs_approve_scope_and_allowed_client(env, monkeypatch):
@@ -322,3 +431,81 @@ def test_api_rejects_tokens_minted_for_the_mcp_audience(monkeypatch):
     with pytest.raises(jwt.InvalidAudienceError):
         v.decode(mcp_token)
     assert v.decode(api_token)["azp"] == "approval-ui"
+
+
+def test_decision_desk_keeps_an_earlier_assessment_awaiting_approval(env):
+    ctx, first, client = env
+    with security.principal_scope(security.system_principal("beacon-pricing")):
+        rec, _ = primary.start(ctx, "beacon-pricing", "human:jo", params={"note": "second"})
+        anyio.run(lambda: primary.execute(ctx, rec.run_id, backoff_s=0))
+    page = client.get("/", headers=H("approver-beacon")).text
+    assert f"/runs/{first}/review'>Review and decide" in page and "Earlier assessment of" in page
+    assert re.search(r"Decisions required</p><div class='metric-value'>2<", page)
+
+
+def test_requesting_changes_with_every_initiative_excluded_is_refused(env):
+    ctx, run_id, client = env
+    with security.principal_scope(security.system_principal("beacon-pricing")):
+        plan = ctx.repo.latest_plan(run_id).plan
+    every = [i["opportunity_id"] for ws in plan["workstreams"] for i in ws["initiatives"]]
+    r = client.post(
+        f"/runs/{run_id}/approvals",
+        headers=H("approver-beacon"),
+        json={"decision": "changes_requested", "rationale": "rework", "exclude_opportunities": every},
+    )
+    assert r.status_code == 422 and "Reject the plan instead" in r.text
+    assert all(a.decision is None for a in _approvals(ctx, run_id))
+
+
+def test_an_empty_bearer_header_does_not_fall_back_to_the_browser_session(env):
+    ctx, run_id, client = env
+    client.cookies.set("pvc_dev_session", "approver-beacon")
+    r = client.post(f"/runs/{run_id}/approvals", headers={"Authorization": "Bearer  "}, json={"decision": "approved"})
+    assert r.status_code == 401
+    assert all(a.decision is None for a in _approvals(ctx, run_id))
+
+
+def test_an_expired_session_form_post_returns_to_sign_in(env):
+    _, run_id, client = env
+    r = client.post(
+        f"/runs/{run_id}/approvals/form",
+        headers={"Accept": "text/html"},
+        data={"decision": "approved", "csrf": "x"},
+        follow_redirects=False,
+    )
+    assert r.status_code == 303 and r.headers["location"] == "/"
+
+
+def test_a_recorded_decision_on_an_earlier_assessment_leaves_the_decision_desk(env):
+    ctx, first, client = env
+    with security.principal_scope(security.system_principal("beacon-pricing")):
+        rec, _ = primary.start(ctx, "beacon-pricing", "human:jo", params={"note": "second"})
+        anyio.run(lambda: primary.execute(ctx, rec.run_id, backoff_s=0))
+    assert client.post(
+        f"/runs/{first}/approvals", headers=H("approver-beacon"), json={"decision": "approved"}
+    ).is_success
+    page = client.get("/", headers=H("approver-beacon")).text  # the worker has not resumed the earlier run yet
+    assert "Earlier assessment of" not in page
+    assert re.search(r"Decisions required</p><div class='metric-value'>1<", page)
+
+
+def test_pre_plan_readings_raise_no_alerts_or_digest(env):
+    ctx, run_id, client = env
+    from pe_value_os import kpi
+
+    client.post(f"/runs/{run_id}/approvals", headers=H("approver-beacon"), json={"decision": "approved"})
+    resume(ctx, run_id)
+    with security.principal_scope(security.system_principal("beacon-pricing")):
+        kpi.refresh_company(ctx.repo, ctx.adapter, "beacon-pricing", ctx.policy, force=True)
+        d = ctx.repo.list_kpi_definitions("beacon-pricing")[0]
+        history = ctx.repo.list_kpi_observations("beacon-pricing", d.kpi_id)
+        forced = [o.model_copy(update={"status": "off_track"}) for o in history]
+        assert history and not any(kpi.covers_plan_period(d, o) for o in history)
+        assert kpi.detect_variance(d, forced, ctx.policy) == []
+
+
+def test_money_rounds_half_up_and_picks_the_scale_after_rounding():
+    from pe_value_os.api.presentation import money
+
+    assert money("2500.5") == "2,501" and money("-0.004") == "0"
+    assert money("999950", compact=True) == "1.0m" and money("999.4", compact=True) == "999.40"

@@ -14,6 +14,7 @@ from pe_value_os import approvals, kpi, security
 from pe_value_os.adapters.fixtures import FixtureAdapter
 from pe_value_os.adapters.repositories import InMemoryRepository, LeaseLost
 from pe_value_os.domain.baselines import LEVER_METRICS, derive_baseline
+from pe_value_os.domain.calc import add_months
 from pe_value_os.domain.kpi_models import KpiObservation, Notification
 from pe_value_os.domain.project_models import Opportunity, ScenarioInputs
 from pe_value_os.domain.runs import ApprovalDecision, Status
@@ -221,7 +222,7 @@ async def test_digest_ticks_retry_then_dedupe_and_next_day_send(repo):
                     kpi_id=d.kpi_id,
                     company_id=CID,
                     observed_at=now,
-                    period_end=now.date(),
+                    period_end=add_months(now.date(), 1),  # a post-plan month; earlier readings are baselines
                     value=d.baseline,
                     target=d.run_rate_target,
                     status="off_track",

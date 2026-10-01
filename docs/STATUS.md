@@ -5,10 +5,10 @@
 ## Where the project is
 
 - **The public showcase is shipped.** `main` (PR #52) is published at <https://ahines99.github.io/pe-value-creation-os/>, and every file under `docs/` matches the live site.
-- **CI is green on `main`:** ten jobs, 1,781 tests on each of Python 3.12, 3.13 and 3.14, 39 evaluations, and 96 browser checks (84 public pages, 12 private-review pages).
-- **Nothing is deployed** beyond the static site. The AWS Terraform and the CD workflow have never run.
+- **CI:** ten required jobs: the test suite on each of Python 3.12, 3.13 and 3.14, 39 evaluations, and 96 browser checks (84 public pages, 12 private-review pages). `main` at PR #52 pins PyJWT 2.14.0, which the dependency audit now flags (CVE-2026-101918); its next CI run would fail. PR #53 upgrades it and is green.
+- **Nothing is deployed** beyond the static site. The AWS Terraform has never been applied. The CD workflow triggers, but its jobs are skipped because no deployment is configured.
 - **No company pilot has happened.** The private-pilot workflow has only been exercised on fictional records.
-- **"Released" so far means merged to `main` and published.** The only tagged release is `v0.1.0` (September 28). The private-workflow work in PRs #41 to #52 has no tag or version bump yet.
+- **"Released" so far means merged to `main` and published.** The only tagged release is `v0.1.0` (September 27), which covers PRs up to #13. PRs #14 to #52 have no tag or version bump yet.
 
 ## What is real and what is constructed
 
@@ -17,6 +17,7 @@
 | Public baseline | Real Progress Software public filings: 241 mapped facts, plus four public peers |
 | Operating exercise | Constructed: contracts, vendors, invoices, capacity, KPI readings, realization and exit figures |
 | Approval demo companies (Beacon, Cedar, Acme, Delta) | Fictional |
+| Private WRDS/LSEG research study | Licensed data, produced September 27 to 28. Unreviewed and unpublished; it stays in the gitignored `var/research-pilot/` folder. The university licence is non-commercial |
 
 The public pages label this split. Normalized EBITDA, unsupported earnings adjustments and the valuations that depend on them are withheld, not estimated. There is no Progress engagement and no realized savings.
 
@@ -25,7 +26,7 @@ The public pages label this split. Normalized EBITDA, unsupported earnings adjus
 - **Core:** deterministic calculation services, a checkpointed workflow, an MCP server with 22 tools, a human approval API, KPI monitoring, source adapters, evals and an optional Claude model layer.
 - **Public diligence:** EBITDA reconciliation, quarterly and peer views, restatement comparison, acquisition vintages and a historical valuation bridge.
 - **Constructed underwriting:** monthly earnings and cash, capacity scheduling, case revisions with lineage, and a realization and attribution ledger.
-- **Permissioned private chain** (16 migrations): processing grants, intake, financial snapshots, underwriting, capacity plans, reviewed baselines, observations, execution, attribution with separate finance review, and an executive review screen.
+- **Permissioned private chain** (migrations 0008 to 0016 of 16): processing grants, intake, financial snapshots, underwriting, capacity plans, reviewed baselines, observations, execution, attribution with separate finance review, and an executive review screen.
 
 ## Open items
 
@@ -38,7 +39,7 @@ The public pages label this split. Normalized EBITDA, unsupported earnings adjus
 | Remaining private screens and the private decision memo | Only the attribution review screen exists | Engineering |
 | Retention and disposal | Whole-company offboarding exists; per-source expiry, legal holds and backup disposal do not | Engineering; the company supplies its policy |
 | Real pilot | Not started | Needs a sponsor, authorized records, named finance and operating reviewers, an AWS deployment and elapsed operating time |
-| Six Dependabot PRs (#2 to #7) | Open; #3 fails the container scan | Engineering |
+| Eight Dependabot PRs (#3, #6, #7, #55 to #59) | Most fail only the dependency audit inherited from `main` and should pass once #53 merges; #3 (Python 3.14 image) fails the container scan | Engineering |
 | New tagged release | Not cut since `v0.1.0` | Owner decides when |
 
 ## Known engineering debts
@@ -54,7 +55,9 @@ A September 30 review found the code healthy (lint, types, tests, evals and the 
 
 The review's advice was to consolidate before adding more pilot stages.
 
-One modelling trap from that review is fixed: a cost of kind `recurring` must now be posted for every month through the horizon, so a single row can no longer understate later months.
+Fixed since that review (PRs #53 and #54): approving a plan with every initiative removed is refused; KPI readings for periods before a plan started show as baselines, not "On track"; signed-out browser visits go to sign-in, and missing or forbidden pages show an error page instead of raw JSON; the JSON approval endpoint requires a bearer token; money and label formatting is consistent.
+
+One modelling trap from that review is also fixed: a cost of kind `recurring` must now be posted for every month through the horizon, so a single row can no longer understate later months.
 
 ## Older documents
 

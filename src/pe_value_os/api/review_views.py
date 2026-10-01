@@ -10,7 +10,8 @@ from ..domain.baselines import REGISTRY
 from ..domain.kpi_models import KpiDefinition, KpiObservation
 from ..domain.models import Finding
 from ..domain.project_models import Opportunity, ValueCase
-from ..domain.runs import ApprovalRecord, PlanRecord, RunRecord
+from ..domain.runs import ApprovalRecord, PlanRecord, RunRecord, Status
+from ..kpi import covers_plan_period
 from .presentation import label, money, page, status_badge
 
 
@@ -50,7 +51,7 @@ def _evidence(ids: list[str], run_id: str) -> str:
     return (
         "<div class='evidence-links'>"
         + "".join(
-            f"<a href='/evidence/{_e(e)}/review?run_id={_e(run_id)}' title='Evidence {_e(e)}'>Source {n:02d} <span aria-hidden='true'>↗</span></a>"
+            f"<a href='/evidence/{_e(e)}/review?run_id={_e(run_id)}' title='Evidence {_e(e)}'>Source {n:02d}</a>"
             for n, e in enumerate(dict.fromkeys(ids), 1)
         )
         + "</div>"
@@ -280,7 +281,7 @@ def review_page(
         + "</p></div>",
         f"<div>{status_badge(display_status)}<p class='metric-note'>As of {_e(run.updated_at.strftime('%d %b %Y · %H:%M UTC'))}</p></div></header>",
         "<nav class='section-nav' aria-label='Plan sections'><a href='#executive'>Decision brief</a><a href='#workstreams'>Execution plan</a><a href='#evidence'>Value cases &amp; evidence</a><a href='#decision'>Decision record</a>",
-        f"<a href='/companies/{_e(run.company_id)}/kpis?run_id={_e(run.run_id)}'>Operating performance ↗</a></nav>",
+        f"<a href='/companies/{_e(run.company_id)}/kpis?run_id={_e(run.run_id)}'>Operating performance</a></nav>",
     ]
     if run.status.value == "failed":
         state = workflow_state or {}
@@ -390,13 +391,13 @@ def review_page(
     if suspicious:
         h.append(
             "<section class='alert warning'><h2>Source integrity requires review</h2><p>Suspicious content was treated as data and not followed.</p>"
-            + _list([f"{f.title}: {f.statement}" for f in suspicious])
+            + _list([f"{f.title.rstrip('.:')}. {f.statement}" for f in suspicious])
             + "</section>"
         )
     if gaps:
         h.append(
             "<section class='panel'><p class='eyebrow'>Diligence limitations</p><h2>Data gaps &amp; required evidence</h2>"
-            + _list([f"{f.title}: {f.statement}" for f in gaps])
+            + _list([f"{f.title.rstrip('.:')}. {f.statement}" for f in gaps])
             + "</section>"
         )
     h.append(
@@ -417,7 +418,7 @@ def review_page(
     h.append(
         "<details class='disclosure'><summary>Workflow &amp; audit identifiers</summary><dl class='definition-list'>"
         + f"<div><dt>Workflow status</dt><dd><code>{_e(run.status.value)}</code></dd></div>"
-        + f"<div><dt>Company</dt><dd><code>{_e(run.company_id)}</code></dd></div><div><dt>Run</dt><dd><code>{_e(run.run_id)}</code></dd></div><div><dt>Current step</dt><dd>{label(run.current_step or 'Not started')}</dd></div><div><dt>Reference date</dt><dd>{_e(run.reference_date or 'Not specified')}</dd></div>"
+        + f"<div><dt>Company</dt><dd><code>{_e(run.company_id)}</code></dd></div><div><dt>Run</dt><dd><code>{_e(run.run_id)}</code></dd></div><div><dt>Current step</dt><dd>{label(run.current_step) if run.current_step else ('Not started' if run.status == Status.PENDING else 'None')}</dd></div><div><dt>Reference date</dt><dd>{_e(run.reference_date or 'Not specified')}</dd></div>"
         + (f"<div><dt>Plan</dt><dd><code>{_e(plan.plan_id)}</code></dd></div>" if plan else "")
         + "</dl></details>"
     )
@@ -425,21 +426,22 @@ def review_page(
 
 
 def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
-    latest = history[-1] if history else None
+    measured = [o for o in history if covers_plan_period(d, o)]
+    latest = measured[-1] if measured else None
     h = [
         "<article class='panel kpi-card'><div class='panel-header'><div>",
         f"<p class='eyebrow'>{label(d.metric)} · Every {d.cadence_days} days</p><h3>{_e(d.description)}</h3></div>",
-        status_badge(latest.status) if latest else "<span class='badge'>Awaiting observation</span>",
+        status_badge(latest.status) if latest else "<span class='badge'>Awaiting post-plan data</span>",
         "</div><div class='metric-comparison'>",
     ]
     for name, value in [
         ("Baseline", d.baseline),
-        ("Latest actual", latest.value if latest else None),
+        ("Latest post-plan reading", latest.value if latest else None),
         ("Day-100 target", d.day_100_target),
         ("Run-rate target", d.run_rate_target),
     ]:
         h.append(
-            f"<div><span class='metric-label'>{name}</span><strong class='metric-value'>{_metric(d.metric, value) if value is not None else 'Not observed'}</strong></div>"
+            f"<div><span class='metric-label'>{name}</span><strong class='metric-value'>{_metric(d.metric, value) if value is not None else 'None yet'}</strong></div>"
         )
     h.append("</div>")
     if latest:
@@ -459,7 +461,8 @@ def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
         )
     else:
         h.append(
-            "<p class='empty-state'>Measurement has not been recorded. Approval establishes a target; it does not establish realized impact.</p>"
+            "<p class='empty-state'>No reading covers a period after the plan started. Approval establishes a target; "
+            "it does not establish realized impact.</p>"
         )
     h.append(
         "<details class='disclosure'><summary>Observation history &amp; measurement provenance</summary>"
@@ -471,8 +474,11 @@ def _kpi_card(d: KpiDefinition, history: list[KpiObservation]) -> str:
             "<div class='table-wrap' tabindex='0' role='region' aria-label='Recorded KPI observations'><table class='data-table'><caption>Recorded observations, most recent first</caption><thead><tr><th scope='col'>Observed / source period</th><th scope='col'>Actual</th><th scope='col'>Dated target</th><th scope='col'>Status</th><th scope='col'>Evidence</th></tr></thead><tbody>"
         )
         for o in reversed(history):
+            badge = (
+                status_badge(o.status) if covers_plan_period(d, o) else "<span class='badge'>Pre-plan reading</span>"
+            )
             h.append(
-                f"<tr><th scope='row'>{_e(o.observed_at.strftime('%d %b %Y %H:%M UTC'))}<small>{_e(o.period_end or 'Period not specified')}</small></th><td>{_metric(d.metric, o.value)}</td><td>{_metric(d.metric, o.target)}</td><td>{status_badge(o.status)}</td><td>{_evidence(o.evidence_ids, d.run_id)}</td></tr>"
+                f"<tr><th scope='row'>{_e(o.observed_at.strftime('%d %b %Y %H:%M UTC'))}<small>{_e(o.period_end or 'Period not specified')}</small></th><td>{_metric(d.metric, o.value)}</td><td>{_metric(d.metric, o.target)}</td><td>{badge}</td><td>{_evidence(o.evidence_ids, d.run_id)}</td></tr>"
             )
         h.append("</tbody></table></div>")
     h.append(
@@ -512,7 +518,8 @@ def kpi_page(
             h.append(
                 f"<details class='disclosure'><summary>Earlier plan · {_e(definitions[0].start_date)} · Run {_e(run_id[:8])}</summary>"
             )
-        latest = [by[d.kpi_id][-1] for d in definitions if by.get(d.kpi_id)]
+        measured = {d.kpi_id: [o for o in by.get(d.kpi_id, []) if covers_plan_period(d, o)] for d in definitions}
+        latest = [m[-1] for m in measured.values() if m]
         off = sum(o.status == "off_track" for o in latest)
         plan_label = (
             "Selected approved plan"
@@ -520,13 +527,17 @@ def kpi_page(
             else ("Most recently activated plan" if index == 0 else "Earlier plan")
         )
         h.append(
-            f"<section class='stack'><div class='section-heading'><div><p class='eyebrow'>{plan_label} · {_e(currency or 'Currency metrics use source units')}</p><h2>Operating scorecard</h2><p class='metric-note'>Start {_e(definitions[0].start_date)} · Plan <code>{_e(plan_id[:8])}</code> · Run <code>{_e(run_id[:8])}</code></p></div><a href='/runs/{_e(run_id)}/review'>View approved plan ↗</a></div><div class='metrics-grid'>"
+            f"<section class='stack'><div class='section-heading'><div><p class='eyebrow'>{plan_label} · {_e(currency or 'Currency metrics use source units')}</p><h2>Operating scorecard</h2><p class='metric-note'>Start {_e(definitions[0].start_date)} · Plan <code>{_e(plan_id[:8])}</code> · Run <code>{_e(run_id[:8])}</code></p></div><a href='/runs/{_e(run_id)}/review'>View approved plan &rarr;</a></div><div class='metrics-grid'>"
         )
         h.append(_card("Measures in this plan", str(len(definitions)), "Each KPI remains tied to its own approved run"))
-        h.append(_card("On track", str(len(latest) - off), "Latest observation versus its dated target"))
-        h.append(_card("Requires attention", str(off), "Latest observations outside policy tolerance"))
+        h.append(_card("On track", str(len(latest) - off), "Latest post-plan reading versus its dated target"))
+        h.append(_card("Requires attention", str(off), "Latest post-plan readings outside policy tolerance"))
         h.append(
-            _card("Awaiting measurement", str(len(definitions) - len(latest)), "Targets without a recorded observation")
+            _card(
+                "Awaiting measurement",
+                str(len(definitions) - len(latest)),
+                "No reading yet for a period after the plan started",
+            )
         )
         h.append("</div>")
         for d in definitions:

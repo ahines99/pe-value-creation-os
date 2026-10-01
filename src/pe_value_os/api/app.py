@@ -21,10 +21,12 @@ from typing import Annotated, Any, Literal
 from urllib.parse import parse_qsl, quote
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from jwt import PyJWTError
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .. import __version__, approvals, security
 from ..adapters.evidence_store import EvidenceNotFound
@@ -66,11 +68,11 @@ from ..diligence.private_records import (
 from ..diligence.private_review import review_note_request
 from ..diligence.private_underwriting import UnderwritingRequest
 from ..diligence.realization import AttributionRequest, ObservationRequest
-from ..domain.runs import ApprovalDecision, RunRecord
+from ..domain.runs import ApprovalDecision, RunRecord, Status
 from ..observability import RequestMetricsMiddleware, configure_telemetry, get_logger
 from ..workflows import primary
 from ..workflows.steps import RunContext
-from . import private_review_views, views
+from . import presentation, private_review_views, views
 
 log = get_logger(__name__)
 configure_telemetry("pvc-api")
@@ -138,7 +140,8 @@ def current_principal(request: Request) -> security.Principal:
     token = (
         auth[7:].strip() if auth.lower().startswith("bearer ") else request.headers.get("x-amzn-oidc-accesstoken", "")
     )
-    if not token and os.environ.get("PVC_ENV") == "dev":
+    if not token and not auth and os.environ.get("PVC_ENV") == "dev":
+        # An explicit but empty Authorization header must not fall back to the browser session.
         token = request.cookies.get("pvc_dev_session", "")
     if not token:
         raise HTTPException(401, "Missing bearer token", headers={"WWW-Authenticate": "Bearer"})
@@ -962,6 +965,10 @@ def home(request: Request) -> Response:
             if plan is not None:
                 plans[run.run_id] = plan
             gaps[run.run_id] = sum(f.finding_type.value == "data_gap" for f in ctx.repo.list_findings(run.run_id))
+        for run in runs:  # earlier assessments still awaiting a decision appear on the decision desk
+            if run.status == Status.AWAITING_APPROVAL and latest[run.company_id].run_id != run.run_id:
+                if records := ctx.repo.list_approvals(run.run_id):
+                    decisions[run.run_id] = records[-1]
     return HTMLResponse(
         views.home_page(
             runs,
@@ -1025,7 +1032,11 @@ def run_status(run_id: str, p: Principal) -> dict[str, Any]:
 
 
 @app.post("/runs/{run_id}/approvals")
-def post_decision(run_id: str, body: DecisionIn, p: Principal) -> dict[str, Any]:
+def post_decision(run_id: str, body: DecisionIn, p: Principal, request: Request) -> dict[str, Any]:
+    # Same rule as case writes: the JSON endpoint needs an explicit bearer credential. A browser session
+    # cookie decides only through the CSRF-protected form endpoint.
+    if not request.headers.get("authorization", "").lower().startswith("bearer "):
+        raise HTTPException(403, "Decisions through the JSON API require an explicit bearer credential")
     with scoped(p):
         _load_run(run_id)
         return _decide(run_id, p, body)
@@ -1213,6 +1224,26 @@ def approval_metrics(p: Principal) -> dict[str, Any]:
         return approvals.override_stats(get_ctx())
 
 
+def _wants_html(request: Request) -> bool:
+    """A browser page load or form post, as opposed to an API call."""
+    return "text/html" in request.headers.get("accept", "")
+
+
+def _browser_error(request: Request, status_code: int, headers: dict[str, str] | None = None) -> Response:
+    if status_code == 401 and os.environ.get("PVC_ENV") == "dev" and request.url.path != "/":
+        return RedirectResponse("/", status_code=303)  # the dev sign-in page lives at /
+    return HTMLResponse(presentation.error_page(status_code), status_code=status_code, headers=headers)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _http_error(request: Request, exc: StarletteHTTPException) -> Response:
+    if exc.status_code in {401, 403, 404} and _wants_html(request):
+        return _browser_error(request, exc.status_code, dict(exc.headers or {}))
+    return await http_exception_handler(request, exc)
+
+
 @app.exception_handler(security.ScopeError)
-def _scope_error(_: Request, exc: security.ScopeError) -> JSONResponse:
+def _scope_error(request: Request, exc: security.ScopeError) -> Response:
+    if _wants_html(request):
+        return _browser_error(request, 404)
     return JSONResponse({"detail": "Not found"}, status_code=404)

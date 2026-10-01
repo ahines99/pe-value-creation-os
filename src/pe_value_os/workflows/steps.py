@@ -160,7 +160,9 @@ def intake(ctx: RunContext, state: RunState) -> dict[str, Any]:
                     FindingType.SUSPICIOUS_CONTENT,
                     f"Suspicious instructions in document {doc.document_id}",
                     "Document contains text addressed to an AI system or referencing another portfolio company. It was "
-                    "treated as data and not followed. Reasons: " + ", ".join(det.reasons) + ".",
+                    "treated as data and not followed. Reasons: "
+                    + ", ".join(r.replace("_", " ") for r in det.reasons)
+                    + ".",
                     Confidence.HIGH,
                     [docs_ds.evidence_id] if docs_ds else [],
                     metadata={"document_id": doc.document_id, "reasons": list(det.reasons)},
@@ -177,7 +179,7 @@ def intake(ctx: RunContext, state: RunState) -> dict[str, Any]:
                         FindingType.SUSPICIOUS_CONTENT,
                         "Suspicious instructions in a CRM churn note",
                         "A churn note contains text addressed to an AI system. It was treated as data and not followed. "
-                        "Reasons: " + ", ".join(det.reasons) + ".",
+                        "Reasons: " + ", ".join(r.replace("_", " ") for r in det.reasons) + ".",
                         Confidence.HIGH,
                         [churn_ds.evidence_id] if churn_ds else [],
                         metadata={"reasons": list(det.reasons)},
@@ -201,7 +203,7 @@ def data_sufficiency(ctx: RunContext, state: RunState) -> dict[str, Any]:
         DraftFinding(
             f"gap_{a}",
             FindingType.DATA_GAP,
-            f"{a} analysis skipped: insufficient data",
+            f"{a.replace('_', ' ').capitalize()} analysis skipped: insufficient data",
             "; ".join(g.detail for g in r.gaps if g.blocking),
             Confidence.HIGH,
             [],

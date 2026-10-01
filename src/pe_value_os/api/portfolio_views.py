@@ -87,13 +87,19 @@ def home_page(
             currency = company.currency if company else f"Unspecified ({run.company_id})"
             totals[currency]["annual"] += Decimal(str(data["total_run_rate_ebitda_base"]))
             totals[currency]["year"] += Decimal(str(data["total_in_year_ebitda_base"]))
-    pending = sum(current_status(run) == "awaiting_approval" for run in current)
+    # A newer assessment does not retire an earlier plan's approval request, so it still needs a decision.
+    earlier_pending = [
+        run
+        for run in ordered
+        if latest[run.company_id].run_id != run.run_id and current_status(run) == "awaiting_approval"
+    ]
+    pending = sum(current_status(run) == "awaiting_approval" for run in current) + len(earlier_pending)
     blocked = sum(run.status.value in {"needs_evidence", "failed"} for run in current)
     total_html = (
         "".join(
             f"<div class='metric-value' data-metric='portfolio-run-rate-ebitda' data-currency='{escape(currency)}' data-value='{values['annual']}' title='{escape(currency)} {money(values['annual'])}'>"
             f"<small>{escape(currency)}</small> {money(values['annual'], compact=True)}</div>"
-            f"<p class='metric-note'>In-year {escape(currency)} {money(values['year'])}</p>"
+            f"<p class='metric-note'>In-year {escape(currency)} {money(values['year'], compact=True)}</p>"
             for currency, values in sorted(totals.items())
         )
         or "<div class='metric-value'>&mdash;</div><p class='metric-note'>No sized current plan yet</p>"
@@ -108,7 +114,7 @@ def home_page(
         "<p class='metric-note'>One current assessment per company</p></div>",
         f"<div class='metric-card highlight'><p class='metric-label'>Modeled annual EBITDA opportunity</p>{total_html}</div>",
         f"<div class='metric-card'><p class='metric-label'>Decisions required</p><div class='metric-value'>{pending}</div>"
-        "<p class='metric-note'>Current plans awaiting human approval</p></div>",
+        "<p class='metric-note'>Plans awaiting human approval</p></div>",
         f"<div class='metric-card'><p class='metric-label'>Needs attention</p><div class='metric-value'>{blocked}</div>"
         "<p class='metric-note'>Evidence gaps or interrupted assessments</p></div></section>",
         "<p class='form-help'>Opportunity totals include only each company's latest eligible plan; approved edits are "
@@ -167,13 +173,15 @@ def home_page(
         "<div><p class='eyebrow'>Decision desk</p><h2>Your next actions</h2></div></div><div class='action-list'>"
     )
     actions = [run for run in current if current_status(run) in {"awaiting_approval", "needs_evidence", "failed"}]
+    actions += earlier_pending
     for run in actions:
         profile = companies.get(run.company_id)
         action = "Review and decide" if run.status.value == "awaiting_approval" else "Resolve assessment blockers"
+        earlier = f" · Earlier assessment of {run.created_at:%d %b %Y, %H:%M UTC}" if run in earlier_pending else ""
         h.append(
             f"<div class='initiative-row'><div><strong>{escape(profile.name if profile else run.company_id)}</strong>"
-            f"<p class='muted'>{label(run.status.value)}</p></div>"
-            f"<a class='text-link' href='/runs/{escape(run.run_id)}/review'>{action} &rarr;</a></div>"
+            f"<p class='muted'>{label(run.status.value)}{earlier}</p></div>"
+            f"<a class='text-link' href='/runs/{escape(run.run_id)}/review'>{action}</a></div>"
         )
     if not actions:
         h.append(

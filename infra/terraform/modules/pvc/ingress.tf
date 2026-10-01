@@ -279,7 +279,7 @@ resource "aws_lb_listener_rule" "api_browser" {
 
   condition {
     path_pattern {
-      values = ["/runs/*/review", "/runs/*/approvals/form", "/evidence/*", "/companies/*"]
+      values = ["/", "/runs/*/review", "/runs/*/approvals/form", "/evidence/*", "/companies/*"]
     }
   }
 
