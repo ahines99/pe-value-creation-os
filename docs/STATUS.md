@@ -63,7 +63,7 @@ One modelling trap from that review is also fixed: a cost of kind `recurring` mu
 
 | Document | What it is now |
 |---|---|
-| [ROADMAP.md](../ROADMAP.md) | The original 111-ticket production plan, frozen September 27 (78 done, 14 built, 19 blocked) |
+| [ROADMAP.md](../ROADMAP.md) | The original 111-ticket production plan (83 done, 12 built, 16 blocked; five tickets closed September 30 from CI evidence) |
 | [IMPLEMENTATION_HANDOFF.md](../IMPLEMENTATION_HANDOFF.md) | The original design specification |
 | [operating-partner-roadmap.md](operating-partner-roadmap.md) | Research and capability plan (OP-01 to OP-18), with per-PR evidence |
 | [portfolio/progress-acceptance.md](portfolio/progress-acceptance.md) | Detailed acceptance evidence for the Progress case |
