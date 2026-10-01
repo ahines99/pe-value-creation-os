@@ -13,33 +13,48 @@ from urllib.parse import quote
 from ..domain.models import EvidenceRef
 from ..domain.runs import ApprovalRecord, PlanRecord, RunRecord
 from ..domain.source_models import CompanyProfile
-from .presentation import label, money, page, status_badge
+from .presentation import icon, label, money, page, page_header, status_badge
+
+
+def _compact(value: Any) -> str:
+    """Compact figure with its scale suffix set smaller, for headline numbers."""
+    text = money(value, compact=True)
+    digits = text.rstrip("kmbn")
+    return f"{digits}<span class='unit'>{text[len(digits) :]}</span>" if digits != text else text
 
 
 def login_page(csrf: str, *, error: str | None = None) -> str:
     error_html = f"<div id='login-error' class='alert warning' role='alert'>{escape(error)}</div>" if error else ""
     described_by = "login-help login-error" if error else "login-help"
+    steps = (
+        ("01", "Underwrite the opportunity", "Compare downside, base and upside cases with traceable assumptions."),
+        ("02", "Make the decision", "Approve, challenge or reshape an evidence-backed 100-day plan."),
+        ("03", "Track execution", "Connect the approved plan to measurable operating KPIs."),
+    )
     return page(
         "Private equity operating workspace",
-        "<section class='hero'><div class='hero-copy'><p class='eyebrow'>Portfolio operations</p>"
+        "<section class='login-layout'><div class='login-intro'><p class='eyebrow'>Portfolio operations</p>"
         "<h1 class='page-title'>Turn an investment thesis<br>into an operating plan.</h1>"
         "<p class='page-subtitle'>A decision workspace for operating partners. Prioritize the value at stake, "
         "challenge the assumptions, and put accountable execution behind every initiative.</p>"
-        "<div class='action-list'><p><strong>01 / Underwrite the opportunity</strong><br>"
-        "Compare downside, base and upside cases with traceable assumptions.</p>"
-        "<p><strong>02 / Make the decision</strong><br>Approve, challenge or reshape an evidence-backed 100-day plan.</p>"
-        "<p><strong>03 / Track execution</strong><br>Connect the approved plan to measurable operating KPIs.</p></div></div>"
-        "<div class='hero-aside panel'><p class='eyebrow'>Review access</p><h2>Open your workspace</h2>"
-        "<p class='muted'>Local showcase sign-in. This demonstration uses fictional portfolio companies.</p>"
-        f"{error_html}<form method='post' action='/dev/login' class='stack'>"
+        "<ol class='login-steps'>"
+        + "".join(
+            f"<li><span class='step-num' aria-hidden='true'>{n}</span><div><strong>{title}</strong><p>{text}</p></div></li>"
+            for n, title, text in steps
+        )
+        + "</ol></div>"
+        f"<div class='login-card'><div class='login-card-head'><span class='page-icon'>{icon('private')}</span>"
+        "<p class='eyebrow'>Review access</p><h2>Open your workspace</h2>"
+        "<p class='muted'>Local showcase sign-in. This demonstration uses fictional portfolio companies.</p></div>"
+        f"{error_html}<form method='post' action='/dev/login'>"
         f"<input type='hidden' name='csrf' value='{escape(csrf)}'>"
         "<label for='token'>Local approver token</label>"
         f"<input id='token' name='token' class='input-field' type='password' required autocomplete='off' "
         f"aria-describedby='{described_by}'>"
-        "<button type='submit' class='button'>Open workspace <span aria-hidden='true'>&rarr;</span></button>"
         "<p id='login-help' class='form-help'>Use the token printed by setup, or copy only its value from "
-        "<code>var/local-showcase/settings.json</code>, without quotes.</p></form>"
-        "<div class='divider'></div><p class='form-help'>Approvals belong to a human reviewer. "
+        "<code>var/local-showcase/settings.json</code>, without quotes.</p>"
+        "<button type='submit' class='button'>Open workspace <span aria-hidden='true'>&rarr;</span></button></form>"
+        "<p class='login-note'>Approvals belong to a human reviewer. "
         "Production access uses your identity provider; this token is for the local demonstration.</p></div></section>",
         active="login",
     )
@@ -49,6 +64,11 @@ def _plan_data(plan: PlanRecord | None) -> dict[str, Any] | None:
     if plan is None or plan.status in {"rejected", "superseded"}:
         return None
     return plan.approved_plan if plan.approved_plan is not None else plan.plan
+
+
+def _th(text: str, symbol: str, cls: str = "") -> str:
+    attrs = f" class='{cls}'" if cls else ""
+    return f"<th scope='col'{attrs}><span class='th-label'>{icon(symbol)}{text}</span></th>"
 
 
 def home_page(
@@ -95,39 +115,51 @@ def home_page(
     ]
     pending = sum(current_status(run) == "awaiting_approval" for run in current) + len(earlier_pending)
     blocked = sum(run.status.value in {"needs_evidence", "failed"} for run in current)
+    actions = [run for run in current if current_status(run) in {"awaiting_approval", "needs_evidence", "failed"}]
+    actions += earlier_pending
     total_html = (
         "".join(
             f"<div class='metric-value' data-metric='portfolio-run-rate-ebitda' data-currency='{escape(currency)}' data-value='{values['annual']}' title='{escape(currency)} {money(values['annual'])}'>"
-            f"<small>{escape(currency)}</small> {money(values['annual'], compact=True)}</div>"
+            f"<small>{escape(currency)}</small>{_compact(values['annual'])}</div>"
             f"<p class='metric-note'>In-year {escape(currency)} {money(values['year'], compact=True)}</p>"
             for currency, values in sorted(totals.items())
         )
         or "<div class='metric-value'>&mdash;</div><p class='metric-note'>No sized current plan yet</p>"
     )
     h = [
-        "<header class='page-header'><div><p class='eyebrow'>Operating partner workspace</p>"
-        "<h1 class='page-title'>Portfolio value creation</h1>"
-        "<p class='page-subtitle'>Where to focus. What to underwrite. What happens next.</p></div>"
-        "<a class='button secondary' href='#decisions'>Open decision desk &darr;</a></header>",
-        "<section class='metrics-grid' aria-label='Current portfolio overview'>",
-        f"<div class='metric-card'><p class='metric-label'>Portfolio companies</p><div class='metric-value'>{len(current)}</div>"
+        page_header(
+            "Portfolio value creation",
+            subtitle="Where to focus. What to underwrite. What happens next.",
+            symbol="portfolio",
+            actions=f"<a class='button secondary' href='#decisions'>Open decision desk <span class='count'>{len(actions)}</span></a>",
+        ),
+        "<section class='summary-strip' aria-label='Current portfolio overview'>",
+        f"<div class='summary-item lead'><p class='metric-label'>{icon('value')}Modeled annual EBITDA opportunity</p>{total_html}</div>",
+        f"<div class='summary-item'><p class='metric-label'>{icon('company')}Portfolio companies</p><div class='metric-value'>{len(current)}</div>"
         "<p class='metric-note'>One current assessment per company</p></div>",
-        f"<div class='metric-card highlight'><p class='metric-label'>Modeled annual EBITDA opportunity</p>{total_html}</div>",
-        f"<div class='metric-card'><p class='metric-label'>Decisions required</p><div class='metric-value'>{pending}</div>"
+        f"<div class='summary-item'><p class='metric-label'>{icon('decisions')}Decisions required</p><div class='metric-value'>{pending}</div>"
         "<p class='metric-note'>Plans awaiting human approval</p></div>",
-        f"<div class='metric-card'><p class='metric-label'>Needs attention</p><div class='metric-value'>{blocked}</div>"
+        f"<div class='summary-item'><p class='metric-label'>{icon('alert')}Needs attention</p><div class='metric-value'>{blocked}</div>"
         "<p class='metric-note'>Evidence gaps or interrupted assessments</p></div></section>",
-        "<p class='form-help'>Opportunity totals include only each company's latest eligible plan; approved edits are "
+        "<p class='summary-foot'>Opportunity totals include only each company's latest eligible plan; approved edits are "
         "reflected. Cases are sized independently; totals are not adjusted for overlap between initiatives. "
         "Separate currencies are never combined. These are modeled opportunities, not realized returns.</p>",
-        "<section id='portfolio'><div class='section-heading'><div><p class='eyebrow'>Portfolio coverage</p>"
-        "<h2>Company priorities</h2></div><span class='muted'>Current assessments</span></div>",
+        "<section id='portfolio' class='portfolio-block'>",
     ]
     if current:
         h.append(
-            "<div class='table-wrap' tabindex='0' role='region' aria-label='Company priorities'><table class='data-table company-table'>"
-            "<thead><tr><th scope='col'>Company</th><th scope='col'>Status</th><th scope='col' class='num'>Annual opportunity</th>"
-            "<th scope='col'>Primary value lever</th><th scope='col' class='num'>Evidence gaps</th><th scope='col'>Next step</th></tr></thead><tbody>"
+            "<div class='table-card'><div class='table-toolbar'><div class='toolbar-title'>"
+            f"{icon('company')}<h2>Company priorities</h2><span class='count'>{len(current)}</span></div>"
+            "<div class='toolbar-meta'><span>Current assessments</span><span>Latest run per company</span></div></div>"
+            "<div class='table-wrap' tabindex='0' role='region' aria-label='Company priorities'><table class='data-table company-table stack-table'>"
+            "<thead><tr>"
+            + _th("Company", "company")
+            + _th("Status", "status")
+            + _th("Annual opportunity", "value", "num")
+            + _th("Primary value lever", "lever", "col-lever")
+            + _th("Evidence gaps", "alert", "num")
+            + _th("Next step", "next")
+            + "</tr></thead><tbody>"
         )
     for run in current:
         profile = companies.get(run.company_id)
@@ -141,18 +173,19 @@ def home_page(
             about += f"<br>{escape(profile.deal_thesis)}"
         h.append(
             f"<tr><th scope='row'><div class='entity'><span class='company-monogram' aria-hidden='true'>{escape(initials)}</span>"
-            f"<div>{escape(company_name)}<small>{about}</small>"
+            f"<div><span class='entity-name'>{escape(company_name)}</span><small>{about}</small>"
             f"<small>Assessment {escape(run.created_at.strftime('%d %b %Y, %H:%M UTC'))}</small></div></div></th>"
-            f"<td>{status_badge(current_status(run))}</td>"
+            f"<td data-label='Status'>{status_badge(current_status(run))}</td>"
         )
         if data is not None and run.status.value not in {"failed", "rejected", "needs_evidence"}:
             initiatives = [item for ws in data.get("workstreams", []) for item in ws.get("initiatives", [])]
             lead = max(initiatives, key=lambda i: Decimal(str(i["run_rate_ebitda_base"])), default=None)
             h.append(
-                f"<td class='num'>{escape(currency)} {money(data['total_run_rate_ebitda_base'], compact=True)}"
+                f"<td class='num' data-label='Annual opportunity'><div><span class='figure-lg'><span class='ccy'>{escape(currency)}</span>"
+                f"{money(data['total_run_rate_ebitda_base'], compact=True)}</span>"
                 f"<small>{'Approved' if plan and plan.status == 'approved' else 'Proposed'} · {len(initiatives)} initiatives across "
-                f"{len(data.get('workstreams', []))} workstreams</small></td>"
-                f"<td>{escape(lead['title']) if lead else '<span class=muted>None</span>'}</td>"
+                f"{len(data.get('workstreams', []))} workstreams</small></div></td>"
+                f"<td data-label='Primary value lever'>{escape(lead['title']) if lead else '<span class=muted>None</span>'}</td>"
             )
         else:
             message = {
@@ -161,43 +194,52 @@ def home_page(
                 "rejected": "The reviewer declined this plan. The decision remains in the audit record.",
             }.get(run.status.value, "The assessment is collecting and analyzing evidence. Refresh to see progress.")
             h.append(
-                f"<td class='num'><span class='muted'>Not sized</span></td><td class='muted'>{escape(message)}</td>"
+                "<td class='num' data-label='Annual opportunity'><span class='muted'>Not sized</span></td>"
+                f"<td class='muted' data-label='Primary value lever'>{escape(message)}</td>"
             )
         h.append(
-            f"<td class='num'>{gaps.get(run.run_id, 0)}</td><td><div class='row-actions'>"
-            f"<a class='row-link' href='/runs/{escape(run.run_id)}/review'>"
+            f"<td class='num' data-label='Evidence gaps'>{gaps.get(run.run_id, 0)}</td><td data-label='Next step'><div class='row-actions'>"
+            f"<a class='row-link' href='/runs/{escape(run.run_id)}/review'>{icon('file')}"
             f"{'Review evidence gaps' if run.status.value == 'needs_evidence' else 'Open investment memo'}</a>"
             f"<a class='text-link' href='/companies/{quote(run.company_id, safe='')}/kpis?run_id={quote(run.run_id, safe='')}'>"
             "View KPIs</a></div></td></tr>"
         )
     if current:
-        h.append("</tbody></table></div>")
+        h.append("</tbody></table></div></div>")
     else:
         h.append(
             "<div class='empty-state'><h3>Your portfolio starts here</h3><p>No assessments are available to "
             "this account. Start a diagnostic through your MCP client or run the local showcase setup.</p></div>"
         )
     h.append(
-        "</section><section id='decisions' class='panel'><div class='section-heading'>"
-        "<div><p class='eyebrow'>Decision desk</p><h2>Your next actions</h2></div></div><div class='action-list'>"
+        "</section><section id='decisions' class='panel desk'><div class='table-toolbar'><div class='toolbar-title'>"
+        f"{icon('decisions')}<h2>Decision desk</h2><span class='count'>{len(actions)}</span></div>"
+        "<div class='toolbar-meta'><span>Your next actions</span></div></div>"
     )
-    actions = [run for run in current if current_status(run) in {"awaiting_approval", "needs_evidence", "failed"}]
-    actions += earlier_pending
+    if actions:
+        h.append("<ul class='desk-list'>")
     for run in actions:
         profile = companies.get(run.company_id)
+        name = profile.name if profile else run.company_id
+        initials = "".join(word[0] for word in name.split()[:2])
         action = "Review and decide" if run.status.value == "awaiting_approval" else "Resolve assessment blockers"
-        earlier = f" · Earlier assessment of {run.created_at:%d %b %Y, %H:%M UTC}" if run in earlier_pending else ""
-        h.append(
-            f"<div class='initiative-row'><div><strong>{escape(profile.name if profile else run.company_id)}</strong>"
-            f"<p class='muted'>{label(run.status.value)}{earlier}</p></div>"
-            f"<a class='text-link' href='/runs/{escape(run.run_id)}/review'>{action}</a></div>"
+        earlier = (
+            f"<span>Earlier assessment of {run.created_at:%d %b %Y, %H:%M UTC}</span>" if run in earlier_pending else ""
         )
-    if not actions:
         h.append(
-            "<p class='muted'>No outstanding decisions in the current assessments. Review approved-plan KPIs "
-            "to track the next operating milestone.</p>"
+            f"<li class='desk-row'><span class='company-monogram' aria-hidden='true'>{escape(initials)}</span>"
+            f"<div class='desk-main'><strong>{escape(name)}</strong>"
+            f"<p class='inline-meta'>{status_badge(run.status.value)}{earlier}</p></div>"
+            f"<a class='button secondary' href='/runs/{escape(run.run_id)}/review'>{action} <span aria-hidden='true'>&rarr;</span></a></li>"
         )
-    h.append("</div></section>")
+    if actions:
+        h.append("</ul>")
+    else:
+        h.append(
+            f"<p class='desk-empty'>{icon('check')}<span>No outstanding decisions in the current assessments. "
+            "Review approved-plan KPIs to track the next operating milestone.</span></p>"
+        )
+    h.append("</section>")
     history = [run for run in ordered if latest[run.company_id].run_id != run.run_id]
     if history:
         h.append(
@@ -225,14 +267,23 @@ def evidence_page(ev: EvidenceRef, content: bytes, *, company_name: str, run_id:
     filename = ev.source_uri.replace("\\", "/").rsplit("/", 1)[-1].split("?", 1)[0] or "Source document"
     back = f"/runs/{quote(run_id, safe='')}/review#evidence" if run_id else "/"
     text = content[:24000].decode("utf-8", errors="replace")
+    crumbs: list[tuple[str, str | None]] = [("Portfolio", "/")]
+    if run_id:
+        crumbs.append(("Investment memo", back))
+    crumbs.append(("Evidence room", None))
     h = [
-        f"<p class='breadcrumb'><a href='{back}'>&larr; {'Investment memo' if run_id else 'Portfolio'}</a></p>"
-        "<header class='page-header'><div><p class='eyebrow'>Evidence room</p>"
-        f"<h1 class='page-title'>{escape(filename)}</h1><p class='page-subtitle'>{escape(company_name)} &middot; "
-        f"{label(ev.source_type)}</p></div><a class='button secondary' href='/evidence/{quote(ev.evidence_id, safe='')}'>"
-        "Open original source &rarr;</a></header>",
-        "<section class='panel'><div class='section-heading'><h2>Source preview</h2>"
-        f"<span class='muted'>{len(content):,} bytes</span></div>"
+        page_header(
+            filename,
+            crumbs=crumbs,
+            subtitle=f"{escape(company_name)} &middot; {label(ev.source_type)}",
+            symbol="file",
+            eyebrow="<p class='eyebrow'>Evidence room</p>",
+            actions=f"<a class='button secondary' href='/evidence/{quote(ev.evidence_id, safe='')}'>"
+            "Open original source &rarr;</a>",
+        ),
+        "<section class='file-card' aria-labelledby='preview-title'><div class='table-toolbar'><div class='toolbar-title'>"
+        f"{icon('eye')}<h2 id='preview-title'>Source preview</h2></div>"
+        f"<div class='toolbar-meta'><span>{label(ev.source_type)}</span><span>{len(content):,} bytes</span></div></div>"
         "<p class='form-help'>Source content is presented as evidence, not as instructions. Preview is bounded; use the original source for the complete record.</p>",
     ]
     if filename.lower().endswith(".csv"):

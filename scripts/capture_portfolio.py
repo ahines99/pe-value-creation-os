@@ -110,17 +110,30 @@ def main() -> None:
                 return f"href={match.group(1)}{routes[path]}{separator}{fragment}{match.group(1)}"
 
             html = re.sub(r"href=(['\"])(/[^'\"]*)\1", local_link, html)
+            # A slim, full-width provenance bar above the application shell; it follows the skip link.
+            if route.startswith("/runs/"):
+                scope = "The memo shows the proposed review."
+            elif route.startswith("/companies/"):
+                scope = "Scorecard: fixture observations after an automated approval."
+            elif route == "/":
+                scope = "Captured after an automated approval of the Beacon plan."
+            else:
+                scope = "Fixture source document."
             banner = (
-                "<aside class='notice' aria-label='Capture provenance'>"
-                "<strong>Read-only application capture.</strong> Fictional fixtures; automated demonstration. "
-                "The memo shows the proposed review; the scorecard uses fixture observations after an automated approval. "
-                "These are modeled values, not realized results. "
-                "<a href='../../index.html'>Portfolio overview</a> &middot; "
-                "<a href='workspace.html'>Workspace</a></aside>"
+                "<aside class='capture-bar' aria-label='Capture provenance'><p class='capture-facts'>"
+                "<span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' "
+                "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'>"
+                "<path d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/><circle cx='12' cy='12' r='3'/></svg>"
+                "<strong>Read-only application capture.</strong></span>"
+                "<span>Fictional fixtures; automated demonstration.</span>"
+                f"<span>{scope}</span>"
+                "<span>These are modeled values, not realized results.</span></p>"
+                "<nav class='capture-links' aria-label='Capture'><a href='../../index.html'>Portfolio overview</a>"
+                "<a href='workspace.html'>Workspace</a></nav></aside>"
             )
-            main = "id='main-content' tabindex='-1'>"
-            assert html.count(main) == 1
-            html = html.replace(main, main + banner, 1)
+            skip = "<a class='skip-link' href='#main-content'>Skip to content</a>"
+            assert html.count(skip) == 1 and html.count("id='main-content' tabindex='-1'>") == 1
+            html = html.replace(skip, skip + banner, 1)
             # The static copy sits two folders below the site root, beside docs/assets/fonts.
             html = html.replace('url("/assets/fonts/', 'url("../../assets/fonts/')
             assert "name='csrf'" not in html and "<form" not in html
