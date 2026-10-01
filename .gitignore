@@ -13,8 +13,14 @@ dist/
 .coverage
 htmlcov/
 
-# Local config and data
+# Local config, credentials and data
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
 *.log
 var/
 .pvc/
@@ -30,3 +36,9 @@ Thumbs.db
 *.tfstate
 *.tfstate.*
 *.tfplan
+*.tfvars
+backend.hcl
+
+# Local Claude Code settings and agent worktrees
+.claude/settings.local.json
+.claude/worktrees/

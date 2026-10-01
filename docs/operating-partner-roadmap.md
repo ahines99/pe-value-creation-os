@@ -135,7 +135,7 @@ adjustment. A separate [FY2005 accounting-restatement exhibit](portfolio/account
 now compares independently retrieved original and amended filings and preserves
 the intervening non-reliance state. PR #37 passed all ten CI jobs, including
 1,175 tests on each Python version and 84 browser checks; eight published files
-matched its merge. Exact publication timing remains unverified, so OP-16 is still open.
+matched its merge. Exact publication timing remains unverified; on September 30 the owner recorded this as a permanent limitation, which closes OP-16 at showcase scope.
 See [ADR 0024](adr/0024-disclosure-vintages.md) and
 [ADR 0029](adr/0029-accounting-restatement-history.md).
 

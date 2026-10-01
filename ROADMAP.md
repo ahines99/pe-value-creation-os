@@ -24,15 +24,15 @@ For the current priority—polished portfolio showcase first, production afterwa
 
 ## Status
 
-As of 2026-09-27, with five tickets (PVC-001, 006, 030, 083, 130) closed on 2026-09-30 from CI evidence: **83 Done, 12 Built, 16 Blocked.** The September 27 audit found additional engineering defects after the earlier September 23 review. Remediation and current verification are tracked in [docs/audit-remediation.md](docs/audit-remediation.md). Earlier green CI, test counts and live-model reports are historical, not proof of the current worktree. Nothing has been applied to AWS in this remediation.
+As of 2026-09-27, updated 2026-09-30: six tickets (PVC-001, 006, 030, 083, 096, 130) closed from CI evidence, and eleven (PVC-116 and the ten AWS deployment tickets) recorded as won't do for the portfolio scope: **84 Done, 11 Won't do, 1 Built, 15 Blocked.** The September 27 audit found additional engineering defects after the earlier September 23 review. Remediation and current verification are tracked in [docs/audit-remediation.md](docs/audit-remediation.md). Earlier green CI, test counts and live-model reports are historical, not proof of the current worktree. Nothing has been applied to AWS in this remediation.
 
-Ticket statuses describe acceptance scope, not a production-completion percentage. **Done** refers to the listed engineering criteria; a release additionally requires its environment and human gates. **Built** requires target-environment validation. **Blocked** identifies missing external acceptance, not a claim that every associated engineering check passed. Reopened acceptance below is intentionally unchecked.
+Ticket statuses describe acceptance scope, not a production-completion percentage. **Done** refers to the listed engineering criteria; a release additionally requires its environment and human gates. **Built** requires target-environment validation. **Blocked** identifies missing external acceptance, not a claim that every associated engineering check passed. **Won't do** records an owner decision that the ticket is out of scope for the portfolio project; its built state is kept. Reopened acceptance below is intentionally unchecked.
 
 | Release gate | State |
 |---|---|
 | R0.1 Vertical slice | Automated fixture coverage exists. Repository protection (PVC-001/006) and Compose acceptance (PVC-030) were closed on September 30 with CI evidence. The human MCP skill session (PVC-070) remains open. |
-| R0.5 Pilot-ready | Requires current engineering validation, deployed staging, domain/policy and threat-model sign-offs, provider approval, fresh live proposer/narrator evaluation and pilot-source conformance. |
-| R1.0 Production | Requires the pilot, conditional provisioning decision, production checks, recovery drill, accepted SLOs/retention, pen test, on-call and second-company onboarding before a separate launch approval. |
+| R0.5 Pilot-ready | Not pursued for the portfolio scope (staging deployment recorded as won't do on 2026-09-30). Would require current engineering validation, deployed staging, domain/policy and threat-model sign-offs, provider approval, fresh live proposer/narrator evaluation and pilot-source conformance. |
+| R1.0 Production | Not pursued for the portfolio scope. Would require the pilot, conditional provisioning decision, production checks, recovery drill, accepted SLOs/retention, pen test, on-call and second-company onboarding before a separate launch approval. |
 
 Each ticket below has a **Status** line. Checked boxes record engineering criteria previously verified; see the remediation ledger for fixes and fresh evidence where the audit challenged those criteria.
 
@@ -650,7 +650,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-093: Secrets management
 `P0 · S · R0.5 · deps: PVC-006`
 
-**Status: Built, not yet run in its target environment.** Dev uses environment variables. Terraform reads staging and prod secrets from Secrets Manager (verified by `terraform test`, not applied). gitleaks is in CI and pre-commit, and a test checks that skills, prompts and policy contain no secrets.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Dev uses environment variables. Terraform reads staging and prod secrets from Secrets Manager (verified by `terraform test`, not applied). gitleaks is in CI and pre-commit, and a test checks that skills, prompts and policy contain no secrets.
 
 - [ ] Secrets come from the environment in dev and a cloud secret manager in staging and prod. CI runs secret scanning. No secrets in skills or prompts.
 
@@ -664,15 +664,15 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-096: Dependency and container scanning
 `P1 · S · R0.5 · deps: PVC-130`
 
-**Status: Built, awaiting a fresh image scan.** CI and CD fail on every HIGH/CRITICAL image finding, including unfixed vulnerabilities; no exception is pre-approved. `pip-audit` is configured in CI. Historical image/dependency scan results predate remediation and do not certify the changed image under the stricter gate. Actions are pinned by SHA and base images by digest, with Dependabot updates.
+**Status: Done (September 30).** On `main` after the PyJWT 2.15.1 upgrade, [CI run](https://github.com/ahines99/pe-value-creation-os/actions/runs/36798690217) passed `pip-audit --strict` on the locked dependencies and Trivy on both images with zero HIGH/CRITICAL findings: application image `sha256:6c1371f405f07552a597b3478446d8f821e5f6f6471ad748197d180cfcf19e78`, database image `sha256:ad7d19ace20fb9b72cbccc3b9118e3c60ccb8a19186b0e3a3f6d2fe129cbee84`. The reports are retained as the `image-vulnerability-report` artifact. A nightly job repeats the dependency audit. CI and CD fail on every HIGH/CRITICAL image finding, including unfixed vulnerabilities; no exception is pre-approved. `pip-audit` is configured in CI. Historical image/dependency scan results predate remediation and do not certify the changed image under the stricter gate. Actions are pinned by SHA and base images by digest, with Dependabot updates.
 
 - [x] CI configures `pip-audit` and container scanning; CI/CD image gates reject every HIGH/CRITICAL finding regardless of fix availability.
-- [ ] The current release image and locked dependencies pass fresh scans; retain the report and exact artifact digest.
+- [x] The current release image and locked dependencies pass fresh scans; retain the report and exact artifact digest.
 
 ### PVC-094: Egress controls
 `P1 · S · R1.0 · deps: PVC-136`
 
-**Status: Built, not yet run in its target environment.** Common application HTTP clients use tested allow-list hooks and redirect checks. boto3 and OpenTelemetry use SDK transports; configured endpoints, IAM/VPC boundaries and the network firewall are separate controls. See the transport boundaries in `docs/architecture.md`. AWS Network Firewall rules are in Terraform, not applied. No tool can send email or write to source systems.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Common application HTTP clients use tested allow-list hooks and redirect checks. boto3 and OpenTelemetry use SDK transports; configured endpoints, IAM/VPC boundaries and the network firewall are separate controls. See the transport boundaries in `docs/architecture.md`. AWS Network Firewall rules are in Terraform, not applied. No tool can send email or write to source systems.
 
 - [ ] A network egress allow-list for production covers the model provider, data sources, and telemetry. No tool can send email or write to source systems.
 
@@ -709,7 +709,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-103: Dashboards and alerts
 `P1 · M · R1.0 · deps: PVC-102, PVC-140`
 
-**Status: Built, not yet run in its target environment.** Grafana dashboard (13 panels) and 9 Prometheus alert rules (promtool-valid). They can now fire, because export is wired (PVC-101). The probing alert covers denials from every surface and id lookups. Routing to on-call and 2 weeks live need staging and PVC-148.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Grafana dashboard (13 panels) and 9 Prometheus alert rules (promtool-valid). They can now fire, because export is wired (PVC-101). The probing alert covers denials from every surface and id lookups. Routing to on-call and 2 weeks live need staging and PVC-148.
 
 - [ ] SLO dashboards, plus alerts on SLO burn, stuck runs, adapter failures, and eval regressions, routed to on-call.
 
@@ -776,7 +776,7 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-116: Benchmark data and tool
 `P2 · M · R1.0 · deps: PVC-110`
 
-**Status: Blocked on a person, decision, or pilot company.** `get_benchmarks` is built, with a minimum peer count and no portco-level values, on a synthetic peer set with provenance. The real data source and licence are an open decision.
+**Status: Won't do (decided September 30).** Public-filing peers for the Progress Software case replaced a licensed benchmark set, and licensed WRDS/LSEG figures are not published. The tool stays as built on synthetic peers. Built state: `get_benchmarks` is built, with a minimum peer count and no portco-level values, on a synthetic peer set with provenance. The real data source and licence are an open decision.
 
 - [ ] A licensed or anonymized peer dataset is ingested with its provenance, and the `get_benchmarks` tool is exposed. Portco-level values are never returned.
 
@@ -829,21 +829,21 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-131: Staging environment as code
 `P0 · L · R0.5 · deps: PVC-130`
 
-**Status: Built, not yet run in its target environment.** Terraform for AWS (VPC, ECS Fargate, RDS, Secrets Manager, S3 with Object Lock, KMS, ALB) passes fmt, validate and `terraform test`. Not applied. The cloud choice is an open decision.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Terraform for AWS (VPC, ECS Fargate, RDS, Secrets Manager, S3 with Object Lock, KMS, ALB) passes fmt, validate and `terraform test`. Not applied. The cloud choice is an open decision.
 
 - [ ] Terraform (or equivalent) for staging networking, compute, Postgres, secrets, and object storage in the chosen cloud.
 
 ### PVC-132: Managed Postgres
 `P0 · M · R0.5 · deps: PVC-131`
 
-**Status: Built, not yet run in its target environment.** RDS with KMS encryption, PITR, automated backups and forced TLS (`verify-full`). Roles come from the bootstrap task, which sends SCRAM verifiers so no password reaches the DDL log. Not applied.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: RDS with KMS encryption, PITR, automated backups and forced TLS (`verify-full`). Roles come from the bootstrap task, which sends SCRAM verifiers so no password reaches the DDL log. Not applied.
 
 - [ ] Encryption at rest, point-in-time recovery, automated backups, and least-privilege roles (application, migration, read-only).
 
 ### PVC-133: Continuous delivery
 `P0 · M · R0.5 · deps: PVC-131, PVC-096`
 
-**Status: Built, not yet run in its target environment.** `cd.yml` first verifies successful CI at the exact deployment SHA, then builds, strictly scans, migrates, deploys and runs an authenticated synthetic smoke transaction. It promotes the same verified image artifact from staging to production. Production environment approval must be configured and verified; a YAML environment name alone is not protection. It deploys only from `main`. The deploy role can run only `migrate`, not `bootstrap` or `offboard`. It needs AWS credentials and has never run.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: `cd.yml` first verifies successful CI at the exact deployment SHA, then builds, strictly scans, migrates, deploys and runs an authenticated synthetic smoke transaction. It promotes the same verified image artifact from staging to production. Production environment approval must be configured and verified; a YAML environment name alone is not protection. It deploys only from `main`. The deploy role can run only `migrate`, not `bootstrap` or `offboard`. It needs AWS credentials and has never run.
 
 - [ ] Pipeline: exact-SHA CI verification, strict scan, immutable artifact promotion, migration, deployment and authenticated synthetic smoke pass in staging; configured production approval is verified before promotion.
 
@@ -857,14 +857,14 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-135: Ingress and TLS
 `P0 · S · R0.5 · deps: PVC-131`
 
-**Status: Built, not yet run in its target environment.** ALB with a TLS 1.3 policy, HTTP to HTTPS redirect, WAF rate limiting and body-size limits. Access logs go to a dedicated bucket. OIDC sign-in is available for the review UI. Forwarded headers are trusted only from the VPC. Not applied.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: ALB with a TLS 1.3 policy, HTTP to HTTPS redirect, WAF rate limiting and body-size limits. Access logs go to a dedicated bucket. OIDC sign-in is available for the review UI. Forwarded headers are trusted only from the VPC. Not applied.
 
 - [ ] TLS everywhere, rate limiting, and request size limits on the MCP and approval endpoints.
 
 ### PVC-136: Production environment
 `P0 · M · R1.0 · deps: PVC-131, PVC-154`
 
-**Status: Built, not yet run in its target environment.** The production env reuses the staging module with separate state and credentials. Not applied. It depends on the conditional provisioning decision (PVC-154), not on production checks that require this environment. Launch remains gated on completion of those checks.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: The production env reuses the staging module with separate state and credentials. Not applied. It depends on the conditional provisioning decision (PVC-154), not on production checks that require this environment. Launch remains gated on completion of those checks.
 
 - [ ] Production is provisioned from the same code as staging, with separate accounts or projects and credentials.
 
@@ -903,14 +903,14 @@ Replace the rule-based opportunity proposals, and add evidence synthesis and pla
 ### PVC-142: Backup restore drill
 `P0 · S · R1.0 · deps: PVC-132`
 
-**Status: Built, not yet run in its target environment.** Proposed RPO and RTO targets are in `docs/slo.md`; acceptance is pending. A local drill passed (`docs/runbooks/restore-drill-log.md`). The restore runbook now matches the infrastructure: explicit restore flags, identifier swap, state re-import, re-offboarding. The drill on RDS needs the environment applied (PVC-132).
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Proposed RPO and RTO targets are in `docs/slo.md`; acceptance is pending. A local drill passed (`docs/runbooks/restore-drill-log.md`). The restore runbook now matches the infrastructure: explicit restore flags, identifier swap, state re-import, re-offboarding. The drill on RDS needs the environment applied (PVC-132).
 
 - [ ] RPO and RTO targets are set. A restore to a fresh instance is performed and timed, and the results are recorded.
 
 ### PVC-143: Load test
 `P1 · M · R1.0 · deps: PVC-134`
 
-**Status: Built, awaiting current staging load validation.** Historical local PostgreSQL/MCP results are in `docs/load_test.md`; they do not prove lease expiry/fencing or deployed performance. Current remediation adds worker ownership coverage and durable claim validation. Repeat both load paths on staging and attach their results.
+**Status: Won't do (decided September 30).** Not applied to AWS by decision: a portfolio showcase does not justify the account, spend and elapsed operation. The code, Terraform and tests stay as built. Built state: Historical local PostgreSQL/MCP results are in `docs/load_test.md`; they do not prove lease expiry/fencing or deployed performance. Current remediation adds worker ownership coverage and durable claim validation. Repeat both load paths on staging and attach their results.
 
 - [ ] Target concurrency (runs and MCP sessions) is sustained within SLOs. Bottlenecks are documented.
 

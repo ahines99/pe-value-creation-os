@@ -1,14 +1,15 @@
 # Project status
 
-**As of September 30, 2026.** This is the one current status file. The older roadmaps and acceptance registers are kept as detailed records and each points here. If they disagree with this file, this file is right.
+**As of September 30, 2026, release `v0.2.0`.** This is the one current status file. The older roadmaps and acceptance registers are kept as detailed records and each points here. If they disagree with this file, this file is right.
 
 ## Where the project is
 
-- **The public showcase is shipped.** `main` (PR #52) is published at <https://ahines99.github.io/pe-value-creation-os/>, and every file under `docs/` matches the live site.
-- **CI:** ten required jobs: the test suite on each of Python 3.12, 3.13 and 3.14, 39 evaluations, and 96 browser checks (84 public pages, 12 private-review pages). `main` at PR #52 pins PyJWT 2.14.0, which the dependency audit now flags (CVE-2026-101918); its next CI run would fail. PR #53 upgrades it and is green.
-- **Nothing is deployed** beyond the static site. The AWS Terraform has never been applied. The CD workflow triggers, but its jobs are skipped because no deployment is configured.
+- **Implementation is complete for the portfolio scope.** Everything the repository can do without outside parties is merged, tested and released as [`v0.2.0`](https://github.com/ahines99/pe-value-creation-os/releases/tag/v0.2.0). What remains needs a reviewer, a pilot company or production owners (see [Open items](#open-items)).
+- **The public showcase is published** at <https://ahines99.github.io/pe-value-creation-os/> from `main:/docs`.
+- **CI:** ten required jobs: the test suite on each of Python 3.12, 3.13 and 3.14 (1,798 tests), 39 evaluations, and 96 browser checks (84 public pages, 12 private-review pages), plus the dependency audit, secret scan and container scan. A nightly workflow re-runs the evaluations and the dependency audit on `main`.
+- **Repository protection:** `main` requires all ten checks, strict and enforced for admins. Dependabot alerts and security updates, secret scanning and push protection are on; merged branches are deleted automatically.
+- **Nothing is deployed** beyond the static site, by decision. The AWS Terraform is validated in CI but has not been applied; the CD workflow triggers and its jobs are skipped because no deployment is configured.
 - **No company pilot has happened.** The private-pilot workflow has only been exercised on fictional records.
-- **"Released" so far means merged to `main` and published.** The only tagged release is `v0.1.0` (September 27), which covers PRs up to #13. PRs #14 to #52 have no tag or version bump yet.
 
 ## What is real and what is constructed
 
@@ -17,55 +18,67 @@
 | Public baseline | Real Progress Software public filings: 241 mapped facts, plus four public peers |
 | Operating exercise | Constructed: contracts, vendors, invoices, capacity, KPI readings, realization and exit figures |
 | Approval demo companies (Beacon, Cedar, Acme, Delta) | Fictional |
-| Private WRDS/LSEG research study | Licensed data, produced September 27 to 28. Unreviewed and unpublished; it stays in the gitignored `var/research-pilot/` folder. The university licence is non-commercial |
+| Private WRDS/LSEG research study | Licensed data, produced September 27 to 28, kept only in the gitignored `var/research-pilot/` folder. By decision, licensed figures are never published, only the method; LSEG is excluded for lack of fiscal-period, currency and unit metadata, and Compustat is the sole licensed source. The university licence is non-commercial |
 
 The public pages label this split. Normalized EBITDA, unsupported earnings adjustments and the valuations that depend on them are withheld, not estimated. There is no Progress engagement and no realized savings.
 
 ## What is built
 
-- **Core:** deterministic calculation services, a checkpointed workflow, an MCP server with 22 tools, a human approval API, KPI monitoring, source adapters, evals and an optional Claude model layer.
+- **Core:** deterministic calculation services, a checkpointed workflow, an MCP server with 22 tools, a human approval API and browser workspace, KPI monitoring, source adapters, evals and an optional Claude model layer.
 - **Public diligence:** EBITDA reconciliation, quarterly and peer views, restatement comparison, acquisition vintages and a historical valuation bridge.
 - **Constructed underwriting:** monthly earnings and cash, capacity scheduling, case revisions with lineage, and a realization and attribution ledger.
 - **Permissioned private chain** (migrations 0008 to 0016 of 16): processing grants, intake, financial snapshots, underwriting, capacity plans, reviewed baselines, observations, execution, attribution with separate finance review, and an executive review screen.
 
+## Decisions recorded September 30
+
+| Decision | Outcome |
+|---|---|
+| Historical disclosure timing | Permanent limitation: exact first public availability stays unverified, and the showcase says so rather than using SEC acceptance time as a proxy. Closes acceptance step 5 and OP-16 at showcase scope |
+| Four amortization differences (at most about 2% of the row) | Documented limitation accepted; dependent measures stay withheld |
+| AWS deployment (PVC-093, 094, 103, 131, 132, 133, 135, 136, 142, 143) | Won't do for the portfolio scope; Terraform and tests stay as built |
+| Licensed benchmark data (PVC-116) | Won't do; public-filing peers replaced it |
+| Research data | Never published; method only; LSEG excluded |
+| Delivery-cost reconciliation, remaining private screens, per-source retention and disposal | Parked until a pilot sponsor exists. The cost-reconciliation work is kept on branch `feat/private-cost-reconciliation` |
+| Demo code inside the package, about 80 MB of generated exhibits in git | Accepted. Pages serves `main:/docs` directly; moving exhibits to a build step would add machinery without changing what reviewers see |
+
+## Roadmap
+
+[ROADMAP.md](../ROADMAP.md) keeps the original 111 tickets: **84 done, 11 won't do, 1 built, 15 blocked.** The 16 still open are not engineering work:
+
+| Tickets | Needs |
+|---|---|
+| PVC-070 | The owner runs one MCP diagnostic session personally (about 30 minutes) |
+| PVC-072 | The owner authorizes one small paid live-model evaluation run |
+| PVC-055 | Domain sign-off of the policy values (illustrative for the showcase) |
+| PVC-071, 090, 097, 147 | Domain expert, threat-model, penetration-test and legal reviewers |
+| PVC-110, 111, 113, 153, 154, 155 | A pilot company and sponsor |
+| PVC-140, 144, 148 | Production owners for SLOs, retention and on-call |
+
 ## Open items
 
-| Item | State | Who |
-|---|---|---|
-| Practitioner review of the showcase | Packet ready ([brief](portfolio/practitioner-brief.md), [session log](portfolio/practitioner-review.md)); no session held | Owner introduces a reviewer |
-| Historical disclosure timing | Original and restated filings are compared. Exact first public availability is unverified, because the current bar rejects SEC acceptance timestamps | Owner decides: accept SEC acceptance time as the stated proxy, or record a permanent limitation |
-| Four amortization differences (at most about 2% of the row) | Unexplained; dependent measures stay withheld | Owner decides whether the documented limitation is acceptable for a showcase |
-| Delivery-cost reconciliation | Calculator and review contracts exist on branch `feat/private-cost-reconciliation` only; no storage, API or screen | Engineering |
-| Remaining private screens and the private decision memo | Only the attribution review screen exists | Engineering |
-| Retention and disposal | Whole-company offboarding exists; per-source expiry, legal holds and backup disposal do not | Engineering; the company supplies its policy |
-| Real pilot | Not started | Needs a sponsor, authorized records, named finance and operating reviewers, an AWS deployment and elapsed operating time |
-| Eight Dependabot PRs (#3, #6, #7, #55 to #59) | Most fail only the dependency audit inherited from `main` and should pass once #53 merges; #3 (Python 3.14 image) fails the container scan | Engineering |
-| New tagged release | Not cut since `v0.1.0` | Owner decides when |
+| Item | Who |
+|---|---|
+| Practitioner review of the showcase: packet ready ([brief](portfolio/practitioner-brief.md), [session log](portfolio/practitioner-review.md)); no session held. A reviewer with a finance background would also cover the independent finance review | Owner introduces a reviewer |
+| PVC-070 session and PVC-072 live run | Owner |
+| Real pilot | Needs a sponsor, authorized records, named finance and operating reviewers, a deployment and elapsed operating time |
 
-## Known engineering debts
+## Engineering debts from the September 30 review
 
-A September 30 review found the code healthy (lint, types, tests, evals and the demo pass; no arithmetic errors in the financial logic) but out of proportion to its users:
-
-- **Boilerplate.** The same hash-chain pattern is hand-copied across 13 private record types.
-- **Duplicated logic.** About 700 lines repeat between the in-memory and PostgreSQL repositories.
-- **Packaging.** Demo and HTML-rendering code ships inside the installed package.
-- **Repository size.** About 80 MB of generated JSON exhibits is tracked in git.
-- **Documentation volume.** It far exceeds the code, and several plans overlap. This file replaces them for status.
-- **Review.** Every PR was merged with CI as the only gate; no second person reviewed them.
-
-The review's advice was to consolidate before adding more pilot stages.
-
-Fixed since that review (PRs #53 and #54): approving a plan with every initiative removed is refused; KPI readings for periods before a plan started show as baselines, not "On track"; signed-out browser visits go to sign-in, and missing or forbidden pages show an error page instead of raw JSON; the JSON approval endpoint requires a bearer token; money and label formatting is consistent.
-
-One modelling trap from that review is also fixed: a cost of kind `recurring` must now be posted for every month through the horizon, so a single row can no longer understate later months.
+| Debt | State |
+|---|---|
+| Hash-chain pattern copied across the private record types | Fixed in PR #62: one 43-line `record_chain` helper replaces the copies; published record hashes are re-derived in tests |
+| Logic repeated between the in-memory and PostgreSQL repositories | Fixed in PR #62: about 37 methods now live once in a shared `RecordRules` class, and each repository keeps only storage; 972 net lines removed |
+| Documentation volume | Superseded plans stay in place with a pointer here, so published links keep working |
+| Review | Solo project; every change goes through the ten required CI checks |
 
 ## Older documents
 
 | Document | What it is now |
 |---|---|
-| [ROADMAP.md](../ROADMAP.md) | The original 111-ticket production plan (83 done, 12 built, 16 blocked; five tickets closed September 30 from CI evidence) |
+| [ROADMAP.md](../ROADMAP.md) | The original 111-ticket plan with per-ticket evidence |
 | [IMPLEMENTATION_HANDOFF.md](../IMPLEMENTATION_HANDOFF.md) | The original design specification |
 | [operating-partner-roadmap.md](operating-partner-roadmap.md) | Research and capability plan (OP-01 to OP-18), with per-PR evidence |
 | [portfolio/progress-acceptance.md](portfolio/progress-acceptance.md) | Detailed acceptance evidence for the Progress case |
 | [portfolio/remaining-work.md](portfolio/remaining-work.md) | Detailed pilot-preparation checklist |
 | [portfolio-finalization-roadmap.md](portfolio-finalization-roadmap.md), [portfolio/acceptance.md](portfolio/acceptance.md), [portfolio/showcase-closeout.md](portfolio/showcase-closeout.md) | History of the `v0.1.0` release |
+| [CHANGELOG.md](../CHANGELOG.md) | Release notes for `v0.1.0` and `v0.2.0` |

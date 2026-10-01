@@ -1,5 +1,7 @@
 # Executive workspace functional audit
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the September 27 executive workspace audit; where it differs from STATUS.md, STATUS.md is right.
+
 ## Published engineering verification
 
 All ten [redesign CI checks](https://github.com/ahines99/pe-value-creation-os/actions/runs/36363935682) passed at `c5d4739`: **479 tests on each of Python 3.12, 3.13 and 3.14**, **39/39 evaluations**, **18 rendered browser checks**, installed-package and Compose acceptance, infrastructure validation, and security/container scans. [PR #11](https://github.com/ahines99/pe-value-creation-os/pull/11) merged as `3a5c7a9`.
