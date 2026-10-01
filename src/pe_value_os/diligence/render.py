@@ -8,8 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
+from .exhibit_style import exhibit_page
 from .financials import analyze_facts
 from .growth import GrowthContext, analyze_growth
 from .growth_render import render_growth
@@ -41,6 +41,7 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
             "Historical cash measure · not savings",
         ),
     ]
+    unit = f" <span class='x-unit'>{escape(currency)} m</span>"
     body = (
         "<section class='hero'><div><p class='eyebrow'>Public filing diligence / Financial baseline</p>"
         f"<h1>{company}</h1><p class='page-subtitle'>Establish the economics before underwriting an intervention.</p>"
@@ -49,7 +50,7 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
         "<p>Proceed to commercial and operating diligence. Consolidated accounts establish a baseline; "
         "they do not establish executable savings.</p></aside></section><div class='metrics-grid'>"
         + "".join(
-            f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{_money(value)}</strong><span class='metric-note'>{escape(note)}</span></div>"
+            f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{_money(value)}{unit if value is not None else ''}</strong><span class='metric-note'>{escape(note)}</span></div>"
             for label, value, note in metrics
         )
         + "</div>"
@@ -214,8 +215,14 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
         bridges,
         "All calculations use native currency units; presentation divides by one million.",
     )
-    for measure in latest["derived"].values():
-        body += f"<p><strong>{escape(measure['label'])}.</strong> {escape(measure['definition'])}</p>"
+    body += (
+        "<dl class='definition-list'>"
+        + "".join(
+            f"<div><dt>{escape(measure['label'])}</dt><dd>{escape(measure['definition'])}</dd></div>"
+            for measure in latest["derived"].values()
+        )
+        + "</dl>"
+    )
     body += "</section><section class='panel' id='checks'><h2>Reconciliation exceptions</h2>"
     resolved_amort_periods = {
         key
@@ -288,7 +295,7 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
         if exceptions
         else "<p>All supplied statement checks reconcile exactly.</p>"
     )
-    body += "<p>Cash-flow amortization includes ‘other’ items; a difference from the two income-statement amortization rows "
+    body += "<p class='x-callout'>Cash-flow amortization includes ‘other’ items; a difference from the two income-statement amortization rows "
     body += "requires review. Dependent earnings measures are withheld; independently supported cash measures remain available. "
     body += "Reported facts stay visible. No difference is automatically called a source error or an avoidable cost.</p></section>"
     docs = {d.document_id: d for d in bundle.documents}
@@ -318,11 +325,12 @@ def render_baseline(bundle: FactBundle, report: dict[str, Any]) -> str:
     for doc in bundle.documents:
         body += f"<p><a href='{escape(str(doc.url), quote=True)}'>{escape(doc.title)}</a> · filed {doc.filed_on} · accession {escape(doc.accession)}</p><p class='muted'>Document SHA-256 <code>{doc.sha256}</code><br>Mapping SHA-256 <code>{doc.mapping_sha256}</code></p>"
     body += f"<p class='muted'>Analysis {escape(report['analysis_version'])} · Input SHA-256 <code>{report['input_sha256']}</code>. Independent financial review has not been performed.</p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        + f"<title>{company} — public diligence baseline</title><style>{CSS}</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#history'>History</a><a class='nav-link' href='#bridges'>Definitions</a><a class='nav-link' href='#evidence'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title=f"{bundle.company} — public diligence baseline",
+        kind="Public diligence baseline",
+        provenance="Public filings",
+        nav=[("#history", "History"), ("#bridges", "Definitions"), ("#evidence", "Evidence")],
+        body=body,
     )
 
 

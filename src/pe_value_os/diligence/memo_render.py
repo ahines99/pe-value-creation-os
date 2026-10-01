@@ -8,9 +8,9 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from ..api.presentation import CSS
 from ..research.render import table
 from .balances import BalanceBundle
+from .exhibit_style import exhibit_page
 from .growth import GrowthContext
 from .memo import DecisionBrief, assemble_memo
 from .memo_review import MemoReviewContext
@@ -24,20 +24,17 @@ from .valuation import ValuationSpec
 from .valuation_render import valuation_summary
 
 MEMO_CSS = """
-.primary-nav{flex-wrap:wrap}
-.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.memo-grid>article{border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;background:var(--bg);min-width:0}
-.memo-grid h3{font-size:14px;line-height:1.4;margin-bottom:8px}
-.memo-grid p{font-size:13px;line-height:1.55;margin-bottom:8px;color:var(--text-2)}
-.layer-banner{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);color:var(--text-2);font-size:13px;margin:16px 0}
+.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.memo-grid>article{border-radius:var(--r-lg);background:var(--bg);min-width:0}
+.memo-grid h3{font-size:14px;line-height:1.4;margin:0 0 10px}
+.memo-grid p{font-size:13px;line-height:1.55;margin:0 0 8px;color:var(--text-2)}
+.memo-grid p strong{color:var(--text)}
 .memo-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
-.memo-facts>div{padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg)}
-.memo-facts strong{font-size:28px;font-weight:600;display:block;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.memo-choice{padding:16px;background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:var(--r-lg);margin:16px 0}
-.memo-choice h3{margin-bottom:8px}.memo-note{font-size:12px;color:var(--muted)}
-.memo-sources a{display:inline-block;margin:5px 12px 5px 0}.memo-body{padding:20px}
-.waterfall-row{display:grid;grid-template-columns:165px minmax(0,1fr) 90px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.waterfall-track{position:relative;height:20px;background:var(--bg-muted);border-radius:var(--r-sm)}.waterfall-bar{position:absolute;height:20px;border-radius:var(--r-sm)}.waterfall-zero{position:absolute;height:20px;border-left:1px solid var(--text-3)}.waterfall-value{text-align:right;font-variant-numeric:tabular-nums}
-@media(max-width:600px){.waterfall-row{grid-template-columns:100px minmax(0,1fr) 64px;gap:6px;font-size:11px}}
+.memo-facts>div{padding:16px 18px 18px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg);display:flex;flex-direction:column}
+.memo-facts strong{font-size:var(--x-figure);font-weight:600;display:block;letter-spacing:-.025em;line-height:1.1;margin:4px 0 0}
+.memo-facts .memo-note{margin-top:auto;padding-top:10px}
+.memo-note{font-size:12px;color:var(--x-quiet)}
+.waterfall-row{display:grid;align-items:center}.waterfall-track{position:relative}.waterfall-bar{position:absolute}.waterfall-zero{position:absolute}.waterfall-value{text-align:right}
 @media(max-width:800px){.memo-grid,.memo-facts{grid-template-columns:minmax(0,1fr)}}
 @media print{.memo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.memo-grid article,.memo-choice{break-inside:avoid}.memo-facts strong{font-size:20pt}.topbar{display:none}}
 """
@@ -68,7 +65,11 @@ def incremental_waterfall(year: dict[str, Any]) -> str:
     low, high = min(cumulative), max(cumulative)
     width = max(high - low, Decimal(1))
     zero = (0 - low) / width * 100
-    visual = "<div class='earnings-waterfall' aria-hidden='true'>"
+    visual = (
+        "<figure class='x-chart' aria-hidden='true'><div class='x-chart-head'><span class='x-chart-title'>Constructed year-one base EBITDA bridge · USD thousands</span>"
+        "<span class='x-legend'><span style='--x-swatch:var(--chart-up)'>Increase</span><span style='--x-swatch:var(--chart-down)'>Decrease</span>"
+        "<span style='--x-swatch:var(--chart-total)'>Net</span></span></div><div class='earnings-waterfall' aria-hidden='true'>"
+    )
     rows = []
     for i, (label, value) in enumerate(parts):
         left = (min(cumulative[i], cumulative[i + 1]) - low) / width * 100
@@ -79,12 +80,13 @@ def incremental_waterfall(year: dict[str, Any]) -> str:
     net = cumulative[-1]
     net_left = (min(Decimal(0), net) - low) / width * 100
     net_width = abs(net) / width * 100
-    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:var(--chart-total)'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div>"
+    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:var(--chart-total)'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div></figure>"
     rows.append(["Incremental EBITDA", amount(cumulative[-1], places=3), "Reconciled"])
     return visual + review_table(
         ["Component", "Change, USD thousands", "Cumulative"],
         rows,
         "Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.",
+        totals=(-1,),
     )
 
 
@@ -131,7 +133,7 @@ def source_challenge_summary(report: dict[str, Any]) -> str:
     )
     y = base["year_one"]
     body += f"<p><strong>Cash bridge:</strong> {amount(y['incremental_ebitda'])} EBITDA + {amount(y['operating_accrual_to_cash'])} accrual-to-cash + {amount(y['working_capital_cash'])} net collection timing + {amount(y['capex_cash'])} capex = {amount(y['pre_tax_cash_proxy'])} pre-tax cash, USD thousands. It omits tax, financing and other full-free-cash-flow requirements.</p>"
-    body += "<p><strong>Decision now:</strong> revise the intervention scope and cost commitments, or defer it. Verify contract rights and vendor-release evidence before requesting a new first-wave selection. No revised alternative is automatically selected.</p>"
+    body += "<p class='x-callout'><strong>Decision now:</strong> revise the intervention scope and cost commitments, or defer it. Verify contract rights and vendor-release evidence before requesting a new first-wave selection. No revised alternative is automatically selected.</p>"
     body += f"<details><summary>Inspect the latest case binding and review boundary</summary><div class='memo-body'><p>{escape(review['authority'])}</p><p>Revision <code>{escape(review['current_revision_id'])}</code> · hash <code>{escape(review['current_revision_sha256'])}</code></p><p>Review context <code>{escape(review['context_sha256'])}</code></p></div></details><p><a href='source-review.html'>Trace the source correction and unchanged accounting history</a></p></section>"
     return body
 
@@ -179,7 +181,7 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
             "Historical cash measure; not initiative savings",
         ),
     ]:
-        body += f"<div><span class='metric-label'>{escape(label)}</span><strong>{amount(value, 1000000)}</strong><span class='memo-note'>{escape(note)}</span></div>"
+        body += f"<div><span class='metric-label'>{escape(label)}</span><strong>{amount(value, 1000000)}{'' if value is None else " <span class='x-unit'>USD m</span>"}</strong><span class='memo-note'>{escape(note)}</span></div>"
     body += "</div>"
     interim = [p for p in report["public_financials"]["periods"] if p["basis"] != "annual"]
     if interim:
@@ -253,7 +255,9 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
             "Sum only when the defined reconciliation checks pass",
         ]
     )
-    body += table(["Earnings bridge", "USD millions", "Source"], bridge, base["derived"]["ebitda"]["definition"])
+    body += table(
+        ["Earnings bridge", "USD millions", "Source"], bridge, base["derived"]["ebitda"]["definition"], totals=(-1,)
+    )
     body += table(
         ["Item / period", "Reported USD millions", "Treatment", "Evidence needed"],
         [
@@ -347,6 +351,7 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
             ]
         ],
         "EBITDA + operating accrual-to-cash + working-capital timing + capex = the modeled cash proxy.",
+        totals=(-1,),
     )
     body += table(
         ["Assumed multiple", "Incremental EV, USD thousands"],
@@ -424,12 +429,20 @@ def render_memo(report: dict[str, Any], json_name: str = "decision-memo.json") -
         "A changed input invalidates the decision brief until explicitly revised.",
     )
     body += f"<p>Memo version {report['memo_version']} · Brief <code>{report['brief_sha256']}</code></p></div></details><p class='memo-sources'><a href='progress-baseline.html'>Public source appendix</a><a href='underwriting.html'>Original constructed underwriting</a><a href='operating-plan.html'>Original capacity proposal</a></p></section>"
-    rendered = (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>{escape(report['company'])} — executive decision memo</title><style>{CSS}{MEMO_CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#historical-valuation'>Valuation</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'>"
-        + body
-        + "</main></body></html>"
+    rendered = exhibit_page(
+        title=f"{report['company']} — executive decision memo",
+        kind="Executive decision memo",
+        provenance="Public research · constructed exercise",
+        nav=[
+            ("#thesis", "Thesis"),
+            ("#historical-valuation", "Valuation"),
+            ("#choices", "Choices"),
+            ("#next-decision", "Next decision"),
+            ("#technical", "Evidence"),
+        ],
+        nav_label="Memo sections",
+        body=body,
+        extra_css=MEMO_CSS,
     )
     if report["memo_version"] in {"executive-decision-packet/6", "executive-decision-packet/7"}:
         for previous, current in (

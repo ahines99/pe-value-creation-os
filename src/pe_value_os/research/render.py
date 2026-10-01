@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from html import escape
 from typing import Any
 
-from ..api.presentation import CSS
+from ..diligence.exhibit_style import exhibit_page
 from .pilot import METRICS
 
 
@@ -21,13 +22,51 @@ def number(value: Any, *, percent: bool = False) -> str:
     return f"{amount * 100:,.1f}%" if percent else f"{amount:,.3f}"
 
 
-def table(headers: list[str], rows: list[list[str]], caption: str) -> str:
+# A displayed figure: signed, grouped and optionally a percentage, multiple or point change, or two
+# such figures separated by " / ", or a figure followed by its share in parentheses.
+_FIGURE = r"[-+−]?\$?\d[\d,]*(?:\.\d+)?(?:%| ?pp|x|×)?"
+_NUMERIC = re.compile(rf"^{_FIGURE}(?: / {_FIGURE}| \({_FIGURE}\))?$")
+# Placeholders that may sit in a figure column without making it a text column.
+_PLACEHOLDERS = {"", "—", "Withheld", "Not available", "Unavailable", "Missing source"}
+_TAG = re.compile(r"<[^>]+>")
+# Short ISO dates or date ranges that read badly when wrapped mid-date.
+_DATE = re.compile(r"^\d{4}-\d{2}(?:-\d{2})?(?: to \d{4}-\d{2}-\d{2})?(?: · [a-z_ ]+)?$")
+
+
+def _column_classes(rows: list[list[str]]) -> dict[int, str]:
+    """Classify columns after the first: figures (or explicit placeholders) and unbroken dates.
+
+    Callers exclude total rows, whose status text (for example "Reconciled") follows the column.
+    """
+    classes: dict[int, str] = {}
+    for i in range(max((len(r) for r in rows), default=0)):
+        cells = [_TAG.sub("", r[i]).strip() for r in rows if i < len(r)]
+        if i and any(_NUMERIC.match(c) for c in cells) and all(_NUMERIC.match(c) or c in _PLACEHOLDERS for c in cells):
+            classes[i] = " class='num'"
+        elif cells and all(_DATE.match(c) for c in cells):
+            classes[i] = " class='x-date'"
+    return classes
+
+
+def table(headers: list[str], rows: list[list[str]], caption: str, *, totals: tuple[int, ...] = ()) -> str:
+    """Render an accessible table; figure columns align right and ``totals`` rows read as totals."""
+    emphasis = {t % len(rows) for t in totals} if rows else set()
+    classes = _column_classes([row for r, row in enumerate(rows) if r not in emphasis] or rows)
+
+    def cls(i: int) -> str:
+        return classes.get(i, "")
+
     return (
         f"<div class='table-wrap' tabindex='0' role='region' aria-label='{text(caption)}'>"
         f"<table><caption class='table-caption'>{text(caption)}</caption><thead><tr>"
-        + "".join(f"<th scope='col'>{text(h)}</th>" for h in headers)
+        + "".join(f"<th scope='col'{cls(i)}>{text(h)}</th>" for i, h in enumerate(headers))
         + "</tr></thead><tbody>"
-        + "".join("<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>" for row in rows)
+        + "".join(
+            ("<tr class='x-total'>" if r in emphasis else "<tr>")
+            + "".join(f"<td{cls(i)}>{cell}</td>" for i, cell in enumerate(row))
+            + "</tr>"
+            for r, row in enumerate(rows)
+        )
         + "</tbody></table></div>"
     )
 
@@ -251,14 +290,15 @@ def render_report(report: dict[str, Any]) -> str:
         "Exact source row and content hash for each selected statement.",
     )
     body += "</div></details>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
-        f"<title>{text(focal['ticker'])} research memo | Value Creation OS</title><style>{CSS}</style></head><body>"
-        "<a class='skip-link' href='#main-content'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='#main-content'>Value Creation OS · Research</a><nav class='primary-nav' aria-label='Memo'>"
-        "<a class='nav-link' href='#comparison'>Peer context</a><a class='nav-link' href='#reconciliation'>Evidence</a>"
-        "<a class='nav-link' href='#diligence'>Diligence</a></nav></div></header>"
-        f"<main class='app-shell' id='main-content' tabindex='-1'>{body}</main>"
-        f"<footer class='page-footer'>{classification} · Current-vintage analysis · Human acceptance pending. "
-        "Keep licensed inputs and derived outputs in authorized private storage.</footer></body></html>"
+    return exhibit_page(
+        title=f"{focal['ticker']} research memo | Value Creation OS",
+        kind="Research memo",
+        provenance=classification,
+        nav=[("#comparison", "Peer context"), ("#reconciliation", "Evidence"), ("#diligence", "Diligence")],
+        nav_label="Memo",
+        body=body,
+        home="#main-content",
+        main_id="main-content",
+        footer=f"{classification} · Current-vintage analysis · Human acceptance pending. "
+        "Keep licensed inputs and derived outputs in authorized private storage.",
     )

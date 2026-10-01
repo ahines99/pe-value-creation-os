@@ -10,12 +10,12 @@ from pathlib import Path
 from typing import Any
 
 from ..adapters.repositories import Repository
-from ..api.presentation import CSS
 from ..research.render import table
 from .balances import BalanceBundle
 from .cases import CaseRevision, InvestmentCase, ReviewRequest, RevisionDraft
 from .close_baseline import CloseBaseline
 from .execution_demo import ExecutionExercise, replay_execution
+from .exhibit_style import exhibit_page
 from .exit_review import ExitAssumptions, ExitReviewPayload
 from .models import FactBundle
 from .operating_sources import OperatingSourceBook
@@ -250,14 +250,18 @@ def render_exit(report: dict[str, Any], download: str) -> str:
         + "</pre></details>"
     )
     body += f"<p><a href='{escape(download, quote=True)}' download>Download the full lifecycle review</a> · <a href='source-review.html'>Operating evidence challenge</a> · <a href='historical-valuation.html'>Historical equity bridge</a> · <a href='decision-memo.html'>Executive memo</a></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Value Creation OS — constructed exit review</title><style>{CSS}pre{{white-space:pre-wrap;overflow-wrap:anywhere}}.primary-nav{{flex-wrap:wrap}}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='../index.html'>Value Creation OS · Lifecycle</a><nav class='primary-nav' aria-label='Exit review sections'>"
-        "<a class='nav-link' href='#matrix'>Sensitivity</a><a class='nav-link' href='#bridge'>EV bridge</a>"
-        "<a class='nav-link' href='#operating'>Operating evidence</a><a class='nav-link' href='#history'>History</a></nav></div></header>"
-        "<main id='main' tabindex='-1' class='app-shell'>" + body + "</main></body></html>"
+    return exhibit_page(
+        title="Value Creation OS — constructed exit review",
+        kind="Exit review",
+        provenance="Public anchor · constructed exercise",
+        nav=[
+            ("#matrix", "Sensitivity"),
+            ("#bridge", "EV bridge"),
+            ("#operating", "Operating evidence"),
+            ("#history", "History"),
+        ],
+        nav_label="Exit review sections",
+        body=body,
     )
 
 

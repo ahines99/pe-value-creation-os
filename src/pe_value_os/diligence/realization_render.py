@@ -15,11 +15,11 @@ from pydantic import Field, model_validator
 from .. import security
 from ..adapters.evidence_store import FileSystemEvidenceStore
 from ..adapters.repositories import InMemoryRepository, Repository
-from ..api.presentation import CSS
 from ..domain.source_models import CompanyProfile
 from ..research.render import table
 from .cases import CasePayload, InvestmentCase, ReviewRequest, RevisionDraft
 from .close_baseline import CloseBaseline, CloseBaselineRequest
+from .exhibit_style import exhibit_page
 from .models import Record
 from .realization import Allocation, AttributionRequest, ClaimEvidence, ObservationRequest, SourceBook
 from .scheduling import OperatingPlan, fingerprint
@@ -279,7 +279,7 @@ def render_realization(report: dict[str, Any], json_name: str) -> str:
             "Operating, working-capital and capital cash",
         ),
     ]:
-        body += f"<div class='metric-card'><span class='metric-label'>{e(label)}</span><strong class='metric-value'>{e(amount(value))}</strong><span class='metric-note'>{e(note)}</span></div>"
+        body += f"<div class='metric-card'><span class='metric-label'>{e(label)}</span><strong class='metric-value'>{e(amount(value))} <span class='x-unit'>{e(currency)}</span></strong><span class='metric-note'>{e(note)}</span></div>"
     timing_note = (
         "Positive revenue claims appear in months with no modeled pricing benefit: "
         + ", ".join(early)
@@ -404,14 +404,12 @@ def render_realization(report: dict[str, Any], json_name: str) -> str:
             body += f"<p><strong>{e(evidence['evidence_id'])}</strong>: {e(evidence['content'])}</p>"
         body += "</div></details>"
     body += f"<p>{e(report['limitation'])}</p><p><a href='{escape(json_name, quote=True)}' download>Download source snapshots, claims, forecasts and audit JSON</a></p><p><a href='case-history.html'>Review the versioning method</a> · <a href='decision-memo.html'>Return to the executive memo</a> · <a href='../pilot/permissioned/README.md'>Read the permissioned pilot package</a></p></section>"
-    css = ".detail-body{padding:1rem;overflow-wrap:anywhere}.primary-nav{flex-wrap:wrap}.hero h1{max-width:22ch}"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Constructed realization review — Value Creation OS</title><style>"
-        + CSS
-        + css
-        + "</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Operating review</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#comparison'>Comparison</a><a class='nav-link' href='#months'>Monthly close</a><a class='nav-link' href='#claims'>Attribution</a></nav></div></header><main class='app-shell' id='main' tabindex='-1'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title="Constructed realization review — Value Creation OS",
+        kind="Realization review",
+        provenance="Constructed demonstration",
+        nav=[("#comparison", "Comparison"), ("#months", "Monthly close"), ("#claims", "Attribution")],
+        body=body,
     )
 
 

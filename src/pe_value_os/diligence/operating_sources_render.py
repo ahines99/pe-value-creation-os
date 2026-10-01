@@ -10,8 +10,8 @@ from typing import Any
 
 from pydantic import TypeAdapter
 
-from ..api.presentation import CSS
 from ..research.render import table as financial_table
+from .exhibit_style import exhibit_page
 from .operating_sources import OperatingBook, source_forecast
 from .scheduling import OperatingPlan
 from .underwriting_models import read_underwriting
@@ -22,10 +22,10 @@ def money(value: Any) -> str:
     return f"{Decimal(str(value)):,.2f}"
 
 
-def table(headers: list[str], rows: list[list[str]], caption: str) -> str:
+def table(headers: list[str], rows: list[list[str]], caption: str, *, totals: tuple[int, ...] = ()) -> str:
     # Keep the explanation inside the viewport while the numeric table scrolls.
     # The region retains its descriptive accessible name from the shared helper.
-    rendered = financial_table(headers, rows, caption)
+    rendered = financial_table(headers, rows, caption, totals=totals)
     return f"<p class='muted'>{escape(caption)}</p>" + rendered.replace(
         f"<caption class='table-caption'>{escape(caption)}</caption>", ""
     )
@@ -67,7 +67,7 @@ def render_sources(report: dict[str, Any], download: str) -> str:
         ),
         ("Peak funding need", base["maximum_dated_funding_need"], "Dated cash deficits · base assumptions"),
     ):
-        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{money(value)}</strong><span class='metric-note'>{escape(note)}</span></div>"
+        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{money(value)} <span class='x-unit'>{escape(report['currency'])}</span></strong><span class='metric-note'>{escape(note)}</span></div>"
     body += "</div>"
     if source_book["schema_version"] == 2:
         body += "<section class='panel' id='ownership'><h2>Each source record has one initiative owner</h2>"
@@ -235,13 +235,12 @@ def render_sources(report: dict[str, Any], download: str) -> str:
     for label in ("book_sha256", "underwriting_sha256", "plan_sha256", "report_sha256"):
         body += f"<p>{escape(label)} <code>{escape(report[label])}</code></p>"
     body += "</details></section>"
-    rendered = (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-        f"<title>Operating source challenge — {escape(report['company'])}</title><style>{CSS}</style></head><body>"
-        "<a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'>"
-        "<a class='brand' href='#main'>Value Creation OS · Operating evidence</a><nav class='primary-nav' aria-label='Sections'>"
-        "<a class='nav-link' href='#decision'>Decision</a><a class='nav-link' href='#contracts'>Contracts</a><a class='nav-link' href='#sources'>Evidence</a></nav></div></header>"
-        f"<main class='app-shell' id='main' tabindex='-1'>{body}</main></body></html>"
+    rendered = exhibit_page(
+        title=f"Operating source challenge — {report['company']}",
+        kind="Operating evidence",
+        provenance="Constructed records",
+        nav=[("#decision", "Decision"), ("#contracts", "Contracts"), ("#sources", "Evidence")],
+        body=body,
     )
     if allocated:
         rendered = rendered.replace("href='operating-plan.html'", "href='allocation-operating-plan.html'").replace(
