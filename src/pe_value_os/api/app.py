@@ -17,6 +17,7 @@ import secrets
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
+from pathlib import Path
 from typing import Annotated, Any, Literal
 from urllib.parse import parse_qsl, quote
 
@@ -81,13 +82,29 @@ app.add_middleware(RequestMetricsMiddleware, service="api")
 
 SECURITY_HEADERS = {
     # Server-rendered pages with one inline <style> block and no scripts.
-    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; "
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; font-src 'self'; form-action 'self'; "
     "frame-ancestors 'none'; base-uri 'none'",
     "X-Frame-Options": "DENY",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     "Cache-Control": "no-store",  # plans, value cases and evidence must not sit in shared or browser caches
 }
+
+
+FONT_FILES = {"InterVariable-latin.woff2": "font/woff2"}
+_ASSETS = Path(__file__).with_name("assets")
+
+
+@app.get("/assets/fonts/{name}", include_in_schema=False)
+def font(name: str) -> Response:
+    """The interface typeface (SIL Open Font License); public, immutable and safe to cache."""
+    if name not in FONT_FILES:
+        raise HTTPException(404, "Not found")
+    return Response(
+        (_ASSETS / name).read_bytes(),
+        media_type=FONT_FILES[name],
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
 
 
 @app.middleware("http")

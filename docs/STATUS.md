@@ -24,6 +24,7 @@ The public pages label this split. Normalized EBITDA, unsupported earnings adjus
 
 ## What is built
 
+- **Interface:** one design system for the app, exhibits and landing page ([design-system.md](design-system.md)).
 - **Core:** deterministic calculation services, a checkpointed workflow, an MCP server with 22 tools, a human approval API and browser workspace, KPI monitoring, source adapters, evals and an optional Claude model layer.
 - **Public diligence:** EBITDA reconciliation, quarterly and peer views, restatement comparison, acquisition vintages and a historical valuation bridge.
 - **Constructed underwriting:** monthly earnings and cash, capacity scheduling, case revisions with lineage, and a realization and attribution ledger.

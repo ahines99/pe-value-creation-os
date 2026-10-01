@@ -120,9 +120,15 @@ def home_page(
         "<p class='form-help'>Opportunity totals include only each company's latest eligible plan; approved edits are "
         "reflected. Cases are sized independently; totals are not adjusted for overlap between initiatives. "
         "Separate currencies are never combined. These are modeled opportunities, not realized returns.</p>",
-        "<section id='portfolio' class='stack'><div class='section-heading'><div><p class='eyebrow'>Portfolio coverage</p>"
-        "<h2>Company priorities</h2></div><span class='muted'>Current assessments</span></div><div class='two-column'>",
+        "<section id='portfolio'><div class='section-heading'><div><p class='eyebrow'>Portfolio coverage</p>"
+        "<h2>Company priorities</h2></div><span class='muted'>Current assessments</span></div>",
     ]
+    if current:
+        h.append(
+            "<div class='table-wrap' tabindex='0' role='region' aria-label='Company priorities'><table class='data-table company-table'>"
+            "<thead><tr><th scope='col'>Company</th><th scope='col'>Status</th><th scope='col' class='num'>Annual opportunity</th>"
+            "<th scope='col'>Primary value lever</th><th scope='col' class='num'>Evidence gaps</th><th scope='col'>Next step</th></tr></thead><tbody>"
+        )
     for run in current:
         profile = companies.get(run.company_id)
         company_name = profile.name if profile else run.company_id.replace("-", " ").title()
@@ -130,46 +136,49 @@ def home_page(
         data = _plan_data(plan)
         currency = profile.currency if profile else "Source currency"
         initials = "".join(word[0] for word in company_name.split()[:2])
-        h.append(
-            f"<article class='company-card'><div class='card-top'><span class='company-monogram' aria-hidden='true'>"
-            f"{escape(initials)}</span>{status_badge(current_status(run))}</div><h3>{escape(company_name)}</h3>"
-            f"<p class='muted'>{escape(profile.business_model if profile else 'Assessment in progress')}</p>"
-        )
+        about = escape(profile.business_model if profile else "Assessment in progress")
         if profile and profile.deal_thesis:
-            h.append(f"<p>{escape(profile.deal_thesis)}</p>")
+            about += f"<br>{escape(profile.deal_thesis)}"
+        h.append(
+            f"<tr><th scope='row'><div class='entity'><span class='company-monogram' aria-hidden='true'>{escape(initials)}</span>"
+            f"<div>{escape(company_name)}<small>{about}</small>"
+            f"<small>Assessment {escape(run.created_at.strftime('%d %b %Y, %H:%M UTC'))}</small></div></div></th>"
+            f"<td>{status_badge(current_status(run))}</td>"
+        )
         if data is not None and run.status.value not in {"failed", "rejected", "needs_evidence"}:
             initiatives = [item for ws in data.get("workstreams", []) for item in ws.get("initiatives", [])]
             lead = max(initiatives, key=lambda i: Decimal(str(i["run_rate_ebitda_base"])), default=None)
             h.append(
-                f"<p class='metric-label'>{'Approved' if plan and plan.status == 'approved' else 'Proposed'} annual opportunity</p>"
-                f"<div class='metric-value'>{escape(currency)} {money(data['total_run_rate_ebitda_base'], compact=True)}</div>"
-                f"<p class='metric-note'>{len(initiatives)} initiatives across {len(data.get('workstreams', []))} workstreams</p>"
+                f"<td class='num'>{escape(currency)} {money(data['total_run_rate_ebitda_base'], compact=True)}"
+                f"<small>{'Approved' if plan and plan.status == 'approved' else 'Proposed'} · {len(initiatives)} initiatives across "
+                f"{len(data.get('workstreams', []))} workstreams</small></td>"
+                f"<td>{escape(lead['title']) if lead else '<span class=muted>None</span>'}</td>"
             )
-            if lead:
-                h.append(f"<p><span class='eyebrow'>Primary value lever</span><br>{escape(lead['title'])}</p>")
         else:
             message = {
                 "needs_evidence": "Resolve the data gaps before underwriting a value case.",
                 "failed": "Inspect the interruption and recovery record before proceeding.",
                 "rejected": "The reviewer declined this plan. The decision remains in the audit record.",
             }.get(run.status.value, "The assessment is collecting and analyzing evidence. Refresh to see progress.")
-            h.append(f"<div class='empty-state'><p>{escape(message)}</p></div>")
-        if gaps.get(run.run_id):
-            h.append(f"<p class='form-help'>{gaps[run.run_id]} documented evidence gaps to consider.</p>")
+            h.append(
+                f"<td class='num'><span class='muted'>Not sized</span></td><td class='muted'>{escape(message)}</td>"
+            )
         h.append(
-            f"<div class='card-actions'><a class='button' href='/runs/{escape(run.run_id)}/review'>"
-            f"{'Review evidence gaps' if run.status.value == 'needs_evidence' else 'Open investment memo'} &rarr;</a>"
+            f"<td class='num'>{gaps.get(run.run_id, 0)}</td><td><div class='row-actions'>"
+            f"<a class='row-link' href='/runs/{escape(run.run_id)}/review'>"
+            f"{'Review evidence gaps' if run.status.value == 'needs_evidence' else 'Open investment memo'}</a>"
             f"<a class='text-link' href='/companies/{quote(run.company_id, safe='')}/kpis?run_id={quote(run.run_id, safe='')}'>"
-            "View KPIs</a></div>"
-            f"<p class='form-help'>Assessment {escape(run.created_at.strftime('%d %b %Y, %H:%M UTC'))}</p></article>"
+            "View KPIs</a></div></td></tr>"
         )
-    if not current:
+    if current:
+        h.append("</tbody></table></div>")
+    else:
         h.append(
             "<div class='empty-state'><h3>Your portfolio starts here</h3><p>No assessments are available to "
             "this account. Start a diagnostic through your MCP client or run the local showcase setup.</p></div>"
         )
     h.append(
-        "</div></section><section id='decisions' class='panel'><div class='section-heading'>"
+        "</section><section id='decisions' class='panel'><div class='section-heading'>"
         "<div><p class='eyebrow'>Decision desk</p><h2>Your next actions</h2></div></div><div class='action-list'>"
     )
     actions = [run for run in current if current_status(run) in {"awaiting_approval", "needs_evidence", "failed"}]

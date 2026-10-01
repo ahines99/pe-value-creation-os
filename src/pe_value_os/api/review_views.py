@@ -83,25 +83,27 @@ def _timeline(ws: dict[str, Any]) -> str:
 def _workstream(ws: dict[str, Any], rank: int) -> str:
     initiatives = ws.get("initiatives", [])
     annual = sum((_number(i["run_rate_ebitda_base"]) for i in initiatives), Decimal(0))
+    in_year = sum((_number(i["in_year_ebitda_base"]) for i in initiatives), Decimal(0))
+    count = f"{len(initiatives)} initiative{'' if len(initiatives) == 1 else 's'}"
     h = [
         "<article class='panel workstream-card'><div class='panel-header'><div>",
         f"<p class='eyebrow'>Workstream {rank:02d} · {_e(ws.get('owner_role', 'Owner not assigned'))}</p>",
-        f"<h3>{_e(ws['name'])}</h3></div><strong>{money(annual)} <small>annual EBITDA</small></strong></div>",
+        f"<h3>{_e(ws['name'])}</h3></div><span class='badge'>{count}</span></div>",
+        "<div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table'>"
+        "<thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th>"
+        "<th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody>",
     ]
     for i in initiatives:
+        reasons = i.get("requires_approval_reasons", [])
+        condition = "<small>Approval condition: " + "; ".join(_e(r) for r in reasons) + "</small>" if reasons else ""
         h.append(
-            "<div class='initiative-card'><div><span class='badge'>"
-            f"{label(i['classification'])}</span><h4>{_e(i['title'])}</h4>"
-            + (
-                "<p class='metric-note'><strong>Approval condition:</strong> "
-                + "; ".join(_e(r) for r in i.get("requires_approval_reasons", []))
-                + "</p>"
-                if i.get("requires_approval_reasons")
-                else ""
-            )
-            + f"</div><div class='initiative-values'><strong>{money(i['run_rate_ebitda_base'])}</strong>"
-            f"<span>annual · {money(i['in_year_ebitda_base'])} in-year</span></div></div>"
+            f"<tr><th scope='row'>{_e(i['title'])}{condition}</th><td><span class='badge'>{label(i['classification'])}</span></td>"
+            f"<td class='num'>{money(i['run_rate_ebitda_base'])}</td><td class='num'>{money(i['in_year_ebitda_base'])}</td></tr>"
         )
+    h.append(
+        f"</tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num'>{money(annual)}</td>"
+        f"<td class='num'>{money(in_year)}</td></tr></tfoot></table></div>"
+    )
     if ws.get("dependencies"):
         h.append(
             "<div class='alert warning'><strong>Before implementation</strong>" + _list(ws["dependencies"]) + "</div>"
@@ -130,12 +132,26 @@ def _workstream(ws: dict[str, Any], rank: int) -> str:
     return "".join(h)
 
 
+def _case_row(o: Opportunity, vc: ValueCase | None, included: bool) -> str:
+    attrs = f"data-opportunity-id='{_e(o.opportunity_id)}' data-included='{str(included).lower()}'"
+    outside = "" if included else " class='is-outside'"
+    return (
+        f"<tr {attrs}{outside}><th scope='row'>"
+        f"<a class='row-link' href='#case-{_e(o.opportunity_id)}'>{_e(o.title)}</a>"
+        f"<small>{label(o.lever.value)} · {_e(o.confidence.value)} confidence</small></th>"
+        f"<td><span class='badge'>{'In plan' if included else 'Outside plan'}</span></td>"
+        f"<td class='num'>{money(vc.annual_ebitda_base) if vc else 'Not sized'}</td></tr>"
+    )
+
+
 def _case(o: Opportunity, vc: ValueCase | None, included: bool) -> str:
+    oid = _e(o.opportunity_id)
+    scope = "Included in displayed plan" if included else "Outside displayed plan"
     h = [
-        f"<details class='disclosure value-case' data-opportunity-id='{_e(o.opportunity_id)}' data-included='{str(included).lower()}'><summary><span>",
-        f"{_e(o.title)}<small>{label(o.lever.value)} · {_e(o.confidence.value)} confidence · ",
-        "Included in displayed plan" if included else "Outside displayed plan",
-        f"</small></span><strong>{money(vc.annual_ebitda_base) if vc else 'Not sized'}</strong></summary>",
+        f"<article class='detail-panel value-case' id='case-{oid}' data-opportunity-id='{oid}' "
+        f"data-included='{str(included).lower()}' aria-labelledby='case-title-{oid}'><div class='detail-head'>",
+        f"<p class='eyebrow'>{label(o.lever.value)} · {_e(o.confidence.value)} confidence · {scope}</p>",
+        f"<h3 id='case-title-{oid}'>{_e(o.title)}</h3></div><div class='detail-body'>",
         f"<p>{_e(o.rationale)}</p>",
     ]
     if vc:
@@ -145,8 +161,9 @@ def _case(o: Opportunity, vc: ValueCase | None, included: bool) -> str:
             ("Base", vc.annual_ebitda_base),
             ("High", vc.annual_ebitda_high),
         ]:
+            classes = " negative" if value < 0 else (" base" if name == "Base" else "")
             h.append(
-                f"<div class='scenario-card{' negative' if value < 0 else ''}'><span class='metric-label'>{name} case</span><strong class='metric-value'>{money(value)}</strong><small class='metric-note'>Annual EBITDA</small></div>"
+                f"<div class='scenario-card{classes}'><span class='metric-label'>{name} case</span><strong class='metric-value'>{money(value)}</strong><small class='metric-note'>Annual EBITDA</small></div>"
             )
         h.append(
             "</div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p>"
@@ -157,9 +174,9 @@ def _case(o: Opportunity, vc: ValueCase | None, included: bool) -> str:
         f"<div><dt>EBITDA flow-through</dt><dd>{_percent(o.ebitda_flow_through)}</dd></div>"
         f"<div><dt>Recurring annual cost</dt><dd>{money(o.annual_run_cost)}</dd></div>"
         f"<div><dt>One-time implementation cost</dt><dd>{money(o.one_time_cost)}</dd></div></dl>"
-        "<div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col'>Low</th><th scope='col'>Base</th><th scope='col'>High</th></tr></thead><tbody>"
-        f"<tr><th scope='row'>Improvement</th><td>{_percent(o.low.improvement_rate)}</td><td>{_percent(o.base.improvement_rate)}</td><td>{_percent(o.high.improvement_rate)}</td></tr>"
-        f"<tr><th scope='row'>Realization</th><td>{_percent(o.low.realization_rate)}</td><td>{_percent(o.base.realization_rate)}</td><td>{_percent(o.high.realization_rate)}</td></tr></tbody></table></div>"
+        "<div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody>"
+        f"<tr><th scope='row'>Improvement</th><td class='num'>{_percent(o.low.improvement_rate)}</td><td class='num'>{_percent(o.base.improvement_rate)}</td><td class='num'>{_percent(o.high.improvement_rate)}</td></tr>"
+        f"<tr><th scope='row'>Realization</th><td class='num'>{_percent(o.low.realization_rate)}</td><td class='num'>{_percent(o.base.realization_rate)}</td><td class='num'>{_percent(o.high.realization_rate)}</td></tr></tbody></table></div>"
         "<p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p>"
     )
     if o.assumptions:
@@ -169,7 +186,7 @@ def _case(o: Opportunity, vc: ValueCase | None, included: bool) -> str:
         h.append(
             f"<p class='metric-note'>Calculation {_e(vc.calc_version)} · Input fingerprint <code>{_e(vc.inputs_hash)}</code></p>"
         )
-    h.append("</details>")
+    h.append("</div></article>")
     return "".join(h)
 
 
@@ -271,7 +288,7 @@ def review_page(
     units = currency or "source currency"
     gaps = [f for f in findings if f.finding_type.value == "data_gap"]
     h = [
-        "<header class='page-header'><div><p class='eyebrow'>Operating partner brief / Plan review</p>",
+        "<nav class='breadcrumb' aria-label='Breadcrumb'><a href='/'>Portfolio</a><span aria-hidden='true'>/</span><span>Plan review</span></nav><header class='page-header'><div>",
         f"<h1 class='page-title'>{_e(name)}</h1><p class='page-subtitle'>"
         + (
             "A decision-ready value creation plan, with the evidence behind every lever."
@@ -279,7 +296,7 @@ def review_page(
             else "Review the evidence requirements before committing to a value creation plan."
         )
         + "</p></div>",
-        f"<div>{status_badge(display_status)}<p class='metric-note'>As of {_e(run.updated_at.strftime('%d %b %Y · %H:%M UTC'))}</p></div></header>",
+        f"<div class='page-header-meta'>{status_badge(display_status)}<p class='metric-note'>As of {_e(run.updated_at.strftime('%d %b %Y · %H:%M UTC'))}</p></div></header>",
         "<nav class='section-nav' aria-label='Plan sections'><a href='#executive'>Decision brief</a><a href='#workstreams'>Execution plan</a><a href='#evidence'>Value cases &amp; evidence</a><a href='#decision'>Decision record</a>",
         f"<a href='/companies/{_e(run.company_id)}/kpis?run_id={_e(run.run_id)}'>Operating performance</a></nav>",
     ]
@@ -401,19 +418,26 @@ def review_page(
             + "</section>"
         )
     h.append(
-        f"<section id='evidence'><div class='section-heading'><div><p class='eyebrow'>Analytical diligence · {_e(units)}</p><h2>Value cases and evidence</h2></div></div><p class='muted'>Expand a lever to inspect scenarios, costs, input assumptions and source evidence. Values outside the displayed plan are not included in its totals.</p><div class='stack'>"
+        f"<section id='evidence'><div class='section-heading'><div><p class='eyebrow'>Analytical diligence · {_e(units)}</p><h2>Value cases and evidence</h2></div></div><p class='muted'>Select a value case to inspect its scenarios, costs, input assumptions and source evidence. Values outside the displayed plan are not included in its totals.</p>"
     )
-    for o in sorted(
+    ranked = sorted(
         opps,
         key=lambda o: cases[o.opportunity_id].annual_ebitda_base if o.opportunity_id in cases else Decimal(0),
         reverse=True,
-    ):
-        h.append(_case(o, cases.get(o.opportunity_id), o.opportunity_id in included))
-    if not opps:
+    )
+    if ranked:
+        h.append(
+            "<div class='split'><div class='table-wrap' tabindex='0' role='region' aria-label='Value cases'><table class='data-table'>"
+            "<thead><tr><th scope='col'>Value case</th><th scope='col'>Scope</th><th scope='col' class='num'>Base annual EBITDA</th></tr></thead><tbody>"
+            + "".join(_case_row(o, cases.get(o.opportunity_id), o.opportunity_id in included) for o in ranked)
+            + "</tbody></table></div><div class='detail-stack'>"
+            + "".join(_case(o, cases.get(o.opportunity_id), o.opportunity_id in included) for o in ranked)
+            + "</div></div>"
+        )
+    else:
         h.append("<div class='empty-state'>No sized value cases are available for this diagnostic.</div>")
     h.append(
-        "</div></section>"
-        + _decision(run, plan, approval, csrf, can_decide, error, rationale, selected_initiatives or [])
+        "</section>" + _decision(run, plan, approval, csrf, can_decide, error, rationale, selected_initiatives or [])
     )
     h.append(
         "<details class='disclosure'><summary>Workflow &amp; audit identifiers</summary><dl class='definition-list'>"

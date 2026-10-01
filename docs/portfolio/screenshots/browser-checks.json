@@ -45,6 +45,160 @@
       "disclosures": "pass"
     },
     {
+      "page": "public-baseline",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "underwriting",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-plan",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "case-history",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "realization",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "execution",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-sources",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "source-review",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "decision-memo",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "historical-valuation",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "disclosure-history",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "accounting-restatement",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "exit-review",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "lineage-review",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-review",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-underwriting",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-plan",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-sources",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-memo",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-sources",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-memo",
+      "viewport": 1440,
+      "document_width": 1440,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
       "page": "landing",
       "viewport": 768,
       "document_width": 768,
@@ -87,6 +241,160 @@
       "disclosures": "pass"
     },
     {
+      "page": "public-baseline",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "underwriting",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-plan",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "case-history",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "realization",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "execution",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-sources",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "source-review",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "decision-memo",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "historical-valuation",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "disclosure-history",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "accounting-restatement",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "exit-review",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "lineage-review",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-review",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-underwriting",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-plan",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-sources",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-memo",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-sources",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-memo",
+      "viewport": 768,
+      "document_width": 768,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
       "page": "landing",
       "viewport": 375,
       "document_width": 375,
@@ -123,6 +431,160 @@
     },
     {
       "page": "evidence",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "public-baseline",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "underwriting",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-plan",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "case-history",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "realization",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "execution",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "operating-sources",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "source-review",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "decision-memo",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "historical-valuation",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "disclosure-history",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "accounting-restatement",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "exit-review",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "lineage-review",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-review",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-underwriting",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-plan",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-sources",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocation-memo",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-sources",
+      "viewport": 375,
+      "document_width": 375,
+      "keyboard": "pass",
+      "disclosures": "pass"
+    },
+    {
+      "page": "allocated-lineage-memo",
       "viewport": 375,
       "document_width": 375,
       "keyboard": "pass",
