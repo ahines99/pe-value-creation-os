@@ -11,11 +11,11 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from ..adapters.repositories import Conflict, Repository
-from ..api.presentation import CSS
 from ..research.render import table
 from .cases import InvestmentCase
 from .close_baseline import CloseBaseline
 from .execution import ExecutionEvent, ExecutionEvidence, ExecutionRequest
+from .exhibit_style import exhibit_page
 from .models import Record
 from .realization import AttributionRequest, ObservationRequest
 from .realization_render import ExerciseMonth, RealizationExercise, demonstrate_realization
@@ -289,14 +289,14 @@ def render_execution(report: dict[str, Any], json_name: str) -> str:
         + "</div></details>"
     )
     totals = report["aggregate_recorded_periods"]
-    body += f"<p>Across {e(report['submitted_periods'])} recorded months, the scoped accounting difference remains <strong>{e(amount(totals['measured_difference']['incremental_ebitda']))} EBITDA</strong> and <strong>{e(amount(totals['measured_difference']['pre_tax_cash_proxy']))} pre-tax cash</strong>. These totals do not become realized initiative value when a delivery link is recorded. The financial ledger preserves all source comparisons, costs, claims and residuals.</p>"
+    body += f"<p class='x-callout'>Across {e(report['submitted_periods'])} recorded months, the scoped accounting difference remains <strong>{e(amount(totals['measured_difference']['incremental_ebitda']))} EBITDA</strong> and <strong>{e(amount(totals['measured_difference']['pre_tax_cash_proxy']))} pre-tax cash</strong>. These totals do not become realized initiative value when a delivery link is recorded. The financial ledger preserves all source comparisons, costs, claims and residuals.</p>"
     body += f"<p>{e(view['limitation'])}</p><p><a href='{escape(json_name, quote=True)}' download>Download execution receipts, financial comparisons and audit JSON</a></p><p><a href='realization.html'>Inspect the initial accounting comparison</a> · <a href='operating-plan.html'>Review the original capacity plan</a> · <a href='decision-memo.html'>Read the executive memo</a></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Execution acceptance — Value Creation OS</title><style>"
-        + CSS
-        + ".detail-body{padding:1rem;overflow-wrap:anywhere}.primary-nav{flex-wrap:wrap}.hero h1{max-width:23ch}</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Execution review</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#delivery'>Delivery</a><a class='nav-link' href='#challenge'>Challenges</a><a class='nav-link' href='#claims'>Claim support</a></nav></div></header><main class='app-shell' id='main' tabindex='-1'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title="Execution acceptance — Value Creation OS",
+        kind="Execution review",
+        provenance="Constructed demonstration",
+        nav=[("#delivery", "Delivery"), ("#challenge", "Challenges"), ("#claims", "Claim support")],
+        body=body,
     )
 
 

@@ -129,10 +129,8 @@ def render_allocated_lineage(report: dict[str, Any], download: str) -> str:
         "Lineage preserves selection, source assignments, unit economics, commitments and cost explanations. Task effort is explicitly apportioned; resource budgets are unchanged.",
     )
     extra += "</details><p>Monthly pool amounts follow the existing cent-rounding convention. Splits can change partial-period rounding and scheduled gate dates; financial comparisons retain those differences rather than claiming every daily amount is identical. Historical accounting and attribution remain on their frozen identities.</p></section>"
-    html = render_allocation_demo(report, download)
+    html = render_allocation_demo(report, download, extra=extra, title="Allocation and KPI lifecycle")
     html = html.replace("One pool. An explicit choice.", "One pool. A traceable operating history.")
-    html = html.replace("<section class='panel' id='evidence'>", extra + "<section class='panel' id='evidence'>")
-    html = html.replace("allocation-sources.html", "allocation-lineage-sources.html").replace(
+    return html.replace("allocation-sources.html", "allocation-lineage-sources.html").replace(
         "allocation-memo.html", "allocation-lineage-memo.html"
     )
-    return html.replace("<title>Benefit allocation review</title>", "<title>Allocation and KPI lifecycle</title>")

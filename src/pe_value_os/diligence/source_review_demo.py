@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from ..adapters.repositories import Repository
-from ..api.presentation import CSS
 from .cases import CaseRevision, InvestmentCase, ReviewRequest, RevisionDraft
 from .close_baseline import CloseBaseline
 from .execution_demo import ExecutionExercise, replay_execution
+from .exhibit_style import exhibit_page
 from .operating_sources import OperatingSourceBook
 from .operating_sources_render import money, table
 from .realization_render import RealizationExercise, demonstrate_realization
@@ -198,7 +198,7 @@ def render_source_review(report: dict[str, Any], download: str) -> str:
         ),
         ("Current peak funding", base["maximum_dated_funding_need"], "Base · dated cash deficit"),
     ):
-        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{money(value)}</strong><span class='metric-note'>{escape(note)}</span></div>"
+        body += f"<div class='metric-card'><span class='metric-label'>{escape(label)}</span><strong class='metric-value'>{money(value)} <span class='x-unit'>{escape(report['currency'])}</span></strong><span class='metric-note'>{escape(note)}</span></div>"
     body += "</div><section class='panel' id='revisions'><h2>One case, five immutable revisions</h2>"
     receipts = {r["revision_id"]: r for r in review["reviews"]}
     rows = []
@@ -228,7 +228,7 @@ def render_source_review(report: dict[str, Any], download: str) -> str:
             assumptions = ", ".join(
                 f"{a['assumption_id']} = {a['value']} {a['unit']}" for a in lesson["prior_assumptions"]
             )
-            body += f"<article><h3>Revision {revision['sequence']} · {escape(lesson['initiative_id'])}</h3><p><strong>{escape(lesson['finding'])}</strong></p><p>{escape(lesson['response'])}</p><p class='muted'>Prior assumptions: {escape(assumptions)}</p><p>Next evidence: {escape(lesson['follow_up_evidence'])}</p>"
+            body += f"<article><h3>Revision {revision['sequence']} · {escape(lesson['initiative_id'])}</h3><p><strong>{escape(lesson['finding'])}</strong></p><p>{escape(lesson['response'])}</p><p class='muted'>Prior assumptions: {escape(assumptions)}</p><p><strong>Next evidence:</strong> {escape(lesson['follow_up_evidence'])}</p>"
             body += f"<details><summary>Inspect {len(lesson['source_comparison'])} bound records and prior assumptions</summary><div class='detail-body'><p>{escape(lesson['authority'])}</p><pre>{escape(json.dumps(lesson, default=str, indent=2))}</pre></div></details></article>"
     body += (
         "</section><section class='panel' id='preserved'><h2>Reforecasting does not rewrite accounting or claims</h2>"
@@ -248,12 +248,12 @@ def render_source_review(report: dict[str, Any], download: str) -> str:
     )
     body += "<p>The vendor delivery acceptance remains withdrawn. Removing release evidence from the forecast is an explicit authored correction, not an automatic causal inference from that withdrawal. Original receipts remain inspectable.</p>"
     body += f"<p><a href='{escape(download, quote=True)}' download>Download the complete case, source lessons, reviews and accounting comparison</a></p><p><a href='execution.html'>Delivery and claim support</a> · <a href='operating-sources.html'>Original source challenge</a> · <a href='https://github.com/ahines99/pe-value-creation-os/blob/main/docs/pilot/permissioned/README.md'>Pilot sponsor package</a></p></section>"
-    return (
-        "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Source-backed case review — Value Creation OS</title><style>"
-        + CSS
-        + ".detail-body{padding:1rem;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.primary-nav{flex-wrap:wrap}.hero h1{max-width:23ch}article+article{margin-top:2rem}</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='#main'>Value Creation OS · Case review</a><nav class='primary-nav' aria-label='Sections'><a class='nav-link' href='#revisions'>Revisions</a><a class='nav-link' href='#learning'>Learning</a><a class='nav-link' href='#preserved'>Accounting</a></nav></div></header><main class='app-shell' id='main' tabindex='-1'>"
-        + body
-        + "</main></body></html>"
+    return exhibit_page(
+        title="Source-backed case review — Value Creation OS",
+        kind="Case review",
+        provenance="Constructed exercise",
+        nav=[("#revisions", "Revisions"), ("#learning", "Learning"), ("#preserved", "Accounting")],
+        body=body,
     )
 
 
