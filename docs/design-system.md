@@ -17,7 +17,7 @@ These are style references only. No branding, assets or layouts are copied.
 - **Hierarchy comes from type, spacing and alignment.** No gradients, decorative borders, uppercase letter-spaced labels or heavy shadows.
 - **Flat by default.** Surfaces are separated by 1 px borders. The single elevation (`--shadow-raised`) is reserved for surfaces that float over content: the detail panel, the skip link and the landing-page product preview.
 - **Tables come before cards** for anything with rows: companies, initiatives and value cases. Figures are tabular; amounts are right-aligned with `.num`, and totals sit in a `tfoot` row.
-- **A list with a detail panel** shows one record at a time. Selecting a row opens its panel through a link fragment (`:target`), so it needs no script.
+- **A list with a detail panel** shows one record at a time. Selecting a row opens its panel through a link fragment (`:target`), and a small per-page style block highlights the matching row. The first record is selected when there is no fragment. No script is needed.
 
 ## Tokens
 
@@ -61,8 +61,18 @@ Every text token meets WCAG 2.x AA (4.5:1) on every surface it is used on. Lowes
 
 ## Layout
 
-- **Application pages** (`page()`): a 232 px sidebar holds the brand, workspace navigation and data-provenance note, beside a content column of at most 1,200 px. Under 900 px the sidebar becomes a top bar.
+- **Application pages** (`page()`):
+  - A 240 px sidebar (`--side-w`) holds the workspace header, icon navigation (the current page is a raised white item) and a data-provenance footer.
+  - Every screen opens with the same `page_header()`: breadcrumb, title with status badge, subtitle, a meta line and right-aligned actions.
+  - Headline figures sit in one Mercury-style summary strip (`.summary-strip`).
+  - Under 900 px the sidebar becomes a top bar whose navigation scrolls sideways, and table rows stack into labelled records on phones.
+  - Captured example pages carry a slim dark provenance bar above the shell.
 - **Sign-in** has no workspace navigation.
-- **Exhibits** (generated reports) use a slim top bar with section links, because they are documents rather than application screens.
+- **Exhibits** (generated reports) are documents, not application screens. `exhibit_page()` in `src/pe_value_os/diligence/exhibit_style.py` (`EXHIBIT_CSS`, tokens prefixed `--x-`) gives every report:
+  - A sticky header with the report type and a provenance badge.
+  - A fixed "On this page" contents list from 1,280 px.
+  - Sections divided by hairlines rather than nested boxes, with prose capped near 72 characters.
+  - Right-aligned figure columns (the shared `table()` helper detects them) and styled totals rows.
+  - The same footer.
 - **Landing page**: a centred hero with one primary and one secondary action, a product preview of the current decision, then full-width sections separated by hairlines. Content width 1,200 px.
 - **Responsiveness:** every page must render without horizontal overflow at 375, 768 and 1440 px with all disclosures open. `scripts/check_portfolio_browser.py` and `scripts/check_private_review_browser.py` enforce this in CI.

@@ -4,62 +4,59 @@
   color-scheme:light;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,monospace;
+  /* Surfaces, lightest to darkest. Hover and active fills are for interactive rows and controls only. */
   --bg:#ffffff; --bg-subtle:#fafafa; --bg-muted:#f4f4f5; --bg-hover:#f4f4f5; --bg-active:#ececee;
-  --border:#ebebeb; --border-strong:#dfdfe2;
-  --text:#171717; --text-2:#52525b; --text-3:#8e8e93;
-  --primary:#18181b; --primary-hover:#2c2c30;
-  --accent:#2f5bea; --accent-hover:#2349c9; --accent-soft:#eef2fe; --accent-line:#d5defb;
-  --ok:#16653a; --ok-bg:#effaf3; --ok-line:#cdebd8;
-  --warn:#8a5300; --warn-bg:#fff8eb; --warn-line:#f1dfb6;
-  --bad:#b42318; --bad-bg:#fef4f3; --bad-line:#f5d0cb;
-  --info:#2349c9; --info-bg:#eef2fe; --info-line:#d5defb;
+  /* Dividers are decorative; --border-input gives form controls a 3:1 boundary (WCAG 1.4.11). */
+  --border:#ebebed; --border-strong:#dcdce0; --border-input:#8a8a92;
+  /* Text. Each level is at least 4.5:1 on every surface and status background above and below. */
+  --text:#171717; --text-2:#4d4d55; --text-3:#66666e;
+  --primary:#18181b; --primary-hover:#323238;
+  --accent:#2f5bea; --accent-hover:#2349c9; --accent-soft:#eef2fe; --accent-line:#c9d5fa;
+  --ok:#16653a; --ok-bg:#effaf3; --ok-line:#bfe3cc;
+  --warn:#8a5300; --warn-strong:#5f3c05; --warn-bg:#fff8eb; --warn-line:#efd9a7;
+  --bad:#b42318; --bad-bg:#fef4f3; --bad-line:#f2c6c0;
+  --info:#2349c9; --info-bg:#eef2fe; --info-line:#c9d5fa;
   --chart-up:#3c9a6b; --chart-down:#d4604f; --chart-total:var(--primary);
   --r-sm:4px; --r-md:6px; --r-lg:8px;
+  /* One elevation, for surfaces that float over content. Everything else is flat. */
+  --shadow-raised:0 1px 2px rgb(0 0 0 / 4%),0 4px 16px rgb(0 0 0 / 5%);
+  --ring:0 0 0 3px rgb(47 91 234 / 20%);
+  --ease:cubic-bezier(.2,0,0,1);
   /* Names kept for renderers that predate the token set. */
   --ink:var(--text); --navy:var(--text); --navy-deep:var(--text); --teal:var(--accent); --teal-light:var(--accent-soft);
   --copper:var(--text-3); --paper:var(--bg); --white:#fff; --muted:var(--text-2); --line:var(--border); --soft:var(--bg-muted);
   --fg:var(--text); --card:var(--bg); --radius:var(--r-lg); --shadow:none;
 }
+/* app tokens */
+:root{
+  --side-w:240px; --capture-h:0px; --tabs-h:41px;
+  --bar-bg:#18181b; --bar-text:#fafafa; --bar-text-2:#c4c4ca; --bar-line:rgb(255 255 255 / 16%);
+  --shadow-sm:0 1px 2px rgb(16 16 20 / 5%); --shadow-panel:0 1px 2px rgb(16 16 20 / 4%),0 6px 20px rgb(16 16 20 / 5%);
+}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:24px}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--font);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
-a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
+html{scroll-padding-top:24px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.57 var(--font);font-feature-settings:"ss01";-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{color:var(--accent-hover);text-decoration-color:currentColor}
-button,input,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-sm)}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 [tabindex='-1']:focus{outline:none}
-::selection{background:var(--accent-soft);color:var(--text)}
+::selection{background:var(--accent-line);color:var(--text)}
 h1,h2,h3,h4,p{margin:0}
-h1,h2,h3,h4{line-height:1.3;overflow-wrap:break-word;color:var(--text)}
-h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
-h2{font-size:16px;font-weight:600;letter-spacing:-.005em}
-h3{font-size:14px;font-weight:600}
-h4{font-size:13px;font-weight:600}
+h1,h2,h3,h4{overflow-wrap:break-word;color:var(--text);font-weight:600;text-wrap:balance}
+h1{font-size:24px;line-height:32px;letter-spacing:-.02em}
+h2{font-size:16px;line-height:24px;letter-spacing:-.011em}
+h3{font-size:14px;line-height:20px;letter-spacing:-.006em}
+h4{font-size:13px;line-height:20px}
 p+p{margin-top:8px}
 ul,ol{padding-left:20px;margin:8px 0}li+li{margin-top:4px}
-code{font:12px/1.5 var(--mono);overflow-wrap:anywhere;background:var(--bg-muted);padding:1px 4px;border-radius:var(--r-sm);color:var(--text-2)}
+code{font:12px/1.5 var(--mono);overflow-wrap:anywhere;background:var(--bg-muted);padding:1px 4px;border-radius:var(--r-sm);color:var(--text)}
 small{font-size:12px}
 strong{font-weight:600}
 svg{display:block;max-width:100%}
-.skip-link{position:fixed;top:8px;left:8px;transform:translateY(-200%);z-index:30;background:var(--bg);color:var(--text);padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);text-decoration:none}
+.skip-link{position:fixed;top:8px;left:8px;transform:translateY(-200%);z-index:30;background:var(--bg);color:var(--text);padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);text-decoration:none;box-shadow:var(--shadow-raised)}
 .skip-link:focus{transform:translateY(0)}
-
-/* Application shell: sidebar and content */
-.app-layout{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh;background:linear-gradient(90deg,var(--bg-subtle) 0 231px,var(--border) 231px 232px,var(--bg) 232px)}
-.sidebar{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:16px}
-.sidebar .brand{color:var(--text)}
-.side-nav{display:flex;flex-direction:column;gap:2px}
-.side-label{font-size:12px;color:var(--text-3);padding:0 8px;margin:4px 0}
-.side-link{display:flex;align-items:center;gap:8px;min-height:32px;padding:6px 8px;border-radius:var(--r-md);color:var(--text-2);text-decoration:none;font-size:13px;font-weight:500}
-.side-link svg{width:16px;height:16px;flex-shrink:0;color:var(--text-3)}
-.side-link:hover{background:var(--bg-hover);color:var(--text)}
-.side-link[aria-current=page]{background:var(--bg-active);color:var(--text)}
-.side-link[aria-current=page] svg{color:var(--text)}
-.side-foot{margin-top:auto;padding:8px;font-size:12px;color:var(--text-3);line-height:1.5;border-top:1px solid var(--border)}
-.app-main{min-width:0;display:flex;flex-direction:column}
-.app-layout.bare{display:flex;flex-direction:column;background:var(--bg-subtle)}
-.bare-header{padding:16px 32px}
-.app-main>.app-shell{flex:1}
 
 /* Document header used by exhibit pages */
 .topbar{background:var(--bg);border-bottom:1px solid var(--border);color:var(--text)}
@@ -77,19 +74,11 @@ svg{display:block;max-width:100%}
 .app-shell{width:100%;max-width:1200px;margin:0 auto;padding:24px 32px 48px;min-height:60vh}
 
 /* Page structure */
-.breadcrumb{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text-3);margin-bottom:12px;flex-wrap:wrap}
-.breadcrumb a{color:var(--text-2);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.page-header>div{min-width:0}
-.page-header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
 .eyebrow,.section-kicker{display:block;font-size:12px;font-weight:500;color:var(--text-3);margin-bottom:4px}
 .page-title{max-width:900px}
 .page-subtitle{color:var(--text-2);font-size:14px;max-width:680px;margin-top:4px}
 .section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:32px 0 12px}
 .section-heading p{font-size:13px;color:var(--text-2);margin-top:2px}
-.section-nav{display:flex;flex-wrap:wrap;gap:2px 20px;margin:-8px 0 24px;border-bottom:1px solid var(--border)}
-.section-nav a{display:inline-flex;align-items:center;min-height:36px;padding:8px 0;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--text-2);font-size:13px;font-weight:500;text-decoration:none}
-.section-nav a:hover{color:var(--text);border-bottom-color:var(--border-strong)}
 .hero{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.8fr);gap:32px;margin-bottom:24px}
 .hero h1,.hero h2{color:var(--text)}.hero p{max-width:680px}
 .hero .page-subtitle,.hero .muted{color:var(--text-2)}
@@ -97,12 +86,11 @@ svg{display:block;max-width:100%}
 .hero-aside .metric-value{font-size:28px}
 .hero-aside.panel{border:1px solid var(--border);padding:20px;margin:0;background:var(--bg)}
 .hero .action-list>p{padding:12px 0;border-bottom:1px solid var(--border);color:var(--text-2);font-size:13px}.hero .action-list strong{color:var(--text)}
-.bare .hero{background:var(--bg)}.bare .app-shell{padding-top:8px}
 
 /* Surfaces */
 .panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:16px;min-width:0}
 .panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.panel-header p{font-size:13px;color:var(--text-2);margin-top:2px}
+.panel-header p{font-size:13px;line-height:20px;color:var(--text-2);margin-top:2px}
 .panel>:last-child{margin-bottom:0}
 .panel>.section-heading:first-child{margin-top:0}
 .two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
@@ -114,20 +102,20 @@ svg{display:block;max-width:100%}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 12px}
 .metrics-grid+.form-help,.metrics-grid+p{margin:0 0 16px}
 .metric-card{background:var(--bg);padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);min-width:0}
-.metric-card.highlight{border-color:var(--border)}
-.metric-label{display:block;color:var(--text-2);font-size:13px;font-weight:500;line-height:1.4;margin-bottom:6px}
-.metric-value{display:block;font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--text)}
+.metric-card.highlight{border-color:var(--border-strong)}
+.metric-label{display:block;color:var(--text-2);font-size:13px;font-weight:500;line-height:20px;margin-bottom:4px}
+.metric-value{display:block;font-size:28px;font-weight:600;line-height:1.25;letter-spacing:-.022em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--text)}
 .metric-value small{display:inline;font-size:13px;font-weight:500;color:var(--text-3);letter-spacing:0;margin-right:4px}
-.metric-note{display:block;font-size:12px;color:var(--text-3);line-height:1.5;margin-top:6px}
+.metric-note{display:block;font-size:12px;color:var(--text-3);line-height:18px;margin-top:4px}
 .metric-comparison{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
-.metric-comparison>div{padding-top:10px;border-top:1px solid var(--border)}
-.metric-comparison span{display:block;font-size:12px;color:var(--text-3);margin-bottom:4px}
-.metric-comparison strong,.metric-comparison .metric-value{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
-.num,.figure{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.metric-comparison>div{padding-top:12px;border-top:1px solid var(--border)}
+.metric-comparison span{display:block;font-size:12px;line-height:18px;color:var(--text-3);margin-bottom:4px}
+.metric-comparison strong,.metric-comparison .metric-value{font-size:16px;line-height:24px;font-weight:600;letter-spacing:-.011em;font-variant-numeric:tabular-nums}
+.num,.figure,td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .positive{color:var(--ok)}.muted{color:var(--text-2)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 
-/* Badges and tags */
-.badge,.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:18px;font-weight:500;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:0 6px;background:var(--bg-muted);color:var(--text-2);max-width:100%;vertical-align:middle;white-space:normal}
+/* Badges (status: tinted, with a dot and text) and tags (neutral) */
+.badge,.pill{display:inline-flex;align-items:center;gap:6px;min-height:20px;font-size:12px;line-height:18px;font-weight:500;letter-spacing:0;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:0 7px;background:var(--bg-subtle);color:var(--text-2);max-width:100%;vertical-align:middle;white-space:normal;font-variant-numeric:tabular-nums}
 .badge[data-status]:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 .state-complete,.state-approved,.state-active,.state-on_track,.state-approval_recorded{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
 .state-awaiting_approval,.state-changes_requested,.state-needs_evidence,.state-revisions_queued{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
@@ -135,50 +123,61 @@ svg{display:block;max-width:100%}
 .state-running,.state-queued,.state-pending{color:var(--info);background:var(--info-bg);border-color:var(--info-line)}
 
 /* Controls */
-.button,button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--primary);border:1px solid var(--primary);color:#fff;text-decoration:none;border-radius:var(--r-md);padding:6px 12px;font-size:13px;line-height:20px;font-weight:500;cursor:pointer;min-height:34px;text-align:center;white-space:nowrap;transition:background .12s,border-color .12s}
+.button,button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--primary);border:1px solid var(--primary);color:#fff;text-decoration:none;border-radius:var(--r-md);padding:5px 12px;font-size:13px;line-height:20px;font-weight:500;cursor:pointer;min-height:32px;text-align:center;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
 .button:hover,button:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:#fff;text-decoration:none}
 .button.secondary,button.secondary{background:var(--bg);color:var(--text);border-color:var(--border-strong)}
-.button.secondary:hover,button.secondary:hover{background:var(--bg-hover);color:var(--text)}
+.button.secondary:hover,button.secondary:hover{background:var(--bg-hover);border-color:#c8c8cd;color:var(--text)}
 .button.danger,button.danger{background:var(--bg);color:var(--bad);border-color:var(--bad-line)}
-.button.danger:hover,button.danger:hover{background:var(--bad-bg);color:var(--bad)}
-button:disabled{opacity:.5;cursor:not-allowed}
+.button.danger:hover,button.danger:hover{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.button.small,button.small{min-height:28px;padding:3px 10px;font-size:12px;line-height:20px}
+.button.large,button.large{min-height:40px;padding:9px 16px;font-size:14px}
+:is(.button,button):is(:disabled,[aria-disabled=true]),:is(.button,button):is(:disabled,[aria-disabled=true]):hover{background:var(--bg-muted);border-color:var(--border);color:var(--text-3);cursor:not-allowed}
 .text-link{font-size:13px;font-weight:500;text-decoration:none}.text-link:after{content:" →"}
 .text-link:hover{text-decoration:underline}
-label{display:block;font-size:13px;font-weight:500;margin:12px 0 6px}
-input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select,.input-field{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--r-md);padding:7px 10px;min-height:36px;font-size:14px}
-input:focus,textarea:focus,select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-textarea{min-height:96px;resize:vertical;line-height:1.5}
-input[type=checkbox],input[type=radio]{accent-color:var(--primary);width:16px;height:16px;vertical-align:middle;margin:0 8px 0 0;flex-shrink:0}
-.checkbox-label{display:flex;align-items:flex-start;font-weight:400;gap:6px}
-.checkbox-label input{margin-top:3px}.form-help{font-size:12px;color:var(--text-3);margin-top:6px}
-.scope-option{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;font-weight:400;margin:0}
+label{display:block;font-size:13px;line-height:20px;font-weight:500;color:var(--text);margin:16px 0 6px}
+input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select,.input-field{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border-input);border-radius:var(--r-md);padding:7px 10px;min-height:36px;font-size:14px;line-height:20px;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
+:is(input:not([type=checkbox]):not([type=radio]),textarea,select):hover{border-color:var(--text-2)}
+/* A transparent outline keeps a focus indicator in forced-colors mode, where box-shadow is removed. */
+:is(input:not([type=checkbox]):not([type=radio]),textarea,select):focus{outline:2px solid transparent;outline-offset:0;border-color:var(--accent);box-shadow:var(--ring)}
+:is(input,textarea,select):disabled{background:var(--bg-muted);border-color:var(--border-strong);color:var(--text-3);cursor:not-allowed}
+:is(input,textarea,select)[aria-invalid=true]{border-color:var(--bad)}
+::placeholder{color:var(--text-3);opacity:1}
+textarea{min-height:96px;resize:vertical}
+fieldset{min-width:0;margin:16px 0;padding:4px 16px 16px;border:1px solid var(--border);border-radius:var(--r-lg)}
+legend{padding:0 6px;margin-left:-6px;font-size:13px;line-height:20px;font-weight:600;color:var(--text)}
+input[type=checkbox],input[type=radio]{accent-color:var(--primary);width:16px;height:16px;vertical-align:middle;margin:0 8px 0 0;flex-shrink:0;cursor:pointer}
+.checkbox-label{display:flex;align-items:flex-start;font-weight:400;gap:4px;cursor:pointer}
+.checkbox-label input{margin-top:2px}.form-help{font-size:12px;line-height:18px;color:var(--text-3);margin-top:6px}
+.scope-option{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;font-weight:400;margin:0}
 .scope-option input{margin:2px 0}.scope-option small{display:block;color:var(--text-3)}
 .decision-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 8px}
 
 /* Tables */
 .table-wrap,.scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--border);border-radius:var(--r-lg);margin:12px 0;background:var(--bg)}
-.data-table,table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;text-align:left}
-caption{caption-side:top;text-align:left;font-size:12px;color:var(--text-3);padding:8px 12px;border-bottom:1px solid var(--border)}
-th{color:var(--text-2);font-size:12px;font-weight:500;line-height:1.4;background:var(--bg-subtle);vertical-align:bottom}
+.data-table,table{width:100%;border-collapse:collapse;font-size:13px;line-height:20px;font-variant-numeric:tabular-nums;text-align:left}
+caption{caption-side:top;text-align:left;font-size:12px;line-height:18px;color:var(--text-3);padding:8px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--text-2);font-size:12px;font-weight:500;line-height:18px;background:var(--bg-subtle);vertical-align:bottom;text-align:left}
 th,td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
-td{line-height:1.5;overflow-wrap:break-word}
-tbody th{background:transparent;color:var(--text);font-size:13px;font-weight:500;vertical-align:top}
+/* Tabular figures keep columns aligned; labels and notes keep normal hyphens and spacing. */
+thead th,tbody th,td small,td .muted,td p{font-variant-numeric:normal}
+td{overflow-wrap:break-word}
+tbody th{background:transparent;color:var(--text);font-size:13px;line-height:20px;font-weight:500;vertical-align:top}
 tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
 tbody tr:hover>td,tbody tr:hover>th{background:var(--bg-subtle)}
-td .muted,td small,th small{display:block;font-weight:400;font-size:12px;color:var(--text-3);margin-top:2px;line-height:1.45}
-.row-actions{display:flex;flex-direction:column;align-items:flex-start;gap:2px;white-space:nowrap}
-.company-table th[scope=row]{min-width:260px;max-width:420px}
-.entity .company-monogram{margin-top:1px}
+td .muted,td small,th small{display:block;font-weight:400;font-size:12px;color:var(--text-3);margin-top:2px;line-height:18px}
 td .badge,th .badge{white-space:nowrap}
-tfoot td,tfoot th{background:var(--bg-subtle);border-top:1px solid var(--border);border-bottom:0;font-weight:600;color:var(--text)}
-.table-caption{font-size:12px;color:var(--text-3);margin-top:8px}
-.row-link{color:var(--text);font-weight:500;text-decoration:none}.row-link:hover{color:var(--accent);text-decoration:underline}
+tfoot td,tfoot th{background:var(--bg-subtle);border-top:1px solid var(--border-strong);border-bottom:0;font-size:13px;line-height:20px;font-weight:600;color:var(--text);vertical-align:top}
+.table-caption{font-size:12px;line-height:18px;color:var(--text-3);margin-top:8px}
 
 /* Disclosure */
 .disclosure,details{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);margin:12px 0;min-width:0}
-summary{font-size:13px;font-weight:500;padding:8px 12px;cursor:pointer;min-height:40px;display:list-item;color:var(--text);line-height:24px}
-summary:hover{background:var(--bg-subtle)}
-summary::marker{color:var(--text-3)}details[open]>summary{border-bottom:1px solid var(--border)}
+summary{display:block;list-style:none;font-size:13px;font-weight:500;line-height:20px;padding:10px 12px;cursor:pointer;min-height:40px;color:var(--text);border-radius:calc(var(--r-lg) - 1px)}
+summary::-webkit-details-marker{display:none}
+/* Chevron drawn with borders, so it follows forced colours; it points right when closed and down when open. */
+summary:before{content:"";display:inline-block;width:6px;height:6px;margin:0 10px 2px 2px;border:solid var(--text-3);border-width:0 1.5px 1.5px 0;transform:rotate(-45deg);vertical-align:middle;transition:transform .15s var(--ease)}
+details[open]>summary:before{transform:rotate(45deg);margin-bottom:4px}
+summary:hover{background:var(--bg-subtle)}summary:hover:before{border-color:var(--text)}
+details[open]>summary{border-bottom:1px solid var(--border);border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
 .disclosure-body,details>.details-content{padding:16px}
 details>.table-wrap{margin:12px}
 .disclosure>p,.disclosure>dl,.disclosure>h4,.disclosure>ul,.disclosure>.table-wrap,.disclosure>.scenario-grid,.disclosure>.evidence-links,.disclosure>.timeline-grid{margin:12px 16px}
@@ -197,7 +196,7 @@ details>.table-wrap{margin:12px}
 .scenario,.scenario-card{background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--border);min-width:0}
 .scenario.base,.scenario-card.base{background:var(--accent-soft);border-color:var(--accent-line)}
 .scenario-card .metric-label,.scenario .metric-label{font-size:12px;margin-bottom:2px}
-.scenario-card .metric-value,.scenario .metric-value{font-size:16px}
+.scenario-card .metric-value,.scenario .metric-value{font-size:16px;letter-spacing:-.011em}
 .scenario-card.negative{background:var(--bad-bg);border-color:var(--bad-line)}.scenario-card.negative .metric-value{color:var(--bad)}
 .timeline-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin:12px 0}
 .timeline-stage{background:var(--bg);padding:12px 16px}.timeline-stage h3,.timeline-stage h4{font-size:13px;margin-bottom:4px}.timeline-stage p,.timeline-stage li{font-size:13px;color:var(--text-2)}
@@ -206,7 +205,7 @@ details>.table-wrap{margin:12px}
 .definition-list{margin:12px 0;font-size:13px}
 .definition-list>div{display:grid;grid-template-columns:minmax(140px,.6fr) minmax(0,1fr);gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
 .definition-list>div:last-child{border-bottom:0}
-.definition-list dt{color:var(--text-2)}.definition-list dd{margin:0;overflow-wrap:anywhere}
+.definition-list dt{color:var(--text-2)}.definition-list dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .meta-list{margin:0;display:grid;grid-template-columns:minmax(120px,.35fr) minmax(0,1fr);gap:8px 20px;font-size:13px}
 .meta-list dt{color:var(--text-2)}.meta-list dd{margin:0;overflow-wrap:anywhere}
 .inline-meta,.status-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--text-3)}
@@ -215,7 +214,7 @@ details>.table-wrap{margin:12px}
 .initiative-list{list-style:none;padding:0;margin:0}
 .initiative-row{padding:12px 0;display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .initiative-row:last-child{border-bottom:0}.initiative-row p{font-size:12px;color:var(--text-3);margin-top:2px}
-.initiative-row .metric-value{font-size:16px}.initiative-row .metric-note{margin-top:2px}
+.initiative-row .metric-value{font-size:16px;letter-spacing:-.011em}.initiative-row .metric-note{margin-top:2px}
 .evidence-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .evidence-links a,.evidence-link{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 8px;border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg);color:var(--text-2);font-size:12px;font-weight:500;text-decoration:none;overflow-wrap:anywhere}
 .evidence-links a:hover,.evidence-link:hover{background:var(--bg-hover);color:var(--text)}
@@ -227,39 +226,26 @@ details>.table-wrap{margin:12px}
 .company-card .metric-value{font-size:20px}
 .company-card .card-actions{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}
 .card-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.entity{display:flex;align-items:flex-start;gap:10px;min-width:0}
 .workstream,.workstream-card{border-top:1px solid var(--border)}
 .initiative-card{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px;margin:8px 0;background:var(--bg)}
 .initiative-card h3,.initiative-card h4{font-size:13px;margin-top:4px}.initiative-card>p{font-size:13px;color:var(--text-2);margin-top:4px}
 .initiative-values{min-width:150px;text-align:right;flex-shrink:0}.initiative-values strong{display:block;font-size:16px;font-variant-numeric:tabular-nums}.initiative-values span{font-size:12px;color:var(--text-3)}
 
-/* Master-detail: a list with one selected detail panel */
-.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);gap:16px;align-items:start}
-.detail-stack{position:sticky;top:16px;min-width:0}
-.detail-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);min-width:0;box-shadow:0 1px 2px rgb(0 0 0 / 4%),0 4px 16px rgb(0 0 0 / 4%)}
-.detail-panel:target,.detail-stack:not(:has(.detail-panel:target))>.detail-panel:first-child{display:block}
-.detail-head{padding:16px;border-bottom:1px solid var(--border)}
-.detail-head h3{font-size:16px;margin-top:4px}
+/* Detail body, shared by exhibits and the application's record panels */
 .detail-body{padding:16px}.detail-body>*+*{margin-top:12px}
 .detail-body h4{margin-top:16px}
-.detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
-.detail-panel .definition-list dd{text-align:right;font-variant-numeric:tabular-nums}
-tr.is-outside>td,tr.is-outside>th{color:var(--text-3)}
 
 /* Notices and states */
-.alert,.warning{padding:12px 16px;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:var(--warn-bg);font-size:13px;line-height:1.55;margin-bottom:16px;color:#5f3c05}
-.alert h2,.alert h3,.warning h2,.warning h3{font-size:14px;margin-bottom:4px;color:inherit}
+.alert,.warning{padding:12px 16px;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:var(--warn-bg);font-size:13px;line-height:20px;margin-bottom:16px;color:var(--warn-strong)}
+.alert h2,.alert h3,.warning h2,.warning h3{font-size:13px;line-height:20px;margin-bottom:4px;color:inherit}
+.alert a,.warning a{color:inherit;text-decoration-color:currentColor}
 .alert.bad{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+.alert.info{background:var(--info-bg);border-color:var(--info-line);color:var(--info)}
 .notice{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);font-size:13px;color:var(--text-2);margin-bottom:16px}
-.empty-state{padding:32px 24px;border:1px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--bg-subtle);text-align:center;color:var(--text-2)}
-.empty-state h2,.empty-state h3{color:var(--text);margin-bottom:8px}.empty-state p{max-width:560px;margin:0 auto}.empty-state>*+*{margin-top:8px}.empty-state>p+p{margin-top:12px}
-.decision-panel{border:1px solid var(--border-strong);background:var(--bg);padding:20px;border-radius:var(--r-lg);margin-top:24px}
-.decision-panel h2{margin-bottom:6px}.decision-panel form{margin-top:12px}
+.empty-state{padding:40px 24px;border:1px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--bg-subtle);text-align:center;color:var(--text-2)}
+.empty-state h1{font-size:20px;line-height:28px}.empty-state h2,.empty-state h3{color:var(--text);margin-bottom:8px}.empty-state p{max-width:560px;margin:0 auto}.empty-state>*+*{margin-top:8px}.empty-state>p+p{margin-top:12px}
 .decision-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:24px}
 .source-preview{max-width:100%;max-height:620px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);font:12px/1.7 var(--mono)}
-.login-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr);gap:48px;align-items:center;min-height:70vh;max-width:1040px;margin:auto}
-.login-layout .panel{padding:24px}.login-layout h1{font-size:28px}
-.login-layout .button,.login-layout button{width:100%;margin-top:16px;min-height:38px}
 
 /* Footer */
 .page-footer{border-top:1px solid var(--border);color:var(--text-3);width:100%;max-width:1200px;margin:0 auto;padding:16px 32px 24px;font-size:12px}
@@ -268,61 +254,662 @@ tr.is-outside>td,tr.is-outside>th{color:var(--text-3)}
 .page-footer details[open]>summary{border:0}.page-footer details p{max-width:780px;padding:4px 0}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-@media(max-width:1100px){.split{grid-template-columns:minmax(0,1fr)}.detail-stack{position:static}.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-column{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{gap:24px}}
+@media(max-width:1100px){.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-column{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{gap:24px}}
 @media(max-width:900px){
-  .app-layout{display:block;background:var(--bg)}
-  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:8px 16px;background:var(--bg-subtle);border-bottom:1px solid var(--border)}
-  .side-nav{flex-direction:row;flex-wrap:wrap;gap:2px}.side-label,.side-foot{display:none}
   .topbar-inner{padding:8px 20px;gap:12px}.workspace-tag{display:none}
   .app-shell{padding:20px 20px 40px}.page-footer{padding:16px 20px 24px}
 }
 @media(max-width:760px){
   .topbar-inner{flex-wrap:wrap;gap:4px 12px;padding-top:8px;padding-bottom:8px}.primary-nav{width:100%;margin-left:-10px;gap:2px}
-  .page-header{flex-direction:column;gap:12px}.page-header-meta{align-items:flex-start;text-align:left}
-  .two-column,.three-column,.decision-grid,.login-layout{grid-template-columns:minmax(0,1fr)}
+  .two-column,.three-column,.decision-grid{grid-template-columns:minmax(0,1fr)}
   .hero{grid-template-columns:minmax(0,1fr);padding:20px}.hero-aside{border-left:0;border-top:1px solid var(--border);padding:16px 0 0}
   .metric-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}
   .initiative-card{display:block}.initiative-values{text-align:left;margin-top:8px}
   .footer-line{flex-direction:column;gap:6px}
-  .login-layout{min-height:0;gap:24px}
   .data-table{min-width:560px}
   .button,button,.side-link,.nav-link{min-height:40px}
 }
 @media(max-width:600px){
   .timeline-grid,.scenario-grid{grid-template-columns:minmax(0,1fr)}
-  .section-nav{gap:2px 16px}
   .definition-list>div,.meta-list{grid-template-columns:minmax(0,1fr);gap:2px}
-  .detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
 }
 @media(max-width:420px){
-  .app-shell{padding:16px 16px 32px}.topbar-inner,.sidebar{padding-left:16px;padding-right:16px}.page-footer{padding:16px}
+  .app-shell{padding:16px 16px 32px}.topbar-inner{padding-left:16px;padding-right:16px}.page-footer{padding:16px}
   .metrics-grid{grid-template-columns:minmax(0,1fr)}.metric-value{font-size:24px}
   .panel{padding:16px}.card-top,.panel-header{flex-wrap:wrap}
   .decision-actions>.button,.decision-actions>button,.card-actions .button{flex-grow:1}
 }
+/* Shared components on touch-sized screens: 40 px controls, 16 px inputs (no iOS zoom on focus). */
+@media(max-width:760px){
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select){min-height:40px;font-size:16px}
+  summary{min-height:44px;padding-top:12px;padding-bottom:12px}
+  .button.small,button.small{min-height:40px}
+  .evidence-links a,.evidence-link{min-height:32px}
+  .metric-value{font-size:24px}
+}
+/* ------------------------------------------------------------------
+   Application screens (workspace shell, record views and forms).
+   These classes are used only by server-rendered application pages.
+   ------------------------------------------------------------------ */
+.app-layout{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);min-height:calc(100vh - var(--capture-h));background:linear-gradient(90deg,var(--bg-subtle) 0 calc(var(--side-w) - 1px),var(--border) calc(var(--side-w) - 1px) var(--side-w),var(--bg) var(--side-w))}
+.sidebar{position:sticky;top:0;align-self:start;height:calc(100vh - var(--capture-h));overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.side-workspace{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;border-bottom:1px solid var(--border);color:var(--text);text-decoration:none}
+.side-workspace:hover{background:var(--bg-hover)}
+.side-workspace .brand-mark{width:28px;height:28px;border-radius:7px;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 10%)}
+.side-workspace .brand-name{font-size:14px;min-width:0}
+.side-workspace .brand-subtitle{font-size:12px;margin-top:0}
+.side-nav{display:flex;flex-direction:column;gap:2px;padding:12px 8px}
+.side-label{font-size:12px;font-weight:500;color:var(--text-3);padding:0 8px;margin:4px 0 6px}
+.side-link{display:flex;align-items:center;gap:10px;min-height:32px;padding:6px 8px;border-radius:var(--r-md);color:var(--text-2);text-decoration:none;font-size:13px;font-weight:500;white-space:nowrap}
+.side-link svg{width:16px;height:16px;flex-shrink:0;color:var(--text-3)}
+.side-link:hover{background:var(--bg-active);color:var(--text)}
+.side-link[aria-current=page]{background:var(--bg);color:var(--text);box-shadow:0 0 0 1px var(--border),var(--shadow-sm)}
+.side-link[aria-current=page] svg{color:var(--text)}
+.side-foot{margin-top:auto;padding:14px 8px 16px;border-top:1px solid var(--border)}
+.side-foot .side-label{margin-top:0}
+.side-facts{list-style:none;margin:0;padding:0}
+.side-facts li{display:flex;align-items:flex-start;gap:10px;margin:0;padding:4px 8px;font-size:12px;line-height:1.45;color:var(--text-2)}
+.side-facts svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;color:var(--text-3)}
+.app-main{min-width:0;display:flex;flex-direction:column}
+.app-main>.app-shell{flex:1;max-width:1240px;padding:28px 40px 56px}
+.app-main>.page-footer{max-width:1240px;padding:16px 40px 24px}
+.app-layout.bare{display:flex;flex-direction:column;background:var(--bg-subtle)}
+.bare-header{display:flex;align-items:center;min-height:56px;padding:10px 32px;border-bottom:1px solid var(--border);background:var(--bg)}
+.bare .app-main{flex:1}
+.bare .app-main>.app-shell{max-width:1120px;padding-top:56px}
+
+/* Capture provenance bar (static captures only) */
+body:has(.capture-bar){--capture-h:40px}
+.capture-bar{display:flex;align-items:center;justify-content:space-between;gap:6px 24px;flex-wrap:wrap;min-height:40px;padding:7px 24px;background:var(--bar-bg);color:var(--bar-text-2);font-size:12px;line-height:1.5}
+.capture-facts{display:flex;flex-wrap:wrap;align-items:center;margin:0;min-width:0}
+.capture-facts>span{display:inline-flex;align-items:center}
+.capture-facts>span+span:before{content:"";width:3px;height:3px;border-radius:50%;background:var(--bar-text-2);margin:0 10px;opacity:.7}
+.capture-facts strong{color:var(--bar-text);font-weight:600}
+.capture-facts svg{width:14px;height:14px;margin-right:8px;color:var(--bar-text)}
+.capture-links{display:flex;gap:6px;flex-shrink:0}
+.capture-links a{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border:1px solid var(--bar-line);border-radius:var(--r-md);color:var(--bar-text);font-weight:500;text-decoration:none}
+.capture-links a:hover{background:rgb(255 255 255 / 8%);color:var(--bar-text)}
+.capture-bar a:focus-visible{outline-color:var(--bar-text)}
+
+/* Page header: breadcrumb, title, status and right-aligned actions */
+.breadcrumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text-3);margin:0 0 14px}
+.breadcrumb a{color:var(--text-2);text-decoration:none;border-radius:var(--r-sm)}.breadcrumb a:hover{color:var(--text)}
+.breadcrumb [aria-current]{color:var(--text)}
+.breadcrumb .sep{color:var(--border-strong)}
+.page-header{margin:0 0 28px;padding:0 0 20px;border-bottom:1px solid var(--border)}
+.page-header.has-tabs{border-bottom:0;margin-bottom:0;padding-bottom:16px}
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px 24px}
+.page-heading{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.page-heading>div{min-width:0}
+.page-icon{width:40px;height:40px;display:grid;place-items:center;flex-shrink:0;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);color:var(--text-2);box-shadow:var(--shadow-sm)}
+.page-icon svg{width:20px;height:20px}
+.page-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px}
+.page-header .page-title{font-size:24px;line-height:1.25}
+.page-header .page-subtitle{margin-top:4px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.page-meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:12px;color:var(--text-3)}
+.page-meta>span{display:inline-flex;align-items:center;white-space:pre-wrap}
+.page-meta svg{width:14px;height:14px;flex-shrink:0;margin-right:6px}
+.page-meta strong{font-weight:500;color:var(--text-2)}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 7px;border-radius:10px;background:var(--bg-muted);border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1}
+.button .count{background:var(--bg-muted);border-color:var(--border);height:18px;min-width:20px}
+
+/* Section tabs (sticky on long records) */
+.section-nav{position:sticky;top:0;z-index:6;display:flex;gap:24px;margin:0 0 28px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.section-nav::-webkit-scrollbar{display:none}
+.section-nav a{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 1px;border-bottom:2px solid transparent;color:var(--text-2);font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.section-nav a svg{width:15px;height:15px;color:var(--text-3)}
+.section-nav a:hover{color:var(--text);border-bottom-color:var(--border-strong)}
+.section-nav a:focus-visible{outline-offset:-2px}
+.app-shell:not(:has(:target)) .section-nav a[href='#executive'],.app-shell:has(#executive:target) .section-nav a[href='#executive'],
+.app-shell:has(#workstreams:target) .section-nav a[href='#workstreams'],.app-shell:has(#evidence:target,.detail-panel:target) .section-nav a[href='#evidence'],
+.app-shell:has(#decision:target) .section-nav a[href='#decision']{color:var(--text);border-bottom-color:var(--text)}
+html:has(.section-nav){scroll-padding-top:calc(var(--tabs-h) + 24px)}
+
+/* Section titles inside application screens */
+.block-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;margin:40px 0 14px}
+.block-head>div{min-width:0}
+.block-head h2{font-size:16px}
+.block-head p{font-size:13px;color:var(--text-2);margin-top:2px}
+.block-head .eyebrow{margin-bottom:2px}
+.page-header+section>.block-head:first-child,.section-nav+section>.block-head:first-child{margin-top:0}
+
+/* Headline figures (Mercury-style summary strip) */
+.summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin:0 0 10px}
+.summary-strip:has(.lead){grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr))}
+.summary-strip.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.summary-item{background:var(--bg);padding:20px 24px 22px;min-width:0}
+.summary-item .metric-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 12px}
+.summary-item .metric-label svg{width:15px;height:15px;color:var(--text-3);flex-shrink:0}
+.summary-item .metric-value{font-size:32px;line-height:1.1;font-weight:600;letter-spacing:-.025em}
+.summary-item .metric-value small{font-size:14px;font-weight:500;color:var(--text-3);letter-spacing:0;margin-right:6px;vertical-align:4px}
+.summary-item .metric-value .unit{font-size:20px;font-weight:500;color:var(--text-2);letter-spacing:-.01em;margin-left:1px}
+.summary-item .metric-value+.metric-value{margin-top:10px}
+.summary-item .metric-note{margin-top:10px;color:var(--text-3)}
+.summary-item p:not([class]){font-size:13px;color:var(--text-2);margin-top:6px}
+.summary-foot{font-size:12px;color:var(--text-3);margin:0 0 8px;max-width:920px}
+
+/* Table card: toolbar above a flush table (Attio-style) */
+.table-card{border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg);overflow:hidden;min-width:0}
+.table-card>.table-wrap{border:0;border-radius:0;margin:0}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;min-height:48px;padding:8px 16px;border-bottom:1px solid var(--border)}
+.toolbar-title{display:flex;align-items:center;gap:8px;min-width:0}
+.toolbar-title h2,.toolbar-title h3{font-size:14px;font-weight:600}
+.toolbar-title svg{width:16px;height:16px;color:var(--text-3)}
+.toolbar-meta{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--text-3)}
+.th-label{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.th-label svg{width:14px;height:14px;flex-shrink:0;color:var(--text-3)}
+.app-shell svg,.sidebar svg,.capture-bar svg{flex-shrink:0}
+.portfolio-block{margin-top:28px}
+.company-table thead th{padding:9px 14px;vertical-align:middle}
+.company-table tbody th,.company-table tbody td{padding:14px}
+.company-table>thead>tr>*+*,.company-table>tbody>tr>*+*{border-left:1px solid var(--border)}
+.company-table th[scope=row]{min-width:250px;max-width:380px}
+.company-table td.num small{white-space:normal}
+.company-table .col-lever{min-width:150px}
+.company-table td .badge{margin-top:1px}
+.entity{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.entity>div{min-width:0}
+.entity-name{display:block;font-size:14px;font-weight:600;color:var(--text);line-height:1.35}
+.entity .company-monogram{width:32px;height:32px;border-radius:8px;background:var(--bg);box-shadow:var(--shadow-sm);color:var(--text);font-size:12px}
+.figure-lg{display:block;font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.figure-lg .ccy{font-size:12px;font-weight:500;color:var(--text-3);margin-right:4px}
+.row-actions{display:flex;flex-direction:column;align-items:flex-start;gap:8px;white-space:nowrap}
+.row-actions .row-link{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 10px;border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg);box-shadow:var(--shadow-sm);color:var(--text);font-size:12px;font-weight:500;text-decoration:none}
+.row-actions .row-link:hover{background:var(--bg-hover)}
+.row-actions .row-link svg{width:14px;height:14px;color:var(--text-3)}
+.row-actions .text-link{font-size:12px}
+
+/* Decision desk */
+.desk{padding:0;overflow:hidden;margin-top:32px}
+.desk-list{list-style:none;margin:0;padding:0}
+.desk-row{display:flex;align-items:center;gap:12px 14px;margin:0;padding:14px 16px;border-bottom:1px solid var(--border)}
+.desk-row:last-child{border-bottom:0}
+.desk-main{flex:1;min-width:0}
+.desk-main strong{display:block;font-size:14px}
+.desk-main .inline-meta{margin-top:4px}
+.desk-row .button{flex-shrink:0}
+.desk-empty{display:flex;align-items:center;gap:12px;padding:20px 16px;color:var(--text-2);font-size:13px}
+.desk-empty svg{width:18px;height:18px;color:var(--ok);flex-shrink:0}
+
+/* Record cards (workstreams, KPIs): header, flush table, flush disclosures */
+.record-card.panel{padding:0;overflow:hidden;margin:0}
+.record-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px 16px;padding:16px 20px}
+.record-head>div{min-width:0}
+.record-head h3{font-size:15px;margin-top:2px}
+.record-title{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.record-num{width:28px;height:28px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;background:var(--bg-muted);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums}
+.record-sub{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--text-3);margin-top:3px}
+.record-sub>span{display:inline-flex;align-items:center;white-space:pre-wrap}
+.record-sub svg{width:13px;height:13px;margin-right:5px}
+.record-card>.table-wrap{margin:0;border:0;border-top:1px solid var(--border);border-radius:0}
+.record-card>.alert{margin:0;border-radius:0;border-width:1px 0 0}
+.record-card>.alert ul{margin-bottom:0}
+.record-card>details{margin:0;border:0;border-top:1px solid var(--border);border-radius:0}
+.record-card>details>summary{padding:10px 20px}
+.record-card>details>.timeline-grid{margin:16px 20px}
+.record-card>details>.table-wrap{margin:16px 20px}
+.record-card>details>ul,.record-card>details>p,.record-card>details>.evidence-links{margin:14px 20px}
+.record-card tfoot th,.record-card tfoot td{background:var(--bg-subtle)}
+.record-card>.table-wrap :is(th,td):first-child{padding-left:20px}
+.record-card>.table-wrap :is(th,td):last-child{padding-right:20px}
+.record-card>p,.record-card>.form-help{margin:12px 20px;font-size:13px}
+.record-card>.record-head+p{margin-top:0}
+.record-card>p:last-child{margin-bottom:16px}
+.record-card>ul{margin:0;padding:14px 20px 16px 40px;border-top:1px solid var(--border);font-size:13px;color:var(--text-2)}
+.record-card>ul li+li{margin-top:8px}
+.record-head h2{font-size:15px}
+.record-head>div>.record-sub{display:block;font-size:13px;color:var(--text-2)}
+.record-num svg{width:15px;height:15px}
+.record-num.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
+.empty-state>.page-icon{margin:0 auto 12px;background:var(--bg)}
+.private-review p,.private-review td{overflow-wrap:anywhere}
+.app-shell>section.alert,.app-shell>.gap-card{margin-top:24px}
+.app-shell>.gap-card h2{font-size:15px}
+.stack.records{gap:16px}
+
+/* Two-panel brief */
+.brief-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.brief-grid>.panel{margin:0;padding:0}
+.brief-grid .brief-head{padding:16px 20px;border-bottom:1px solid var(--border)}
+.brief-grid .brief-head h3{font-size:14px}
+.brief-grid .brief-head .eyebrow{margin-bottom:2px}
+.brief-grid .brief-body{padding:8px 20px 18px}
+.brief-body>ul{padding-left:18px;font-size:13px}.brief-body>ul li+li{margin-top:8px}
+.brief-body>p{margin-top:10px}.brief-body>p:not([class]){font-size:13px;color:var(--text-2)}
+.brief-body .contribution-row{padding:12px 0}
+
+/* Master-detail: value case list with one selected record panel */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,420px);gap:20px;align-items:start}
+.split>.table-card{position:relative}
+.detail-stack{position:sticky;top:calc(var(--tabs-h) + 16px);min-width:0}
+.detail-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);min-width:0;box-shadow:var(--shadow-panel)}
+.detail-panel:target,.detail-stack:not(:has(.detail-panel:target))>.detail-panel:first-child{display:block}
+.detail-head{padding:18px 20px 16px;border-bottom:1px solid var(--border)}
+.detail-kicker{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--text-3)}
+.record-icon{width:24px;height:24px;display:grid;place-items:center;flex-shrink:0;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.record-icon svg{width:14px;height:14px}
+.detail-head h3{font-size:16px;line-height:1.35;margin-top:10px}
+.detail-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.detail-panel .detail-body{padding:0}
+.detail-panel .detail-body>*+*{margin-top:0}
+.detail-lede{padding:16px 20px 0;font-size:13px;color:var(--text-2)}
+.detail-section{padding:16px 20px}
+.detail-section+.detail-section{border-top:1px solid var(--border)}
+.detail-lede+.detail-section{padding-top:14px}
+.detail-section>h4{font-size:12px;font-weight:500;color:var(--text-3);margin:0 0 10px}
+.detail-section>*+*:not(h4+*){margin-top:10px}
+.detail-section .table-wrap{margin:10px 0 0}
+.detail-section>ul{font-size:13px;color:var(--text-2)}
+.detail-panel .definition-list{margin:0}
+.detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto;padding:7px 0}
+.detail-panel .definition-list dd{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text)}
+.detail-foot{padding:12px 20px;border-top:1px solid var(--border);background:var(--bg-subtle);font-size:12px;color:var(--text-3);border-radius:0 0 var(--r-lg) var(--r-lg)}
+.case-table tbody tr{position:relative}
+.case-table tbody th,.case-table tbody td{padding:12px 14px;vertical-align:middle}
+.case-table thead th{padding:9px 14px;vertical-align:middle}
+.case-table .row-link{color:var(--text);font-weight:500;text-decoration:none}
+.case-table .row-link:after{content:"";position:absolute;inset:0}
+.case-table .row-link:focus-visible{outline:0}
+.case-table tr:has(.row-link:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
+.case-table tbody tr:hover>*{background:var(--bg-subtle)}
+.case-table tbody tr:hover .row-link{color:var(--accent-hover)}
+.case-table .row-chevron{width:36px;padding-left:0;padding-right:12px;color:var(--text-3)}
+.case-table .row-chevron svg{width:16px;height:16px}
+tr.is-outside>td,tr.is-outside>th,tr.is-outside .row-link{color:var(--text-3)}
+.case-table tr.is-selected>*{background:var(--accent-soft)}
+
+/* Decision panel: an enterprise form with header, body and action bar */
+.decision-panel{padding:0;margin-top:40px;border:1px solid var(--border-strong);border-radius:var(--r-lg);background:var(--bg);box-shadow:var(--shadow-sm);overflow:hidden}
+.decision-head{display:flex;gap:14px;align-items:flex-start;padding:20px 24px;border-bottom:1px solid var(--border)}
+.decision-head>div{min-width:0}
+.decision-head h2{font-size:16px;margin:0}
+.decision-head p:not(.eyebrow){font-size:13px;color:var(--text-2);margin-top:4px;max-width:720px}
+.decision-panel>.alert{margin:16px 24px 0}
+.decision-panel>.decision-record{padding:18px 24px 22px}
+.decision-record>*+*{margin-top:8px}
+.decision-record .inline-meta{font-size:13px;color:var(--text-2)}
+.decision-panel form,.decision-panel fieldset{margin:0;padding:0;border:0;min-width:0}
+.decision-panel fieldset[disabled]>legend{float:left;margin:16px 24px 0;padding:2px 8px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--bg-muted);font-size:12px;font-weight:500;color:var(--text-2)}
+.decision-panel fieldset[disabled]>legend+*{clear:both}
+.decision-body{padding:4px 24px 20px}
+.decision-body>details{margin:16px 0 0}
+.decision-body>details>p{margin:12px 16px 4px;font-size:13px;color:var(--text-2)}
+.decision-body .scope-option{display:flex;align-items:center;gap:12px;margin:0;padding:10px 16px;border-top:1px solid var(--border);border-bottom:0}
+.decision-body .scope-option>span{flex:1;display:flex;justify-content:space-between;align-items:baseline;gap:4px 16px;flex-wrap:wrap}
+.decision-body .scope-option small{display:inline;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.decision-body .scope-option:hover{background:var(--bg-subtle)}
+.field{margin-top:18px}
+.field>label{margin:0 0 4px;font-size:13px;font-weight:500}
+.field>.form-help{margin:0 0 8px}
+.field textarea{min-height:112px}
+.decision-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;padding:14px 24px;border-top:1px solid var(--border);background:var(--bg-subtle)}
+.decision-actions .form-help{margin:0 0 0 auto;max-width:440px}
+.decision-panel fieldset[disabled] button{opacity:.55}
+
+/* Operating scorecard */
+.kpi-card .metric-comparison{grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.kpi-card .metric-comparison>div{background:var(--bg);padding:14px 20px;border-top:0}
+.kpi-card .metric-comparison .metric-label{font-size:12px;color:var(--text-3);margin-bottom:6px}
+.kpi-card .metric-comparison .metric-value{font-size:18px;letter-spacing:-.01em}
+.kpi-progress{padding:14px 20px 16px}
+.kpi-progress>*+*{margin-top:8px}
+.kpi-progress .progress-track{height:8px;border-radius:4px;margin-top:0}
+.kpi-progress .metric-note{margin-top:8px}
+.kpi-progress>.empty-state{text-align:left;padding:14px 16px;border-style:solid;font-size:13px}
+
+/* Evidence viewer */
+.file-card{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg)}
+.file-card>.form-help{margin:0;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.file-card>.table-wrap{margin:0;border:0;border-radius:0}
+.file-card>.source-preview{margin:0;border:0;border-radius:0;background:var(--bg);max-height:640px}
+.file-card caption{background:var(--bg)}
+
+/* Private review workspace */
+.status-card{min-width:240px;max-width:340px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle)}
+.status-card .metric-label{font-size:12px;color:var(--text-3);margin:0}
+.status-card h2{font-size:15px;margin-top:4px}
+.status-card p{font-size:12px;color:var(--text-2);margin-top:6px}
+.review-list{list-style:none;margin:0;padding:0}
+.review-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:8px 20px;margin:0;padding:14px 16px;border-top:1px solid var(--border)}
+.review-row:first-child{border-top:0}
+.review-row p{font-size:13px;color:var(--text-2);margin:0}
+.review-row .entity-name{font-size:14px}
+.private-review .decision-body>fieldset{margin-top:20px;padding:4px 16px 16px;border:1px solid var(--border);border-radius:var(--r-lg)}
+.private-review .decision-body>fieldset>legend{padding:0 6px;font-size:13px;font-weight:600}
+.private-review .decision-body label{margin:14px 0 6px}
+.private-review .decision-body>label:first-child{margin-top:16px}
+
+/* Sign-in */
+.login-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,420px);gap:64px;align-items:start}
+.login-intro .page-title{font-size:32px;line-height:1.2;letter-spacing:-.02em;margin-top:4px}
+.login-intro .page-subtitle{font-size:15px;margin-top:12px;max-width:560px}
+.login-steps{list-style:none;padding:0;margin:32px 0 0;border-top:1px solid var(--border)}
+.login-steps li{display:flex;gap:14px;margin:0;padding:16px 0;border-bottom:1px solid var(--border)}
+.login-steps strong{display:block;font-size:14px}
+.login-steps p{font-size:13px;color:var(--text-2);margin-top:2px}
+.step-num{width:28px;height:28px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums}
+.login-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-panel);overflow:hidden}
+.login-card-head{padding:24px 24px 0}
+.login-card-head .page-icon{margin-bottom:16px}
+.login-card-head h2{font-size:18px;margin-top:2px}
+.login-card-head .muted{font-size:13px;margin-top:6px}
+.login-card form{padding:4px 24px 24px;gap:0}
+.login-card form label{margin:20px 0 6px}
+.login-card form .button{width:100%;margin-top:16px;min-height:40px}
+.login-card .alert{margin:16px 24px 0}
+.login-note{padding:14px 24px;border-top:1px solid var(--border);background:var(--bg-subtle);font-size:12px;color:var(--text-3);margin:0}
+
+/* Error and status pages */
+.status-page{max-width:520px;margin:48px auto;padding:40px 32px;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--bg);box-shadow:var(--shadow-sm)}
+.status-page .page-icon{margin:0 auto 18px}
+.status-page h1{font-size:22px;margin-top:4px}
+.status-page p:not(.eyebrow){color:var(--text-2);margin-top:8px}
+.status-page .page-actions{justify-content:center;margin-top:24px}
+
+@media(max-width:1100px){
+  .split{grid-template-columns:minmax(0,1fr)}.detail-stack{position:static}
+  .summary-strip,.summary-strip:has(.lead){grid-template-columns:repeat(2,minmax(0,1fr))}
+  .summary-strip.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .review-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+}
+@media(max-width:900px){
+  .app-layout{display:block;background:var(--bg)}
+  .sidebar{position:static;height:auto;overflow:visible;background:var(--bg-subtle);border-bottom:1px solid var(--border)}
+  .side-workspace{min-height:52px;padding:8px 16px}
+  .side-nav{flex-direction:row;gap:4px;padding:6px 12px 8px;overflow-x:auto;scrollbar-width:none}
+  .side-nav::-webkit-scrollbar{display:none}
+  .side-label,.side-foot{display:none}
+  .app-main>.app-shell{padding:20px 20px 40px}.app-main>.page-footer{padding:16px 20px 24px}
+  .bare .app-main>.app-shell{padding-top:32px}
+  .bare-header{padding:8px 20px}
+  .brief-grid,.login-layout{grid-template-columns:minmax(0,1fr)}
+  .login-layout{gap:32px}.login-card{order:-1}
+  .kpi-card .metric-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .capture-bar{padding:8px 20px}
+}
+@media(max-width:760px){
+  .page-header-row{flex-direction:column}
+  .page-actions{width:100%}
+  .summary-strip.cols-3{grid-template-columns:minmax(0,1fr)}
+  .status-card{max-width:none;width:100%}
+  .review-row{grid-template-columns:minmax(0,1fr)}
+  .decision-head,.decision-body,.decision-actions{padding-left:16px;padding-right:16px}
+  .decision-panel>.alert{margin-left:16px;margin-right:16px}
+  .decision-actions .form-help{margin:4px 0 0;max-width:none;flex-basis:100%}
+  .desk-row{flex-wrap:wrap}.desk-row .button{margin-left:44px}
+  .login-intro .page-title{font-size:26px}
+  .side-link{min-height:36px}
+}
+@media(max-width:600px){
+  .page-heading>.page-icon{display:none}
+  .stack-table.data-table{min-width:0}
+  .stack-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .stack-table,.stack-table tbody,.stack-table tfoot,.stack-table tr,.stack-table tbody th,.stack-table tfoot th,.stack-table td{display:block}
+  .stack-table tbody tr,.stack-table tfoot tr{padding:12px 16px;border-bottom:1px solid var(--border)}
+  .stack-table tbody tr:last-child{border-bottom:0}
+  .stack-table tfoot tr{border-top:1px solid var(--border);border-bottom:0;background:var(--bg-subtle)}
+  .stack-table tbody th,.stack-table tfoot th,.stack-table td{padding:0;border:0!important;min-width:0;max-width:none;background:transparent!important}
+  .stack-table tbody th,.stack-table tfoot th{padding-bottom:8px}
+  .stack-table td{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:6px 0;border-top:1px solid var(--border)!important;text-align:right;white-space:normal}
+  .stack-table td:before{content:attr(data-label);flex-shrink:0;font-size:12px;font-weight:400;color:var(--text-3);text-align:left}
+  .company-table tbody tr{padding:14px 16px}
+  .company-table .row-actions{align-items:flex-end}
+  .case-table.data-table{min-width:0}
+  .case-table .row-chevron{display:none}
+  .case-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .case-table,.case-table tbody{display:block}
+  .case-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--border)}
+  .case-table tbody tr:last-child{border-bottom:0}
+  .case-table tbody th{grid-column:1/-1;padding:12px 16px 6px;border:0}
+  .case-table tbody td{padding:0 16px 12px;border:0}
+  .case-table tbody td.num{padding-left:0}
+  .detail-panel .scenario-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .detail-panel .scenario-card{padding:10px}
+  .detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
+  .record-head{flex-wrap:wrap;padding:14px 16px}
+  .record-card>details>summary{padding:10px 16px}
+  .detail-section,.detail-head,.detail-foot{padding-left:16px;padding-right:16px}.detail-lede{padding:14px 16px 0}
+}
+@media(max-width:420px){
+  .app-main>.app-shell{padding:16px 16px 32px}.app-main>.page-footer{padding:16px}
+  .summary-strip,.summary-strip:has(.lead){grid-template-columns:minmax(0,1fr)}
+  .summary-item{padding:16px 18px}
+  .summary-item .metric-value{font-size:28px}
+  .page-header .page-title{font-size:22px}
+  .page-icon{width:36px;height:36px}
+  .capture-bar{padding:8px 16px}
+  .status-page{padding:32px 20px;margin-top:24px}
+  .decision-actions>button,.decision-actions>.button{flex-grow:1}
+}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+/* Windows High Contrast and other forced palettes: state never depends on a background fill alone. */
+@media(forced-colors:active){
+  .badge[data-status]:before,.value-bar>span,.value-track>span,.progress-fill,.bar-fill{forced-color-adjust:none;background:CanvasText}
+  .value-bar,.value-track,.progress-track,.bar-track{border:1px solid CanvasText}
+  [aria-current=page]{outline:2px solid CanvasText;outline-offset:-2px}
+  tfoot td,tfoot th{border-top:2px solid CanvasText}
+}
 @media print{
-  body{font-size:10pt}.sidebar,.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.section-nav,.decision-panel button{display:none!important}
-  .app-layout{display:block}.app-shell{max-width:none;padding:16px 0}.topbar{border-bottom:1px solid #999}
+  @page{margin:14mm 12mm}
+  body{font-size:10pt;line-height:1.45;color:#000}.sidebar,.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.section-nav,.decision-panel button{display:none!important}
+  .app-layout{display:block;background:none}.app-shell{max-width:none;padding:16px 0}.topbar{border-bottom:1px solid #999}
   .panel,.metric-card,.decision-panel,.detail-panel{break-inside:avoid;border-color:#bbb;box-shadow:none}.detail-panel{display:block!important}
-  .table-wrap{overflow:visible}table,.data-table{min-width:0;font-size:9pt}th,td{padding:5px}a{color:#111}details{break-inside:avoid}
-  .badge{border-color:#999;color:#111;background:#fff}h1{font-size:18pt}.metric-value{font-size:16pt}
+  .table-wrap{overflow:visible;border-color:#bbb}table,.data-table{min-width:0;font-size:9pt}th,td{padding:5px}a{color:#111;text-decoration-color:#999}
+  thead{display:table-header-group}tr,.metric-card,.badge{break-inside:avoid}h1,h2,h3{break-after:avoid}
+  summary:before{display:none}
+  .badge,.value-bar>span,.value-track>span,.progress-fill,.bar-fill,th,tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h1{font-size:18pt;line-height:1.2}.metric-value{font-size:16pt;line-height:1.2}
+}
+/* Print every disclosure's content (supported browsers; others print what is open). */
+@media print{details::details-content{content-visibility:visible}}
+
+:root{--x-quiet:#6b6b73;--x-prose:72ch;--x-toc:216px;--x-head:57px;--x-figure:30px}
+html{scroll-padding-top:calc(var(--x-head) + 16px)}
+.exhibit{background:var(--bg)}
+.exhibit table{font-variant-numeric:normal}
+.exhibit .num,.exhibit td.num,.exhibit th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.exhibit th.num{font-variant-numeric:normal;white-space:normal}
+
+/* Report header */
+.exhibit .topbar{position:sticky;top:0;z-index:20;background:rgb(255 255 255 / 94%);backdrop-filter:saturate(1.4) blur(8px)}
+.exhibit .topbar-inner{max-width:1296px;min-height:56px;padding:8px 32px;gap:16px}
+.exhibit .brand .brand-subtitle{font-size:12px}
+.x-kind{display:inline-flex;align-items:center;min-width:0;gap:8px;font-size:13px;color:var(--text-2)}
+.x-provenance{display:inline-flex;align-items:center;min-height:22px;padding:0 8px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--bg-subtle);font-size:12px;font-weight:500;color:var(--text-2);white-space:nowrap}
+.exhibit .primary-nav{margin-left:auto}
+.exhibit .x-provenance+.primary-nav{margin-left:8px}
+.exhibit .topbar-inner>.x-provenance{margin-left:auto}
+
+/* Frame: contents list beside a document column */
+.x-frame{max-width:1296px;margin:0 auto}
+.x-toc{display:none}
+.exhibit .x-frame>.app-shell{max-width:1120px;padding:32px 32px 64px}
+@media(min-width:1280px){
+  .x-frame{display:grid;grid-template-columns:var(--x-toc) minmax(0,1fr);gap:48px;padding:0 32px}
+  .exhibit .x-frame>.app-shell{max-width:none;padding:32px 0 72px;margin:0}
+  .x-toc{display:block;position:sticky;top:var(--x-head);align-self:start;max-height:calc(100vh - var(--x-head));overflow-y:auto;padding:32px 0 24px}
+  .exhibit .topbar .primary-nav{display:none}
+}
+.x-toc p{font-size:12px;font-weight:500;color:var(--x-quiet);margin:0 0 8px 12px}
+.x-toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--border)}
+.x-toc li+li{margin-top:0}
+.x-toc a{display:block;padding:5px 12px;margin-left:-1px;border-left:1px solid transparent;color:var(--text-2);font-size:13px;line-height:1.4;text-decoration:none}
+.x-toc a:hover{color:var(--text);border-left-color:var(--text-3)}
+.x-toc .x-toc-meta{display:block;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--x-quiet);line-height:1.5;margin-left:0}
+
+/* Title block */
+.exhibit .hero{background:transparent;border:0;border-radius:0;padding:0;margin:0 0 32px;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:48px;align-items:start}
+.exhibit .hero .eyebrow{font-size:12px;color:var(--x-quiet);margin-bottom:10px}
+.exhibit .hero h1{font-size:30px;line-height:1.18;letter-spacing:-.022em;max-width:28ch}
+.exhibit .hero .page-subtitle{font-size:16px;line-height:1.5;color:var(--text-2);margin-top:10px;max-width:60ch}
+.exhibit .hero>div>p:not(.eyebrow):not(.page-subtitle){font-size:14px;color:var(--text-2);margin-top:14px;max-width:68ch}
+.exhibit .hero-aside,.exhibit .hero-aside.panel{border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);padding:16px 20px;gap:8px;justify-content:flex-start;margin:0}
+.exhibit .hero-aside .metric-label{font-size:12px;color:var(--x-quiet);margin:0}
+.exhibit .hero-aside p{font-size:14px;line-height:1.55;color:var(--text);max-width:none}
+.exhibit .hero-aside p+p{font-size:12px;color:var(--text-2);margin-top:4px}
+.exhibit .hero-aside .metric-value{font-size:24px}
+.exhibit .hero-aside .metric-note{margin-top:0}
+
+/* Headline figures */
+.exhibit .metrics-grid{gap:12px;margin:0 0 8px}
+.exhibit .metric-card{padding:16px 18px 18px;display:flex;flex-direction:column}
+.exhibit .metric-label{font-size:13px;color:var(--text-2);margin-bottom:10px}
+.exhibit .metric-value{font-size:var(--x-figure);font-weight:600;letter-spacing:-.025em;line-height:1.1;font-variant-numeric:normal}
+.exhibit .metric-note{margin-top:auto;padding-top:10px;font-size:12px;color:var(--x-quiet)}
+.x-unit{font-size:13px;font-weight:500;letter-spacing:0;color:var(--x-quiet);margin-left:2px;white-space:nowrap}
+
+/* Sections */
+.exhibit .x-doc>.panel,.exhibit .x-doc>section.panel{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:28px 0 4px;margin:36px 0 0}
+.exhibit .x-doc>.hero+.panel,.exhibit .x-doc>.hero+.layer-banner+.panel{margin-top:0}
+.exhibit .x-doc>.panel>.eyebrow{font-size:12px;color:var(--x-quiet);margin-bottom:6px}
+.exhibit .x-doc>.panel>h2{font-size:20px;line-height:1.3;letter-spacing:-.015em;max-width:40ch}
+.exhibit .x-doc>.panel>h2+p{font-size:15px;line-height:1.6;color:var(--text);margin-top:10px}
+.exhibit .x-doc h3{font-size:15px;line-height:1.4;margin:28px 0 8px}
+.exhibit .x-doc .panel>p,.exhibit .x-doc .panel>ul,.exhibit .x-doc .panel>ol,.exhibit .x-doc details p,.exhibit .x-doc article p{max-width:var(--x-prose)}
+.exhibit .x-doc .panel>p{margin:12px 0;line-height:1.65}
+.exhibit .x-doc .panel>p.muted{font-size:13px;color:var(--text-2)}
+.exhibit .x-doc .panel>p.muted+.table-wrap{margin-top:8px}
+.exhibit .x-doc .panel>p>strong:first-child{color:var(--text)}
+.exhibit .x-doc ul,.exhibit .x-doc ol{padding-left:20px}
+.exhibit .x-doc li{line-height:1.6}
+.exhibit .x-doc>p{max-width:var(--x-prose);margin:16px 0}
+.exhibit .x-doc>p.layer-banner{max-width:none;margin:0 0 32px}
+.exhibit .x-doc article{padding:20px 0 4px;border-top:1px solid var(--border);margin-top:20px}
+.exhibit .x-doc .panel>h2+article,.exhibit .x-doc .panel>h2+p+article{margin-top:16px}
+.exhibit .x-doc article>h3{margin:0 0 8px}
+.exhibit .x-doc article+article{margin-top:0}
+.exhibit .x-doc .memo-grid>article{padding:16px 18px;margin:0;border:1px solid var(--border)}
+
+.exhibit .x-doc .definition-list{margin:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.exhibit .x-doc .definition-list>div{grid-template-columns:minmax(140px,220px) minmax(0,1fr);gap:24px;padding:10px 0}
+.exhibit .x-doc .definition-list dt{color:var(--text);font-weight:500}
+.exhibit .x-doc .definition-list dd{color:var(--text-2);line-height:1.6;max-width:var(--x-prose);overflow-wrap:break-word}
+
+/* Tables */
+.exhibit .table-wrap{margin:16px 0;border-radius:var(--r-lg)}
+.exhibit caption{font-size:12px;line-height:1.5;color:var(--text-2);padding:10px 12px;background:var(--bg);text-align:left}
+.exhibit th{font-size:12px;font-weight:500;color:var(--text-2);padding:8px 12px;white-space:normal}
+.exhibit td{padding:8px 12px;font-size:13px;line-height:1.5}
+.exhibit td.num,.exhibit th.num{padding-left:16px}
+.exhibit tbody tr.x-total>td,.exhibit tbody tr.x-total>th{font-weight:600;color:var(--text);background:var(--bg-subtle);border-top:1px solid var(--border-strong)}
+.exhibit tbody tr.x-total:hover>td{background:var(--bg-subtle)}
+.exhibit td.x-date{white-space:nowrap}
+.exhibit td small,.exhibit td .muted{color:var(--x-quiet)}
+.exhibit td code{font-size:11px;word-break:break-all}
+.exhibit td>p{margin:2px 0 0;font-size:12px;color:var(--x-quiet)}
+
+/* Callouts */
+.exhibit .layer-banner,.x-callout{position:relative;padding:12px 16px 12px 40px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);color:var(--text-2);font-size:13px;line-height:1.6;margin:0 0 32px}
+.exhibit .layer-banner:before,.x-callout:before{content:"i";position:absolute;left:14px;top:13px;width:16px;height:16px;border-radius:50%;border:1px solid var(--text-3);color:var(--text-2);font:600 11px/14px var(--font);text-align:center}
+.x-callout.x-limit{background:var(--warn-bg);border-color:var(--warn-line);color:#5f3c05}
+.x-callout.x-limit:before{content:"!";border-color:var(--warn);color:var(--warn)}
+.x-callout strong{color:inherit}
+.exhibit .memo-choice{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;margin:20px 0}
+.exhibit .memo-choice h3{margin:0 0 8px;font-size:15px}
+.exhibit .memo-choice p,.exhibit .memo-choice li{max-width:var(--x-prose)}
+
+/* Disclosures */
+.exhibit .x-doc details{border:1px solid var(--border);border-radius:var(--r-lg);margin:16px 0;background:var(--bg)}
+.exhibit summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;min-height:44px;font-size:13px;font-weight:500;color:var(--text);line-height:1.45}
+.exhibit summary::-webkit-details-marker{display:none}
+.exhibit summary:before{content:"";flex-shrink:0;width:6px;height:6px;border-right:1.5px solid var(--text-3);border-bottom:1.5px solid var(--text-3);transform:rotate(-45deg);margin:0 2px 0 2px;transition:transform .12s}
+.exhibit details[open]>summary:before{transform:rotate(45deg);margin-top:-3px}
+.exhibit details[open]>summary{border-bottom:1px solid var(--border)}
+.exhibit .x-doc details>p,.exhibit .x-doc details>h3,.exhibit .x-doc details>ul,.exhibit .x-doc details>ol,.exhibit .x-doc details>pre{margin:14px 16px}
+.exhibit .x-doc details>.table-wrap{margin:14px 16px}
+.exhibit .x-doc details>.table-wrap:last-child,.exhibit .x-doc details>p:last-child{margin-bottom:16px}
+.exhibit .detail-body,.exhibit .memo-body,.exhibit .details-content{padding:16px;overflow-wrap:anywhere}
+.exhibit .detail-body>:first-child,.exhibit .memo-body>:first-child{margin-top:0}
+.exhibit .detail-body>:last-child,.exhibit .memo-body>:last-child{margin-bottom:0}
+.exhibit .memo-body>p,.exhibit .detail-body>p{margin:10px 0}
+.exhibit pre{margin:0;padding:12px 14px;max-height:440px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-md);font:12px/1.6 var(--mono);color:var(--text-2)}
+.exhibit .x-doc p code,.exhibit .x-doc li code{font-size:11px;word-break:break-all}
+
+/* Links that continue the route */
+.exhibit .x-doc a[download]{font-weight:500}
+.exhibit .memo-sources{display:flex;flex-wrap:wrap;gap:8px}
+.exhibit .memo-sources a{margin:0;display:inline-flex;align-items:center;min-height:32px;padding:4px 10px;border:1px solid var(--border-strong);border-radius:var(--r-md);color:var(--text);font-size:13px;font-weight:500;text-decoration:none}
+.exhibit .memo-sources a:hover{background:var(--bg-hover)}
+
+/* Waterfall */
+.x-chart{margin:16px 0 4px;padding:16px 20px 12px;border:1px solid var(--border);border-radius:var(--r-lg)}
+.x-chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.x-chart-title{font-size:13px;font-weight:600;color:var(--text)}
+.x-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2)}
+.x-legend span{display:inline-flex;align-items:center;gap:6px}
+.x-legend span:before{content:"";width:10px;height:10px;border-radius:2px;background:var(--x-swatch)}
+.exhibit .earnings-waterfall .waterfall-row{grid-template-columns:150px minmax(0,1fr) 72px;gap:16px;margin:0;padding:6px 0;font-size:13px;color:var(--text-2)}
+.exhibit .earnings-waterfall .waterfall-row:last-child{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;color:var(--text)}
+.exhibit .waterfall-track{height:16px;background:transparent;border-radius:0}
+.exhibit .waterfall-bar{height:16px;border-radius:2px}
+.exhibit .waterfall-zero{height:24px;top:-4px;border-left:1px solid var(--border-strong)}
+.exhibit .waterfall-value{font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+
+/* Footer */
+.exhibit .x-footer{max-width:1296px;padding:20px 32px 32px}
+.exhibit .x-footer a{color:var(--text-2)}
+
+@media(max-width:1100px){.exhibit .hero{grid-template-columns:minmax(0,1fr) minmax(240px,300px);gap:32px}}
+@media(max-width:900px){
+  .exhibit .topbar{position:static;backdrop-filter:none;background:var(--bg)}
+  html{scroll-padding-top:16px}
+  .exhibit .topbar-inner{padding:8px 20px}
+  .exhibit .x-frame>.app-shell{padding:24px 20px 48px}
+  .exhibit .x-footer{padding:16px 20px 24px}
+}
+@media(max-width:760px){
+  .exhibit .hero{grid-template-columns:minmax(0,1fr);gap:20px;padding-bottom:24px;margin-bottom:24px}
+  .exhibit .hero h1{font-size:26px}
+  .exhibit .hero-aside{border-top:1px solid var(--border);padding:14px 16px}
+  .exhibit .topbar-inner>.x-provenance{display:none}
+  .exhibit .primary-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-10px}
+  .exhibit .x-provenance+.primary-nav{margin-left:-10px}
+  .exhibit td:first-child{min-width:132px}
+  .exhibit .x-doc>.panel,.exhibit .x-doc>section.panel{margin-top:32px;padding-top:24px}
+  .exhibit .x-doc>.panel>h2{font-size:18px}
+  :root{--x-figure:26px}
+  .exhibit .table-wrap>table:has(thead th:nth-child(3)){min-width:480px}
+  .exhibit .table-wrap>table:has(thead th:nth-child(4)){min-width:560px}
+  .exhibit .table-wrap>table:has(thead th:nth-child(6)){min-width:720px}
+  .exhibit .table-wrap>table:has(thead th:nth-child(8)){min-width:880px}
+  .exhibit .metrics-grid,.exhibit .memo-facts{gap:0;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+  .exhibit .metrics-grid>.metric-card,.exhibit .memo-facts>div{border:0;border-radius:0;border-bottom:1px solid var(--border)}
+  .exhibit .metrics-grid>.metric-card:last-child,.exhibit .memo-facts>div:last-child{border-bottom:0}
+  .exhibit .metric-label{margin-bottom:6px}
+  .exhibit .metric-note{padding-top:6px}
+}
+@media(max-width:600px){
+  .exhibit .earnings-waterfall .waterfall-row{grid-template-columns:96px minmax(0,1fr) 56px;gap:8px;font-size:12px}
+  .x-chart{padding:12px}
+}
+@media(max-width:420px){
+  .exhibit .x-frame>.app-shell{padding:20px 16px 40px}
+  .exhibit .topbar-inner{padding-left:16px;padding-right:16px}
+  .exhibit .x-footer{padding:16px}
+  .exhibit .hero h1{font-size:24px}
+  .exhibit .x-doc details>p,.exhibit .x-doc details>h3,.exhibit .x-doc details>ul,.exhibit .x-doc details>ol,.exhibit .x-doc details>pre,.exhibit .x-doc details>.table-wrap{margin-left:12px;margin-right:12px}
+  .exhibit .detail-body,.exhibit .memo-body{padding:12px}
+}
+@media print{
+  .x-toc,.exhibit .topbar .primary-nav{display:none!important}
+  .exhibit .topbar{position:static}
+  .x-frame{display:block}
+  .exhibit pre{max-height:none;overflow:visible}
+  .exhibit .x-doc>.panel{break-inside:auto}
 }
 
-.primary-nav{flex-wrap:wrap}
-.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.memo-grid>article{border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;background:var(--bg);min-width:0}
-.memo-grid h3{font-size:14px;line-height:1.4;margin-bottom:8px}
-.memo-grid p{font-size:13px;line-height:1.55;margin-bottom:8px;color:var(--text-2)}
-.layer-banner{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);color:var(--text-2);font-size:13px;margin:16px 0}
+.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.memo-grid>article{border-radius:var(--r-lg);background:var(--bg);min-width:0}
+.memo-grid h3{font-size:14px;line-height:1.4;margin:0 0 10px}
+.memo-grid p{font-size:13px;line-height:1.55;margin:0 0 8px;color:var(--text-2)}
+.memo-grid p strong{color:var(--text)}
 .memo-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
-.memo-facts>div{padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg)}
-.memo-facts strong{font-size:28px;font-weight:600;display:block;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.memo-choice{padding:16px;background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:var(--r-lg);margin:16px 0}
-.memo-choice h3{margin-bottom:8px}.memo-note{font-size:12px;color:var(--muted)}
-.memo-sources a{display:inline-block;margin:5px 12px 5px 0}.memo-body{padding:20px}
-.waterfall-row{display:grid;grid-template-columns:165px minmax(0,1fr) 90px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.waterfall-track{position:relative;height:20px;background:var(--bg-muted);border-radius:var(--r-sm)}.waterfall-bar{position:absolute;height:20px;border-radius:var(--r-sm)}.waterfall-zero{position:absolute;height:20px;border-left:1px solid var(--text-3)}.waterfall-value{text-align:right;font-variant-numeric:tabular-nums}
-@media(max-width:600px){.waterfall-row{grid-template-columns:100px minmax(0,1fr) 64px;gap:6px;font-size:11px}}
+.memo-facts>div{padding:16px 18px 18px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg);display:flex;flex-direction:column}
+.memo-facts strong{font-size:var(--x-figure);font-weight:600;display:block;letter-spacing:-.025em;line-height:1.1;margin:4px 0 0}
+.memo-facts .memo-note{margin-top:auto;padding-top:10px}
+.memo-note{font-size:12px;color:var(--x-quiet)}
+.waterfall-row{display:grid;align-items:center}.waterfall-track{position:relative}.waterfall-bar{position:absolute}.waterfall-zero{position:absolute}.waterfall-value{text-align:right}
 @media(max-width:800px){.memo-grid,.memo-facts{grid-template-columns:minmax(0,1fr)}}
 @media print{.memo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.memo-grid article,.memo-choice{break-inside:avoid}.memo-facts strong{font-size:20pt}.topbar{display:none}}
-</style></head><body><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'>Value Creation OS · Diligence</a><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#historical-valuation'>Valuation</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><main id='main' tabindex='-1' class='app-shell'><section class='hero'><div><p class='eyebrow'>Executive decision memo / Public research</p><h1>Progress Software Corporation</h1><p class='page-subtitle'>Advance the evidence. Hold the value commitment.</p><p>Information cutoff 2026-09-28 · Historical anchor 2025-11-30</p></div><aside class='hero-aside'><span class='metric-label'>Research recommendation</span><p>Reopen first-wave selection: every tested sequence has nonpositive base year-one EBITDA after the corrected source constraints and retained costs. Changing task order does not repair the business case.</p></aside></section><p class='layer-banner'>Public issuer research informs the diligence questions. The operating alternatives below use authored, fictional inputs; they are not Progress customer records or company forecasts.</p><section class='panel' id='allocation'><h2>One economic pool, explicit choices</h2><p><strong>Calculation selection:</strong> recorded policy. collections-timing; pricing-targeted; service-automation.</p><p><strong>Recorded selection:</strong> collections-timing; pricing-targeted; service-automation. Research scenario selects pricing-targeted across the eligible cohort instead of two population partitions. This changes proposed scope; it does not move earlier claims or authorize customer actions.</p><p>A calculation override does not amend the recorded policy or authorize work. Save a reviewed case revision to record a different decision.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.'><table><caption class='table-caption'>Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.</caption><thead><tr><th scope='col'>Economic pool / rule</th><th scope='col'>Member</th><th scope='col'>Population share</th><th scope='col'>Calculation scope</th><th scope='col'>Owner / rationale / challenge</th></tr></thead><tbody><tr><td>renewal-cohort / exclusive</td><td>pricing-renewals</td><td>100.0%</td><td>Excluded</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>renewal-cohort / exclusive</td><td>pricing-targeted</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>support-vendor-spend / exclusive</td><td>service-automation</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>existing-receivables / exclusive</td><td>collections-timing</td><td>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr></tbody></table></div><p>Shares describe authored population scope. They are not probabilities or attribution of realized earnings.</p><details><summary>Cost explanation: shared-foundation</summary><p>Proposed finance and commercial reviewers: Equal explanatory cost shares across four candidates. The full committed posting survives exclusion; no causal attribution. Challenge: Overlapping customer populations, unsupported rights or an unapproved intervention design.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.'><table><caption class='table-caption'>Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.</caption><thead><tr><th scope='col'>Date</th><th scope='col'>Owner</th><th scope='col'>Component</th><th scope='col'>Allocated amount</th></tr></thead><tbody><tr><td>2026-10-05</td><td>collections-timing</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-renewals</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-targeted</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>service-automation</td><td>implementation_expense</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>collections-timing</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-renewals</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>pricing-targeted</td><td>operating_cash</td><td>-6,250.00</td></tr><tr><td>2026-10-05</td><td>service-automation</td><td>operating_cash</td><td>-6,250.00</td></tr></tbody></table></div></details></section><section class='panel' id='evidence-update'><p class='eyebrow'>Latest constructed evidence / Decision reopened</p><h2>Task order cannot substitute for a supported cost action.</h2><p><strong>Reopen first-wave selection: every tested sequence has nonpositive base year-one EBITDA after the corrected source constraints and retained costs. Changing task order does not repair the business case.</strong></p><p>Authored exercise review 2027-01-03. The public research cutoff above remains unchanged; these future-dated operating records are fictional.</p><p class='muted'>USD thousands. Original and corrected columns use different evidence/assumptions. Within each column, only task sequencing varies; all implementation costs remain.</p><div class='table-wrap' tabindex='0' role='region' aria-label='USD thousands. Original and corrected columns use different evidence/assumptions. Within each column, only task sequencing varies; all implementation costs remain.'><table><thead><tr><th scope='col'>Sequence</th><th scope='col'>Original base EBITDA</th><th scope='col'>Corrected base EBITDA</th><th scope='col'>Corrected cash</th><th scope='col'>Peak funding</th></tr></thead><tbody><tr><td>Collections first (current proposal)</td><td>121.6</td><td>-163.2</td><td>-181.9</td><td>262.3</td></tr><tr><td>Pricing first</td><td>117.6</td><td>-163.2</td><td>-181.9</td><td>262.3</td></tr><tr><td>Service first</td><td>130.9</td><td>-163.2</td><td>-181.9</td><td>262.3</td></tr></tbody></table></div><p>Each alternative keeps the latest operating assumptions, source records, resources, work packages and costs. Only task order and resulting dates change.</p><p>Latest stored-case review: <strong>simulated acceptance</strong>. That receipt does not approve the alternatives displayed here.</p><h3>Why the previously preferred sequence no longer supports its commitment</h3><div class='earnings-waterfall' aria-hidden='true'><div class='waterfall-row'><span>Gross pricing</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:79.901%;width:20.099%;background:var(--chart-up)'></span></div><span class='waterfall-value'>41.0</span></div><div class='waterfall-row'><span>Revenue leakage</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:94.491%;width:5.509%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-11.2</span></div><div class='waterfall-row'><span>Variable cost</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:91.573%;width:2.918%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-6.0</span></div><div class='waterfall-row'><span>Vendor savings</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:91.573%;width:0.000%;background:var(--chart-up)'></span></div><span class='waterfall-value'>0.0</span></div><div class='waterfall-row'><span>Recurring costs</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:41.624%;width:49.949%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-102.0</span></div><div class='waterfall-row'><span>Implementation</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:0.000%;width:41.624%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-85.0</span></div><div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:0.000%;width:79.901%;background:var(--chart-total)'></span></div><strong class='waterfall-value'>-163.2</strong></div></div><p class='muted'>Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.'><table><thead><tr><th scope='col'>Component</th><th scope='col'>Change, USD thousands</th><th scope='col'>Cumulative</th></tr></thead><tbody><tr><td>Gross pricing</td><td>41.044</td><td>41.044</td></tr><tr><td>Revenue leakage</td><td>-11.250</td><td>29.794</td></tr><tr><td>Variable cost</td><td>-5.959</td><td>23.835</td></tr><tr><td>Vendor savings</td><td>0.000</td><td>23.835</td></tr><tr><td>Recurring costs</td><td>-102.000</td><td>-78.165</td></tr><tr><td>Implementation</td><td>-85.000</td><td>-163.165</td></tr><tr><td>Incremental EBITDA</td><td>-163.165</td><td>Reconciled</td></tr></tbody></table></div><p class='muted'>USD thousands. These scenarios are not probabilities. Capacity released without a spend action is not a saving; bounded source terms do not establish maintainable exit value.</p><div class='table-wrap' tabindex='0' role='region' aria-label='USD thousands. These scenarios are not probabilities. Capacity released without a spend action is not a saving; bounded source terms do not establish maintainable exit value.'><table><thead><tr><th scope='col'>Corrected service-first scenario</th><th scope='col'>Year-one EBITDA</th><th scope='col'>Year-one cash</th><th scope='col'>Day-100 cash</th><th scope='col'>Peak funding</th></tr></thead><tbody><tr><td>Downside</td><td>-269.2</td><td>-281.7</td><td>-146.5</td><td>428.5</td></tr><tr><td>Base</td><td>-163.2</td><td>-181.9</td><td>-21.5</td><td>262.3</td></tr><tr><td>Upside</td><td>-132.9</td><td>-155.4</td><td>58.5</td><td>214.0</td></tr></tbody></table></div><p><strong>Cash bridge:</strong> -163.2 EBITDA + -3.7 accrual-to-cash + 0.0 net collection timing + -15.0 capex = -181.9 pre-tax cash, USD thousands. It omits tax, financing and other full-free-cash-flow requirements.</p><p><strong>Decision now:</strong> revise the intervention scope and cost commitments, or defer it. Verify contract rights and vendor-release evidence before requesting a new first-wave selection. No revised alternative is automatically selected.</p><details><summary>Inspect the latest case binding and review boundary</summary><div class='memo-body'><p>Derived research challenge, not a new case revision or operating approval. A receipt for the stored case does not accept these recomputed alternatives. Constructed exercise dates do not change the public-filing information cutoff; this is not a historical point-in-time forecast.</p><p>Revision <code>3d4326f7-1c0f-4084-ad3b-d7caa86104db</code> · hash <code>412f9ccf0b83299c7a88eca025cea132c5bfaef14a40a1e3da5ff41020d6216c</code></p><p>Review context <code>5986f7cc0af7b5ba6f2b849b7d5b35f232ad81827cd73188a2076f9475cbdf8c</code></p></div></details><p><a href='source-review.html'>Trace the source correction and unchanged accounting history</a></p></section><section class='panel' id='thesis'><h2>Judgments that shape the next decision</h2><div class='memo-grid'><article><h3>Reported growth is substantially acquisition-related; the residual is a diligence question, not a measured organic-growth result.</h3><p><strong>Counterargument:</strong> License timing, currency, product mix and other acquisitions can explain part of the residual; it is not direct evidence of customer deterioration.</p><p><strong>Next evidence:</strong> Build a constant-perimeter product/customer bridge with renewal timing and currency, and reconcile it to reported revenue.</p><p class='memo-note'>Evidence: sharefile-contribution, renewal-timing, nuclia-perimeter, currency-definition. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article><article><h3>Broad repricing is not yet underwritable from consolidated filings.</h3><p><strong>Counterargument:</strong> Eligible cohorts may have pricing headroom, but public totals do not reveal contract notice, caps, channel concessions or retention response.</p><p><strong>Next evidence:</strong> Test a permissioned renewal cohort for enforceability, net realized uplift and combined churn sensitivity.</p><p class='memo-note'>Evidence: pricing-headroom, revenue-definition. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article><article><h3>Do not underwrite peer convergence or a second saving from the completed ShareFile transition-services exit.</h3><p><strong>Counterargument:</strong> Specific avoidable costs may exist; accounting adjustments and peer ratios cannot establish the corresponding cash action.</p><p><strong>Next evidence:</strong> Reconcile vendor/staff commitments, implementation spending and incremental outcomes before accepting an operating case.</p><p class='memo-note'>Evidence: peer-context, tsa-completed, integration-cost-out. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article></div></section><section class='panel' id='economics'><p class='eyebrow'>Public financial baseline / USD millions</p><h2>What the accounts establish</h2><div class='memo-facts'><div><span class='metric-label'>Reported revenue</span><strong>977.8</strong><span class='memo-note'>US GAAP, annual</span></div><div><span class='metric-label'>Calculated EBITDA</span><strong>304.2</strong><span class='memo-note'>Defined earnings bridge; not issuer-adjusted</span></div><div><span class='metric-label'>CFO less PP&amp;E purchases</span><strong>229.5</strong><span class='memo-note'>Historical cash measure; not initiative savings</span></div></div><div class='table-wrap' tabindex='0' role='region' aria-label='Latest available interim periods and their prior-year comparatives. Quarter and year-to-date amounts are separate; no annualization or organic-growth inference.'><table><caption class='table-caption'>Latest available interim periods and their prior-year comparatives. Quarter and year-to-date amounts are separate; no annualization or organic-growth inference.</caption><thead><tr><th scope='col'>Interim period</th><th scope='col'>Basis</th><th scope='col'>Revenue, USD millions</th><th scope='col'>Operating income, USD millions</th></tr></thead><tbody><tr><td>2024-12-01 to 2025-05-31</td><td>year to date</td><td>475.370 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td>71.042</td></tr><tr><td>2025-03-01 to 2025-05-31</td><td>discrete quarter</td><td>237.355 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td>38.616</td></tr><tr><td>2025-12-01 to 2026-05-31</td><td>year to date</td><td>501.264 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td>91.667</td></tr><tr><td>2026-03-01 to 2026-05-31</td><td>discrete quarter</td><td>253.465 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td>45.202</td></tr></tbody></table></div><h3>Annual acquisition contribution bridge</h3><div class='table-wrap' tabindex='0' role='region' aria-label='Approximate contribution bridge; source precision and the full revenue mix are retained in the public baseline.'><table><caption class='table-caption'>Approximate contribution bridge; source precision and the full revenue mix are retained in the public baseline.</caption><thead><tr><th scope='col'>Growth bridge</th><th scope='col'>USD millions</th><th scope='col'>Interpretation</th></tr></thead><tbody><tr><td>Reported revenue change</td><td>224.4</td><td>Change in consolidated annual revenue</td></tr><tr><td>Change in ShareFile contribution</td><td>240.5</td><td>Approximate disclosed amounts; acquisition timing matters</td></tr><tr><td>Non-ShareFile residual change</td><td>-16.1</td><td>Not organic growth; currency, other acquisitions, mix and timing remain</td></tr></tbody></table></div><p>The narrower peer cohorts cannot support a displayed median. Broad reported-margin context does not establish an avoidable cost pool. <a href='progress-baseline.html#peers'>Inspect the eligibility and exclusions</a>.</p><p><strong>Perimeter update:</strong> Progress completed the Domo business asset acquisition on September 22, 2026 for USD 400 million, funded with cash and the existing revolving credit facility. The filing says transaction financial statements and pro forma information will follow by amendment. The FY2025 annual and May 2026 interim statements predate this acquisition. They are historical pre-acquisition anchors, not the current consolidated business. Refresh the business perimeter, leverage and peer comparison when the transaction disclosures are available; no synergy or post-acquisition EBITDA is inferred here. <a href='https://investors.progress.com/node/28981/html'>Source filing</a>.</p><details><summary>Reconcile EBITDA and inspect the adjustment register</summary><div class='memo-body'><div class='table-wrap' tabindex='0' role='region' aria-label='Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.'><table><caption class='table-caption'>Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.</caption><thead><tr><th scope='col'>Earnings bridge</th><th scope='col'>USD millions</th><th scope='col'>Source</th></tr></thead><tbody><tr><td>Net income</td><td>73.133</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>Tax provision</td><td>8.495</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>Interest expense added back</td><td>70.850</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>PP&E depreciation</td><td>6.232</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td></tr><tr><td>Acquired intangible amortization</td><td>145.492</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td></tr><tr><td>Calculated EBITDA</td><td>304.202</td><td>Sum only when the defined reconciliation checks pass</td></tr></tbody></table></div><div class='table-wrap' tabindex='0' role='region' aria-label='No incremental accounting addback is accepted. A register of review issues is not a normalized-earnings opinion.'><table><caption class='table-caption'>No incremental accounting addback is accepted. A register of review issues is not a normalized-earnings opinion.</caption><thead><tr><th scope='col'>Item / period</th><th scope='col'>Reported USD millions</th><th scope='col'>Treatment</th><th scope='col'>Evidence needed</th></tr></thead><tbody><tr><td>stock compensation / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td>64.768</td><td>retain expense: Noncash compensation remains an economic compensation cost; no incremental addback or automatic cash saving is accepted.</td><td>A compensation and dilution analysis, with a sustainable replacement-pay policy.</td></tr><tr><td>restructuring / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td>13.109</td><td>retain expense: Retain the expense. FY2025 Note 13 records restructuring activity across all three presented years and cash commitments beyond year end; the label does not establish a nonrecurring or cash-free adjustment.</td><td>Program-level cost schedule, cash commitments, repeat-program history and finance review.</td></tr><tr><td>acquisition expense / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td>5.317</td><td>retain expense: Acquisition-related expenditure may recur in an acquisitive model. No additional adjustment is accepted.</td><td>Transaction-specific invoices, continuing integration costs and a maintainability assessment.</td></tr><tr><td>cyber response / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td>2.775</td><td>retain expense: Reported response cost is not evidence that future security or remediation spending can be avoided.</td><td>Insurance/recovery reconciliation, continuing remediation costs and a reviewed scope.</td></tr><tr><td>intangible amortization / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td>145.492</td><td>already in bridge: FY2025 acquired-intangible amortization is already in the calculated EBITDA bridge; adding it again would double count.</td><td>No second addback; retain the reported source and review comparability with earlier periods.</td></tr><tr><td>debt amortization / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td>5.831</td><td>already in bridge: Debt discount/issuance amortization is already contained in interest expense used in the earnings bridge.</td><td>No second addback; financing cash and debt service belong in a separate cash/equity bridge.</td></tr><tr><td>intangible amortization / 2024-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td>96.618</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 2,106,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2023-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td>96.802</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 203,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2025-02-28 · <a href='https://investors.progress.com/static-files/d9d7dc10-3cea-4b4d-a5af-52d5505eff81#page=7'>Filing PDF 7</a></td><td>36.581</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 351,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2025-05-31 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=8'>Filing PDF 8</a></td><td>73.532</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 702,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr></tbody></table></div><p>Normalized EBITDA remains unavailable. Earlier-year amortization scope differences remain explicit; this memo does not force comparability or replace the original facts.</p></div></details></section><section class='panel' id='historical-valuation'><p class='eyebrow'>Historical sensitivity / USD millions</p><h2>Enterprise value is not the equity claim</h2><p>Balance date 2025-11-30; information cutoff 2026-09-28. Later-filed evidence supports this historical exercise. It is not a current or contemporaneous valuation.</p><p>Calculated annual EBITDA: <strong>304.202</strong>. Debt principal: <strong>1,410.000</strong>; debt carrying value net of issuance costs: <strong>1,400.349</strong>. Principal, rather than carrying value net of issuance costs, is deducted under the assumed cash settlement.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Explicit analyst assumptions. Negative residuals are retained; they are funding shortfalls in this arithmetic, not negative share-price estimates.'><table><caption class='table-caption'>Explicit analyst assumptions. Negative residuals are retained; they are funding shortfalls in this arithmetic, not negative share-price estimates.</caption><thead><tr><th scope='col'>Assumed multiple</th><th scope='col'>Enterprise value</th><th scope='col'>All reported cash available / equity sensitivity</th><th scope='col'>Half of reported cash available / equity sensitivity</th><th scope='col'>No cash credit + claims stress / equity sensitivity</th></tr></thead><tbody><tr><td>4x</td><td>1,216.808</td><td>-98.385</td><td>-145.788</td><td>-262.759</td></tr><tr><td>6x</td><td>1,825.212</td><td>510.019</td><td>462.616</td><td>345.645</td></tr><tr><td>8x</td><td>2,433.616</td><td>1,118.423</td><td>1,071.020</td><td>954.049</td></tr><tr><td>10x</td><td>3,042.020</td><td>1,726.827</td><td>1,679.424</td><td>1,562.453</td></tr></tbody></table></div><p>Author-selected 4x/6x/8x/10x mechanical sensitivities, not sourced market comparables, investment recommendations or fair-value estimates.</p><p><strong>Formula:</strong> EBITDA × assumed multiple + available cash + nonoperating assets − debt principal − selected lease claims − other claims − transaction costs.</p><p>Historical company earnings and fictional operating improvements remain separate. No current equity value, share-price target or transaction proceeds are established.</p></section><p><a href='historical-valuation.html'>Inspect the historical equity bridge, all assumptions and source rows</a>.</p><p><a href='exit-review.html'>Review the constructed exit sensitivity and its separate operating-evidence limits</a>.</p><section class='panel' id='choices'><p class='eyebrow'>Original constructed alternatives / USD thousands</p><h2>Original preference — reopened by the source challenge</h2><p>These earlier figures preserve the initial reasoning. They are not the current source-constrained forecast.</p><details><summary>Inspect the original sequence comparison and conditional preference</summary><div class='memo-body'><p>All alternatives retain the same scope, proposed resources, economic assumptions and dated costs. Only task priority changes. These are authored alternatives, not an optimization result.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Same committed costs and scope; funding is measured across the full 24-month modeled horizon. No actual assignments or approvals.'><table><caption class='table-caption'>Same committed costs and scope; funding is measured across the full 24-month modeled horizon. No actual assignments or approvals.</caption><thead><tr><th scope='col'>Sequence</th><th scope='col'>Capacity result</th><th scope='col'>Year-one EBITDA</th><th scope='col'>Year-one cash proxy</th><th scope='col'>Peak funding need</th></tr></thead><tbody><tr><td>Collections first (current proposal)</td><td>Feasible under proposed capacity</td><td>121.6</td><td>86.3</td><td>133.4</td></tr><tr><td>Pricing first</td><td>Feasible under proposed capacity</td><td>117.6</td><td>82.3</td><td>134.0</td></tr><tr><td>Service first</td><td>Feasible under proposed capacity</td><td>130.9</td><td>95.6</td><td>125.5</td></tr></tbody></table></div><div class='memo-choice'><h3>Original conditional preference — now reopened: Service first</h3><p>Among these three authored sequences, service-first restores the original base-case service start and leaves pricing and collections ready before their assumed economic dates. Prefer it only in the constructed exercise and only if the vendor cost action and quality gate can be evidenced. This is not a recommendation to deploy automation at Progress or a proof of optimality.</p><ul><li>No committed vendor reduction or quality-safe service mechanism: withdraw the service benefit and reforecast with committed costs retained.</li><li>Resource availability differs from the proposed budgets: re-run scheduling and reconsider the sequence.</li><li>Contract eligibility, retention response or original collection dates differ: revise the economic assumptions, not just the task order.</li></ul></div><div class='table-wrap' tabindex='0' role='region' aria-label='The downside remains adverse; this is a conditional scenario range, not a probability-weighted forecast.'><table><caption class='table-caption'>The downside remains adverse; this is a conditional scenario range, not a probability-weighted forecast.</caption><thead><tr><th scope='col'>Preferred option scenario</th><th scope='col'>Year-one EBITDA</th><th scope='col'>Year-one cash proxy</th><th scope='col'>Day-100 cash proxy</th><th scope='col'>Peak funding need</th></tr></thead><tbody><tr><td>Downside</td><td>-299.5</td><td>-306.9</td><td>-124.0</td><td>511.8</td></tr><tr><td>Base</td><td>130.9</td><td>95.6</td><td>55.9</td><td>125.5</td></tr><tr><td>Upside</td><td>413.1</td><td>360.9</td><td>191.6</td><td>120.5</td></tr></tbody></table></div><p><strong>Cash challenge:</strong> the base day-100 cash figure includes 180.0 thousand of temporary receivables acceleration. It reverses on the original collection date and creates no EBITDA. Cash also reflects operating settlement timing and capital purchases; it is a partial pre-tax proxy.</p><details><summary>Inspect the earnings-to-cash bridge and incremental valuation sensitivity</summary><div class='memo-body'><div class='table-wrap' tabindex='0' role='region' aria-label='EBITDA + operating accrual-to-cash + working-capital timing + capex = the modeled cash proxy.'><table><caption class='table-caption'>EBITDA + operating accrual-to-cash + working-capital timing + capex = the modeled cash proxy.</caption><thead><tr><th scope='col'>Year-one base bridge</th><th scope='col'>USD thousands</th></tr></thead><tbody><tr><td>Incremental EBITDA</td><td>130.9</td></tr><tr><td>Operating accrual-to-cash adjustment</td><td>-20.3</td></tr><tr><td>Existing receivables timing, net over year</td><td>0.0</td></tr><tr><td>Capital purchases</td><td>-15.0</td></tr><tr><td>Pre-tax cash proxy</td><td>95.6</td></tr></tbody></table></div><div class='table-wrap' tabindex='0' role='region' aria-label='Arbitrary 6x/8x/10x sensitivity grid to demonstrate valuation dependence; not sourced comparable-company multiples or a fair-value range.'><table><caption class='table-caption'>Arbitrary 6x/8x/10x sensitivity grid to demonstrate valuation dependence; not sourced comparable-company multiples or a fair-value range.</caption><thead><tr><th scope='col'>Assumed multiple</th><th scope='col'>Incremental EV, USD thousands</th></tr></thead><tbody><tr><td>6×</td><td>1,852.3</td></tr><tr><td>8×</td><td>2,469.7</td></tr><tr><td>10×</td><td>3,087.2</td></tr></tbody></table></div><p>Constructed year-two incremental EV sensitivities are separate from the historical company EV-to-equity sensitivity. Neither establishes current equity value, transaction proceeds or sourced market multiples; fictional operating uplift is never added to company earnings.</p></div></details><details><summary>Collections first (current proposal): schedule, dependencies and challenge</summary><div class='memo-body'><p>Earlier collections work does not advance the assumed January collection date; service approval is delayed.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col'>Start</th><th scope='col'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td>2026-10-01</td><td>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td>2026-10-15</td><td>2026-10-28</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td>2026-10-29</td><td>2026-11-11</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td>2026-11-12</td><td>2026-12-02</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td>2026-12-03</td><td>2026-12-16</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr><tr><td>Evaluate service quality and cost action / service</td><td>2026-11-12</td><td>2026-12-09</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td>2026-12-10</td><td>2026-12-30</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>2369a9eac3a9577437d81c05a8e4171e2f5c9dc4588dd0f2a38cf373f5ac4098</code> · financial calculation <code>5218104dbeb0f7b9e061f70d5c4cee6e717c96cf439b0a64d117d55dfe57c19e</code></p></div></details><details><summary>Pricing first: schedule, dependencies and challenge</summary><div class='memo-body'><p>Earlier readiness does not override contract/economic start dates; service approval is pushed later.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col'>Start</th><th scope='col'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td>2026-10-01</td><td>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td>2026-10-15</td><td>2026-11-04</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td>2026-11-05</td><td>2026-11-18</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td>2026-11-19</td><td>2026-12-02</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td>2026-12-03</td><td>2026-12-16</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Evaluate service quality and cost action / service</td><td>2026-10-15</td><td>2026-11-11</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td>2026-12-17</td><td>2027-01-06</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>0f8744838172e27b97dd6775e514ca8223ecb456c3b8355c1c225b656c344a72</code> · financial calculation <code>88055361e81136f4590e0f5f961c53f9ec2f59ac91f0b6beb921fbe772189575</code></p></div></details><details><summary>Service first: schedule, dependencies and challenge</summary><div class='memo-body'><p>Modeled advantage depends on a verifiable vendor cost action and safe service quality; freed hours alone are not earnings.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col'>Start</th><th scope='col'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td>2026-10-01</td><td>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Evaluate service quality and cost action / service</td><td>2026-10-15</td><td>2026-11-11</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td>2026-11-12</td><td>2026-12-02</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td>2026-12-03</td><td>2026-12-16</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td>2026-12-17</td><td>2026-12-30</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td>2026-10-15</td><td>2026-11-04</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td>2026-11-05</td><td>2026-11-18</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>1d293fb66c06323f1b06f406634d0401c9d5db10df764aab2933b39aaf30865a</code> · financial calculation <code>1db97cb93df5384b9ed37c47f8eb7f796071be719e95ae34e010c17a70763956</code></p></div></details></div></details></section><section class='panel' id='next-decision'><h2>Next decision and evidence request</h2><p>Authorize a bounded data-discovery exercise only when an actual sponsor and data owner exist. No operating intervention is authorized by this memo.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Current status: no sponsor or authorized operating records; the pilot package is prepared, not performed.'><table><caption class='table-caption'>Current status: no sponsor or authorized operating records; the pilot package is prepared, not performed.</caption><thead><tr><th scope='col'>Decision gate</th><th scope='col'>Required evidence</th><th scope='col'>Who must validate</th></tr></thead><tbody><tr><td>Baseline and scope</td><td>Reconciled monthly P&L, revenue perimeter, account/contract population and source manifest</td><td>Company finance/data owner</td></tr><tr><td>Pricing eligibility</td><td>Notice periods, caps, concessions, channel rights and retained-customer economics</td><td>Commercial owner and finance reviewer</td></tr><tr><td>Service cost action</td><td>Vendor commitment or other verified spend change; quality evaluation and rollback criteria</td><td>Service owner and finance reviewer</td></tr><tr><td>Collections timing</td><td>Aged ledger, disputes, credits, original payment counterfactual and approved communications</td><td>Controller and operator</td></tr><tr><td>First-wave feasibility</td><td>Named operators, net weekly change capacity, exact-version decision and acceptance evidence</td><td>Sponsor and accountable operators</td></tr><tr><td>Realization</td><td>Observed accounting periods, baseline/counterfactual comparison, costs, attribution and unassigned residual</td><td>Finance reviewer and sponsor</td></tr></tbody></table></div><p><a href='../pilot/permissioned/README.md'>Pilot preparation package</a> · <a href='allocation-review.html'>Original/current constructed revision history</a></p></section><section class='panel' id='technical'><h2>Technical evidence and review limits</h2><p>Research-author judgment and constructed operating exercise; no company participation, management approval, independent practitioner review or actual financial result.</p><p><a href='allocation-memo.json' download>Download the complete JSON decision packet</a>. It preserves all option schedule analyses, monthly financials, assumptions, source references and input hashes. The packet includes the exact imported case history and recomputed source-constrained alternatives; the original comparisons preserve the prior reasoning. This comparison does not create an approved revision.</p><details><summary>Inspect bound inputs and calculation lineage</summary><div class='memo-body'><p>Each alternative keeps the latest underwriting assumptions, source rows, resources, work packages and costs. Only priority order and its resulting dates change; source-book plan hashes are explicitly rebound to each hypothetical schedule.</p><div class='table-wrap' tabindex='0' role='region' aria-label='A changed input invalidates the decision brief until explicitly revised.'><table><caption class='table-caption'>A changed input invalidates the decision brief until explicitly revised.</caption><thead><tr><th scope='col'>Input</th><th scope='col'>SHA-256</th></tr></thead><tbody><tr><td>financial</td><td><code>0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599</code></td></tr><tr><td>growth</td><td><code>13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d</code></td></tr><tr><td>peers</td><td><code>69bb83a6e9522f6d50f3f31cbf3ba40f1b7b59ba9a530762b199b204596323b6</code></td></tr><tr><td>underwriting</td><td><code>7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb</code></td></tr><tr><td>plan</td><td><code>3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1</code></td></tr><tr><td>balances</td><td><code>760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3</code></td></tr><tr><td>valuation</td><td><code>0f3b379be1b0883640209be9be6e10efa322276cd6811c24f1a9676bf7c2918c</code></td></tr><tr><td>case_review</td><td><code>5986f7cc0af7b5ba6f2b849b7d5b35f232ad81827cd73188a2076f9475cbdf8c</code></td></tr></tbody></table></div><p>Memo version executive-decision-packet/6 · Brief <code>68fa58291afda9debeb5c56e93fb216f5580e95720327236079c53da8d0ea7fc</code></p></div></details><p class='memo-sources'><a href='progress-baseline.html'>Public source appendix</a><a href='allocation-underwriting.html'>Original constructed underwriting</a><a href='allocation-operating-plan.html'>Original capacity proposal</a></p></section></main></body></html>
+</style></head><body class='exhibit'><a class='skip-link' href='#main'>Skip to content</a><header class='topbar'><div class='topbar-inner'><a class='brand' href='../index.html'><span class='brand-mark' aria-hidden='true'><svg viewBox='0 0 24 24' fill='none'><path d='M5 19V12M10 19V7M15 19V10M20 19V4' stroke='currentColor' stroke-width='2.6' stroke-linecap='round'/></svg></span><span class='brand-name'>Value Creation OS<span class='brand-subtitle'>Executive decision memo</span></span></a><span class='x-provenance'>Public research · constructed exercise</span><nav class='primary-nav' aria-label='Memo sections'><a class='nav-link' href='#thesis'>Thesis</a><a class='nav-link' href='#historical-valuation'>Valuation</a><a class='nav-link' href='#choices'>Choices</a><a class='nav-link' href='#next-decision'>Next decision</a><a class='nav-link' href='#technical'>Evidence</a></nav></div></header><div class='x-frame'><nav class='x-toc' aria-label='On this page'><p>On this page</p><ol><li><a href='#allocation'>One economic pool, explicit choices</a></li><li><a href='#evidence-update'>Task order cannot substitute for a supported cost action.</a></li><li><a href='#thesis'>Judgments that shape the next decision</a></li><li><a href='#economics'>What the accounts establish</a></li><li><a href='#historical-valuation'>Enterprise value is not the equity claim</a></li><li><a href='#choices'>Original preference — reopened by the source challenge</a></li><li><a href='#next-decision'>Next decision and evidence request</a></li><li><a href='#technical'>Technical evidence and review limits</a></li></ol><p class='x-toc-meta'>Public research · constructed exercise</p></nav><main id='main' tabindex='-1' class='app-shell x-doc'><section class='hero'><div><p class='eyebrow'>Executive decision memo / Public research</p><h1>Progress Software Corporation</h1><p class='page-subtitle'>Advance the evidence. Hold the value commitment.</p><p>Information cutoff 2026-09-28 · Historical anchor 2025-11-30</p></div><aside class='hero-aside'><span class='metric-label'>Research recommendation</span><p>Reopen first-wave selection: every tested sequence has nonpositive base year-one EBITDA after the corrected source constraints and retained costs. Changing task order does not repair the business case.</p></aside></section><p class='layer-banner'>Public issuer research informs the diligence questions. The operating alternatives below use authored, fictional inputs; they are not Progress customer records or company forecasts.</p><section class='panel' id='allocation'><h2>One economic pool, explicit choices</h2><p><strong>Calculation selection:</strong> recorded policy. collections-timing; pricing-targeted; service-automation.</p><p><strong>Recorded selection:</strong> collections-timing; pricing-targeted; service-automation. Research scenario selects pricing-targeted across the eligible cohort instead of two population partitions. This changes proposed scope; it does not move earlier claims or authorize customer actions.</p><p>A calculation override does not amend the recorded policy or authorize work. Save a reviewed case revision to record a different decision.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.'><table><caption class='table-caption'>Partition shares apply before rates, churn and spend caps. Exclusive alternatives each describe the full pool; at most one is selected. Unselected, unassigned and blocked exposure is never redistributed.</caption><thead><tr><th scope='col'>Economic pool / rule</th><th scope='col'>Member</th><th scope='col' class='num'>Population share</th><th scope='col'>Calculation scope</th><th scope='col'>Owner / rationale / challenge</th></tr></thead><tbody><tr><td>renewal-cohort / exclusive</td><td>pricing-renewals</td><td class='num'>100.0%</td><td>Excluded</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>renewal-cohort / exclusive</td><td>pricing-targeted</td><td class='num'>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored redesign: two competing pricing policies on the same full cohort; implement at most one.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>support-vendor-spend / exclusive</td><td>service-automation</td><td class='num'>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr><tr><td>existing-receivables / exclusive</td><td>collections-timing</td><td class='num'>100.0%</td><td>Selected</td><td>Proposed finance and commercial reviewers<br>Authored population budget; customer identity and a company-approved split are unavailable.<br>Overlapping customer populations, unsupported rights or an unapproved intervention design.</td></tr></tbody></table></div><p>Shares describe authored population scope. They are not probabilities or attribution of realized earnings.</p><details><summary>Cost explanation: shared-foundation</summary><p>Proposed finance and commercial reviewers: Equal explanatory cost shares across four candidates. The full committed posting survives exclusion; no causal attribution. Challenge: Overlapping customer populations, unsupported rights or an unapproved intervention design.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.'><table><caption class='table-caption'>Each cost posting is explained once across owners and any shared remainder. Retained commitments are not canceled by exclusion; this explanation does not alter case totals.</caption><thead><tr><th scope='col' class='x-date'>Date</th><th scope='col'>Owner</th><th scope='col'>Component</th><th scope='col' class='num'>Allocated amount</th></tr></thead><tbody><tr><td class='x-date'>2026-10-05</td><td>collections-timing</td><td>implementation_expense</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>pricing-renewals</td><td>implementation_expense</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>pricing-targeted</td><td>implementation_expense</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>service-automation</td><td>implementation_expense</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>collections-timing</td><td>operating_cash</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>pricing-renewals</td><td>operating_cash</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>pricing-targeted</td><td>operating_cash</td><td class='num'>-6,250.00</td></tr><tr><td class='x-date'>2026-10-05</td><td>service-automation</td><td>operating_cash</td><td class='num'>-6,250.00</td></tr></tbody></table></div></details></section><section class='panel' id='evidence-update'><p class='eyebrow'>Latest constructed evidence / Decision reopened</p><h2>Task order cannot substitute for a supported cost action.</h2><p><strong>Reopen first-wave selection: every tested sequence has nonpositive base year-one EBITDA after the corrected source constraints and retained costs. Changing task order does not repair the business case.</strong></p><p>Authored exercise review 2027-01-03. The public research cutoff above remains unchanged; these future-dated operating records are fictional.</p><p class='muted'>USD thousands. Original and corrected columns use different evidence/assumptions. Within each column, only task sequencing varies; all implementation costs remain.</p><div class='table-wrap' tabindex='0' role='region' aria-label='USD thousands. Original and corrected columns use different evidence/assumptions. Within each column, only task sequencing varies; all implementation costs remain.'><table><thead><tr><th scope='col'>Sequence</th><th scope='col' class='num'>Original base EBITDA</th><th scope='col' class='num'>Corrected base EBITDA</th><th scope='col' class='num'>Corrected cash</th><th scope='col' class='num'>Peak funding</th></tr></thead><tbody><tr><td>Collections first (current proposal)</td><td class='num'>121.6</td><td class='num'>-163.2</td><td class='num'>-181.9</td><td class='num'>262.3</td></tr><tr><td>Pricing first</td><td class='num'>117.6</td><td class='num'>-163.2</td><td class='num'>-181.9</td><td class='num'>262.3</td></tr><tr><td>Service first</td><td class='num'>130.9</td><td class='num'>-163.2</td><td class='num'>-181.9</td><td class='num'>262.3</td></tr></tbody></table></div><p>Each alternative keeps the latest operating assumptions, source records, resources, work packages and costs. Only task order and resulting dates change.</p><p>Latest stored-case review: <strong>simulated acceptance</strong>. That receipt does not approve the alternatives displayed here.</p><h3>Why the previously preferred sequence no longer supports its commitment</h3><figure class='x-chart' aria-hidden='true'><div class='x-chart-head'><span class='x-chart-title'>Constructed year-one base EBITDA bridge · USD thousands</span><span class='x-legend'><span style='--x-swatch:var(--chart-up)'>Increase</span><span style='--x-swatch:var(--chart-down)'>Decrease</span><span style='--x-swatch:var(--chart-total)'>Net</span></span></div><div class='earnings-waterfall' aria-hidden='true'><div class='waterfall-row'><span>Gross pricing</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:79.901%;width:20.099%;background:var(--chart-up)'></span></div><span class='waterfall-value'>41.0</span></div><div class='waterfall-row'><span>Revenue leakage</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:94.491%;width:5.509%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-11.2</span></div><div class='waterfall-row'><span>Variable cost</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:91.573%;width:2.918%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-6.0</span></div><div class='waterfall-row'><span>Vendor savings</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:91.573%;width:0.000%;background:var(--chart-up)'></span></div><span class='waterfall-value'>0.0</span></div><div class='waterfall-row'><span>Recurring costs</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:41.624%;width:49.949%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-102.0</span></div><div class='waterfall-row'><span>Implementation</span><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:0.000%;width:41.624%;background:var(--chart-down)'></span></div><span class='waterfall-value'>-85.0</span></div><div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:79.901%'></span><span class='waterfall-bar' style='left:0.000%;width:79.901%;background:var(--chart-total)'></span></div><strong class='waterfall-value'>-163.2</strong></div></div></figure><p class='muted'>Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Constructed year-one base earnings bridge, starting at zero. This is not a bridge from Progress reported earnings to a company target. Collections and capex are excluded from EBITDA.'><table><thead><tr><th scope='col'>Component</th><th scope='col' class='num'>Change, USD thousands</th><th scope='col' class='num'>Cumulative</th></tr></thead><tbody><tr><td>Gross pricing</td><td class='num'>41.044</td><td class='num'>41.044</td></tr><tr><td>Revenue leakage</td><td class='num'>-11.250</td><td class='num'>29.794</td></tr><tr><td>Variable cost</td><td class='num'>-5.959</td><td class='num'>23.835</td></tr><tr><td>Vendor savings</td><td class='num'>0.000</td><td class='num'>23.835</td></tr><tr><td>Recurring costs</td><td class='num'>-102.000</td><td class='num'>-78.165</td></tr><tr><td>Implementation</td><td class='num'>-85.000</td><td class='num'>-163.165</td></tr><tr class='x-total'><td>Incremental EBITDA</td><td class='num'>-163.165</td><td class='num'>Reconciled</td></tr></tbody></table></div><p class='muted'>USD thousands. These scenarios are not probabilities. Capacity released without a spend action is not a saving; bounded source terms do not establish maintainable exit value.</p><div class='table-wrap' tabindex='0' role='region' aria-label='USD thousands. These scenarios are not probabilities. Capacity released without a spend action is not a saving; bounded source terms do not establish maintainable exit value.'><table><thead><tr><th scope='col'>Corrected service-first scenario</th><th scope='col' class='num'>Year-one EBITDA</th><th scope='col' class='num'>Year-one cash</th><th scope='col' class='num'>Day-100 cash</th><th scope='col' class='num'>Peak funding</th></tr></thead><tbody><tr><td>Downside</td><td class='num'>-269.2</td><td class='num'>-281.7</td><td class='num'>-146.5</td><td class='num'>428.5</td></tr><tr><td>Base</td><td class='num'>-163.2</td><td class='num'>-181.9</td><td class='num'>-21.5</td><td class='num'>262.3</td></tr><tr><td>Upside</td><td class='num'>-132.9</td><td class='num'>-155.4</td><td class='num'>58.5</td><td class='num'>214.0</td></tr></tbody></table></div><p><strong>Cash bridge:</strong> -163.2 EBITDA + -3.7 accrual-to-cash + 0.0 net collection timing + -15.0 capex = -181.9 pre-tax cash, USD thousands. It omits tax, financing and other full-free-cash-flow requirements.</p><p class='x-callout'><strong>Decision now:</strong> revise the intervention scope and cost commitments, or defer it. Verify contract rights and vendor-release evidence before requesting a new first-wave selection. No revised alternative is automatically selected.</p><details><summary>Inspect the latest case binding and review boundary</summary><div class='memo-body'><p>Derived research challenge, not a new case revision or operating approval. A receipt for the stored case does not accept these recomputed alternatives. Constructed exercise dates do not change the public-filing information cutoff; this is not a historical point-in-time forecast.</p><p>Revision <code>5a8d5313-1075-485f-ba17-4f194616a4e2</code> · hash <code>4a9cf9a66cf69663c6f928e86fada86c00689a60d1703c4a1734e8b21113b778</code></p><p>Review context <code>978b90dbee5560d1dd4386ebb7794dfda985c0e96d9a64c9e90c3d865886f6b2</code></p></div></details><p><a href='source-review.html'>Trace the source correction and unchanged accounting history</a></p></section><section class='panel' id='thesis'><h2>Judgments that shape the next decision</h2><div class='memo-grid'><article><h3>Reported growth is substantially acquisition-related; the residual is a diligence question, not a measured organic-growth result.</h3><p><strong>Counterargument:</strong> License timing, currency, product mix and other acquisitions can explain part of the residual; it is not direct evidence of customer deterioration.</p><p><strong>Next evidence:</strong> Build a constant-perimeter product/customer bridge with renewal timing and currency, and reconcile it to reported revenue.</p><p class='memo-note'>Evidence: sharefile-contribution, renewal-timing, nuclia-perimeter, currency-definition. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article><article><h3>Broad repricing is not yet underwritable from consolidated filings.</h3><p><strong>Counterargument:</strong> Eligible cohorts may have pricing headroom, but public totals do not reveal contract notice, caps, channel concessions or retention response.</p><p><strong>Next evidence:</strong> Test a permissioned renewal cohort for enforceability, net realized uplift and combined churn sensitivity.</p><p class='memo-note'>Evidence: pricing-headroom, revenue-definition. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article><article><h3>Do not underwrite peer convergence or a second saving from the completed ShareFile transition-services exit.</h3><p><strong>Counterargument:</strong> Specific avoidable costs may exist; accounting adjustments and peer ratios cannot establish the corresponding cash action.</p><p><strong>Next evidence:</strong> Reconcile vendor/staff commitments, implementation spending and incremental outcomes before accepting an operating case.</p><p class='memo-note'>Evidence: peer-context, tsa-completed, integration-cost-out. <a href='progress-baseline.html#research-decisions'>Inspect research decisions</a></p></article></div></section><section class='panel' id='economics'><p class='eyebrow'>Public financial baseline / USD millions</p><h2>What the accounts establish</h2><div class='memo-facts'><div><span class='metric-label'>Reported revenue</span><strong>977.8 <span class='x-unit'>USD m</span></strong><span class='memo-note'>US GAAP, annual</span></div><div><span class='metric-label'>Calculated EBITDA</span><strong>304.2 <span class='x-unit'>USD m</span></strong><span class='memo-note'>Defined earnings bridge; not issuer-adjusted</span></div><div><span class='metric-label'>CFO less PP&amp;E purchases</span><strong>229.5 <span class='x-unit'>USD m</span></strong><span class='memo-note'>Historical cash measure; not initiative savings</span></div></div><div class='table-wrap' tabindex='0' role='region' aria-label='Latest available interim periods and their prior-year comparatives. Quarter and year-to-date amounts are separate; no annualization or organic-growth inference.'><table><caption class='table-caption'>Latest available interim periods and their prior-year comparatives. Quarter and year-to-date amounts are separate; no annualization or organic-growth inference.</caption><thead><tr><th scope='col' class='x-date'>Interim period</th><th scope='col'>Basis</th><th scope='col'>Revenue, USD millions</th><th scope='col' class='num'>Operating income, USD millions</th></tr></thead><tbody><tr><td class='x-date'>2024-12-01 to 2025-05-31</td><td>year to date</td><td>475.370 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td class='num'>71.042</td></tr><tr><td class='x-date'>2025-03-01 to 2025-05-31</td><td>discrete quarter</td><td>237.355 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td class='num'>38.616</td></tr><tr><td class='x-date'>2025-12-01 to 2026-05-31</td><td>year to date</td><td>501.264 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td class='num'>91.667</td></tr><tr><td class='x-date'>2026-03-01 to 2026-05-31</td><td>discrete quarter</td><td>253.465 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=4'>Filing PDF 4</a></td><td class='num'>45.202</td></tr></tbody></table></div><h3>Annual acquisition contribution bridge</h3><div class='table-wrap' tabindex='0' role='region' aria-label='Approximate contribution bridge; source precision and the full revenue mix are retained in the public baseline.'><table><caption class='table-caption'>Approximate contribution bridge; source precision and the full revenue mix are retained in the public baseline.</caption><thead><tr><th scope='col'>Growth bridge</th><th scope='col' class='num'>USD millions</th><th scope='col'>Interpretation</th></tr></thead><tbody><tr><td>Reported revenue change</td><td class='num'>224.4</td><td>Change in consolidated annual revenue</td></tr><tr><td>Change in ShareFile contribution</td><td class='num'>240.5</td><td>Approximate disclosed amounts; acquisition timing matters</td></tr><tr><td>Non-ShareFile residual change</td><td class='num'>-16.1</td><td>Not organic growth; currency, other acquisitions, mix and timing remain</td></tr></tbody></table></div><p>The narrower peer cohorts cannot support a displayed median. Broad reported-margin context does not establish an avoidable cost pool. <a href='progress-baseline.html#peers'>Inspect the eligibility and exclusions</a>.</p><p><strong>Perimeter update:</strong> Progress completed the Domo business asset acquisition on September 22, 2026 for USD 400 million, funded with cash and the existing revolving credit facility. The filing says transaction financial statements and pro forma information will follow by amendment. The FY2025 annual and May 2026 interim statements predate this acquisition. They are historical pre-acquisition anchors, not the current consolidated business. Refresh the business perimeter, leverage and peer comparison when the transaction disclosures are available; no synergy or post-acquisition EBITDA is inferred here. <a href='https://investors.progress.com/node/28981/html'>Source filing</a>.</p><details><summary>Reconcile EBITDA and inspect the adjustment register</summary><div class='memo-body'><div class='table-wrap' tabindex='0' role='region' aria-label='Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.'><table><caption class='table-caption'>Net income plus tax provision, interest expense and operating depreciation/amortization. Debt discount amortization is already within interest expense and is not added twice. Other non-operating income/loss remains included. No restructuring, acquisition, stock-compensation or cyber adjustment is added.</caption><thead><tr><th scope='col'>Earnings bridge</th><th scope='col' class='num'>USD millions</th><th scope='col'>Source</th></tr></thead><tbody><tr><td>Net income</td><td class='num'>73.133</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>Tax provision</td><td class='num'>8.495</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>Interest expense added back</td><td class='num'>70.850</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td></tr><tr><td>PP&E depreciation</td><td class='num'>6.232</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td></tr><tr><td>Acquired intangible amortization</td><td class='num'>145.492</td><td><a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td></tr><tr class='x-total'><td>Calculated EBITDA</td><td class='num'>304.202</td><td>Sum only when the defined reconciliation checks pass</td></tr></tbody></table></div><div class='table-wrap' tabindex='0' role='region' aria-label='No incremental accounting addback is accepted. A register of review issues is not a normalized-earnings opinion.'><table><caption class='table-caption'>No incremental accounting addback is accepted. A register of review issues is not a normalized-earnings opinion.</caption><thead><tr><th scope='col'>Item / period</th><th scope='col' class='num'>Reported USD millions</th><th scope='col'>Treatment</th><th scope='col'>Evidence needed</th></tr></thead><tbody><tr><td>stock compensation / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td class='num'>64.768</td><td>retain expense: Noncash compensation remains an economic compensation cost; no incremental addback or automatic cash saving is accepted.</td><td>A compensation and dilution analysis, with a sustainable replacement-pay policy.</td></tr><tr><td>restructuring / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td class='num'>13.109</td><td>retain expense: Retain the expense. FY2025 Note 13 records restructuring activity across all three presented years and cash commitments beyond year end; the label does not establish a nonrecurring or cash-free adjustment.</td><td>Program-level cost schedule, cash commitments, repeat-program history and finance review.</td></tr><tr><td>acquisition expense / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td class='num'>5.317</td><td>retain expense: Acquisition-related expenditure may recur in an acquisitive model. No additional adjustment is accepted.</td><td>Transaction-specific invoices, continuing integration costs and a maintainability assessment.</td></tr><tr><td>cyber response / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=38'>Filing PDF 38</a></td><td class='num'>2.775</td><td>retain expense: Reported response cost is not evidence that future security or remediation spending can be avoided.</td><td>Insurance/recovery reconciliation, continuing remediation costs and a reviewed scope.</td></tr><tr><td>intangible amortization / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td class='num'>145.492</td><td>already in bridge: FY2025 acquired-intangible amortization is already in the calculated EBITDA bridge; adding it again would double count.</td><td>No second addback; retain the reported source and review comparability with earlier periods.</td></tr><tr><td>debt amortization / 2025-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td class='num'>5.831</td><td>already in bridge: Debt discount/issuance amortization is already contained in interest expense used in the earnings bridge.</td><td>No second addback; financing cash and debt service belong in a separate cash/equity bridge.</td></tr><tr><td>intangible amortization / 2024-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td class='num'>96.618</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 2,106,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2023-11-30 · <a href='https://investors.progress.com/static-files/2a74fac9-6513-42b2-b875-51cb2da6021c#page=41'>Filing PDF 41</a></td><td class='num'>96.802</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 203,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2025-02-28 · <a href='https://investors.progress.com/static-files/d9d7dc10-3cea-4b4d-a5af-52d5505eff81#page=7'>Filing PDF 7</a></td><td class='num'>36.581</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 351,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr><tr><td>intangible amortization / 2025-05-31 · <a href='https://investors.progress.com/static-files/214c980f-8e95-4d8c-b878-f1569502f2f5#page=8'>Filing PDF 8</a></td><td class='num'>73.532</td><td>scope unresolved: Cash-flow acquired-intangible and other amortization exceeds the two income-statement acquired-intangible rows by USD 702,000. The component is not identified by the reviewed notes; do not assign it to commissions, software or financing by inference or treat it as an issuer error.</td><td>A component-level amortization roll-forward tied to both statements and a reviewed common earnings definition. Dependent earnings remain withheld; separately reconciled cash measures remain available.</td></tr></tbody></table></div><p>Normalized EBITDA remains unavailable. Earlier-year amortization scope differences remain explicit; this memo does not force comparability or replace the original facts.</p></div></details></section><section class='panel' id='historical-valuation'><p class='eyebrow'>Historical sensitivity / USD millions</p><h2>Enterprise value is not the equity claim</h2><p>Balance date 2025-11-30; information cutoff 2026-09-28. Later-filed evidence supports this historical exercise. It is not a current or contemporaneous valuation.</p><p>Calculated annual EBITDA: <strong>304.202</strong>. Debt principal: <strong>1,410.000</strong>; debt carrying value net of issuance costs: <strong>1,400.349</strong>. Principal, rather than carrying value net of issuance costs, is deducted under the assumed cash settlement.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Explicit analyst assumptions. Negative residuals are retained; they are funding shortfalls in this arithmetic, not negative share-price estimates.'><table><caption class='table-caption'>Explicit analyst assumptions. Negative residuals are retained; they are funding shortfalls in this arithmetic, not negative share-price estimates.</caption><thead><tr><th scope='col'>Assumed multiple</th><th scope='col' class='num'>Enterprise value</th><th scope='col' class='num'>All reported cash available / equity sensitivity</th><th scope='col' class='num'>Half of reported cash available / equity sensitivity</th><th scope='col' class='num'>No cash credit + claims stress / equity sensitivity</th></tr></thead><tbody><tr><td>4x</td><td class='num'>1,216.808</td><td class='num'>-98.385</td><td class='num'>-145.788</td><td class='num'>-262.759</td></tr><tr><td>6x</td><td class='num'>1,825.212</td><td class='num'>510.019</td><td class='num'>462.616</td><td class='num'>345.645</td></tr><tr><td>8x</td><td class='num'>2,433.616</td><td class='num'>1,118.423</td><td class='num'>1,071.020</td><td class='num'>954.049</td></tr><tr><td>10x</td><td class='num'>3,042.020</td><td class='num'>1,726.827</td><td class='num'>1,679.424</td><td class='num'>1,562.453</td></tr></tbody></table></div><p>Author-selected 4x/6x/8x/10x mechanical sensitivities, not sourced market comparables, investment recommendations or fair-value estimates.</p><p><strong>Formula:</strong> EBITDA × assumed multiple + available cash + nonoperating assets − debt principal − selected lease claims − other claims − transaction costs.</p><p>Historical company earnings and fictional operating improvements remain separate. No current equity value, share-price target or transaction proceeds are established.</p></section><p><a href='historical-valuation.html'>Inspect the historical equity bridge, all assumptions and source rows</a>.</p><p><a href='exit-review.html'>Review the constructed exit sensitivity and its separate operating-evidence limits</a>.</p><section class='panel' id='choices'><p class='eyebrow'>Original constructed alternatives / USD thousands</p><h2>Original preference — reopened by the source challenge</h2><p>These earlier figures preserve the initial reasoning. They are not the current source-constrained forecast.</p><details><summary>Inspect the original sequence comparison and conditional preference</summary><div class='memo-body'><p>All alternatives retain the same scope, proposed resources, economic assumptions and dated costs. Only task priority changes. These are authored alternatives, not an optimization result.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Same committed costs and scope; funding is measured across the full 24-month modeled horizon. No actual assignments or approvals.'><table><caption class='table-caption'>Same committed costs and scope; funding is measured across the full 24-month modeled horizon. No actual assignments or approvals.</caption><thead><tr><th scope='col'>Sequence</th><th scope='col'>Capacity result</th><th scope='col' class='num'>Year-one EBITDA</th><th scope='col' class='num'>Year-one cash proxy</th><th scope='col' class='num'>Peak funding need</th></tr></thead><tbody><tr><td>Collections first (current proposal)</td><td>Feasible under proposed capacity</td><td class='num'>121.6</td><td class='num'>86.3</td><td class='num'>133.4</td></tr><tr><td>Pricing first</td><td>Feasible under proposed capacity</td><td class='num'>117.6</td><td class='num'>82.3</td><td class='num'>134.0</td></tr><tr><td>Service first</td><td>Feasible under proposed capacity</td><td class='num'>130.9</td><td class='num'>95.6</td><td class='num'>125.5</td></tr></tbody></table></div><div class='memo-choice'><h3>Original conditional preference — now reopened: Service first</h3><p>Among these three authored sequences, service-first restores the original base-case service start and leaves pricing and collections ready before their assumed economic dates. Prefer it only in the constructed exercise and only if the vendor cost action and quality gate can be evidenced. This is not a recommendation to deploy automation at Progress or a proof of optimality.</p><ul><li>No committed vendor reduction or quality-safe service mechanism: withdraw the service benefit and reforecast with committed costs retained.</li><li>Resource availability differs from the proposed budgets: re-run scheduling and reconsider the sequence.</li><li>Contract eligibility, retention response or original collection dates differ: revise the economic assumptions, not just the task order.</li></ul></div><div class='table-wrap' tabindex='0' role='region' aria-label='The downside remains adverse; this is a conditional scenario range, not a probability-weighted forecast.'><table><caption class='table-caption'>The downside remains adverse; this is a conditional scenario range, not a probability-weighted forecast.</caption><thead><tr><th scope='col'>Preferred option scenario</th><th scope='col' class='num'>Year-one EBITDA</th><th scope='col' class='num'>Year-one cash proxy</th><th scope='col' class='num'>Day-100 cash proxy</th><th scope='col' class='num'>Peak funding need</th></tr></thead><tbody><tr><td>Downside</td><td class='num'>-299.5</td><td class='num'>-306.9</td><td class='num'>-124.0</td><td class='num'>511.8</td></tr><tr><td>Base</td><td class='num'>130.9</td><td class='num'>95.6</td><td class='num'>55.9</td><td class='num'>125.5</td></tr><tr><td>Upside</td><td class='num'>413.1</td><td class='num'>360.9</td><td class='num'>191.6</td><td class='num'>120.5</td></tr></tbody></table></div><p><strong>Cash challenge:</strong> the base day-100 cash figure includes 180.0 thousand of temporary receivables acceleration. It reverses on the original collection date and creates no EBITDA. Cash also reflects operating settlement timing and capital purchases; it is a partial pre-tax proxy.</p><details><summary>Inspect the earnings-to-cash bridge and incremental valuation sensitivity</summary><div class='memo-body'><div class='table-wrap' tabindex='0' role='region' aria-label='EBITDA + operating accrual-to-cash + working-capital timing + capex = the modeled cash proxy.'><table><caption class='table-caption'>EBITDA + operating accrual-to-cash + working-capital timing + capex = the modeled cash proxy.</caption><thead><tr><th scope='col'>Year-one base bridge</th><th scope='col' class='num'>USD thousands</th></tr></thead><tbody><tr><td>Incremental EBITDA</td><td class='num'>130.9</td></tr><tr><td>Operating accrual-to-cash adjustment</td><td class='num'>-20.3</td></tr><tr><td>Existing receivables timing, net over year</td><td class='num'>0.0</td></tr><tr><td>Capital purchases</td><td class='num'>-15.0</td></tr><tr class='x-total'><td>Pre-tax cash proxy</td><td class='num'>95.6</td></tr></tbody></table></div><div class='table-wrap' tabindex='0' role='region' aria-label='Arbitrary 6x/8x/10x sensitivity grid to demonstrate valuation dependence; not sourced comparable-company multiples or a fair-value range.'><table><caption class='table-caption'>Arbitrary 6x/8x/10x sensitivity grid to demonstrate valuation dependence; not sourced comparable-company multiples or a fair-value range.</caption><thead><tr><th scope='col'>Assumed multiple</th><th scope='col' class='num'>Incremental EV, USD thousands</th></tr></thead><tbody><tr><td>6×</td><td class='num'>1,852.3</td></tr><tr><td>8×</td><td class='num'>2,469.7</td></tr><tr><td>10×</td><td class='num'>3,087.2</td></tr></tbody></table></div><p>Constructed year-two incremental EV sensitivities are separate from the historical company EV-to-equity sensitivity. Neither establishes current equity value, transaction proceeds or sourced market multiples; fictional operating uplift is never added to company earnings.</p></div></details><details><summary>Collections first (current proposal): schedule, dependencies and challenge</summary><div class='memo-body'><p>Earlier collections work does not advance the assumed January collection date; service approval is delayed.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col' class='x-date'>Start</th><th scope='col' class='x-date'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td class='x-date'>2026-10-01</td><td class='x-date'>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td class='x-date'>2026-10-15</td><td class='x-date'>2026-10-28</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td class='x-date'>2026-10-29</td><td class='x-date'>2026-11-11</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td class='x-date'>2026-11-12</td><td class='x-date'>2026-12-02</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td class='x-date'>2026-12-03</td><td class='x-date'>2026-12-16</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr><tr><td>Evaluate service quality and cost action / service</td><td class='x-date'>2026-11-12</td><td class='x-date'>2026-12-09</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td class='x-date'>2026-12-10</td><td class='x-date'>2026-12-30</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>2369a9eac3a9577437d81c05a8e4171e2f5c9dc4588dd0f2a38cf373f5ac4098</code> · financial calculation <code>5218104dbeb0f7b9e061f70d5c4cee6e717c96cf439b0a64d117d55dfe57c19e</code></p></div></details><details><summary>Pricing first: schedule, dependencies and challenge</summary><div class='memo-body'><p>Earlier readiness does not override contract/economic start dates; service approval is pushed later.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col' class='x-date'>Start</th><th scope='col' class='x-date'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td class='x-date'>2026-10-01</td><td class='x-date'>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td class='x-date'>2026-10-15</td><td class='x-date'>2026-11-04</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td class='x-date'>2026-11-05</td><td class='x-date'>2026-11-18</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td class='x-date'>2026-11-19</td><td class='x-date'>2026-12-02</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td class='x-date'>2026-12-03</td><td class='x-date'>2026-12-16</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Evaluate service quality and cost action / service</td><td class='x-date'>2026-10-15</td><td class='x-date'>2026-11-11</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td class='x-date'>2026-12-17</td><td class='x-date'>2027-01-06</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>0f8744838172e27b97dd6775e514ca8223ecb456c3b8355c1c225b656c344a72</code> · financial calculation <code>88055361e81136f4590e0f5f961c53f9ec2f59ac91f0b6beb921fbe772189575</code></p></div></details><details><summary>Service first: schedule, dependencies and challenge</summary><div class='memo-body'><p>Modeled advantage depends on a verifiable vendor cost action and safe service quality; freed hours alone are not earnings.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.'><table><caption class='table-caption'>Dates reflect conditional scheduling; a scheduled gate is not an accepted deliverable.</caption><thead><tr><th scope='col'>Package / proposed owner</th><th scope='col' class='x-date'>Start</th><th scope='col' class='x-date'>Finish</th><th scope='col'>Acceptance evidence</th></tr></thead><tbody><tr><td>Reconcile scope and freeze baseline / finance</td><td class='x-date'>2026-10-01</td><td class='x-date'>2026-10-14</td><td>Finance-reviewed tie-out and exclusions; no unresolved material scope mismatch</td></tr><tr><td>Evaluate service quality and cost action / service</td><td class='x-date'>2026-10-15</td><td class='x-date'>2026-11-11</td><td>Safe resolution/reopens assessed; removable cost confirmed separately from freed hours</td></tr><tr><td>Review rollout and vendor commitment / service</td><td class='x-date'>2026-11-12</td><td class='x-date'>2026-12-02</td><td>Quality threshold, vendor terms, HR/legal implications and rollback owner reviewed</td></tr><tr><td>Confirm collectible cohort and terms / finance</td><td class='x-date'>2026-12-03</td><td class='x-date'>2026-12-16</td><td>Aging reconciles to ledger; disputes and credits excluded; no term override</td></tr><tr><td>Review bounded collection action / finance</td><td class='x-date'>2026-12-17</td><td class='x-date'>2026-12-30</td><td>Manager reviews cohort, communication, quality stop and original collection dates</td></tr><tr><td>Test enforceability and retention downside / commercial</td><td class='x-date'>2026-10-15</td><td class='x-date'>2026-11-04</td><td>Notice dates, caps, channel terms and concessions reconciled; downside retained</td></tr><tr><td>Review renewal wave / commercial</td><td class='x-date'>2026-11-05</td><td class='x-date'>2026-11-18</td><td>Human decision on exact cohort; retention stop and contract notice checks complete</td></tr></tbody></table></div><p class='memo-note'>Schedule report <code>1d293fb66c06323f1b06f406634d0401c9d5db10df764aab2933b39aaf30865a</code> · financial calculation <code>1db97cb93df5384b9ed37c47f8eb7f796071be719e95ae34e010c17a70763956</code></p></div></details></div></details></section><section class='panel' id='next-decision'><h2>Next decision and evidence request</h2><p>Authorize a bounded data-discovery exercise only when an actual sponsor and data owner exist. No operating intervention is authorized by this memo.</p><div class='table-wrap' tabindex='0' role='region' aria-label='Current status: no sponsor or authorized operating records; the pilot package is prepared, not performed.'><table><caption class='table-caption'>Current status: no sponsor or authorized operating records; the pilot package is prepared, not performed.</caption><thead><tr><th scope='col'>Decision gate</th><th scope='col'>Required evidence</th><th scope='col'>Who must validate</th></tr></thead><tbody><tr><td>Baseline and scope</td><td>Reconciled monthly P&L, revenue perimeter, account/contract population and source manifest</td><td>Company finance/data owner</td></tr><tr><td>Pricing eligibility</td><td>Notice periods, caps, concessions, channel rights and retained-customer economics</td><td>Commercial owner and finance reviewer</td></tr><tr><td>Service cost action</td><td>Vendor commitment or other verified spend change; quality evaluation and rollback criteria</td><td>Service owner and finance reviewer</td></tr><tr><td>Collections timing</td><td>Aged ledger, disputes, credits, original payment counterfactual and approved communications</td><td>Controller and operator</td></tr><tr><td>First-wave feasibility</td><td>Named operators, net weekly change capacity, exact-version decision and acceptance evidence</td><td>Sponsor and accountable operators</td></tr><tr><td>Realization</td><td>Observed accounting periods, baseline/counterfactual comparison, costs, attribution and unassigned residual</td><td>Finance reviewer and sponsor</td></tr></tbody></table></div><p><a href='../pilot/permissioned/README.md'>Pilot preparation package</a> · <a href='allocation-review.html'>Original/current constructed revision history</a></p></section><section class='panel' id='technical'><h2>Technical evidence and review limits</h2><p>Research-author judgment and constructed operating exercise; no company participation, management approval, independent practitioner review or actual financial result.</p><p><a href='allocation-memo.json' download>Download the complete JSON decision packet</a>. It preserves all option schedule analyses, monthly financials, assumptions, source references and input hashes. The packet includes the exact imported case history and recomputed source-constrained alternatives; the original comparisons preserve the prior reasoning. This comparison does not create an approved revision.</p><details><summary>Inspect bound inputs and calculation lineage</summary><div class='memo-body'><p>Each alternative keeps the latest underwriting assumptions, source rows, resources, work packages and costs. Only priority order and its resulting dates change; source-book plan hashes are explicitly rebound to each hypothetical schedule.</p><div class='table-wrap' tabindex='0' role='region' aria-label='A changed input invalidates the decision brief until explicitly revised.'><table><caption class='table-caption'>A changed input invalidates the decision brief until explicitly revised.</caption><thead><tr><th scope='col'>Input</th><th scope='col'>SHA-256</th></tr></thead><tbody><tr><td>financial</td><td><code>0c479b174257420258c664a007267133e9e2b516ac56a053b06b1877973d2599</code></td></tr><tr><td>growth</td><td><code>13f414972fef813eb68c138b9c6940e7240586eabe4c98bf7c5ef7e48f91665d</code></td></tr><tr><td>peers</td><td><code>69bb83a6e9522f6d50f3f31cbf3ba40f1b7b59ba9a530762b199b204596323b6</code></td></tr><tr><td>underwriting</td><td><code>7eb38c16a006877a8609e4c09a78eb186da0d7bc8cbd2525b81609bdd95c4afb</code></td></tr><tr><td>plan</td><td><code>3044b673a825e8734d3261c7fe5fb4ee8552af1368e67e654b9b74045a122ae1</code></td></tr><tr><td>balances</td><td><code>760a945e0299f5a95973b0dac02a2b14c38126a5ad722fa9bec92997a81405d3</code></td></tr><tr><td>valuation</td><td><code>0f3b379be1b0883640209be9be6e10efa322276cd6811c24f1a9676bf7c2918c</code></td></tr><tr><td>case_review</td><td><code>978b90dbee5560d1dd4386ebb7794dfda985c0e96d9a64c9e90c3d865886f6b2</code></td></tr></tbody></table></div><p>Memo version executive-decision-packet/6 · Brief <code>68fa58291afda9debeb5c56e93fb216f5580e95720327236079c53da8d0ea7fc</code></p></div></details><p class='memo-sources'><a href='progress-baseline.html'>Public source appendix</a><a href='allocation-underwriting.html'>Original constructed underwriting</a><a href='allocation-operating-plan.html'>Original capacity proposal</a></p></section></main></div><footer class='page-footer x-footer'><div class='footer-line'><p><strong>Value Creation OS</strong> · Executive decision memo</p><p><a href='../index.html'>All exhibits</a></p></div></footer></body></html>

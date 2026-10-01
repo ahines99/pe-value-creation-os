@@ -4,62 +4,59 @@
   color-scheme:light;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,monospace;
+  /* Surfaces, lightest to darkest. Hover and active fills are for interactive rows and controls only. */
   --bg:#ffffff; --bg-subtle:#fafafa; --bg-muted:#f4f4f5; --bg-hover:#f4f4f5; --bg-active:#ececee;
-  --border:#ebebeb; --border-strong:#dfdfe2;
-  --text:#171717; --text-2:#52525b; --text-3:#8e8e93;
-  --primary:#18181b; --primary-hover:#2c2c30;
-  --accent:#2f5bea; --accent-hover:#2349c9; --accent-soft:#eef2fe; --accent-line:#d5defb;
-  --ok:#16653a; --ok-bg:#effaf3; --ok-line:#cdebd8;
-  --warn:#8a5300; --warn-bg:#fff8eb; --warn-line:#f1dfb6;
-  --bad:#b42318; --bad-bg:#fef4f3; --bad-line:#f5d0cb;
-  --info:#2349c9; --info-bg:#eef2fe; --info-line:#d5defb;
+  /* Dividers are decorative; --border-input gives form controls a 3:1 boundary (WCAG 1.4.11). */
+  --border:#ebebed; --border-strong:#dcdce0; --border-input:#8a8a92;
+  /* Text. Each level is at least 4.5:1 on every surface and status background above and below. */
+  --text:#171717; --text-2:#4d4d55; --text-3:#66666e;
+  --primary:#18181b; --primary-hover:#323238;
+  --accent:#2f5bea; --accent-hover:#2349c9; --accent-soft:#eef2fe; --accent-line:#c9d5fa;
+  --ok:#16653a; --ok-bg:#effaf3; --ok-line:#bfe3cc;
+  --warn:#8a5300; --warn-strong:#5f3c05; --warn-bg:#fff8eb; --warn-line:#efd9a7;
+  --bad:#b42318; --bad-bg:#fef4f3; --bad-line:#f2c6c0;
+  --info:#2349c9; --info-bg:#eef2fe; --info-line:#c9d5fa;
   --chart-up:#3c9a6b; --chart-down:#d4604f; --chart-total:var(--primary);
   --r-sm:4px; --r-md:6px; --r-lg:8px;
+  /* One elevation, for surfaces that float over content. Everything else is flat. */
+  --shadow-raised:0 1px 2px rgb(0 0 0 / 4%),0 4px 16px rgb(0 0 0 / 5%);
+  --ring:0 0 0 3px rgb(47 91 234 / 20%);
+  --ease:cubic-bezier(.2,0,0,1);
   /* Names kept for renderers that predate the token set. */
   --ink:var(--text); --navy:var(--text); --navy-deep:var(--text); --teal:var(--accent); --teal-light:var(--accent-soft);
   --copper:var(--text-3); --paper:var(--bg); --white:#fff; --muted:var(--text-2); --line:var(--border); --soft:var(--bg-muted);
   --fg:var(--text); --card:var(--bg); --radius:var(--r-lg); --shadow:none;
 }
+/* app tokens */
+:root{
+  --side-w:240px; --capture-h:0px; --tabs-h:41px;
+  --bar-bg:#18181b; --bar-text:#fafafa; --bar-text-2:#c4c4ca; --bar-line:rgb(255 255 255 / 16%);
+  --shadow-sm:0 1px 2px rgb(16 16 20 / 5%); --shadow-panel:0 1px 2px rgb(16 16 20 / 4%),0 6px 20px rgb(16 16 20 / 5%);
+}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:24px}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--font);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
-a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
+html{scroll-padding-top:24px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.57 var(--font);font-feature-settings:"ss01";-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{color:var(--accent-hover);text-decoration-color:currentColor}
-button,input,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-sm)}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 [tabindex='-1']:focus{outline:none}
-::selection{background:var(--accent-soft);color:var(--text)}
+::selection{background:var(--accent-line);color:var(--text)}
 h1,h2,h3,h4,p{margin:0}
-h1,h2,h3,h4{line-height:1.3;overflow-wrap:break-word;color:var(--text)}
-h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
-h2{font-size:16px;font-weight:600;letter-spacing:-.005em}
-h3{font-size:14px;font-weight:600}
-h4{font-size:13px;font-weight:600}
+h1,h2,h3,h4{overflow-wrap:break-word;color:var(--text);font-weight:600;text-wrap:balance}
+h1{font-size:24px;line-height:32px;letter-spacing:-.02em}
+h2{font-size:16px;line-height:24px;letter-spacing:-.011em}
+h3{font-size:14px;line-height:20px;letter-spacing:-.006em}
+h4{font-size:13px;line-height:20px}
 p+p{margin-top:8px}
 ul,ol{padding-left:20px;margin:8px 0}li+li{margin-top:4px}
-code{font:12px/1.5 var(--mono);overflow-wrap:anywhere;background:var(--bg-muted);padding:1px 4px;border-radius:var(--r-sm);color:var(--text-2)}
+code{font:12px/1.5 var(--mono);overflow-wrap:anywhere;background:var(--bg-muted);padding:1px 4px;border-radius:var(--r-sm);color:var(--text)}
 small{font-size:12px}
 strong{font-weight:600}
 svg{display:block;max-width:100%}
-.skip-link{position:fixed;top:8px;left:8px;transform:translateY(-200%);z-index:30;background:var(--bg);color:var(--text);padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);text-decoration:none}
+.skip-link{position:fixed;top:8px;left:8px;transform:translateY(-200%);z-index:30;background:var(--bg);color:var(--text);padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);text-decoration:none;box-shadow:var(--shadow-raised)}
 .skip-link:focus{transform:translateY(0)}
-
-/* Application shell: sidebar and content */
-.app-layout{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh;background:linear-gradient(90deg,var(--bg-subtle) 0 231px,var(--border) 231px 232px,var(--bg) 232px)}
-.sidebar{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:16px}
-.sidebar .brand{color:var(--text)}
-.side-nav{display:flex;flex-direction:column;gap:2px}
-.side-label{font-size:12px;color:var(--text-3);padding:0 8px;margin:4px 0}
-.side-link{display:flex;align-items:center;gap:8px;min-height:32px;padding:6px 8px;border-radius:var(--r-md);color:var(--text-2);text-decoration:none;font-size:13px;font-weight:500}
-.side-link svg{width:16px;height:16px;flex-shrink:0;color:var(--text-3)}
-.side-link:hover{background:var(--bg-hover);color:var(--text)}
-.side-link[aria-current=page]{background:var(--bg-active);color:var(--text)}
-.side-link[aria-current=page] svg{color:var(--text)}
-.side-foot{margin-top:auto;padding:8px;font-size:12px;color:var(--text-3);line-height:1.5;border-top:1px solid var(--border)}
-.app-main{min-width:0;display:flex;flex-direction:column}
-.app-layout.bare{display:flex;flex-direction:column;background:var(--bg-subtle)}
-.bare-header{padding:16px 32px}
-.app-main>.app-shell{flex:1}
 
 /* Document header used by exhibit pages */
 .topbar{background:var(--bg);border-bottom:1px solid var(--border);color:var(--text)}
@@ -77,19 +74,11 @@ svg{display:block;max-width:100%}
 .app-shell{width:100%;max-width:1200px;margin:0 auto;padding:24px 32px 48px;min-height:60vh}
 
 /* Page structure */
-.breadcrumb{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text-3);margin-bottom:12px;flex-wrap:wrap}
-.breadcrumb a{color:var(--text-2);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.page-header>div{min-width:0}
-.page-header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
 .eyebrow,.section-kicker{display:block;font-size:12px;font-weight:500;color:var(--text-3);margin-bottom:4px}
 .page-title{max-width:900px}
 .page-subtitle{color:var(--text-2);font-size:14px;max-width:680px;margin-top:4px}
 .section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:32px 0 12px}
 .section-heading p{font-size:13px;color:var(--text-2);margin-top:2px}
-.section-nav{display:flex;flex-wrap:wrap;gap:2px 20px;margin:-8px 0 24px;border-bottom:1px solid var(--border)}
-.section-nav a{display:inline-flex;align-items:center;min-height:36px;padding:8px 0;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--text-2);font-size:13px;font-weight:500;text-decoration:none}
-.section-nav a:hover{color:var(--text);border-bottom-color:var(--border-strong)}
 .hero{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.8fr);gap:32px;margin-bottom:24px}
 .hero h1,.hero h2{color:var(--text)}.hero p{max-width:680px}
 .hero .page-subtitle,.hero .muted{color:var(--text-2)}
@@ -97,12 +86,11 @@ svg{display:block;max-width:100%}
 .hero-aside .metric-value{font-size:28px}
 .hero-aside.panel{border:1px solid var(--border);padding:20px;margin:0;background:var(--bg)}
 .hero .action-list>p{padding:12px 0;border-bottom:1px solid var(--border);color:var(--text-2);font-size:13px}.hero .action-list strong{color:var(--text)}
-.bare .hero{background:var(--bg)}.bare .app-shell{padding-top:8px}
 
 /* Surfaces */
 .panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:16px;min-width:0}
 .panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.panel-header p{font-size:13px;color:var(--text-2);margin-top:2px}
+.panel-header p{font-size:13px;line-height:20px;color:var(--text-2);margin-top:2px}
 .panel>:last-child{margin-bottom:0}
 .panel>.section-heading:first-child{margin-top:0}
 .two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
@@ -114,20 +102,20 @@ svg{display:block;max-width:100%}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 12px}
 .metrics-grid+.form-help,.metrics-grid+p{margin:0 0 16px}
 .metric-card{background:var(--bg);padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);min-width:0}
-.metric-card.highlight{border-color:var(--border)}
-.metric-label{display:block;color:var(--text-2);font-size:13px;font-weight:500;line-height:1.4;margin-bottom:6px}
-.metric-value{display:block;font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--text)}
+.metric-card.highlight{border-color:var(--border-strong)}
+.metric-label{display:block;color:var(--text-2);font-size:13px;font-weight:500;line-height:20px;margin-bottom:4px}
+.metric-value{display:block;font-size:28px;font-weight:600;line-height:1.25;letter-spacing:-.022em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--text)}
 .metric-value small{display:inline;font-size:13px;font-weight:500;color:var(--text-3);letter-spacing:0;margin-right:4px}
-.metric-note{display:block;font-size:12px;color:var(--text-3);line-height:1.5;margin-top:6px}
+.metric-note{display:block;font-size:12px;color:var(--text-3);line-height:18px;margin-top:4px}
 .metric-comparison{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
-.metric-comparison>div{padding-top:10px;border-top:1px solid var(--border)}
-.metric-comparison span{display:block;font-size:12px;color:var(--text-3);margin-bottom:4px}
-.metric-comparison strong,.metric-comparison .metric-value{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
-.num,.figure{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.metric-comparison>div{padding-top:12px;border-top:1px solid var(--border)}
+.metric-comparison span{display:block;font-size:12px;line-height:18px;color:var(--text-3);margin-bottom:4px}
+.metric-comparison strong,.metric-comparison .metric-value{font-size:16px;line-height:24px;font-weight:600;letter-spacing:-.011em;font-variant-numeric:tabular-nums}
+.num,.figure,td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .positive{color:var(--ok)}.muted{color:var(--text-2)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 
-/* Badges and tags */
-.badge,.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:18px;font-weight:500;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:0 6px;background:var(--bg-muted);color:var(--text-2);max-width:100%;vertical-align:middle;white-space:normal}
+/* Badges (status: tinted, with a dot and text) and tags (neutral) */
+.badge,.pill{display:inline-flex;align-items:center;gap:6px;min-height:20px;font-size:12px;line-height:18px;font-weight:500;letter-spacing:0;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:0 7px;background:var(--bg-subtle);color:var(--text-2);max-width:100%;vertical-align:middle;white-space:normal;font-variant-numeric:tabular-nums}
 .badge[data-status]:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 .state-complete,.state-approved,.state-active,.state-on_track,.state-approval_recorded{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
 .state-awaiting_approval,.state-changes_requested,.state-needs_evidence,.state-revisions_queued{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
@@ -135,50 +123,61 @@ svg{display:block;max-width:100%}
 .state-running,.state-queued,.state-pending{color:var(--info);background:var(--info-bg);border-color:var(--info-line)}
 
 /* Controls */
-.button,button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--primary);border:1px solid var(--primary);color:#fff;text-decoration:none;border-radius:var(--r-md);padding:6px 12px;font-size:13px;line-height:20px;font-weight:500;cursor:pointer;min-height:34px;text-align:center;white-space:nowrap;transition:background .12s,border-color .12s}
+.button,button{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--primary);border:1px solid var(--primary);color:#fff;text-decoration:none;border-radius:var(--r-md);padding:5px 12px;font-size:13px;line-height:20px;font-weight:500;cursor:pointer;min-height:32px;text-align:center;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
 .button:hover,button:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:#fff;text-decoration:none}
 .button.secondary,button.secondary{background:var(--bg);color:var(--text);border-color:var(--border-strong)}
-.button.secondary:hover,button.secondary:hover{background:var(--bg-hover);color:var(--text)}
+.button.secondary:hover,button.secondary:hover{background:var(--bg-hover);border-color:#c8c8cd;color:var(--text)}
 .button.danger,button.danger{background:var(--bg);color:var(--bad);border-color:var(--bad-line)}
-.button.danger:hover,button.danger:hover{background:var(--bad-bg);color:var(--bad)}
-button:disabled{opacity:.5;cursor:not-allowed}
+.button.danger:hover,button.danger:hover{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.button.small,button.small{min-height:28px;padding:3px 10px;font-size:12px;line-height:20px}
+.button.large,button.large{min-height:40px;padding:9px 16px;font-size:14px}
+:is(.button,button):is(:disabled,[aria-disabled=true]),:is(.button,button):is(:disabled,[aria-disabled=true]):hover{background:var(--bg-muted);border-color:var(--border);color:var(--text-3);cursor:not-allowed}
 .text-link{font-size:13px;font-weight:500;text-decoration:none}.text-link:after{content:" →"}
 .text-link:hover{text-decoration:underline}
-label{display:block;font-size:13px;font-weight:500;margin:12px 0 6px}
-input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select,.input-field{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--r-md);padding:7px 10px;min-height:36px;font-size:14px}
-input:focus,textarea:focus,select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-textarea{min-height:96px;resize:vertical;line-height:1.5}
-input[type=checkbox],input[type=radio]{accent-color:var(--primary);width:16px;height:16px;vertical-align:middle;margin:0 8px 0 0;flex-shrink:0}
-.checkbox-label{display:flex;align-items:flex-start;font-weight:400;gap:6px}
-.checkbox-label input{margin-top:3px}.form-help{font-size:12px;color:var(--text-3);margin-top:6px}
-.scope-option{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;font-weight:400;margin:0}
+label{display:block;font-size:13px;line-height:20px;font-weight:500;color:var(--text);margin:16px 0 6px}
+input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select,.input-field{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border-input);border-radius:var(--r-md);padding:7px 10px;min-height:36px;font-size:14px;line-height:20px;transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
+:is(input:not([type=checkbox]):not([type=radio]),textarea,select):hover{border-color:var(--text-2)}
+/* A transparent outline keeps a focus indicator in forced-colors mode, where box-shadow is removed. */
+:is(input:not([type=checkbox]):not([type=radio]),textarea,select):focus{outline:2px solid transparent;outline-offset:0;border-color:var(--accent);box-shadow:var(--ring)}
+:is(input,textarea,select):disabled{background:var(--bg-muted);border-color:var(--border-strong);color:var(--text-3);cursor:not-allowed}
+:is(input,textarea,select)[aria-invalid=true]{border-color:var(--bad)}
+::placeholder{color:var(--text-3);opacity:1}
+textarea{min-height:96px;resize:vertical}
+fieldset{min-width:0;margin:16px 0;padding:4px 16px 16px;border:1px solid var(--border);border-radius:var(--r-lg)}
+legend{padding:0 6px;margin-left:-6px;font-size:13px;line-height:20px;font-weight:600;color:var(--text)}
+input[type=checkbox],input[type=radio]{accent-color:var(--primary);width:16px;height:16px;vertical-align:middle;margin:0 8px 0 0;flex-shrink:0;cursor:pointer}
+.checkbox-label{display:flex;align-items:flex-start;font-weight:400;gap:4px;cursor:pointer}
+.checkbox-label input{margin-top:2px}.form-help{font-size:12px;line-height:18px;color:var(--text-3);margin-top:6px}
+.scope-option{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;font-weight:400;margin:0}
 .scope-option input{margin:2px 0}.scope-option small{display:block;color:var(--text-3)}
 .decision-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 8px}
 
 /* Tables */
 .table-wrap,.scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--border);border-radius:var(--r-lg);margin:12px 0;background:var(--bg)}
-.data-table,table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;text-align:left}
-caption{caption-side:top;text-align:left;font-size:12px;color:var(--text-3);padding:8px 12px;border-bottom:1px solid var(--border)}
-th{color:var(--text-2);font-size:12px;font-weight:500;line-height:1.4;background:var(--bg-subtle);vertical-align:bottom}
+.data-table,table{width:100%;border-collapse:collapse;font-size:13px;line-height:20px;font-variant-numeric:tabular-nums;text-align:left}
+caption{caption-side:top;text-align:left;font-size:12px;line-height:18px;color:var(--text-3);padding:8px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--text-2);font-size:12px;font-weight:500;line-height:18px;background:var(--bg-subtle);vertical-align:bottom;text-align:left}
 th,td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
-td{line-height:1.5;overflow-wrap:break-word}
-tbody th{background:transparent;color:var(--text);font-size:13px;font-weight:500;vertical-align:top}
+/* Tabular figures keep columns aligned; labels and notes keep normal hyphens and spacing. */
+thead th,tbody th,td small,td .muted,td p{font-variant-numeric:normal}
+td{overflow-wrap:break-word}
+tbody th{background:transparent;color:var(--text);font-size:13px;line-height:20px;font-weight:500;vertical-align:top}
 tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
 tbody tr:hover>td,tbody tr:hover>th{background:var(--bg-subtle)}
-td .muted,td small,th small{display:block;font-weight:400;font-size:12px;color:var(--text-3);margin-top:2px;line-height:1.45}
-.row-actions{display:flex;flex-direction:column;align-items:flex-start;gap:2px;white-space:nowrap}
-.company-table th[scope=row]{min-width:260px;max-width:420px}
-.entity .company-monogram{margin-top:1px}
+td .muted,td small,th small{display:block;font-weight:400;font-size:12px;color:var(--text-3);margin-top:2px;line-height:18px}
 td .badge,th .badge{white-space:nowrap}
-tfoot td,tfoot th{background:var(--bg-subtle);border-top:1px solid var(--border);border-bottom:0;font-weight:600;color:var(--text)}
-.table-caption{font-size:12px;color:var(--text-3);margin-top:8px}
-.row-link{color:var(--text);font-weight:500;text-decoration:none}.row-link:hover{color:var(--accent);text-decoration:underline}
+tfoot td,tfoot th{background:var(--bg-subtle);border-top:1px solid var(--border-strong);border-bottom:0;font-size:13px;line-height:20px;font-weight:600;color:var(--text);vertical-align:top}
+.table-caption{font-size:12px;line-height:18px;color:var(--text-3);margin-top:8px}
 
 /* Disclosure */
 .disclosure,details{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);margin:12px 0;min-width:0}
-summary{font-size:13px;font-weight:500;padding:8px 12px;cursor:pointer;min-height:40px;display:list-item;color:var(--text);line-height:24px}
-summary:hover{background:var(--bg-subtle)}
-summary::marker{color:var(--text-3)}details[open]>summary{border-bottom:1px solid var(--border)}
+summary{display:block;list-style:none;font-size:13px;font-weight:500;line-height:20px;padding:10px 12px;cursor:pointer;min-height:40px;color:var(--text);border-radius:calc(var(--r-lg) - 1px)}
+summary::-webkit-details-marker{display:none}
+/* Chevron drawn with borders, so it follows forced colours; it points right when closed and down when open. */
+summary:before{content:"";display:inline-block;width:6px;height:6px;margin:0 10px 2px 2px;border:solid var(--text-3);border-width:0 1.5px 1.5px 0;transform:rotate(-45deg);vertical-align:middle;transition:transform .15s var(--ease)}
+details[open]>summary:before{transform:rotate(45deg);margin-bottom:4px}
+summary:hover{background:var(--bg-subtle)}summary:hover:before{border-color:var(--text)}
+details[open]>summary{border-bottom:1px solid var(--border);border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
 .disclosure-body,details>.details-content{padding:16px}
 details>.table-wrap{margin:12px}
 .disclosure>p,.disclosure>dl,.disclosure>h4,.disclosure>ul,.disclosure>.table-wrap,.disclosure>.scenario-grid,.disclosure>.evidence-links,.disclosure>.timeline-grid{margin:12px 16px}
@@ -197,7 +196,7 @@ details>.table-wrap{margin:12px}
 .scenario,.scenario-card{background:var(--bg);padding:12px;border-radius:var(--r-md);border:1px solid var(--border);min-width:0}
 .scenario.base,.scenario-card.base{background:var(--accent-soft);border-color:var(--accent-line)}
 .scenario-card .metric-label,.scenario .metric-label{font-size:12px;margin-bottom:2px}
-.scenario-card .metric-value,.scenario .metric-value{font-size:16px}
+.scenario-card .metric-value,.scenario .metric-value{font-size:16px;letter-spacing:-.011em}
 .scenario-card.negative{background:var(--bad-bg);border-color:var(--bad-line)}.scenario-card.negative .metric-value{color:var(--bad)}
 .timeline-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin:12px 0}
 .timeline-stage{background:var(--bg);padding:12px 16px}.timeline-stage h3,.timeline-stage h4{font-size:13px;margin-bottom:4px}.timeline-stage p,.timeline-stage li{font-size:13px;color:var(--text-2)}
@@ -206,7 +205,7 @@ details>.table-wrap{margin:12px}
 .definition-list{margin:12px 0;font-size:13px}
 .definition-list>div{display:grid;grid-template-columns:minmax(140px,.6fr) minmax(0,1fr);gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
 .definition-list>div:last-child{border-bottom:0}
-.definition-list dt{color:var(--text-2)}.definition-list dd{margin:0;overflow-wrap:anywhere}
+.definition-list dt{color:var(--text-2)}.definition-list dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .meta-list{margin:0;display:grid;grid-template-columns:minmax(120px,.35fr) minmax(0,1fr);gap:8px 20px;font-size:13px}
 .meta-list dt{color:var(--text-2)}.meta-list dd{margin:0;overflow-wrap:anywhere}
 .inline-meta,.status-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--text-3)}
@@ -215,7 +214,7 @@ details>.table-wrap{margin:12px}
 .initiative-list{list-style:none;padding:0;margin:0}
 .initiative-row{padding:12px 0;display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .initiative-row:last-child{border-bottom:0}.initiative-row p{font-size:12px;color:var(--text-3);margin-top:2px}
-.initiative-row .metric-value{font-size:16px}.initiative-row .metric-note{margin-top:2px}
+.initiative-row .metric-value{font-size:16px;letter-spacing:-.011em}.initiative-row .metric-note{margin-top:2px}
 .evidence-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .evidence-links a,.evidence-link{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 8px;border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg);color:var(--text-2);font-size:12px;font-weight:500;text-decoration:none;overflow-wrap:anywhere}
 .evidence-links a:hover,.evidence-link:hover{background:var(--bg-hover);color:var(--text)}
@@ -227,39 +226,26 @@ details>.table-wrap{margin:12px}
 .company-card .metric-value{font-size:20px}
 .company-card .card-actions{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}
 .card-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.entity{display:flex;align-items:flex-start;gap:10px;min-width:0}
 .workstream,.workstream-card{border-top:1px solid var(--border)}
 .initiative-card{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px;margin:8px 0;background:var(--bg)}
 .initiative-card h3,.initiative-card h4{font-size:13px;margin-top:4px}.initiative-card>p{font-size:13px;color:var(--text-2);margin-top:4px}
 .initiative-values{min-width:150px;text-align:right;flex-shrink:0}.initiative-values strong{display:block;font-size:16px;font-variant-numeric:tabular-nums}.initiative-values span{font-size:12px;color:var(--text-3)}
 
-/* Master-detail: a list with one selected detail panel */
-.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);gap:16px;align-items:start}
-.detail-stack{position:sticky;top:16px;min-width:0}
-.detail-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);min-width:0;box-shadow:0 1px 2px rgb(0 0 0 / 4%),0 4px 16px rgb(0 0 0 / 4%)}
-.detail-panel:target,.detail-stack:not(:has(.detail-panel:target))>.detail-panel:first-child{display:block}
-.detail-head{padding:16px;border-bottom:1px solid var(--border)}
-.detail-head h3{font-size:16px;margin-top:4px}
+/* Detail body, shared by exhibits and the application's record panels */
 .detail-body{padding:16px}.detail-body>*+*{margin-top:12px}
 .detail-body h4{margin-top:16px}
-.detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
-.detail-panel .definition-list dd{text-align:right;font-variant-numeric:tabular-nums}
-tr.is-outside>td,tr.is-outside>th{color:var(--text-3)}
 
 /* Notices and states */
-.alert,.warning{padding:12px 16px;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:var(--warn-bg);font-size:13px;line-height:1.55;margin-bottom:16px;color:#5f3c05}
-.alert h2,.alert h3,.warning h2,.warning h3{font-size:14px;margin-bottom:4px;color:inherit}
+.alert,.warning{padding:12px 16px;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:var(--warn-bg);font-size:13px;line-height:20px;margin-bottom:16px;color:var(--warn-strong)}
+.alert h2,.alert h3,.warning h2,.warning h3{font-size:13px;line-height:20px;margin-bottom:4px;color:inherit}
+.alert a,.warning a{color:inherit;text-decoration-color:currentColor}
 .alert.bad{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+.alert.info{background:var(--info-bg);border-color:var(--info-line);color:var(--info)}
 .notice{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);font-size:13px;color:var(--text-2);margin-bottom:16px}
-.empty-state{padding:32px 24px;border:1px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--bg-subtle);text-align:center;color:var(--text-2)}
-.empty-state h2,.empty-state h3{color:var(--text);margin-bottom:8px}.empty-state p{max-width:560px;margin:0 auto}.empty-state>*+*{margin-top:8px}.empty-state>p+p{margin-top:12px}
-.decision-panel{border:1px solid var(--border-strong);background:var(--bg);padding:20px;border-radius:var(--r-lg);margin-top:24px}
-.decision-panel h2{margin-bottom:6px}.decision-panel form{margin-top:12px}
+.empty-state{padding:40px 24px;border:1px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--bg-subtle);text-align:center;color:var(--text-2)}
+.empty-state h1{font-size:20px;line-height:28px}.empty-state h2,.empty-state h3{color:var(--text);margin-bottom:8px}.empty-state p{max-width:560px;margin:0 auto}.empty-state>*+*{margin-top:8px}.empty-state>p+p{margin-top:12px}
 .decision-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:24px}
 .source-preview{max-width:100%;max-height:620px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);font:12px/1.7 var(--mono)}
-.login-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr);gap:48px;align-items:center;min-height:70vh;max-width:1040px;margin:auto}
-.login-layout .panel{padding:24px}.login-layout h1{font-size:28px}
-.login-layout .button,.login-layout button{width:100%;margin-top:16px;min-height:38px}
 
 /* Footer */
 .page-footer{border-top:1px solid var(--border);color:var(--text-3);width:100%;max-width:1200px;margin:0 auto;padding:16px 32px 24px;font-size:12px}
@@ -268,44 +254,453 @@ tr.is-outside>td,tr.is-outside>th{color:var(--text-3)}
 .page-footer details[open]>summary{border:0}.page-footer details p{max-width:780px;padding:4px 0}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-@media(max-width:1100px){.split{grid-template-columns:minmax(0,1fr)}.detail-stack{position:static}.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-column{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{gap:24px}}
+@media(max-width:1100px){.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-column{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{gap:24px}}
 @media(max-width:900px){
-  .app-layout{display:block;background:var(--bg)}
-  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:8px 16px;background:var(--bg-subtle);border-bottom:1px solid var(--border)}
-  .side-nav{flex-direction:row;flex-wrap:wrap;gap:2px}.side-label,.side-foot{display:none}
   .topbar-inner{padding:8px 20px;gap:12px}.workspace-tag{display:none}
   .app-shell{padding:20px 20px 40px}.page-footer{padding:16px 20px 24px}
 }
 @media(max-width:760px){
   .topbar-inner{flex-wrap:wrap;gap:4px 12px;padding-top:8px;padding-bottom:8px}.primary-nav{width:100%;margin-left:-10px;gap:2px}
-  .page-header{flex-direction:column;gap:12px}.page-header-meta{align-items:flex-start;text-align:left}
-  .two-column,.three-column,.decision-grid,.login-layout{grid-template-columns:minmax(0,1fr)}
+  .two-column,.three-column,.decision-grid{grid-template-columns:minmax(0,1fr)}
   .hero{grid-template-columns:minmax(0,1fr);padding:20px}.hero-aside{border-left:0;border-top:1px solid var(--border);padding:16px 0 0}
   .metric-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}
   .initiative-card{display:block}.initiative-values{text-align:left;margin-top:8px}
   .footer-line{flex-direction:column;gap:6px}
-  .login-layout{min-height:0;gap:24px}
   .data-table{min-width:560px}
   .button,button,.side-link,.nav-link{min-height:40px}
 }
 @media(max-width:600px){
   .timeline-grid,.scenario-grid{grid-template-columns:minmax(0,1fr)}
-  .section-nav{gap:2px 16px}
   .definition-list>div,.meta-list{grid-template-columns:minmax(0,1fr);gap:2px}
-  .detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
 }
 @media(max-width:420px){
-  .app-shell{padding:16px 16px 32px}.topbar-inner,.sidebar{padding-left:16px;padding-right:16px}.page-footer{padding:16px}
+  .app-shell{padding:16px 16px 32px}.topbar-inner{padding-left:16px;padding-right:16px}.page-footer{padding:16px}
   .metrics-grid{grid-template-columns:minmax(0,1fr)}.metric-value{font-size:24px}
   .panel{padding:16px}.card-top,.panel-header{flex-wrap:wrap}
   .decision-actions>.button,.decision-actions>button,.card-actions .button{flex-grow:1}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
-@media print{
-  body{font-size:10pt}.sidebar,.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.section-nav,.decision-panel button{display:none!important}
-  .app-layout{display:block}.app-shell{max-width:none;padding:16px 0}.topbar{border-bottom:1px solid #999}
-  .panel,.metric-card,.decision-panel,.detail-panel{break-inside:avoid;border-color:#bbb;box-shadow:none}.detail-panel{display:block!important}
-  .table-wrap{overflow:visible}table,.data-table{min-width:0;font-size:9pt}th,td{padding:5px}a{color:#111}details{break-inside:avoid}
-  .badge{border-color:#999;color:#111;background:#fff}h1{font-size:18pt}.metric-value{font-size:16pt}
+/* Shared components on touch-sized screens: 40 px controls, 16 px inputs (no iOS zoom on focus). */
+@media(max-width:760px){
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select){min-height:40px;font-size:16px}
+  summary{min-height:44px;padding-top:12px;padding-bottom:12px}
+  .button.small,button.small{min-height:40px}
+  .evidence-links a,.evidence-link{min-height:32px}
+  .metric-value{font-size:24px}
 }
-@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("../../assets/fonts/InterVariable-latin.woff2") format("woff2")}</style></head><body><a class='skip-link' href='#main-content'>Skip to content</a><div class='app-layout'><aside class='sidebar'><a class='brand' href='workspace.html' aria-label='Value Creation OS portfolio'><span class='brand-mark' aria-hidden='true'><svg viewBox='0 0 24 24' fill='none'><path d='M5 19V12M10 19V7M15 19V10M20 19V4' stroke='currentColor' stroke-width='2.6' stroke-linecap='round'/></svg></span><span class='brand-name'>Value Creation OS<span class='brand-subtitle'>Operating partner workspace</span></span></a><nav class='side-nav' aria-label='Main'><p class='side-label'>Workspace</p><a class='side-link' href='workspace.html' aria-current='page'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='3' width='7' height='7' rx='1.5'/><rect x='14' y='3' width='7' height='7' rx='1.5'/><rect x='3' y='14' width='7' height='7' rx='1.5'/><rect x='14' y='14' width='7' height='7' rx='1.5'/></svg><span>Portfolio</span></a><a class='side-link' href='workspace.html#decisions'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M9 11l3 3 8-8'/><path d='M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9'/></svg><span>Decision desk</span></a><a class='side-link' href='#methodology'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z'/><path d='M4 19V5'/></svg><span>Methodology</span></a></nav><p class='side-foot'>Synthetic company data<br>Modeled outcomes<br>Human decision control</p></aside><div class='app-main'><main class='app-shell' id='main-content' tabindex='-1'><aside class='notice' aria-label='Capture provenance'><strong>Read-only application capture.</strong> Fictional fixtures; automated demonstration. The memo shows the proposed review; the scorecard uses fixture observations after an automated approval. These are modeled values, not realized results. <a href='../../index.html'>Portfolio overview</a> &middot; <a href='workspace.html'>Workspace</a></aside><nav class='breadcrumb' aria-label='Breadcrumb'><a href='workspace.html'>Portfolio</a><span aria-hidden='true'>/</span><span>Plan review</span></nav><header class='page-header'><div><h1 class='page-title'>Beacon Scheduling Systems (fictional)</h1><p class='page-subtitle'>A decision-ready value creation plan, with the evidence behind every lever.</p></div><div class='page-header-meta'><span class='badge state-awaiting_approval' data-status='awaiting_approval'>Awaiting decision</span><p class='metric-note'>As of 01 Oct 2026 · 14:20 UTC</p></div></header><nav class='section-nav' aria-label='Plan sections'><a href='#executive'>Decision brief</a><a href='#workstreams'>Execution plan</a><a href='#evidence'>Value cases &amp; evidence</a><a href='#decision'>Decision record</a><a href='beacon-kpis.html'>Operating performance</a></nav><section id='executive'><div class='section-heading'><div><p class='eyebrow'>Proposed scope · USD</p><h2>Value creation at a glance</h2></div><a class='button' href='#decision'>Review & decide</a></div><div class='metrics-grid'><div class='metric-card'><div class='metric-label'>Modeled annual EBITDA</div><div class='metric-value'><span data-metric='run-rate-ebitda' data-value='1148309.08' data-currency='USD'>1,148,309</span></div><div class='metric-note'>Proposed run-rate uplift · not realized returns</div></div><div class='metric-card'><div class='metric-label'>Modeled in-year EBITDA</div><div class='metric-value'>739,200</div><div class='metric-note'>Reflects implementation start and ramp</div></div><div class='metric-card'><div class='metric-label'>Execution scope</div><div class='metric-value'>5</div><div class='metric-note'>Initiatives across 3 accountable workstreams</div></div><div class='metric-card'><div class='metric-label'>Open data gaps</div><div class='metric-value'>2</div><div class='metric-note'>Review limitations before committing resources</div></div></div><p class='form-help'>Totals sum independently sized value cases and are not adjusted for overlap. Validate interactions between initiatives before treating the total as an investment case.</p><div class='two-column'><article class='panel'><p class='eyebrow'>Contribution to the base case</p><h3>Where the value comes from</h3><div class='contribution-row'><div><span>Pricing and monetisation</span><strong>947,597</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:100.00%;width:100.00%'></div></div></div><div class='contribution-row'><div><span>Go-to-market efficiency</span><strong>191,160</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:20.17%;width:20.17%'></div></div></div><div class='contribution-row'><div><span>AI and automation</span><strong>9,552</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:1.01%;width:1.01%'></div></div></div><p class='metric-note'>Annual EBITDA by workstream. Bars scale to the largest absolute contribution; amounts sum to the displayed scope.</p></article><article class='panel'><p class='eyebrow'>Decision brief</p><h3>Conditions for execution</h3><ul><li>Migrate legacy price-book customers: Customer-facing price or discount-policy change</li><li>Enforce contracted renewal uplifts: Customer-facing price or discount-policy change</li><li>Discount governance in mid-market: Customer-facing price or discount-policy change</li><li>Improve sales and marketing efficiency: Go-to-market budget or headcount change</li><li>Deflect tier-1 support with AI self-service: Operating-model change with possible headcount implications (HR/legal review)</li></ul><p class='metric-note'><strong>Governance:</strong> Weekly workstream check-in · Biweekly steering committee · Monthly sponsor update</p></article></div></section><section id='workstreams'><div class='section-heading'><div><p class='eyebrow'>100-day implementation</p><h2>Accountable workstreams</h2></div></div><div class='stack'><article class='panel workstream-card'><div class='panel-header'><div><p class='eyebrow'>Workstream 01 · Chief Revenue Officer</p><h3>Pricing and monetisation</h3></div><span class='badge'>3 initiatives</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Migrate legacy price-book customers<small>Approval condition: Customer-facing price or discount-policy change</small></th><td><span class='badge'>Quick win</span></td><td class='num'>380,650</td><td class='num'>237,906</td></tr><tr><th scope='row'>Enforce contracted renewal uplifts<small>Approval condition: Customer-facing price or discount-policy change</small></th><td><span class='badge'>Quick win</span></td><td class='num'>351,942</td><td class='num'>219,963</td></tr><tr><th scope='row'>Discount governance in mid-market<small>Approval condition: Customer-facing price or discount-policy change</small></th><td><span class='badge'>Quick win</span></td><td class='num'>215,006</td><td class='num'>134,379</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num'>947,597</td><td class='num'>592,248</td></tr></tfoot></table></div><div class='alert warning'><strong>Before implementation</strong><ul><li>Contract notice periods and caps reviewed before any customer communication</li></ul></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Launch: Migrate legacy price-book customers</li><li>Launch: Enforce contracted renewal uplifts</li><li>Launch: Discount governance in mid-market</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>First KPI readout: Migrate legacy price-book customers</li><li>First KPI readout: Enforce contracted renewal uplifts</li><li>First KPI readout: Discount governance in mid-market</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>Share of ARR on legacy price books<small>Decrease is better</small></th><td>17.9%</td><td>15.8%</td><td>8.1%</td></tr><tr><th scope='row'>Realized / contracted renewal uplift<small>Increase is better</small></th><td>22.7%</td><td>33.6%</td><td>72.9%</td></tr><tr><th scope='row'>Average new-deal discount (mid-market)<small>Decrease is better</small></th><td>24.0%</td><td>23.5%</td><td>21.6%</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Migrate legacy price-book customers: Improvement is the price increase achieved on migration</li><li>Migrate legacy price-book customers: Realization is the share of legacy ARR migrated net of churn</li><li>Enforce contracted renewal uplifts: Customer churn and downgrade response is captured in the realization rate</li><li>Enforce contracted renewal uplifts: Only renewals in the next 12 months realize in year one</li><li>Enforce contracted renewal uplifts: Overlaps with discount governance on the same ARR; sized independently</li><li>Discount governance in mid-market: Improvement is the reduction in average discount as a share of list price</li><li>Discount governance in mid-market: Realization reflects sales adoption of the approval policy</li></ul></details></article><article class='panel workstream-card'><div class='panel-header'><div><p class='eyebrow'>Workstream 02 · Chief Revenue Officer</p><h3>Go-to-market efficiency</h3></div><span class='badge'>1 initiative</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Improve sales and marketing efficiency<small>Approval condition: Go-to-market budget or headcount change</small></th><td><span class='badge'>Quick win</span></td><td class='num'>191,160</td><td class='num'>143,370</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num'>191,160</td><td class='num'>143,370</td></tr></tfoot></table></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Launch: Improve sales and marketing efficiency</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>First KPI readout: Improve sales and marketing efficiency</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>CAC payback (months)<small>Decrease is better</small></th><td>24.92 months</td><td>24.53 months</td><td>24.02 months</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Improve sales and marketing efficiency: Savings at constant new ARR</li><li>Improve sales and marketing efficiency: Check pricing leakage before attributing to GTM spend</li></ul></details></article><article class='panel workstream-card'><div class='panel-header'><div><p class='eyebrow'>Workstream 03 · Chief Operating Officer</p><h3>AI and automation</h3></div><span class='badge'>1 initiative</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Deflect tier-1 support with AI self-service<small>Approval condition: Operating-model change with possible headcount implications (HR/legal review)</small></th><td><span class='badge'>Structural</span></td><td class='num'>9,552</td><td class='num'>3,582</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num'>9,552</td><td class='num'>3,582</td></tr></tfoot></table></div><div class='alert warning'><strong>Before implementation</strong><ul><li>Evaluation set and rollback plan before any customer-facing automation</li></ul></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Design and pilot scope agreed: Deflect tier-1 support with AI self-service</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>Pilot live in at least one segment: Deflect tier-1 support with AI self-service</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>Tier-1 tickets per customer per month<small>Decrease is better</small></th><td>0.680 tickets / customer / month</td><td>0.680 tickets / customer / month</td><td>0.598 tickets / customer / month</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Deflect tier-1 support with AI self-service: Deflection rate is an assumption until a company pilot measures it</li><li>Deflect tier-1 support with AI self-service: Savings are capacity; any headcount change requires approval and HR/legal review</li></ul></details></article></div></section><section class='panel'><p class='eyebrow'>Diligence limitations</p><h2>Data gaps &amp; required evidence</h2><ul><li>Finance ops automation not sized. Data needed: Transaction volumes by finance process (AP invoices, close tasks, collections).</li><li>Billing operations automation not sized. Data needed: Billing exception and dispute volumes.</li></ul></section><section id='evidence'><div class='section-heading'><div><p class='eyebrow'>Analytical diligence · USD</p><h2>Value cases and evidence</h2></div></div><p class='muted'>Select a value case to inspect its scenarios, costs, input assumptions and source evidence. Values outside the displayed plan are not included in its totals.</p><div class='split'><div class='table-wrap' tabindex='0' role='region' aria-label='Value cases'><table class='data-table'><thead><tr><th scope='col'>Value case</th><th scope='col'>Scope</th><th scope='col' class='num'>Base annual EBITDA</th></tr></thead><tbody><tr data-opportunity-id='b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426' data-included='true'><th scope='row'><a class='row-link' href='#case-b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426'>Migrate legacy price-book customers</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>380,650</td></tr><tr data-opportunity-id='7ce29100-ab17-5f50-a1c8-e466383c021a' data-included='true'><th scope='row'><a class='row-link' href='#case-7ce29100-ab17-5f50-a1c8-e466383c021a'>Enforce contracted renewal uplifts</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>351,942</td></tr><tr data-opportunity-id='d56fba65-928a-5958-8cff-99986a577455' data-included='true'><th scope='row'><a class='row-link' href='#case-d56fba65-928a-5958-8cff-99986a577455'>Discount governance in mid-market</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>215,006</td></tr><tr data-opportunity-id='07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c' data-included='true'><th scope='row'><a class='row-link' href='#case-07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c'>Improve sales and marketing efficiency</a><small>Sales efficiency · low confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>191,160</td></tr><tr data-opportunity-id='691534da-70ec-590e-8f83-6c0a6b17396e' data-included='true'><th scope='row'><a class='row-link' href='#case-691534da-70ec-590e-8f83-6c0a6b17396e'>Deflect tier-1 support with AI self-service</a><small>AI automation · low confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>9,552</td></tr></tbody></table></div><div class='detail-stack'><article class='detail-panel value-case' id='case-b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426' data-opportunity-id='b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426' data-included='true' aria-labelledby='case-title-b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426'><div class='detail-head'><p class='eyebrow'>Pricing · medium confidence · Included in displayed plan</p><h3 id='case-title-b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426'>Migrate legacy price-book customers</h3></div><div class='detail-body'><p>17.9% of ARR is billed on legacy price books.</p><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>138,418</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>380,650</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>605,579</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Legacy price book ARR</dt><dd>3,642,581</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>75,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>10.0%</td><td class='num'>20.0%</td><td class='num'>25.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>40.0%</td><td class='num'>55.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Improvement is the price increase achieved on migration</li><li>Realization is the share of legacy ARR migrated net of churn</li></ul><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div><p class='metric-note'>Calculation value-case/2 · Input fingerprint <code>dba51f9e758ae69a125ad2d0d26468ddef61bd80707037af3d0947f327799e74</code></p></div></article><article class='detail-panel value-case' id='case-7ce29100-ab17-5f50-a1c8-e466383c021a' data-opportunity-id='7ce29100-ab17-5f50-a1c8-e466383c021a' data-included='true' aria-labelledby='case-title-7ce29100-ab17-5f50-a1c8-e466383c021a'><div class='detail-head'><p class='eyebrow'>Pricing · medium confidence · Included in displayed plan</p><h3 id='case-title-7ce29100-ab17-5f50-a1c8-e466383c021a'>Enforce contracted renewal uplifts</h3></div><div class='detail-body'><p>Realized renewal uplift averaged 1.1% against 4.7% contracted (144 renewals; realization 22.7%).</p><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>180,483</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>351,942</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>649,738</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Renewing ARR</dt><dd>18,998,195</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>40,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>2.0%</td><td class='num'>3.0%</td><td class='num'>4.5%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>65.0%</td><td class='num'>80.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Customer churn and downgrade response is captured in the realization rate</li><li>Only renewals in the next 12 months realize in year one</li><li>Overlaps with discount governance on the same ARR; sized independently</li></ul><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div><p class='metric-note'>Calculation value-case/2 · Input fingerprint <code>bc03e90e2941d36c2667dfd6b4e14f7bcc0da3bf946f99295db84fef5e8b2262</code></p></div></article><article class='detail-panel value-case' id='case-d56fba65-928a-5958-8cff-99986a577455' data-opportunity-id='d56fba65-928a-5958-8cff-99986a577455' data-included='true' aria-labelledby='case-title-d56fba65-928a-5958-8cff-99986a577455'><div class='detail-head'><p class='eyebrow'>Pricing · medium confidence · Included in displayed plan</p><h3 id='case-title-d56fba65-928a-5958-8cff-99986a577455'>Discount governance in mid-market</h3></div><div class='detail-body'><p>New-deal discount standard deviation in mid-market is 12.2% (mean 24.0%, 54 deals) against a policy maximum of 8.0%. New deals closed in the second half of quarter-end months carry 9.5% more discount than comparable deals.</p><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>89,586</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>215,006</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>403,136</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Discounted ARR</dt><dd>9,430,080</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>60,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>2.0%</td><td class='num'>4.0%</td><td class='num'>6.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>75.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Improvement is the reduction in average discount as a share of list price</li><li>Realization reflects sales adoption of the approval policy</li></ul><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div><p class='metric-note'>Calculation value-case/2 · Input fingerprint <code>0a6864d053fb57aed8777cad130399b12e7c0ab770940008d95d86008e1ebdd3</code></p></div></article><article class='detail-panel value-case' id='case-07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c' data-opportunity-id='07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c' data-included='true' aria-labelledby='case-title-07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c'><div class='detail-head'><p class='eyebrow'>Sales efficiency · low confidence · Included in displayed plan</p><h3 id='case-title-07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c'>Improve sales and marketing efficiency</h3></div><div class='detail-body'><p>CAC payback is 24.9 months against a policy maximum of 24.</p><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>79,650</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>191,160</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>371,700</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · S&amp;M expense</dt><dd>5,310,000</dd></div><div><dt>EBITDA flow-through</dt><dd>100.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>50,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>3.0%</td><td class='num'>6.0%</td><td class='num'>10.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Savings at constant new ARR</li><li>Check pricing leakage before attributing to GTM spend</li></ul><h4>Source evidence</h4><div class='evidence-links'><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 01</a><a href='a5e5f65b-b736-5f91-8f01-23fce3c15d0c.html' title='Evidence a5e5f65b-b736-5f91-8f01-23fce3c15d0c'>Source 02</a></div><p class='metric-note'>Calculation value-case/2 · Input fingerprint <code>17bfe4e3df5c37793097f42a36cf70783022e2123a0f590d001f5bbe96e736c1</code></p></div></article><article class='detail-panel value-case' id='case-691534da-70ec-590e-8f83-6c0a6b17396e' data-opportunity-id='691534da-70ec-590e-8f83-6c0a6b17396e' data-included='true' aria-labelledby='case-title-691534da-70ec-590e-8f83-6c0a6b17396e'><div class='detail-head'><p class='eyebrow'>AI automation · low confidence · Included in displayed plan</p><h3 id='case-title-691534da-70ec-590e-8f83-6c0a6b17396e'>Deflect tier-1 support with AI self-service</h3></div><div class='detail-body'><p>Tier-1 support is 63.9% of support cost; 61.5% of tickets fall in tier-1 categories.</p><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card negative'><span class='metric-label'>Low case</span><strong class='metric-value'>-31,020</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>9,552</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>61,716</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Support cost tier-1</dt><dd>579,600</dd></div><div><dt>EBITDA flow-through</dt><dd>100.0%</dd></div><div><dt>Recurring annual cost</dt><dd>60,000</dd></div><div><dt>One-time implementation cost</dt><dd>120,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>10.0%</td><td class='num'>20.0%</td><td class='num'>30.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Deflection rate is an assumption until a company pilot measures it</li><li>Savings are capacity; any headcount change requires approval and HR/legal review</li></ul><h4>Source evidence</h4><div class='evidence-links'><a href='3413f120-7216-53d2-a489-ea9bad040e76.html' title='Evidence 3413f120-7216-53d2-a489-ea9bad040e76'>Source 01</a><a href='fc4965f9-21a6-5965-8439-59e3334defe5.html' title='Evidence fc4965f9-21a6-5965-8439-59e3334defe5'>Source 02</a></div><p class='metric-note'>Calculation value-case/2 · Input fingerprint <code>5479f6111c824617ba3e3fe59da248f036dc2c5b069779593e100d376bd57b1d</code></p></div></article></div></div></section><section id='decision' class='panel decision-panel'><p class='eyebrow'>Human control</p><h2>Investment in execution</h2><p>Confirm the scope and operating conditions. This records a plan decision; each implementation condition remains the owner's responsibility.</p><fieldset disabled><legend>Read-only decision controls</legend><details class='disclosure'><summary>Adjust the decision scope</summary><p>Selected initiatives are excluded when you approve or request a revised plan.</p><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='b2a2ca0b-7a9d-5b24-81a6-1dd7e10aa426'> <span>Exclude from this decision: Migrate legacy price-book customers <small>380,650 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='7ce29100-ab17-5f50-a1c8-e466383c021a'> <span>Exclude from this decision: Enforce contracted renewal uplifts <small>351,942 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='d56fba65-928a-5958-8cff-99986a577455'> <span>Exclude from this decision: Discount governance in mid-market <small>215,006 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='07a8c3b6-eeaa-5b6e-a69b-1ea6593e431c'> <span>Exclude from this decision: Improve sales and marketing efficiency <small>191,160 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='691534da-70ec-590e-8f83-6c0a6b17396e'> <span>Exclude from this decision: Deflect tier-1 support with AI self-service <small>9,552 annual EBITDA</small></span></label></details><label for='rationale'>Decision rationale</label><p id='rationale-help' class='metric-note'>Required to reject or request changes. Record conditions, trade-offs and follow-up owners.</p><textarea class='input-field' id='rationale' name='rationale' rows='4' aria-describedby='rationale-help'></textarea><div class='decision-actions'><button class='button' name='decision' value='approved'>Approve plan</button><button class='button secondary' name='decision' value='changes_requested'>Request changes</button><button class='button danger' name='decision' value='rejected'>Reject plan</button></div></fieldset></section><details class='disclosure'><summary>Workflow &amp; audit identifiers</summary><dl class='definition-list'><div><dt>Workflow status</dt><dd><code>awaiting_approval</code></dd></div><div><dt>Company</dt><dd><code>beacon-pricing</code></dd></div><div><dt>Run</dt><dd><code>3cf7d99c-83f2-4a2b-be8a-1bdf82f862f5</code></dd></div><div><dt>Current step</dt><dd>Human approval</dd></div><div><dt>Reference date</dt><dd>Not specified</dd></div><div><dt>Plan</dt><dd><code>45d6ae3f-52da-5bf9-95e6-c17871ca49a9</code></dd></div></dl></details></main><footer class='page-footer'><div class='footer-line'><p><strong>Value Creation OS</strong> · Evidence. Value. Execution.</p><p>Synthetic company data · Modeled outcomes · Human decision control</p></div><details id='methodology'><summary>Methodology &amp; technical boundaries</summary><p>Evidence supports the diagnostic. Deterministic calculations size the value cases. A human decides which initiatives enter the execution plan. Financial figures are modeled in source units; they are not realized returns. The showcase uses fictional companies and seeded observations.</p></details></footer></div></div></body></html>
+/* ------------------------------------------------------------------
+   Application screens (workspace shell, record views and forms).
+   These classes are used only by server-rendered application pages.
+   ------------------------------------------------------------------ */
+.app-layout{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);min-height:calc(100vh - var(--capture-h));background:linear-gradient(90deg,var(--bg-subtle) 0 calc(var(--side-w) - 1px),var(--border) calc(var(--side-w) - 1px) var(--side-w),var(--bg) var(--side-w))}
+.sidebar{position:sticky;top:0;align-self:start;height:calc(100vh - var(--capture-h));overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.side-workspace{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;border-bottom:1px solid var(--border);color:var(--text);text-decoration:none}
+.side-workspace:hover{background:var(--bg-hover)}
+.side-workspace .brand-mark{width:28px;height:28px;border-radius:7px;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 10%)}
+.side-workspace .brand-name{font-size:14px;min-width:0}
+.side-workspace .brand-subtitle{font-size:12px;margin-top:0}
+.side-nav{display:flex;flex-direction:column;gap:2px;padding:12px 8px}
+.side-label{font-size:12px;font-weight:500;color:var(--text-3);padding:0 8px;margin:4px 0 6px}
+.side-link{display:flex;align-items:center;gap:10px;min-height:32px;padding:6px 8px;border-radius:var(--r-md);color:var(--text-2);text-decoration:none;font-size:13px;font-weight:500;white-space:nowrap}
+.side-link svg{width:16px;height:16px;flex-shrink:0;color:var(--text-3)}
+.side-link:hover{background:var(--bg-active);color:var(--text)}
+.side-link[aria-current=page]{background:var(--bg);color:var(--text);box-shadow:0 0 0 1px var(--border),var(--shadow-sm)}
+.side-link[aria-current=page] svg{color:var(--text)}
+.side-foot{margin-top:auto;padding:14px 8px 16px;border-top:1px solid var(--border)}
+.side-foot .side-label{margin-top:0}
+.side-facts{list-style:none;margin:0;padding:0}
+.side-facts li{display:flex;align-items:flex-start;gap:10px;margin:0;padding:4px 8px;font-size:12px;line-height:1.45;color:var(--text-2)}
+.side-facts svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;color:var(--text-3)}
+.app-main{min-width:0;display:flex;flex-direction:column}
+.app-main>.app-shell{flex:1;max-width:1240px;padding:28px 40px 56px}
+.app-main>.page-footer{max-width:1240px;padding:16px 40px 24px}
+.app-layout.bare{display:flex;flex-direction:column;background:var(--bg-subtle)}
+.bare-header{display:flex;align-items:center;min-height:56px;padding:10px 32px;border-bottom:1px solid var(--border);background:var(--bg)}
+.bare .app-main{flex:1}
+.bare .app-main>.app-shell{max-width:1120px;padding-top:56px}
+
+/* Capture provenance bar (static captures only) */
+body:has(.capture-bar){--capture-h:40px}
+.capture-bar{display:flex;align-items:center;justify-content:space-between;gap:6px 24px;flex-wrap:wrap;min-height:40px;padding:7px 24px;background:var(--bar-bg);color:var(--bar-text-2);font-size:12px;line-height:1.5}
+.capture-facts{display:flex;flex-wrap:wrap;align-items:center;margin:0;min-width:0}
+.capture-facts>span{display:inline-flex;align-items:center}
+.capture-facts>span+span:before{content:"";width:3px;height:3px;border-radius:50%;background:var(--bar-text-2);margin:0 10px;opacity:.7}
+.capture-facts strong{color:var(--bar-text);font-weight:600}
+.capture-facts svg{width:14px;height:14px;margin-right:8px;color:var(--bar-text)}
+.capture-links{display:flex;gap:6px;flex-shrink:0}
+.capture-links a{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border:1px solid var(--bar-line);border-radius:var(--r-md);color:var(--bar-text);font-weight:500;text-decoration:none}
+.capture-links a:hover{background:rgb(255 255 255 / 8%);color:var(--bar-text)}
+.capture-bar a:focus-visible{outline-color:var(--bar-text)}
+
+/* Page header: breadcrumb, title, status and right-aligned actions */
+.breadcrumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text-3);margin:0 0 14px}
+.breadcrumb a{color:var(--text-2);text-decoration:none;border-radius:var(--r-sm)}.breadcrumb a:hover{color:var(--text)}
+.breadcrumb [aria-current]{color:var(--text)}
+.breadcrumb .sep{color:var(--border-strong)}
+.page-header{margin:0 0 28px;padding:0 0 20px;border-bottom:1px solid var(--border)}
+.page-header.has-tabs{border-bottom:0;margin-bottom:0;padding-bottom:16px}
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px 24px}
+.page-heading{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.page-heading>div{min-width:0}
+.page-icon{width:40px;height:40px;display:grid;place-items:center;flex-shrink:0;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);color:var(--text-2);box-shadow:var(--shadow-sm)}
+.page-icon svg{width:20px;height:20px}
+.page-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px}
+.page-header .page-title{font-size:24px;line-height:1.25}
+.page-header .page-subtitle{margin-top:4px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.page-meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:12px;color:var(--text-3)}
+.page-meta>span{display:inline-flex;align-items:center;white-space:pre-wrap}
+.page-meta svg{width:14px;height:14px;flex-shrink:0;margin-right:6px}
+.page-meta strong{font-weight:500;color:var(--text-2)}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 7px;border-radius:10px;background:var(--bg-muted);border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1}
+.button .count{background:var(--bg-muted);border-color:var(--border);height:18px;min-width:20px}
+
+/* Section tabs (sticky on long records) */
+.section-nav{position:sticky;top:0;z-index:6;display:flex;gap:24px;margin:0 0 28px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.section-nav::-webkit-scrollbar{display:none}
+.section-nav a{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 1px;border-bottom:2px solid transparent;color:var(--text-2);font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.section-nav a svg{width:15px;height:15px;color:var(--text-3)}
+.section-nav a:hover{color:var(--text);border-bottom-color:var(--border-strong)}
+.section-nav a:focus-visible{outline-offset:-2px}
+.app-shell:not(:has(:target)) .section-nav a[href='#executive'],.app-shell:has(#executive:target) .section-nav a[href='#executive'],
+.app-shell:has(#workstreams:target) .section-nav a[href='#workstreams'],.app-shell:has(#evidence:target,.detail-panel:target) .section-nav a[href='#evidence'],
+.app-shell:has(#decision:target) .section-nav a[href='#decision']{color:var(--text);border-bottom-color:var(--text)}
+html:has(.section-nav){scroll-padding-top:calc(var(--tabs-h) + 24px)}
+
+/* Section titles inside application screens */
+.block-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;margin:40px 0 14px}
+.block-head>div{min-width:0}
+.block-head h2{font-size:16px}
+.block-head p{font-size:13px;color:var(--text-2);margin-top:2px}
+.block-head .eyebrow{margin-bottom:2px}
+.page-header+section>.block-head:first-child,.section-nav+section>.block-head:first-child{margin-top:0}
+
+/* Headline figures (Mercury-style summary strip) */
+.summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin:0 0 10px}
+.summary-strip:has(.lead){grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr))}
+.summary-strip.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.summary-item{background:var(--bg);padding:20px 24px 22px;min-width:0}
+.summary-item .metric-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 12px}
+.summary-item .metric-label svg{width:15px;height:15px;color:var(--text-3);flex-shrink:0}
+.summary-item .metric-value{font-size:32px;line-height:1.1;font-weight:600;letter-spacing:-.025em}
+.summary-item .metric-value small{font-size:14px;font-weight:500;color:var(--text-3);letter-spacing:0;margin-right:6px;vertical-align:4px}
+.summary-item .metric-value .unit{font-size:20px;font-weight:500;color:var(--text-2);letter-spacing:-.01em;margin-left:1px}
+.summary-item .metric-value+.metric-value{margin-top:10px}
+.summary-item .metric-note{margin-top:10px;color:var(--text-3)}
+.summary-item p:not([class]){font-size:13px;color:var(--text-2);margin-top:6px}
+.summary-foot{font-size:12px;color:var(--text-3);margin:0 0 8px;max-width:920px}
+
+/* Table card: toolbar above a flush table (Attio-style) */
+.table-card{border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg);overflow:hidden;min-width:0}
+.table-card>.table-wrap{border:0;border-radius:0;margin:0}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;min-height:48px;padding:8px 16px;border-bottom:1px solid var(--border)}
+.toolbar-title{display:flex;align-items:center;gap:8px;min-width:0}
+.toolbar-title h2,.toolbar-title h3{font-size:14px;font-weight:600}
+.toolbar-title svg{width:16px;height:16px;color:var(--text-3)}
+.toolbar-meta{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--text-3)}
+.th-label{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.th-label svg{width:14px;height:14px;flex-shrink:0;color:var(--text-3)}
+.app-shell svg,.sidebar svg,.capture-bar svg{flex-shrink:0}
+.portfolio-block{margin-top:28px}
+.company-table thead th{padding:9px 14px;vertical-align:middle}
+.company-table tbody th,.company-table tbody td{padding:14px}
+.company-table>thead>tr>*+*,.company-table>tbody>tr>*+*{border-left:1px solid var(--border)}
+.company-table th[scope=row]{min-width:250px;max-width:380px}
+.company-table td.num small{white-space:normal}
+.company-table .col-lever{min-width:150px}
+.company-table td .badge{margin-top:1px}
+.entity{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.entity>div{min-width:0}
+.entity-name{display:block;font-size:14px;font-weight:600;color:var(--text);line-height:1.35}
+.entity .company-monogram{width:32px;height:32px;border-radius:8px;background:var(--bg);box-shadow:var(--shadow-sm);color:var(--text);font-size:12px}
+.figure-lg{display:block;font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.figure-lg .ccy{font-size:12px;font-weight:500;color:var(--text-3);margin-right:4px}
+.row-actions{display:flex;flex-direction:column;align-items:flex-start;gap:8px;white-space:nowrap}
+.row-actions .row-link{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 10px;border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg);box-shadow:var(--shadow-sm);color:var(--text);font-size:12px;font-weight:500;text-decoration:none}
+.row-actions .row-link:hover{background:var(--bg-hover)}
+.row-actions .row-link svg{width:14px;height:14px;color:var(--text-3)}
+.row-actions .text-link{font-size:12px}
+
+/* Decision desk */
+.desk{padding:0;overflow:hidden;margin-top:32px}
+.desk-list{list-style:none;margin:0;padding:0}
+.desk-row{display:flex;align-items:center;gap:12px 14px;margin:0;padding:14px 16px;border-bottom:1px solid var(--border)}
+.desk-row:last-child{border-bottom:0}
+.desk-main{flex:1;min-width:0}
+.desk-main strong{display:block;font-size:14px}
+.desk-main .inline-meta{margin-top:4px}
+.desk-row .button{flex-shrink:0}
+.desk-empty{display:flex;align-items:center;gap:12px;padding:20px 16px;color:var(--text-2);font-size:13px}
+.desk-empty svg{width:18px;height:18px;color:var(--ok);flex-shrink:0}
+
+/* Record cards (workstreams, KPIs): header, flush table, flush disclosures */
+.record-card.panel{padding:0;overflow:hidden;margin:0}
+.record-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px 16px;padding:16px 20px}
+.record-head>div{min-width:0}
+.record-head h3{font-size:15px;margin-top:2px}
+.record-title{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.record-num{width:28px;height:28px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;background:var(--bg-muted);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums}
+.record-sub{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--text-3);margin-top:3px}
+.record-sub>span{display:inline-flex;align-items:center;white-space:pre-wrap}
+.record-sub svg{width:13px;height:13px;margin-right:5px}
+.record-card>.table-wrap{margin:0;border:0;border-top:1px solid var(--border);border-radius:0}
+.record-card>.alert{margin:0;border-radius:0;border-width:1px 0 0}
+.record-card>.alert ul{margin-bottom:0}
+.record-card>details{margin:0;border:0;border-top:1px solid var(--border);border-radius:0}
+.record-card>details>summary{padding:10px 20px}
+.record-card>details>.timeline-grid{margin:16px 20px}
+.record-card>details>.table-wrap{margin:16px 20px}
+.record-card>details>ul,.record-card>details>p,.record-card>details>.evidence-links{margin:14px 20px}
+.record-card tfoot th,.record-card tfoot td{background:var(--bg-subtle)}
+.record-card>.table-wrap :is(th,td):first-child{padding-left:20px}
+.record-card>.table-wrap :is(th,td):last-child{padding-right:20px}
+.record-card>p,.record-card>.form-help{margin:12px 20px;font-size:13px}
+.record-card>.record-head+p{margin-top:0}
+.record-card>p:last-child{margin-bottom:16px}
+.record-card>ul{margin:0;padding:14px 20px 16px 40px;border-top:1px solid var(--border);font-size:13px;color:var(--text-2)}
+.record-card>ul li+li{margin-top:8px}
+.record-head h2{font-size:15px}
+.record-head>div>.record-sub{display:block;font-size:13px;color:var(--text-2)}
+.record-num svg{width:15px;height:15px}
+.record-num.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
+.empty-state>.page-icon{margin:0 auto 12px;background:var(--bg)}
+.private-review p,.private-review td{overflow-wrap:anywhere}
+.app-shell>section.alert,.app-shell>.gap-card{margin-top:24px}
+.app-shell>.gap-card h2{font-size:15px}
+.stack.records{gap:16px}
+
+/* Two-panel brief */
+.brief-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.brief-grid>.panel{margin:0;padding:0}
+.brief-grid .brief-head{padding:16px 20px;border-bottom:1px solid var(--border)}
+.brief-grid .brief-head h3{font-size:14px}
+.brief-grid .brief-head .eyebrow{margin-bottom:2px}
+.brief-grid .brief-body{padding:8px 20px 18px}
+.brief-body>ul{padding-left:18px;font-size:13px}.brief-body>ul li+li{margin-top:8px}
+.brief-body>p{margin-top:10px}.brief-body>p:not([class]){font-size:13px;color:var(--text-2)}
+.brief-body .contribution-row{padding:12px 0}
+
+/* Master-detail: value case list with one selected record panel */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,420px);gap:20px;align-items:start}
+.split>.table-card{position:relative}
+.detail-stack{position:sticky;top:calc(var(--tabs-h) + 16px);min-width:0}
+.detail-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);min-width:0;box-shadow:var(--shadow-panel)}
+.detail-panel:target,.detail-stack:not(:has(.detail-panel:target))>.detail-panel:first-child{display:block}
+.detail-head{padding:18px 20px 16px;border-bottom:1px solid var(--border)}
+.detail-kicker{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--text-3)}
+.record-icon{width:24px;height:24px;display:grid;place-items:center;flex-shrink:0;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.record-icon svg{width:14px;height:14px}
+.detail-head h3{font-size:16px;line-height:1.35;margin-top:10px}
+.detail-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.detail-panel .detail-body{padding:0}
+.detail-panel .detail-body>*+*{margin-top:0}
+.detail-lede{padding:16px 20px 0;font-size:13px;color:var(--text-2)}
+.detail-section{padding:16px 20px}
+.detail-section+.detail-section{border-top:1px solid var(--border)}
+.detail-lede+.detail-section{padding-top:14px}
+.detail-section>h4{font-size:12px;font-weight:500;color:var(--text-3);margin:0 0 10px}
+.detail-section>*+*:not(h4+*){margin-top:10px}
+.detail-section .table-wrap{margin:10px 0 0}
+.detail-section>ul{font-size:13px;color:var(--text-2)}
+.detail-panel .definition-list{margin:0}
+.detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto;padding:7px 0}
+.detail-panel .definition-list dd{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text)}
+.detail-foot{padding:12px 20px;border-top:1px solid var(--border);background:var(--bg-subtle);font-size:12px;color:var(--text-3);border-radius:0 0 var(--r-lg) var(--r-lg)}
+.case-table tbody tr{position:relative}
+.case-table tbody th,.case-table tbody td{padding:12px 14px;vertical-align:middle}
+.case-table thead th{padding:9px 14px;vertical-align:middle}
+.case-table .row-link{color:var(--text);font-weight:500;text-decoration:none}
+.case-table .row-link:after{content:"";position:absolute;inset:0}
+.case-table .row-link:focus-visible{outline:0}
+.case-table tr:has(.row-link:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
+.case-table tbody tr:hover>*{background:var(--bg-subtle)}
+.case-table tbody tr:hover .row-link{color:var(--accent-hover)}
+.case-table .row-chevron{width:36px;padding-left:0;padding-right:12px;color:var(--text-3)}
+.case-table .row-chevron svg{width:16px;height:16px}
+tr.is-outside>td,tr.is-outside>th,tr.is-outside .row-link{color:var(--text-3)}
+.case-table tr.is-selected>*{background:var(--accent-soft)}
+
+/* Decision panel: an enterprise form with header, body and action bar */
+.decision-panel{padding:0;margin-top:40px;border:1px solid var(--border-strong);border-radius:var(--r-lg);background:var(--bg);box-shadow:var(--shadow-sm);overflow:hidden}
+.decision-head{display:flex;gap:14px;align-items:flex-start;padding:20px 24px;border-bottom:1px solid var(--border)}
+.decision-head>div{min-width:0}
+.decision-head h2{font-size:16px;margin:0}
+.decision-head p:not(.eyebrow){font-size:13px;color:var(--text-2);margin-top:4px;max-width:720px}
+.decision-panel>.alert{margin:16px 24px 0}
+.decision-panel>.decision-record{padding:18px 24px 22px}
+.decision-record>*+*{margin-top:8px}
+.decision-record .inline-meta{font-size:13px;color:var(--text-2)}
+.decision-panel form,.decision-panel fieldset{margin:0;padding:0;border:0;min-width:0}
+.decision-panel fieldset[disabled]>legend{float:left;margin:16px 24px 0;padding:2px 8px;border:1px solid var(--border-strong);border-radius:var(--r-sm);background:var(--bg-muted);font-size:12px;font-weight:500;color:var(--text-2)}
+.decision-panel fieldset[disabled]>legend+*{clear:both}
+.decision-body{padding:4px 24px 20px}
+.decision-body>details{margin:16px 0 0}
+.decision-body>details>p{margin:12px 16px 4px;font-size:13px;color:var(--text-2)}
+.decision-body .scope-option{display:flex;align-items:center;gap:12px;margin:0;padding:10px 16px;border-top:1px solid var(--border);border-bottom:0}
+.decision-body .scope-option>span{flex:1;display:flex;justify-content:space-between;align-items:baseline;gap:4px 16px;flex-wrap:wrap}
+.decision-body .scope-option small{display:inline;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.decision-body .scope-option:hover{background:var(--bg-subtle)}
+.field{margin-top:18px}
+.field>label{margin:0 0 4px;font-size:13px;font-weight:500}
+.field>.form-help{margin:0 0 8px}
+.field textarea{min-height:112px}
+.decision-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;padding:14px 24px;border-top:1px solid var(--border);background:var(--bg-subtle)}
+.decision-actions .form-help{margin:0 0 0 auto;max-width:440px}
+.decision-panel fieldset[disabled] button{opacity:.55}
+
+/* Operating scorecard */
+.kpi-card .metric-comparison{grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.kpi-card .metric-comparison>div{background:var(--bg);padding:14px 20px;border-top:0}
+.kpi-card .metric-comparison .metric-label{font-size:12px;color:var(--text-3);margin-bottom:6px}
+.kpi-card .metric-comparison .metric-value{font-size:18px;letter-spacing:-.01em}
+.kpi-progress{padding:14px 20px 16px}
+.kpi-progress>*+*{margin-top:8px}
+.kpi-progress .progress-track{height:8px;border-radius:4px;margin-top:0}
+.kpi-progress .metric-note{margin-top:8px}
+.kpi-progress>.empty-state{text-align:left;padding:14px 16px;border-style:solid;font-size:13px}
+
+/* Evidence viewer */
+.file-card{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg)}
+.file-card>.form-help{margin:0;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.file-card>.table-wrap{margin:0;border:0;border-radius:0}
+.file-card>.source-preview{margin:0;border:0;border-radius:0;background:var(--bg);max-height:640px}
+.file-card caption{background:var(--bg)}
+
+/* Private review workspace */
+.status-card{min-width:240px;max-width:340px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle)}
+.status-card .metric-label{font-size:12px;color:var(--text-3);margin:0}
+.status-card h2{font-size:15px;margin-top:4px}
+.status-card p{font-size:12px;color:var(--text-2);margin-top:6px}
+.review-list{list-style:none;margin:0;padding:0}
+.review-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:8px 20px;margin:0;padding:14px 16px;border-top:1px solid var(--border)}
+.review-row:first-child{border-top:0}
+.review-row p{font-size:13px;color:var(--text-2);margin:0}
+.review-row .entity-name{font-size:14px}
+.private-review .decision-body>fieldset{margin-top:20px;padding:4px 16px 16px;border:1px solid var(--border);border-radius:var(--r-lg)}
+.private-review .decision-body>fieldset>legend{padding:0 6px;font-size:13px;font-weight:600}
+.private-review .decision-body label{margin:14px 0 6px}
+.private-review .decision-body>label:first-child{margin-top:16px}
+
+/* Sign-in */
+.login-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,420px);gap:64px;align-items:start}
+.login-intro .page-title{font-size:32px;line-height:1.2;letter-spacing:-.02em;margin-top:4px}
+.login-intro .page-subtitle{font-size:15px;margin-top:12px;max-width:560px}
+.login-steps{list-style:none;padding:0;margin:32px 0 0;border-top:1px solid var(--border)}
+.login-steps li{display:flex;gap:14px;margin:0;padding:16px 0;border-bottom:1px solid var(--border)}
+.login-steps strong{display:block;font-size:14px}
+.login-steps p{font-size:13px;color:var(--text-2);margin-top:2px}
+.step-num{width:28px;height:28px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums}
+.login-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-panel);overflow:hidden}
+.login-card-head{padding:24px 24px 0}
+.login-card-head .page-icon{margin-bottom:16px}
+.login-card-head h2{font-size:18px;margin-top:2px}
+.login-card-head .muted{font-size:13px;margin-top:6px}
+.login-card form{padding:4px 24px 24px;gap:0}
+.login-card form label{margin:20px 0 6px}
+.login-card form .button{width:100%;margin-top:16px;min-height:40px}
+.login-card .alert{margin:16px 24px 0}
+.login-note{padding:14px 24px;border-top:1px solid var(--border);background:var(--bg-subtle);font-size:12px;color:var(--text-3);margin:0}
+
+/* Error and status pages */
+.status-page{max-width:520px;margin:48px auto;padding:40px 32px;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--bg);box-shadow:var(--shadow-sm)}
+.status-page .page-icon{margin:0 auto 18px}
+.status-page h1{font-size:22px;margin-top:4px}
+.status-page p:not(.eyebrow){color:var(--text-2);margin-top:8px}
+.status-page .page-actions{justify-content:center;margin-top:24px}
+
+@media(max-width:1100px){
+  .split{grid-template-columns:minmax(0,1fr)}.detail-stack{position:static}
+  .summary-strip,.summary-strip:has(.lead){grid-template-columns:repeat(2,minmax(0,1fr))}
+  .summary-strip.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .review-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+}
+@media(max-width:900px){
+  .app-layout{display:block;background:var(--bg)}
+  .sidebar{position:static;height:auto;overflow:visible;background:var(--bg-subtle);border-bottom:1px solid var(--border)}
+  .side-workspace{min-height:52px;padding:8px 16px}
+  .side-nav{flex-direction:row;gap:4px;padding:6px 12px 8px;overflow-x:auto;scrollbar-width:none}
+  .side-nav::-webkit-scrollbar{display:none}
+  .side-label,.side-foot{display:none}
+  .app-main>.app-shell{padding:20px 20px 40px}.app-main>.page-footer{padding:16px 20px 24px}
+  .bare .app-main>.app-shell{padding-top:32px}
+  .bare-header{padding:8px 20px}
+  .brief-grid,.login-layout{grid-template-columns:minmax(0,1fr)}
+  .login-layout{gap:32px}.login-card{order:-1}
+  .kpi-card .metric-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .capture-bar{padding:8px 20px}
+}
+@media(max-width:760px){
+  .page-header-row{flex-direction:column}
+  .page-actions{width:100%}
+  .summary-strip.cols-3{grid-template-columns:minmax(0,1fr)}
+  .status-card{max-width:none;width:100%}
+  .review-row{grid-template-columns:minmax(0,1fr)}
+  .decision-head,.decision-body,.decision-actions{padding-left:16px;padding-right:16px}
+  .decision-panel>.alert{margin-left:16px;margin-right:16px}
+  .decision-actions .form-help{margin:4px 0 0;max-width:none;flex-basis:100%}
+  .desk-row{flex-wrap:wrap}.desk-row .button{margin-left:44px}
+  .login-intro .page-title{font-size:26px}
+  .side-link{min-height:36px}
+}
+@media(max-width:600px){
+  .page-heading>.page-icon{display:none}
+  .stack-table.data-table{min-width:0}
+  .stack-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .stack-table,.stack-table tbody,.stack-table tfoot,.stack-table tr,.stack-table tbody th,.stack-table tfoot th,.stack-table td{display:block}
+  .stack-table tbody tr,.stack-table tfoot tr{padding:12px 16px;border-bottom:1px solid var(--border)}
+  .stack-table tbody tr:last-child{border-bottom:0}
+  .stack-table tfoot tr{border-top:1px solid var(--border);border-bottom:0;background:var(--bg-subtle)}
+  .stack-table tbody th,.stack-table tfoot th,.stack-table td{padding:0;border:0!important;min-width:0;max-width:none;background:transparent!important}
+  .stack-table tbody th,.stack-table tfoot th{padding-bottom:8px}
+  .stack-table td{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:6px 0;border-top:1px solid var(--border)!important;text-align:right;white-space:normal}
+  .stack-table td:before{content:attr(data-label);flex-shrink:0;font-size:12px;font-weight:400;color:var(--text-3);text-align:left}
+  .company-table tbody tr{padding:14px 16px}
+  .company-table .row-actions{align-items:flex-end}
+  .case-table.data-table{min-width:0}
+  .case-table .row-chevron{display:none}
+  .case-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .case-table,.case-table tbody{display:block}
+  .case-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--border)}
+  .case-table tbody tr:last-child{border-bottom:0}
+  .case-table tbody th{grid-column:1/-1;padding:12px 16px 6px;border:0}
+  .case-table tbody td{padding:0 16px 12px;border:0}
+  .case-table tbody td.num{padding-left:0}
+  .detail-panel .scenario-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .detail-panel .scenario-card{padding:10px}
+  .detail-panel .definition-list>div{grid-template-columns:minmax(0,1fr) auto}
+  .record-head{flex-wrap:wrap;padding:14px 16px}
+  .record-card>details>summary{padding:10px 16px}
+  .detail-section,.detail-head,.detail-foot{padding-left:16px;padding-right:16px}.detail-lede{padding:14px 16px 0}
+}
+@media(max-width:420px){
+  .app-main>.app-shell{padding:16px 16px 32px}.app-main>.page-footer{padding:16px}
+  .summary-strip,.summary-strip:has(.lead){grid-template-columns:minmax(0,1fr)}
+  .summary-item{padding:16px 18px}
+  .summary-item .metric-value{font-size:28px}
+  .page-header .page-title{font-size:22px}
+  .page-icon{width:36px;height:36px}
+  .capture-bar{padding:8px 16px}
+  .status-page{padding:32px 20px;margin-top:24px}
+  .decision-actions>button,.decision-actions>.button{flex-grow:1}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+/* Windows High Contrast and other forced palettes: state never depends on a background fill alone. */
+@media(forced-colors:active){
+  .badge[data-status]:before,.value-bar>span,.value-track>span,.progress-fill,.bar-fill{forced-color-adjust:none;background:CanvasText}
+  .value-bar,.value-track,.progress-track,.bar-track{border:1px solid CanvasText}
+  [aria-current=page]{outline:2px solid CanvasText;outline-offset:-2px}
+  tfoot td,tfoot th{border-top:2px solid CanvasText}
+}
+@media print{
+  @page{margin:14mm 12mm}
+  body{font-size:10pt;line-height:1.45;color:#000}.sidebar,.primary-nav,.workspace-tag,.skip-link,form,.card-actions,.section-nav,.decision-panel button{display:none!important}
+  .app-layout{display:block;background:none}.app-shell{max-width:none;padding:16px 0}.topbar{border-bottom:1px solid #999}
+  .panel,.metric-card,.decision-panel,.detail-panel{break-inside:avoid;border-color:#bbb;box-shadow:none}.detail-panel{display:block!important}
+  .table-wrap{overflow:visible;border-color:#bbb}table,.data-table{min-width:0;font-size:9pt}th,td{padding:5px}a{color:#111;text-decoration-color:#999}
+  thead{display:table-header-group}tr,.metric-card,.badge{break-inside:avoid}h1,h2,h3{break-after:avoid}
+  summary:before{display:none}
+  .badge,.value-bar>span,.value-track>span,.progress-fill,.bar-fill,th,tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h1{font-size:18pt;line-height:1.2}.metric-value{font-size:16pt;line-height:1.2}
+}
+/* Print every disclosure's content (supported browsers; others print what is open). */
+@media print{details::details-content{content-visibility:visible}}
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("../../assets/fonts/InterVariable-latin.woff2") format("woff2")}</style></head><body><a class='skip-link' href='#main-content'>Skip to content</a><aside class='capture-bar' aria-label='Capture provenance'><p class='capture-facts'><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/><circle cx='12' cy='12' r='3'/></svg><strong>Read-only application capture.</strong></span><span>Fictional fixtures; automated demonstration.</span><span>The memo shows the proposed review.</span><span>These are modeled values, not realized results.</span></p><nav class='capture-links' aria-label='Capture'><a href='../../index.html'>Portfolio overview</a><a href='workspace.html'>Workspace</a></nav></aside><div class='app-layout'><aside class='sidebar'><a class='brand side-workspace' href='workspace.html' aria-label='Value Creation OS portfolio'><span class='brand-mark' aria-hidden='true'><svg viewBox='0 0 24 24' fill='none'><path d='M5 19V12M10 19V7M15 19V10M20 19V4' stroke='currentColor' stroke-width='2.6' stroke-linecap='round'/></svg></span><span class='brand-name'>Value Creation OS<span class='brand-subtitle'>Operating partner workspace</span></span></a><nav class='side-nav' aria-label='Main'><p class='side-label'>Workspace</p><a class='side-link' href='workspace.html' aria-current='page'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><rect x='3' y='3' width='7' height='7' rx='1.5'/><rect x='14' y='3' width='7' height='7' rx='1.5'/><rect x='3' y='14' width='7' height='7' rx='1.5'/><rect x='14' y='14' width='7' height='7' rx='1.5'/></svg><span>Portfolio</span></a><a class='side-link' href='workspace.html#decisions'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 11l3 3 8-8'/><path d='M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9'/></svg><span>Decision desk</span></a><a class='side-link' href='#methodology'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z'/><path d='M4 19V5'/></svg><span>Methodology</span></a></nav><div class='side-foot'><p class='side-label'>Data provenance</p><ul class='side-facts'><li><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><ellipse cx='12' cy='6' rx='7' ry='3'/><path d='M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3'/></svg><span>Synthetic company data</span></li><li><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M4 20h16M7 16v-5M12 16V6M17 16v-8'/></svg><span>Modeled outcomes</span></li><li><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z'/><path d='M9 12l2 2 4-4'/></svg><span>Human decision control</span></li></ul></div></aside><div class='app-main'><main class='app-shell' id='main-content' tabindex='-1'><header class='page-header has-tabs'><nav class='breadcrumb' aria-label='Breadcrumb'><a href='workspace.html'>Portfolio</a><span class='sep' aria-hidden='true'>/</span><span aria-current='page'>Plan review</span></nav><div class='page-header-row'><div class='page-heading'><span class='page-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><rect x='4' y='3' width='16' height='18' rx='2'/><path d='M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1'/></svg></span><div><div class='page-title-row'><h1 class='page-title'>Beacon Scheduling Systems (fictional)</h1><span class='badge state-awaiting_approval' data-status='awaiting_approval'>Awaiting decision</span></div><p class='page-subtitle'>A decision-ready value creation plan, with the evidence behind every lever.</p><div class='page-meta'><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><rect x='4' y='5' width='16' height='16' rx='2'/><path d='M4 10h16M9 3v4M15 3v4'/></svg>As of <strong>01 Oct 2026 · 16:03 UTC</strong></span><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l9 5-9 5-9-5z'/><path d='M3 13l9 5 9-5'/></svg><strong>Proposed</strong> scope</span><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg>Figures in <strong>USD</strong></span></div></div></div><div class='page-actions'><a class='button' href='#decision'>Review &amp; decide</a></div></div></header><nav class='section-nav' aria-label='Plan sections'><a href='#executive'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M4 20h16M7 16v-5M12 16V6M17 16v-8'/></svg>Decision brief</a><a href='#workstreams'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l9 5-9 5-9-5z'/><path d='M3 13l9 5 9-5'/></svg>Execution plan</a><a href='#evidence'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/><path d='M14 3v5h5M9 13h6M9 17h4'/></svg>Value cases &amp; evidence</a><a href='#decision'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z'/><path d='M9 12l2 2 4-4'/></svg>Decision record</a><a href='beacon-kpis.html'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 12h4l3-8 4 16 3-8h4'/></svg>Operating performance</a></nav><section id='executive'><div class='block-head'><div><p class='eyebrow'>Proposed scope · USD</p><h2>Value creation at a glance</h2></div></div><div class='summary-strip'><div class='summary-item'><p class='metric-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg>Modeled annual EBITDA</p><div class='metric-value'><span data-metric='run-rate-ebitda' data-value='1148309.08' data-currency='USD'>1,148,309</span></div><p class='metric-note'>Proposed run-rate uplift · not realized returns</p></div><div class='summary-item'><p class='metric-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><rect x='4' y='5' width='16' height='16' rx='2'/><path d='M4 10h16M9 3v4M15 3v4'/></svg>Modeled in-year EBITDA</p><div class='metric-value'>739,200</div><p class='metric-note'>Reflects implementation start and ramp</p></div><div class='summary-item'><p class='metric-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l9 5-9 5-9-5z'/><path d='M3 13l9 5 9-5'/></svg>Execution scope</p><div class='metric-value'>5</div><p class='metric-note'>Initiatives across 3 accountable workstreams</p></div><div class='summary-item'><p class='metric-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M10.3 4.2L2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z'/><path d='M12 9v4M12 17h.01'/></svg>Open data gaps</p><div class='metric-value'>2</div><p class='metric-note'>Review limitations before committing resources</p></div></div><p class='summary-foot'>Totals sum independently sized value cases and are not adjusted for overlap. Validate interactions between initiatives before treating the total as an investment case.</p><div class='brief-grid'><article class='panel'><div class='brief-head'><p class='eyebrow'>Contribution to the base case</p><h3>Where the value comes from</h3></div><div class='brief-body'><div class='contribution-row'><div><span>Pricing and monetisation</span><strong>947,597</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:100.00%;width:100.00%'></div></div></div><div class='contribution-row'><div><span>Go-to-market efficiency</span><strong>191,160</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:20.17%;width:20.17%'></div></div></div><div class='contribution-row'><div><span>AI and automation</span><strong>9,552</strong></div><div class='bar-track' aria-hidden='true'><div class='bar-fill' style='--value:1.01%;width:1.01%'></div></div></div><p class='metric-note'>Annual EBITDA by workstream. Bars scale to the largest absolute contribution; amounts sum to the displayed scope.</p></div></article><article class='panel'><div class='brief-head'><p class='eyebrow'>Decision brief</p><h3>Conditions for execution</h3></div><div class='brief-body'><ul><li>Migrate legacy price-book customers: Customer-facing price or discount-policy change</li><li>Enforce contracted renewal uplifts: Customer-facing price or discount-policy change</li><li>Discount governance in mid-market: Customer-facing price or discount-policy change</li><li>Improve sales and marketing efficiency: Go-to-market budget or headcount change</li><li>Deflect tier-1 support with AI self-service: Operating-model change with possible headcount implications (HR/legal review)</li></ul><p class='metric-note'><strong>Governance:</strong> Weekly workstream check-in · Biweekly steering committee · Monthly sponsor update</p></div></article></div></section><section id='workstreams'><div class='block-head'><div><p class='eyebrow'>100-day implementation</p><h2>Accountable workstreams</h2></div><span class='count'>3</span></div><div class='stack records'><article class='panel record-card workstream-card'><div class='record-head'><div class='record-title'><span class='record-num' aria-hidden='true'>01</span><div><h3>Pricing and monetisation</h3><p class='record-sub'><span>Workstream 01</span><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><circle cx='12' cy='8' r='4'/><path d='M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6'/></svg>Chief Revenue Officer</span></p></div></div><span class='badge'>3 initiatives</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table stack-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Migrate legacy price-book customers<small>Approval condition: Customer-facing price or discount-policy change</small></th><td data-label='Type'><span class='badge'>Quick win</span></td><td class='num' data-label='Annual EBITDA'>380,650</td><td class='num' data-label='In-year'>237,906</td></tr><tr><th scope='row'>Enforce contracted renewal uplifts<small>Approval condition: Customer-facing price or discount-policy change</small></th><td data-label='Type'><span class='badge'>Quick win</span></td><td class='num' data-label='Annual EBITDA'>351,942</td><td class='num' data-label='In-year'>219,963</td></tr><tr><th scope='row'>Discount governance in mid-market<small>Approval condition: Customer-facing price or discount-policy change</small></th><td data-label='Type'><span class='badge'>Quick win</span></td><td class='num' data-label='Annual EBITDA'>215,006</td><td class='num' data-label='In-year'>134,379</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num' data-label='Annual EBITDA'>947,597</td><td class='num' data-label='In-year'>592,248</td></tr></tfoot></table></div><div class='alert warning'><strong>Before implementation</strong><ul><li>Contract notice periods and caps reviewed before any customer communication</li></ul></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Launch: Migrate legacy price-book customers</li><li>Launch: Enforce contracted renewal uplifts</li><li>Launch: Discount governance in mid-market</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>First KPI readout: Migrate legacy price-book customers</li><li>First KPI readout: Enforce contracted renewal uplifts</li><li>First KPI readout: Discount governance in mid-market</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>Share of ARR on legacy price books<small>Decrease is better</small></th><td>17.9%</td><td>15.8%</td><td>8.1%</td></tr><tr><th scope='row'>Realized / contracted renewal uplift<small>Increase is better</small></th><td>22.7%</td><td>33.6%</td><td>72.9%</td></tr><tr><th scope='row'>Average new-deal discount (mid-market)<small>Decrease is better</small></th><td>24.0%</td><td>23.5%</td><td>21.6%</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Migrate legacy price-book customers: Improvement is the price increase achieved on migration</li><li>Migrate legacy price-book customers: Realization is the share of legacy ARR migrated net of churn</li><li>Enforce contracted renewal uplifts: Customer churn and downgrade response is captured in the realization rate</li><li>Enforce contracted renewal uplifts: Only renewals in the next 12 months realize in year one</li><li>Enforce contracted renewal uplifts: Overlaps with discount governance on the same ARR; sized independently</li><li>Discount governance in mid-market: Improvement is the reduction in average discount as a share of list price</li><li>Discount governance in mid-market: Realization reflects sales adoption of the approval policy</li></ul></details></article><article class='panel record-card workstream-card'><div class='record-head'><div class='record-title'><span class='record-num' aria-hidden='true'>02</span><div><h3>Go-to-market efficiency</h3><p class='record-sub'><span>Workstream 02</span><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><circle cx='12' cy='8' r='4'/><path d='M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6'/></svg>Chief Revenue Officer</span></p></div></div><span class='badge'>1 initiative</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table stack-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Improve sales and marketing efficiency<small>Approval condition: Go-to-market budget or headcount change</small></th><td data-label='Type'><span class='badge'>Quick win</span></td><td class='num' data-label='Annual EBITDA'>191,160</td><td class='num' data-label='In-year'>143,370</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num' data-label='Annual EBITDA'>191,160</td><td class='num' data-label='In-year'>143,370</td></tr></tfoot></table></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Launch: Improve sales and marketing efficiency</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>First KPI readout: Improve sales and marketing efficiency</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>CAC payback (months)<small>Decrease is better</small></th><td>24.92 months</td><td>24.53 months</td><td>24.02 months</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Improve sales and marketing efficiency: Savings at constant new ARR</li><li>Improve sales and marketing efficiency: Check pricing leakage before attributing to GTM spend</li></ul></details></article><article class='panel record-card workstream-card'><div class='record-head'><div class='record-title'><span class='record-num' aria-hidden='true'>03</span><div><h3>AI and automation</h3><p class='record-sub'><span>Workstream 03</span><span><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><circle cx='12' cy='8' r='4'/><path d='M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6'/></svg>Chief Operating Officer</span></p></div></div><span class='badge'>1 initiative</span></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream initiatives'><table class='data-table stack-table'><thead><tr><th scope='col'>Initiative</th><th scope='col'>Type</th><th scope='col' class='num'>Annual EBITDA</th><th scope='col' class='num'>In-year</th></tr></thead><tbody><tr><th scope='row'>Deflect tier-1 support with AI self-service<small>Approval condition: Operating-model change with possible headcount implications (HR/legal review)</small></th><td data-label='Type'><span class='badge'>Structural</span></td><td class='num' data-label='Annual EBITDA'>9,552</td><td class='num' data-label='In-year'>3,582</td></tr></tbody><tfoot><tr><th scope='row' colspan='2'>Workstream total</th><td class='num' data-label='Annual EBITDA'>9,552</td><td class='num' data-label='In-year'>3,582</td></tr></tfoot></table></div><div class='alert warning'><strong>Before implementation</strong><ul><li>Evaluation set and rollback plan before any customer-facing automation</li></ul></div><details class='disclosure'><summary>100-day milestones &amp; measurement</summary><div class='timeline-grid'><section class='timeline-stage'><h4>Day 30</h4><ul><li>Baselines confirmed against system data and signed off by the owner</li><li>Workstream owner and team named</li><li>Design and pilot scope agreed: Deflect tier-1 support with AI self-service</li></ul></section><section class='timeline-stage'><h4>Day 60</h4><ul><li>Pilot live in at least one segment: Deflect tier-1 support with AI self-service</li></ul></section><section class='timeline-stage'><h4>Day 100</h4><ul><li>Rollout decision for each pilot</li><li>KPIs tracking against day-100 targets</li><li>Next-phase plan and budget request</li></ul></section></div><div class='table-wrap' tabindex='0' role='region' aria-label='Workstream operating targets'><table class='data-table'><caption>Workstream targets</caption><thead><tr><th scope='col'>Operating metric</th><th scope='col'>Baseline</th><th scope='col'>Day 100</th><th scope='col'>Run rate</th></tr></thead><tbody><tr><th scope='row'>Tier-1 tickets per customer per month<small>Decrease is better</small></th><td>0.680 tickets / customer / month</td><td>0.680 tickets / customer / month</td><td>0.598 tickets / customer / month</td></tr></tbody></table></div></details><details class='disclosure'><summary>Execution assumptions &amp; risks</summary><ul><li>Deflect tier-1 support with AI self-service: Deflection rate is an assumption until a company pilot measures it</li><li>Deflect tier-1 support with AI self-service: Savings are capacity; any headcount change requires approval and HR/legal review</li></ul></details></article></div></section><section class='panel record-card gap-card'><div class='record-head'><div class='record-title'><span class='record-num warn' aria-hidden='true'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M10.3 4.2L2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z'/><path d='M12 9v4M12 17h.01'/></svg></span><div><p class='eyebrow'>Diligence limitations</p><h2>Data gaps &amp; required evidence</h2></div></div><span class='count'>2</span></div><ul><li>Finance ops automation not sized. Data needed: Transaction volumes by finance process (AP invoices, close tasks, collections).</li><li>Billing operations automation not sized. Data needed: Billing exception and dispute volumes.</li></ul></section><section id='evidence'><div class='block-head'><div><p class='eyebrow'>Analytical diligence · USD</p><h2>Value cases and evidence</h2><p>Select a value case to inspect its scenarios, costs, input assumptions and source evidence. Values outside the displayed plan are not included in its totals.</p></div></div><style>.split:not(:has(.detail-panel:target)) .case-table tbody tr:first-child>*,.split:has(#case-c29fd767-82c3-56d4-ba61-a9798cb00240:target) .case-table tr[data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240']>*,.split:has(#case-cd365ab5-752e-52bd-9cc2-c024497833bb:target) .case-table tr[data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb']>*,.split:has(#case-197df308-fa55-5f30-b220-2deeed8e6493:target) .case-table tr[data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493']>*,.split:has(#case-e3fa73f3-1bc0-5a0b-a849-be809523f185:target) .case-table tr[data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185']>*,.split:has(#case-b27f3c5b-a6dd-58c0-a533-122031aab62d:target) .case-table tr[data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d']>*{background:var(--accent-soft)}.split:not(:has(.detail-panel:target)) .case-table tbody tr:first-child>th,.split:has(#case-c29fd767-82c3-56d4-ba61-a9798cb00240:target) .case-table tr[data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240']>th,.split:has(#case-cd365ab5-752e-52bd-9cc2-c024497833bb:target) .case-table tr[data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb']>th,.split:has(#case-197df308-fa55-5f30-b220-2deeed8e6493:target) .case-table tr[data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493']>th,.split:has(#case-e3fa73f3-1bc0-5a0b-a849-be809523f185:target) .case-table tr[data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185']>th,.split:has(#case-b27f3c5b-a6dd-58c0-a533-122031aab62d:target) .case-table tr[data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d']>th{box-shadow:inset 3px 0 0 var(--accent)}.split:not(:has(.detail-panel:target)) .case-table tbody tr:first-child .row-link,.split:has(#case-c29fd767-82c3-56d4-ba61-a9798cb00240:target) .case-table tr[data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240'] .row-link,.split:has(#case-cd365ab5-752e-52bd-9cc2-c024497833bb:target) .case-table tr[data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb'] .row-link,.split:has(#case-197df308-fa55-5f30-b220-2deeed8e6493:target) .case-table tr[data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493'] .row-link,.split:has(#case-e3fa73f3-1bc0-5a0b-a849-be809523f185:target) .case-table tr[data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185'] .row-link,.split:has(#case-b27f3c5b-a6dd-58c0-a533-122031aab62d:target) .case-table tr[data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d'] .row-link{color:var(--text);font-weight:600}.split:not(:has(.detail-panel:target)) .case-table tbody tr:first-child .row-chevron,.split:has(#case-c29fd767-82c3-56d4-ba61-a9798cb00240:target) .case-table tr[data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240'] .row-chevron,.split:has(#case-cd365ab5-752e-52bd-9cc2-c024497833bb:target) .case-table tr[data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb'] .row-chevron,.split:has(#case-197df308-fa55-5f30-b220-2deeed8e6493:target) .case-table tr[data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493'] .row-chevron,.split:has(#case-e3fa73f3-1bc0-5a0b-a849-be809523f185:target) .case-table tr[data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185'] .row-chevron,.split:has(#case-b27f3c5b-a6dd-58c0-a533-122031aab62d:target) .case-table tr[data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d'] .row-chevron{color:var(--accent)}</style><div class='split'><div class='table-card'><div class='table-toolbar'><div class='toolbar-title'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg><h3>Value cases</h3><span class='count'>5</span></div><div class='toolbar-meta'><span>5 in plan</span><span>Ranked by base annual EBITDA</span></div></div><div class='table-wrap' tabindex='0' role='region' aria-label='Value cases'><table class='data-table case-table'><thead><tr><th scope='col'><span class='th-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/><path d='M14 3v5h5M9 13h6M9 17h4'/></svg>Value case</span></th><th scope='col'><span class='th-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='3'/></svg>Scope</span></th><th scope='col' class='num'><span class='th-label'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg>Base annual EBITDA</span></th><th scope='col' class='row-chevron'><span class='sr-only'>Open</span></th></tr></thead><tbody><tr data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240' data-included='true'><th scope='row'><a class='row-link' href='#case-c29fd767-82c3-56d4-ba61-a9798cb00240'>Migrate legacy price-book customers</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>380,650</td><td class='row-chevron'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 6l6 6-6 6'/></svg></td></tr><tr data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb' data-included='true'><th scope='row'><a class='row-link' href='#case-cd365ab5-752e-52bd-9cc2-c024497833bb'>Enforce contracted renewal uplifts</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>351,942</td><td class='row-chevron'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 6l6 6-6 6'/></svg></td></tr><tr data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493' data-included='true'><th scope='row'><a class='row-link' href='#case-197df308-fa55-5f30-b220-2deeed8e6493'>Discount governance in mid-market</a><small>Pricing · medium confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>215,006</td><td class='row-chevron'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 6l6 6-6 6'/></svg></td></tr><tr data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185' data-included='true'><th scope='row'><a class='row-link' href='#case-e3fa73f3-1bc0-5a0b-a849-be809523f185'>Improve sales and marketing efficiency</a><small>Sales efficiency · low confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>191,160</td><td class='row-chevron'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 6l6 6-6 6'/></svg></td></tr><tr data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d' data-included='true'><th scope='row'><a class='row-link' href='#case-b27f3c5b-a6dd-58c0-a533-122031aab62d'>Deflect tier-1 support with AI self-service</a><small>AI automation · low confidence</small></th><td><span class='badge'>In plan</span></td><td class='num'>9,552</td><td class='row-chevron'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M9 6l6 6-6 6'/></svg></td></tr></tbody></table></div></div><div class='detail-stack'><article class='detail-panel value-case' id='case-c29fd767-82c3-56d4-ba61-a9798cb00240' data-opportunity-id='c29fd767-82c3-56d4-ba61-a9798cb00240' data-included='true' aria-labelledby='case-title-c29fd767-82c3-56d4-ba61-a9798cb00240'><div class='detail-head'><p class='detail-kicker'><span class='record-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg></span>Value case · Pricing</p><h3 id='case-title-c29fd767-82c3-56d4-ba61-a9798cb00240'>Migrate legacy price-book customers</h3><div class='detail-tags'><span class='badge'>medium confidence</span><span class='badge'>Included in displayed plan</span></div></div><div class='detail-body'><p class='detail-lede'>17.9% of ARR is billed on legacy price books.</p><section class='detail-section'><h4>Annual EBITDA scenarios</h4><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>138,418</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>380,650</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>605,579</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p></section><section class='detail-section'><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Legacy price book ARR</dt><dd>3,642,581</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>75,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>10.0%</td><td class='num'>20.0%</td><td class='num'>25.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>40.0%</td><td class='num'>55.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Improvement is the price increase achieved on migration</li><li>Realization is the share of legacy ARR migrated net of churn</li></ul></section><section class='detail-section'><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div></section></div><p class='detail-foot'>Calculation value-case/2 · Input fingerprint <code>1524a100a419f8c7dc327b93dd7ab443154577fde65441582419f7c395d9c22b</code></p></article><article class='detail-panel value-case' id='case-cd365ab5-752e-52bd-9cc2-c024497833bb' data-opportunity-id='cd365ab5-752e-52bd-9cc2-c024497833bb' data-included='true' aria-labelledby='case-title-cd365ab5-752e-52bd-9cc2-c024497833bb'><div class='detail-head'><p class='detail-kicker'><span class='record-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg></span>Value case · Pricing</p><h3 id='case-title-cd365ab5-752e-52bd-9cc2-c024497833bb'>Enforce contracted renewal uplifts</h3><div class='detail-tags'><span class='badge'>medium confidence</span><span class='badge'>Included in displayed plan</span></div></div><div class='detail-body'><p class='detail-lede'>Realized renewal uplift averaged 1.1% against 4.7% contracted (144 renewals; realization 22.7%).</p><section class='detail-section'><h4>Annual EBITDA scenarios</h4><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>180,483</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>351,942</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>649,738</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p></section><section class='detail-section'><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Renewing ARR</dt><dd>18,998,195</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>40,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>2.0%</td><td class='num'>3.0%</td><td class='num'>4.5%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>65.0%</td><td class='num'>80.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Customer churn and downgrade response is captured in the realization rate</li><li>Only renewals in the next 12 months realize in year one</li><li>Overlaps with discount governance on the same ARR; sized independently</li></ul></section><section class='detail-section'><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div></section></div><p class='detail-foot'>Calculation value-case/2 · Input fingerprint <code>a70eee4bd55a32fbf65825ff76e30bb4918322e57340aae0e0eff3440e5ded9e</code></p></article><article class='detail-panel value-case' id='case-197df308-fa55-5f30-b220-2deeed8e6493' data-opportunity-id='197df308-fa55-5f30-b220-2deeed8e6493' data-included='true' aria-labelledby='case-title-197df308-fa55-5f30-b220-2deeed8e6493'><div class='detail-head'><p class='detail-kicker'><span class='record-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg></span>Value case · Pricing</p><h3 id='case-title-197df308-fa55-5f30-b220-2deeed8e6493'>Discount governance in mid-market</h3><div class='detail-tags'><span class='badge'>medium confidence</span><span class='badge'>Included in displayed plan</span></div></div><div class='detail-body'><p class='detail-lede'>New-deal discount standard deviation in mid-market is 12.2% (mean 24.0%, 54 deals) against a policy maximum of 8.0%. New deals closed in the second half of quarter-end months carry 9.5% more discount than comparable deals.</p><section class='detail-section'><h4>Annual EBITDA scenarios</h4><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>89,586</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>215,006</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>403,136</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p></section><section class='detail-section'><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Discounted ARR</dt><dd>9,430,080</dd></div><div><dt>EBITDA flow-through</dt><dd>95.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>60,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>2.0%</td><td class='num'>4.0%</td><td class='num'>6.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>75.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Improvement is the reduction in average discount as a share of list price</li><li>Realization reflects sales adoption of the approval policy</li></ul></section><section class='detail-section'><h4>Source evidence</h4><div class='evidence-links'><a href='27bbb957-c738-5b3a-bd03-411e471a02d2.html' title='Evidence 27bbb957-c738-5b3a-bd03-411e471a02d2'>Source 01</a><a href='2e8af7ab-0e98-5c78-a316-b619585197ad.html' title='Evidence 2e8af7ab-0e98-5c78-a316-b619585197ad'>Source 02</a><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 03</a><a href='7cdbc0a7-983e-5629-ace4-67181bb56efa.html' title='Evidence 7cdbc0a7-983e-5629-ace4-67181bb56efa'>Source 04</a><a href='c7d690b3-306f-54be-ac2c-2e749bb64e0b.html' title='Evidence c7d690b3-306f-54be-ac2c-2e749bb64e0b'>Source 05</a><a href='fad58e2d-37bf-574f-a681-9451b5d87c04.html' title='Evidence fad58e2d-37bf-574f-a681-9451b5d87c04'>Source 06</a></div></section></div><p class='detail-foot'>Calculation value-case/2 · Input fingerprint <code>b997beaf3ec8db241853d381065e86d113cda639c15ab2c314d7deb257497d83</code></p></article><article class='detail-panel value-case' id='case-e3fa73f3-1bc0-5a0b-a849-be809523f185' data-opportunity-id='e3fa73f3-1bc0-5a0b-a849-be809523f185' data-included='true' aria-labelledby='case-title-e3fa73f3-1bc0-5a0b-a849-be809523f185'><div class='detail-head'><p class='detail-kicker'><span class='record-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg></span>Value case · Sales efficiency</p><h3 id='case-title-e3fa73f3-1bc0-5a0b-a849-be809523f185'>Improve sales and marketing efficiency</h3><div class='detail-tags'><span class='badge'>low confidence</span><span class='badge'>Included in displayed plan</span></div></div><div class='detail-body'><p class='detail-lede'>CAC payback is 24.9 months against a policy maximum of 24.</p><section class='detail-section'><h4>Annual EBITDA scenarios</h4><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card'><span class='metric-label'>Low case</span><strong class='metric-value'>79,650</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>191,160</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>371,700</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p></section><section class='detail-section'><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · S&amp;M expense</dt><dd>5,310,000</dd></div><div><dt>EBITDA flow-through</dt><dd>100.0%</dd></div><div><dt>Recurring annual cost</dt><dd>0</dd></div><div><dt>One-time implementation cost</dt><dd>50,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>3.0%</td><td class='num'>6.0%</td><td class='num'>10.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Savings at constant new ARR</li><li>Check pricing leakage before attributing to GTM spend</li></ul></section><section class='detail-section'><h4>Source evidence</h4><div class='evidence-links'><a href='41f44216-6bb3-59a6-8d17-c235cb9438b1.html' title='Evidence 41f44216-6bb3-59a6-8d17-c235cb9438b1'>Source 01</a><a href='a5e5f65b-b736-5f91-8f01-23fce3c15d0c.html' title='Evidence a5e5f65b-b736-5f91-8f01-23fce3c15d0c'>Source 02</a></div></section></div><p class='detail-foot'>Calculation value-case/2 · Input fingerprint <code>26651b45fd73cc43da8eeb0a9f6caff9b6b4a7e849f670b486e1b07bad522ad4</code></p></article><article class='detail-panel value-case' id='case-b27f3c5b-a6dd-58c0-a533-122031aab62d' data-opportunity-id='b27f3c5b-a6dd-58c0-a533-122031aab62d' data-included='true' aria-labelledby='case-title-b27f3c5b-a6dd-58c0-a533-122031aab62d'><div class='detail-head'><p class='detail-kicker'><span class='record-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg></span>Value case · AI automation</p><h3 id='case-title-b27f3c5b-a6dd-58c0-a533-122031aab62d'>Deflect tier-1 support with AI self-service</h3><div class='detail-tags'><span class='badge'>low confidence</span><span class='badge'>Included in displayed plan</span></div></div><div class='detail-body'><p class='detail-lede'>Tier-1 support is 63.9% of support cost; 61.5% of tickets fall in tier-1 categories.</p><section class='detail-section'><h4>Annual EBITDA scenarios</h4><div class='scenario-grid' aria-label='Annual EBITDA scenario comparison'><div class='scenario-card negative'><span class='metric-label'>Low case</span><strong class='metric-value'>-31,020</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card base'><span class='metric-label'>Base case</span><strong class='metric-value'>9,552</strong><small class='metric-note'>Annual EBITDA</small></div><div class='scenario-card'><span class='metric-label'>High case</span><strong class='metric-value'>61,716</strong><small class='metric-note'>Annual EBITDA</small></div></div><p class='metric-note'>Scenarios are modeled outcomes, not probabilities or realized returns. Negative values represent an EBITDA reduction.</p></section><section class='detail-section'><h4>Financial assumptions</h4><dl class='definition-list'><div><dt>Baseline · Support cost tier-1</dt><dd>579,600</dd></div><div><dt>EBITDA flow-through</dt><dd>100.0%</dd></div><div><dt>Recurring annual cost</dt><dd>60,000</dd></div><div><dt>One-time implementation cost</dt><dd>120,000</dd></div></dl><div class='table-wrap' tabindex='0' role='region' aria-label='Scenario input assumptions'><table class='data-table'><caption>Scenario input rates</caption><thead><tr><th scope='col'>Assumption</th><th scope='col' class='num'>Low</th><th scope='col' class='num'>Base</th><th scope='col' class='num'>High</th></tr></thead><tbody><tr><th scope='row'>Improvement</th><td class='num'>10.0%</td><td class='num'>20.0%</td><td class='num'>30.0%</td></tr><tr><th scope='row'>Realization</th><td class='num'>50.0%</td><td class='num'>60.0%</td><td class='num'>70.0%</td></tr></tbody></table></div><p class='metric-note'>Annual EBITDA = baseline × improvement × realization × flow-through − recurring annual cost. One-time cost is shown separately; it is not deducted from annual EBITDA.</p><ul><li>Deflection rate is an assumption until a company pilot measures it</li><li>Savings are capacity; any headcount change requires approval and HR/legal review</li></ul></section><section class='detail-section'><h4>Source evidence</h4><div class='evidence-links'><a href='3413f120-7216-53d2-a489-ea9bad040e76.html' title='Evidence 3413f120-7216-53d2-a489-ea9bad040e76'>Source 01</a><a href='fc4965f9-21a6-5965-8439-59e3334defe5.html' title='Evidence fc4965f9-21a6-5965-8439-59e3334defe5'>Source 02</a></div></section></div><p class='detail-foot'>Calculation value-case/2 · Input fingerprint <code>bbe25267608567989a6d298080c908087c4bb149956efce8609d08cee37a3c6b</code></p></article></div></div></section><section id='decision' class='panel decision-panel'><div class='decision-head'><span class='page-icon'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true' focusable='false'><path d='M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z'/><path d='M9 12l2 2 4-4'/></svg></span><div><p class='eyebrow'>Human control</p><h2>Investment in execution</h2><p>Confirm the scope and operating conditions. This records a plan decision; each implementation condition remains the owner's responsibility.</p></div></div><fieldset disabled><legend>Read-only decision controls</legend><div class='decision-body'><details class='disclosure'><summary>Adjust the decision scope</summary><p>Selected initiatives are excluded when you approve or request a revised plan.</p><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='c29fd767-82c3-56d4-ba61-a9798cb00240'> <span>Exclude from this decision: Migrate legacy price-book customers <small>380,650 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='cd365ab5-752e-52bd-9cc2-c024497833bb'> <span>Exclude from this decision: Enforce contracted renewal uplifts <small>351,942 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='197df308-fa55-5f30-b220-2deeed8e6493'> <span>Exclude from this decision: Discount governance in mid-market <small>215,006 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='e3fa73f3-1bc0-5a0b-a849-be809523f185'> <span>Exclude from this decision: Improve sales and marketing efficiency <small>191,160 annual EBITDA</small></span></label><label class='scope-option'><input type='checkbox' name='remove_initiatives' value='b27f3c5b-a6dd-58c0-a533-122031aab62d'> <span>Exclude from this decision: Deflect tier-1 support with AI self-service <small>9,552 annual EBITDA</small></span></label></details><div class='field'><label for='rationale'>Decision rationale</label><p id='rationale-help' class='form-help'>Required to reject or request changes. Record conditions, trade-offs and follow-up owners.</p><textarea class='input-field' id='rationale' name='rationale' rows='4' aria-describedby='rationale-help'></textarea></div></div><div class='decision-actions'><button class='button' name='decision' value='approved'>Approve plan</button><button class='button secondary' name='decision' value='changes_requested'>Request changes</button><button class='button danger' name='decision' value='rejected'>Reject plan</button></div></fieldset></section><details class='disclosure'><summary>Workflow &amp; audit identifiers</summary><dl class='definition-list'><div><dt>Workflow status</dt><dd><code>awaiting_approval</code></dd></div><div><dt>Company</dt><dd><code>beacon-pricing</code></dd></div><div><dt>Run</dt><dd><code>4b8a99f8-655b-4087-a6a1-efcd132750bd</code></dd></div><div><dt>Current step</dt><dd>Human approval</dd></div><div><dt>Reference date</dt><dd>Not specified</dd></div><div><dt>Plan</dt><dd><code>8d387ff2-4eb6-5aa6-a230-356011138bc5</code></dd></div></dl></details></main><footer class='page-footer'><div class='footer-line'><p><strong>Value Creation OS</strong> · Evidence. Value. Execution.</p><p>Synthetic company data · Modeled outcomes · Human decision control</p></div><details id='methodology'><summary>Methodology &amp; technical boundaries</summary><p>Evidence supports the diagnostic. Deterministic calculations size the value cases. A human decides which initiatives enter the execution plan. Financial figures are modeled in source units; they are not realized returns. The showcase uses fictional companies and seeded observations.</p></details></footer></div></div></body></html>
