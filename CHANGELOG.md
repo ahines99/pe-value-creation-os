@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Interface redesign following the [design system](docs/design-system.md). Attio is the primary reference, Mercury guides financial figures and Geist guides controls.
+  - A sidebar workspace shell; sign-in has no workspace navigation.
+  - Compact tables for companies and initiatives, with workstream totals.
+  - Value cases shown as a list with a detail panel.
+  - Self-hosted Inter, one accent colour, colour reserved for status.
+  - The exhibits, landing page and screenshots were regenerated.
+
 ## 0.2.0 — 2026-09-30 (tag `v0.2.0`)
 
 Everything merged since `v0.1.0` (PRs #14 to #63).

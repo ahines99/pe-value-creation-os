@@ -25,18 +25,18 @@ from .valuation_render import valuation_summary
 
 MEMO_CSS = """
 .primary-nav{flex-wrap:wrap}
-.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.memo-grid>article{border-top:3px solid var(--teal);padding:18px;background:#fafbf8;min-width:0}
-.memo-grid h3{font-size:18px;line-height:1.4;margin-bottom:14px}
-.memo-grid p{font-size:13px;line-height:1.7;margin-bottom:12px}
-.layer-banner{padding:15px 20px;border-left:4px solid var(--copper);background:#f3eee5;margin:20px 0}
-.memo-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:20px 0}
-.memo-facts>div{padding:22px;border:1px solid var(--line);border-radius:8px;background:white}
-.memo-facts strong{font-size:30px;display:block;letter-spacing:-.035em}
-.memo-choice{padding:22px;background:#edf4ef;border:1px solid #c7ddce;border-radius:8px;margin:20px 0}
-.memo-choice h3{margin-bottom:12px}.memo-note{font-size:12px;color:var(--muted)}
+.memo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.memo-grid>article{border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;background:var(--bg);min-width:0}
+.memo-grid h3{font-size:14px;line-height:1.4;margin-bottom:8px}
+.memo-grid p{font-size:13px;line-height:1.55;margin-bottom:8px;color:var(--text-2)}
+.layer-banner{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-subtle);color:var(--text-2);font-size:13px;margin:16px 0}
+.memo-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.memo-facts>div{padding:16px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg)}
+.memo-facts strong{font-size:28px;font-weight:600;display:block;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.memo-choice{padding:16px;background:var(--bg-subtle);border:1px solid var(--border-strong);border-radius:var(--r-lg);margin:16px 0}
+.memo-choice h3{margin-bottom:8px}.memo-note{font-size:12px;color:var(--muted)}
 .memo-sources a{display:inline-block;margin:5px 12px 5px 0}.memo-body{padding:20px}
-.waterfall-row{display:grid;grid-template-columns:165px minmax(0,1fr) 90px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.waterfall-track{position:relative;height:24px;background:#f4f5f2}.waterfall-bar{position:absolute;height:24px;border-radius:3px}.waterfall-zero{position:absolute;height:24px;border-left:1px solid #66777d}.waterfall-value{text-align:right;font-variant-numeric:tabular-nums}
+.waterfall-row{display:grid;grid-template-columns:165px minmax(0,1fr) 90px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.waterfall-track{position:relative;height:20px;background:var(--bg-muted);border-radius:var(--r-sm)}.waterfall-bar{position:absolute;height:20px;border-radius:var(--r-sm)}.waterfall-zero{position:absolute;height:20px;border-left:1px solid var(--text-3)}.waterfall-value{text-align:right;font-variant-numeric:tabular-nums}
 @media(max-width:600px){.waterfall-row{grid-template-columns:100px minmax(0,1fr) 64px;gap:6px;font-size:11px}}
 @media(max-width:800px){.memo-grid,.memo-facts{grid-template-columns:minmax(0,1fr)}}
 @media print{.memo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.memo-grid article,.memo-choice{break-inside:avoid}.memo-facts strong{font-size:20pt}.topbar{display:none}}
@@ -73,13 +73,13 @@ def incremental_waterfall(year: dict[str, Any]) -> str:
     for i, (label, value) in enumerate(parts):
         left = (min(cumulative[i], cumulative[i + 1]) - low) / width * 100
         size = abs(value) / width * 100
-        color = "#347c73" if value >= 0 else "#a55e3f"
+        color = "var(--chart-up)" if value >= 0 else "var(--chart-down)"
         visual += f"<div class='waterfall-row'><span>{escape(label)}</span><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{left:.3f}%;width:{size:.3f}%;background:{color}'></span></div><span class='waterfall-value'>{amount(value)}</span></div>"
         rows.append([escape(label), amount(value, places=3), amount(cumulative[i + 1], places=3)])
     net = cumulative[-1]
     net_left = (min(Decimal(0), net) - low) / width * 100
     net_width = abs(net) / width * 100
-    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:#132f3d'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div>"
+    visual += f"<div class='waterfall-row'><strong>Net EBITDA</strong><div class='waterfall-track'><span class='waterfall-zero' style='left:{zero:.3f}%'></span><span class='waterfall-bar' style='left:{net_left:.3f}%;width:{net_width:.3f}%;background:var(--chart-total)'></span></div><strong class='waterfall-value'>{amount(net)}</strong></div></div>"
     rows.append(["Incremental EBITDA", amount(cumulative[-1], places=3), "Reconciled"])
     return visual + review_table(
         ["Component", "Change, USD thousands", "Cumulative"],

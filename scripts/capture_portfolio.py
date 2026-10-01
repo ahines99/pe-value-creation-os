@@ -111,14 +111,18 @@ def main() -> None:
 
             html = re.sub(r"href=(['\"])(/[^'\"]*)\1", local_link, html)
             banner = (
-                "<aside class='alert' style='margin:16px auto;max-width:1280px' aria-label='Capture provenance'>"
+                "<aside class='notice' aria-label='Capture provenance'>"
                 "<strong>Read-only application capture.</strong> Fictional fixtures; automated demonstration. "
                 "The memo shows the proposed review; the scorecard uses fixture observations after an automated approval. "
                 "These are modeled values, not realized results. "
                 "<a href='../../index.html'>Portfolio overview</a> &middot; "
                 "<a href='workspace.html'>Workspace</a></aside>"
             )
-            html = html.replace("</header>", "</header>" + banner, 1)
+            main = "id='main-content' tabindex='-1'>"
+            assert html.count(main) == 1
+            html = html.replace(main, main + banner, 1)
+            # The static copy sits two folders below the site root, beside docs/assets/fonts.
+            html = html.replace('url("/assets/fonts/', 'url("../../assets/fonts/')
             assert "name='csrf'" not in html and "<form" not in html
             (OUTPUT / routes[route]).write_text(html, encoding="utf-8")
         api.set_ctx(None)

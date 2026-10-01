@@ -509,3 +509,23 @@ def test_money_rounds_half_up_and_picks_the_scale_after_rounding():
 
     assert money("2500.5") == "2,501" and money("-0.004") == "0"
     assert money("999950", compact=True) == "1.0m" and money("999.4", compact=True) == "999.40"
+
+
+def test_interface_font_is_served_with_a_font_csp(env):
+    _, _, client = env
+    font = client.get("/assets/fonts/InterVariable-latin.woff2")
+    assert font.status_code == 200 and font.headers["content-type"] == "font/woff2" and len(font.content) > 10_000
+    assert "immutable" in font.headers["cache-control"]
+    assert "font-src 'self'" in font.headers["content-security-policy"]
+    assert client.get("/assets/fonts/other.woff2").status_code == 404
+
+
+def test_workspace_shell_and_value_case_detail_panels(env):
+    _, run_id, client = env
+    review = client.get(f"/runs/{run_id}/review", headers=H("approver-beacon")).text
+    assert "<aside class='sidebar'>" in review and "aria-current='page'" in review
+    rows = re.findall(r"href='#case-([0-9a-f-]+)'", review)
+    panels = re.findall(r"<article class='detail-panel value-case' id='case-([0-9a-f-]+)'", review)
+    assert rows and rows == panels  # every listed case opens its own detail panel, in the same order
+    login = client.get("/").text
+    assert "Local showcase sign-in" in login and "class='side-nav'" not in login
