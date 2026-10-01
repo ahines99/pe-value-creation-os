@@ -2,7 +2,7 @@
 
 ## 0.2.0 — 2026-09-30 (tag `v0.2.0`)
 
-Everything merged since `v0.1.0` (PRs #14 to #61).
+Everything merged since `v0.1.0` (PRs #14 to #63).
 
 **Public and constructed diligence**
 - Public Progress Software diligence: earnings reconciliation, quarterly and peer views, restatement comparison, acquisition vintages and a historical valuation bridge, with unsupported measures withheld.
@@ -21,7 +21,7 @@ Everything merged since `v0.1.0` (PRs #14 to #61).
 - PyJWT 2.15.1 (CVE-2026-101918) and batched dependency and GitHub Actions updates (#61).
 - A nightly dependency audit on `main`; broader `.gitignore` coverage for credentials and Terraform variables.
 - The project MCP configuration starts outside the plugin loader.
-- Shared helpers replace duplicated record-chain and repository logic.
+- Shared helpers replace duplicated record-chain and repository logic, removing 972 lines with stored hashes unchanged (#62).
 - One current status file, `docs/STATUS.md`; roadmap tickets closed from CI evidence or recorded as won't-do for portfolio scope.
 
 This is not a production acceptance or realized financial-impact claim. Nothing is deployed beyond the static site, and no company pilot has run.
