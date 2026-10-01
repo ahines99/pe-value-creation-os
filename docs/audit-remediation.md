@@ -1,5 +1,7 @@
 # September 27 audit remediation
 
+> **For current status, see [STATUS.md](STATUS.md).** This file is kept as the September 27 audit remediation ledger; where it differs from STATUS.md, STATUS.md is right.
+
 This ledger records implementation and verification after the repository audit of commit `0ad7e7fa380aeed38b12794c370651de7497575c`, on branch `build/roadmap`. Five specialist implementation agents worked in two waves, with coordinator integration and independent checks. The work is local and uncommitted; no push, merge, AWS apply, production deployment or paid model evaluation was performed.
 
 All 23 numbered audit findings have code or configuration remedies. A clean runtime build exposed a further dependency defect, A24, which was also fixed. Local regression evidence and target-environment acceptance are distinct: infrastructure configuration and simulated model tests do not certify a production deployment or a live model.

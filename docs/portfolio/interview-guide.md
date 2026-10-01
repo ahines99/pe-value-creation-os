@@ -1,5 +1,7 @@
 # Presenting Value Creation OS
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as interview preparation notes; where it differs from STATUS.md, STATUS.md is right.
+
 **Portfolio and interview guide · public research plus constructed operating exercise**
 
 Start with the [portfolio site](../index.html), use the

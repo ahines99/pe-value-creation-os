@@ -26,6 +26,18 @@ jobs:
           name: eval-report
           path: var/eval-report.*
 
+  dependency-audit:
+    # The same pip-audit gate CI runs on pull requests, run daily so a newly published advisory surfaces on main.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - name: Dependency audit
+        run: uv export --frozen --no-hashes --extra server --extra research --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
+
   live-model:
     # Live model evaluation (ADR 0005). Requires explicit paid-run opt-in and a configured API secret; failures gate this job.
     runs-on: ubuntu-latest

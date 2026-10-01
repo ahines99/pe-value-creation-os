@@ -148,12 +148,12 @@ The current one-page summary, including open items and who owns them, is [docs/S
 |---|---|
 | Domain, MCP, workflow, approvals, KPIs, adapters, evals, observability, ops tooling | Implemented; audit fixes and regression evidence are tracked in [audit remediation](docs/audit-remediation.md). Local tests do not establish production acceptance. |
 | Public Progress case and constructed lifecycle | Ten case revisions with initiative/KPI lineage, source-constrained memo, dated capacity plan, accounting/claim residuals and separate exit sensitivity. [Current acceptance and open requirements](docs/portfolio/progress-acceptance.md); no independent practitioner review or actual pilot. |
-| CI (GitHub Actions) | [Main-branch CI at PR #52](https://github.com/ahines99/pe-value-creation-os/actions/runs/36659505516): ten successful jobs, 1,781 tests per supported Python version, 39 evaluations and 96 browser checks (84 public, 12 private-review). Later changes require their own successful CI. HIGH and CRITICAL image findings with a fix fail the build. |
-| Terraform (AWS), CD pipeline | Configuration and offline validation exist; no AWS apply or deployed acceptance evidence. |
+| CI (GitHub Actions) | [Main-branch CI](https://github.com/ahines99/pe-value-creation-os/actions/workflows/ci.yml?query=branch%3Amain): ten successful jobs, 1,798 tests per supported Python version, 39 evaluations and 96 browser checks (84 public, 12 private-review). Every HIGH or CRITICAL image finding fails the build, fixed or not. A nightly job re-runs the evaluations and the dependency audit. |
+| Terraform (AWS), CD pipeline | Configuration and offline validation exist. Not applied to AWS, by decision: deployment is out of scope for the portfolio project. |
 | Live-model evaluation | Historical September 23 proposer-only subset; narrator was not exercised. Its $2.03 estimate excludes complete cache accounting and is not an invoice. Current proposer/narrator gates require a new authorized live run ([record](docs/evals/2026-09-23-live-model.md)). |
 | Sign-offs and operations | Pending a human MCP skill session, domain review of skills/policy/eval bands, threat-model review, external pen test, legal/retention review, SLO acceptance and staffed on-call. |
 | Merge protection | The public candidate acceptance record documents all ten required checks with administrator enforcement. CD separately verifies the exact deployment SHA; a new release still needs its own successful evidence. |
-| Pilot and launch | Staging acceptance, pilot, conditional production provisioning, production validation, then launch approval. See [pilot documentation](docs/pilot/). |
+| Pilot and launch | Not started. A pilot needs a sponsor company, authorized records and named reviewers; the package is ready in the [pilot documentation](docs/pilot/). |
 
 [ROADMAP.md](ROADMAP.md) has the per-ticket status. The [portfolio finalization roadmap](docs/portfolio-finalization-roadmap.md) prioritizes a polished showcase, assigns implementation and owner actions, and preserves the later production acceptance path.
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pe-value-creation-os"
-version = "0.1.0"
+version = "0.2.0"
 description = "Evidence-backed value-creation diagnostics, deterministic value cases, and approved 100-day plans for PE portfolio companies."
 readme = "README.md"
 license = "Apache-2.0"

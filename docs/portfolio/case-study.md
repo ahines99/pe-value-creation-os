@@ -1,5 +1,7 @@
 # When better evidence overturns the value case
 
+> **For current status, see [STATUS.md](../STATUS.md).** This file is kept as the Progress case narrative; where it differs from STATUS.md, STATUS.md is right.
+
 **Value Creation OS · Progress Software public reference case and constructed operating exercise**
 
 The central result is a changed decision. An initially positive operating case

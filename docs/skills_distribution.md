@@ -35,6 +35,10 @@ Add that absolute checkout path to the client, rather than an unpinned default b
 /plugin install pe-value-creation-os@pvc-internal
 ```
 
+Opening the checkout itself as a Claude Code project also registers the server from `.mcp.json`; the path defaults to the project directory when no plugin root is set.
+
+If the client reports the server as failed to connect, check that `uv` is on the `PATH` the client inherits (`uv --version` in a fresh terminal). On Windows the uv installer places it in `%USERPROFILE%\.local\bin`; add that folder to the user `PATH` and restart the client. Running `uv run --extra server pvc mcp-stdio` from the checkout should start the server and wait for input.
+
 For the deployed server, replace `.mcp.json` in your fork with an HTTP entry pointing at the Streamable HTTP
 endpoint; Claude Code performs the OAuth flow against the fund identity provider (PVC-091).
 

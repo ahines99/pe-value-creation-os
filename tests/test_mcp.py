@@ -8,7 +8,7 @@ import json
 import pytest
 from mcp import Client
 
-from pe_value_os import security
+from pe_value_os import __version__, security
 from pe_value_os.adapters.evidence_store import FileSystemEvidenceStore
 from pe_value_os.adapters.fixtures import FixtureAdapter
 from pe_value_os.adapters.repositories import InMemoryRepository
@@ -61,7 +61,7 @@ async def test_healthcheck(server):
     async with Client(server) as c:
         r = await c.call_tool("healthcheck", {})
         assert r.is_error is False
-        assert r.structured_content == {"status": "ok", "version": "0.1.0"}
+        assert r.structured_content == {"status": "ok", "version": __version__}
 
 
 READ_TOOLS = [
