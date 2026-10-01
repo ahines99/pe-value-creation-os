@@ -14,6 +14,7 @@ from .cases import CaseReview, CaseRevision, InvestmentCase, digest, writer
 from .close_baseline import UUID_PATTERN, CloseBaseline, close_baseline_view
 from .models import Record
 from .realization import Attribution, Observation, require_baseline, signed_record
+from .record_chain import content_hash
 from .scheduling import OperatingPlan
 
 
@@ -141,10 +142,7 @@ class ExecutionEvent(Record):
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
-        raw = self.model_dump(mode="json", exclude={"content_sha256"})
-        if digest(json.dumps(raw, sort_keys=True)) != self.content_sha256 or self.stream_key != stream_key(
-            self.request.payload
-        ):
+        if content_hash(self) != self.content_sha256 or self.stream_key != stream_key(self.request.payload):
             raise ValueError("execution receipt content hash or stream mismatch")
         if self.request.mode == "human" and self.actor_type != "human":
             raise ValueError("human execution receipt requires human authorship")

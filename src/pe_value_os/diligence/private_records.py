@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import uuid
 from datetime import UTC, datetime
 from typing import Any, Literal, Self
@@ -23,15 +22,10 @@ from .private_intake import (
     fingerprint,
     require_operator,
 )
+from .record_chain import content_hash, seal, verify_link
 
 KEY = r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
 UUID = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-
-
-def content_hash(record: Record) -> str:
-    return hashlib.sha256(
-        json.dumps(record.model_dump(mode="json", exclude={"content_sha256"}), sort_keys=True).encode()
-    ).hexdigest()
 
 
 class IntakeRequest(Record):
@@ -117,10 +111,7 @@ class FinanceReview(Record):
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private finance review hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private review sequence requires its predecessor")
+        verify_link(self, "private finance review hash mismatch", "private review sequence requires its predecessor")
         return self
 
 
@@ -179,10 +170,8 @@ def prepare_intake(
         preflight=report,
         actor=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateIntake.model_construct(**payload))
-    return PrivateIntake.model_validate(payload)
+    return seal(PrivateIntake, payload)
 
 
 def verify_source(record: PrivateIntake, raw: bytes) -> None:
@@ -231,10 +220,8 @@ def prepare_review(
         grant_event_id=grant.event_id,
         actor=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(FinanceReview.model_construct(**payload))
-    return FinanceReview.model_validate(payload)
+    return seal(FinanceReview, payload)
 
 
 def authorize_source(

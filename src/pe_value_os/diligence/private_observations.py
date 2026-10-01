@@ -21,8 +21,9 @@ from .private_financials import (
 )
 from .private_grants import validate_key
 from .private_intake import SHA, Amount, Control
-from .private_records import KEY, UUID, content_hash, require_finance_reviewer, require_intake_writer
+from .private_records import KEY, UUID, require_finance_reviewer, require_intake_writer
 from .realization import COMPONENTS, ENTRY_COMPONENT, Component
+from .record_chain import seal, verify_link
 from .underwriting import Entry, month_end, month_start
 
 
@@ -105,10 +106,7 @@ class PrivateCounterfactual(Record):
     def integrity(self) -> Self:
         validate_key(self.case_key)
         validate_key(self.counterfactual_key)
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private counterfactual hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("counterfactual history requires its predecessor")
+        verify_link(self, "private counterfactual hash mismatch", "counterfactual history requires its predecessor")
         if self.request.design_timing == "prospective" and self.recorded_at.date() >= self.request.first_month:
             raise ValueError("prospective counterfactual must be authored before the first measurement month")
         return self
@@ -159,10 +157,7 @@ class CounterfactualReview(Record):
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("counterfactual review hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("counterfactual review requires its predecessor")
+        verify_link(self, "counterfactual review hash mismatch", "counterfactual review requires its predecessor")
         return self
 
     def require_public(self) -> None:
@@ -212,10 +207,7 @@ class PrivateObservation(Record):
     def integrity(self) -> Self:
         validate_key(self.case_key)
         validate_key(self.measurement_key)
-        if content_hash(self) != self.content_sha256:
-            raise ValueError("private observation hash mismatch")
-        if (self.sequence == 1) != (self.request.expected_previous_sha256 is None):
-            raise ValueError("private observation requires its predecessor")
+        verify_link(self, "private observation hash mismatch", "private observation requires its predecessor")
         return self
 
     def require_public(self) -> None:
@@ -333,10 +325,8 @@ def prepare_counterfactual(
         period_totals=total,
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateCounterfactual.model_construct(**payload))
-    return PrivateCounterfactual.model_validate(payload)
+    return seal(PrivateCounterfactual, payload)
 
 
 def verify_counterfactual(
@@ -422,10 +412,8 @@ def prepare_counterfactual_review(
         request=request,
         author=principal.subject,
         recorded_at=datetime.now(UTC),
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(CounterfactualReview.model_construct(**payload))
-    result = CounterfactualReview.model_validate(payload)
+    result = seal(CounterfactualReview, payload)
     counterfactual_review_head(record, [*reviews, result])
     return result
 
@@ -617,10 +605,8 @@ def prepare_observation(
         result=calculate_observation(request, counterfactual, review, baseline, actual, anchor, now=now),
         author=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    payload["content_sha256"] = content_hash(PrivateObservation.model_construct(**payload))
-    return PrivateObservation.model_validate(payload)
+    return seal(PrivateObservation, payload)
 
 
 def verify_observation(

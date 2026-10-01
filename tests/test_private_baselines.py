@@ -251,7 +251,8 @@ def test_withdrawal_and_freeze_are_serialized_and_cannot_leave_usable_stale_appr
     from threading import Event
 
     *_, plan, finance, operating = reviewed(repo)
-    module = importlib.import_module(type(repo).__module__)
+    # Both backends run the shared record rules defined beside InMemoryRepository.
+    module = importlib.import_module("pe_value_os.adapters.repositories")
     target = "prepare_private_baseline" if first_operation == "freeze" else "prepare_private_plan_review"
     prepare_original = getattr(module, target)
     entered, attempted, release = Event(), Event(), Event()

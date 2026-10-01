@@ -10,8 +10,9 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from .. import security
-from .cases import CaseReview, CaseRevision, InvestmentCase, digest, writer
+from .cases import CaseReview, CaseRevision, InvestmentCase, writer
 from .models import Record
+from .record_chain import content_hash, seal_json
 
 UUID_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
@@ -40,8 +41,7 @@ class CloseBaseline(Record):
 
     @model_validator(mode="after")
     def integrity(self) -> Self:
-        raw = self.model_dump(mode="json", exclude={"content_sha256"})
-        if digest(json.dumps(raw, sort_keys=True)) != self.content_sha256:
+        if content_hash(self) != self.content_sha256:
             raise ValueError("close baseline content hash mismatch")
         if self.request.mode == "human" and self.actor_type != "human":
             raise ValueError("human baseline designation requires human authorship")
@@ -107,7 +107,7 @@ def prepare_close_baseline(
         "actor_type": principal.principal_type,
         "classification": "constructed_operating_exercise",
     }
-    return CloseBaseline.model_validate({**raw, "content_sha256": digest(json.dumps(raw, sort_keys=True))})
+    return seal_json(CloseBaseline, raw)
 
 
 def close_baseline_view(

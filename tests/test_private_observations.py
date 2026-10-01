@@ -572,7 +572,8 @@ def test_observation_and_review_withdrawal_share_atomic_company_lock(repo, clock
 
     case = setup(repo)
     actual = actuals(repo, case.anchor, clock)
-    module = importlib.import_module(type(repo).__module__)
+    # Both backends run the shared record rules defined beside InMemoryRepository.
+    module = importlib.import_module("pe_value_os.adapters.repositories")
     original = module.prepare_private_observation
     entered, attempted, release = Event(), Event(), Event()
 

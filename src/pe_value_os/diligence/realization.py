@@ -14,6 +14,7 @@ from .. import security
 from .cases import CaseReview, CaseRevision, InvestmentCase, digest, writer
 from .close_baseline import UUID_PATTERN, CloseBaseline, close_baseline_view
 from .models import Record
+from .record_chain import content_hash, seal_json
 from .scheduling import fingerprint
 from .underwriting import Entry, money, month_end, totals
 
@@ -213,8 +214,7 @@ class Attribution(Record):
 
 
 def verify_hash(record: Observation | Attribution) -> None:
-    raw = record.model_dump(mode="json", exclude={"content_sha256"})
-    if digest(json.dumps(raw, sort_keys=True)) != record.content_sha256:
+    if content_hash(record) != record.content_sha256:
         raise ValueError("realization record content hash mismatch")
 
 
@@ -223,7 +223,7 @@ SignedRecord = TypeVar("SignedRecord", bound=Record)
 
 def signed_record(model: type[SignedRecord], raw: dict[str, Any]) -> SignedRecord:
     raw.update(schema_version=1, recorded_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"))
-    return model.model_validate({**raw, "content_sha256": digest(json.dumps(raw, sort_keys=True))})
+    return seal_json(model, raw)
 
 
 def reconcile(book: SourceBook) -> list[dict[str, Any]]:

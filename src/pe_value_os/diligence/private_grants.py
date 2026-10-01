@@ -12,6 +12,7 @@ from pydantic import AwareDatetime, Field, model_validator
 from .. import security
 from .models import Record
 from .private_intake import SHA, IntakePolicy, fingerprint, require_operator
+from .record_chain import content_hash, seal
 
 
 class GrantRequest(Record):
@@ -59,20 +60,11 @@ class GrantEvent(Record):
     @model_validator(mode="after")
     def identity(self) -> Self:
         security.validate_company_id(self.company_id)
-        if event_hash(self) != self.content_sha256:
+        if content_hash(self) != self.content_sha256:
             raise ValueError("private grant content hash mismatch")
         if self.request.policy is not None and self.request.policy.company_id != self.company_id:
             raise ValueError("private grant policy belongs to another company")
         return self
-
-
-def event_hash(event: GrantEvent) -> str:
-    import hashlib
-    import json
-
-    return hashlib.sha256(
-        json.dumps(event.model_dump(mode="json", exclude={"content_sha256"}), sort_keys=True).encode()
-    ).hexdigest()
 
 
 def require_reader(company_id: str) -> security.Principal:
@@ -121,11 +113,8 @@ def prepare_event(company_id: str, grant_key: str, request: GrantRequest, previo
         request=request,
         actor=principal.subject,
         recorded_at=now,
-        content_sha256="0" * 64,
     )
-    draft = GrantEvent.model_construct(**raw)
-    raw["content_sha256"] = event_hash(draft)
-    return GrantEvent.model_validate(raw)
+    return seal(GrantEvent, raw)
 
 
 def permission_status(events: list[GrantEvent], policy_sha256: str, *, now: datetime) -> dict[str, Any]:
@@ -133,7 +122,7 @@ def permission_status(events: list[GrantEvent], policy_sha256: str, *, now: date
         raise ValueError("permission assessment requires an aware time")
     previous = None
     for index, event in enumerate(events, start=1):
-        if event_hash(event) != event.content_sha256:
+        if content_hash(event) != event.content_sha256:
             raise ValueError("private grant content hash mismatch")
         if event.sequence != index or event.request.expected_previous_sha256 != (
             previous.content_sha256 if previous else None

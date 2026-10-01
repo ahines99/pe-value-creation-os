@@ -7,100 +7,49 @@ table owner) in every environment except migrations.
 
 from __future__ import annotations
 
-import hashlib
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import date
-from typing import Any
+from typing import Any, TypeVar
 
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from .. import security
-from ..diligence import private_attribution, private_review
+from ..diligence import private_attribution
 from ..diligence.cases import (
     CaseReview,
     CaseRevision,
     InvestmentCase,
     ReviewRequest,
-    RevisionDraft,
     new_case,
     prepare_review,
-    prepare_revision,
-    writer,
 )
-from ..diligence.close_baseline import CloseBaseline, CloseBaselineRequest, prepare_close_baseline
+from ..diligence.close_baseline import CloseBaseline
 from ..diligence.execution import (
     Acceptance,
     ClaimLink,
     Delivery,
     ExecutionEvent,
-    ExecutionRequest,
     execution_report,
-    prepare_execution,
-    stream_key,
 )
+from ..diligence.models import Record
 from ..diligence.private_baselines import (
-    BaselineRequest,
-    PlanReviewRequest,
     PrivateBaseline,
     PrivatePlanReview,
 )
-from ..diligence.private_baselines import (
-    baseline_view as private_baseline_view,
-)
-from ..diligence.private_baselines import (
-    prepare_baseline as prepare_private_baseline,
-)
-from ..diligence.private_baselines import (
-    prepare_review as prepare_private_plan_review,
-)
-from ..diligence.private_baselines import (
-    require_baseline_author as require_private_baseline_author,
-)
-from ..diligence.private_baselines import (
-    require_reviewer as require_private_plan_reviewer,
-)
-from ..diligence.private_baselines import (
-    review_heads as private_review_heads,
-)
 from ..diligence.private_capacity import (
-    CapacityPlanRequest,
     PrivateCapacityRevision,
 )
-from ..diligence.private_capacity import (
-    prepare_revision as prepare_private_capacity,
-)
-from ..diligence.private_capacity import (
-    verify_revision as verify_private_capacity,
-)
-from ..diligence.private_execution import PrivateExecutionEvent, PrivateExecutionRequest
-from ..diligence.private_execution import execution_view as private_execution_view
-from ..diligence.private_execution import prepare_event as prepare_private_execution
-from ..diligence.private_execution import reducing_support as execution_reducing_support
-from ..diligence.private_execution import require_author as require_private_execution_author
+from ..diligence.private_execution import PrivateExecutionEvent
 from ..diligence.private_financials import (
-    FinancialSnapshotRequest,
     PrivateFinancialSnapshot,
-    prepare_snapshot,
-    require_current_snapshot,
-    require_snapshot_writer,
-)
-from ..diligence.private_financials import (
-    verify_snapshot as verify_private_financial_snapshot,
 )
 from ..diligence.private_grants import (
     GrantEvent,
-    GrantRequest,
-)
-from ..diligence.private_grants import (
-    prepare_event as prepare_grant_event,
-)
-from ..diligence.private_grants import (
-    require_author as require_grant_author,
 )
 from ..diligence.private_grants import (
     require_reader as require_grant_reader,
@@ -109,47 +58,20 @@ from ..diligence.private_grants import (
     validate_key as validate_grant_key,
 )
 from ..diligence.private_observations import (
-    CounterfactualRequest,
     CounterfactualReview,
-    CounterfactualReviewRequest,
     PrivateCounterfactual,
     PrivateObservation,
-    PrivateObservationRequest,
-    counterfactual_review_head,
-    prepare_counterfactual,
-    prepare_counterfactual_review,
-    verify_counterfactual,
-    verify_observation,
 )
-from ..diligence.private_observations import prepare_observation as prepare_private_observation
 from ..diligence.private_records import (
     FinanceReview,
-    FinanceReviewRequest,
-    IntakeRequest,
     PrivateIntake,
-    authorize_source,
-    prepare_intake,
-    require_finance_reviewer,
-    require_intake_writer,
 )
-from ..diligence.private_records import prepare_review as prepare_private_review
 from ..diligence.private_underwriting import (
     PrivateUnderwritingRevision,
-    UnderwritingRequest,
-)
-from ..diligence.private_underwriting import (
-    prepare_revision as prepare_private_underwriting,
-)
-from ..diligence.private_underwriting import (
-    verify_revision as verify_private_underwriting,
 )
 from ..diligence.realization import (
     Attribution,
-    AttributionRequest,
     Observation,
-    ObservationRequest,
-    prepare_attribution,
-    prepare_observation,
     realization_report,
 )
 from ..domain.kpi_models import KpiAlert, KpiDefinition, KpiObservation, Notification
@@ -159,7 +81,9 @@ from ..domain.runs import ApprovalDecision, ApprovalRecord, PlanRecord, RunRecor
 from ..domain.source_models import CompanyProfile
 from .base import EvidenceRecord
 from .evidence_store import EvidenceStore
-from .repositories import LEASE, Conflict, FencedRepository, LeaseLost, NotFound
+from .repositories import LEASE, Conflict, FencedRepository, LeaseLost, NotFound, RecordRules
+
+_R = TypeVar("_R", bound=Record)
 
 
 def _s(v: Any) -> str | None:
@@ -169,7 +93,7 @@ def _s(v: Any) -> str | None:
 _APPROVAL_CURSOR: ContextVar[tuple[int, Any] | None] = ContextVar("pvc_approval_cursor", default=None)
 
 
-class PostgresRepository:
+class PostgresRepository(RecordRules):
     def __init__(self, url: str, evidence_store: EvidenceStore, *, min_size: int = 1, max_size: int = 10):
         self.url = url
         self.evidence_store = evidence_store
@@ -185,119 +109,39 @@ class PostgresRepository:
     def fenced_run(self, run_id: str, owner: str) -> FencedRepository:
         return FencedRepository(self, run_id, owner)
 
-    def _lock_private_company(self, cur: Any, company_id: str) -> None:
-        if not cur.execute("select company_id from companies where company_id=%s for update", (company_id,)).fetchone():
-            raise NotFound(company_id)
-
-    def private_attribution_review_packet(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> dict[str, Any]:
-        principal = require_grant_reader(company_id)
+    @contextmanager
+    def _private_transaction(self, company_id: str) -> Iterator[None]:
         with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            proposal = self._private_attribution(company_id, revision_id)
-            observation = self._private_observation(company_id, proposal.request.observation_id)
-            counterfactual = self._private_counterfactual(company_id, observation.request.counterfactual_revision_id)
-            actual = next(
-                (
-                    row
-                    for row in self.list_private_financial_snapshots(company_id, proposal.case_key)
-                    if row.snapshot_id == observation.request.actual_snapshot_id
-                ),
-                None,
-            )
-            if actual is None:
-                raise NotFound(observation.request.actual_snapshot_id)
-            baseline, plan = self._private_execution_context(company_id, proposal.baseline_id)
-            events = self.list_private_execution_events(company_id, proposal.baseline_id)
-            reviews = self.list_private_attribution_reviews(company_id, revision_id)
-            head = private_attribution.attribution_review_head(proposal, reviews)
-            proposal_head = self.list_private_attributions(company_id, proposal.case_key, proposal.attribution_key)[-1]
-            checks = {
-                "baseline_supported": False,
-                "observation_supported": False,
-                "proposal_supported": False,
-                "finance_acceptance_supported": False,
-            }
-            if environment_id:
-                try:
-                    baseline_status = self.private_baseline_status(company_id, baseline.baseline_id, environment_id)
-                    checks["baseline_supported"] = bool(baseline_status["usable_for_comparison"])
-                except (security.ScopeError, ValueError, NotFound):
-                    pass
-                try:
-                    self.usable_private_observation(company_id, observation.observation_id, environment_id)
-                    checks["observation_supported"] = True
-                    self._current_private_attribution(company_id, revision_id, environment_id)
-                    checks["proposal_supported"] = True
-                    self.usable_private_attribution(company_id, revision_id, environment_id)
-                    checks["finance_acceptance_supported"] = True
-                except (security.ScopeError, ValueError, NotFound):
-                    pass  # Historical receipts remain scoped reads, never current support.
-            try:
-                require_finance_reviewer(company_id)
-                can_review = principal.subject != proposal.author
-            except security.ScopeError:
-                can_review = False
-            execution = private_execution_view(baseline, plan, events, baseline_supported=checks["baseline_supported"])
-            packet = {
-                "classification": "permissioned_private",
-                "origin": proposal.origin,
-                "company_id": company_id,
-                "company_name": self.get_company(company_id).name,
-                "case_key": proposal.case_key,
-                "currency": proposal.currency,
-                "unit_scale": 1,
-                "generated_at": private_review.packet_timestamp(),
-                "proposal": proposal.model_dump(mode="json"),
-                "observation": observation.model_dump(mode="json"),
-                "counterfactual": counterfactual.model_dump(mode="json"),
-                "actual_snapshot": actual.model_dump(mode="json"),
-                "baseline": baseline.model_dump(mode="json"),
-                "plan": plan.model_dump(mode="json"),
-                "execution": execution,
-                "reviews": [r.model_dump(mode="json") for r in reviews],
-                "current_proposal_revision_id": proposal_head.revision_id,
-                "current_review_sha256": head.content_sha256 if head else None,
-                "execution_head_sha256": events[-1].content_sha256 if events else None,
-                "checks": checks,
-                "viewer": principal.subject,
-                "can_record_substantive_review": can_review and checks["proposal_supported"],
-                "can_withdraw_review": can_review and head is not None and head.request.decision == "accept",
-                "causal_impact_proven": False,
-                "delivery_costs_reconciled_to_ledger": False,
-            }
-            packet["packet_sha256"] = private_review.packet_fingerprint(packet)
-            return packet
+            # Serialize initial grants as well as revisions and revocations. The
+            # company row exists before any private stream and is protected by RLS.
+            if not cur.execute(
+                "select company_id from companies where company_id=%s for update", (company_id,)
+            ).fetchone():
+                raise NotFound(company_id)
+            yield
 
-    def private_review_index(self, company_id: str) -> list[dict[str, Any]]:
+    @contextmanager
+    def _case_transaction(self, case_id: str) -> Iterator[InvestmentCase]:
+        with self.approval_transaction(), self._tx() as cur:
+            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
+            if row is None:
+                raise NotFound(case_id)
+            yield self._investment_case(row)
+
+    def _private_row(self, model: type[_R], table: str, key: str, company_id: str, record_id: str) -> _R:
         require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            company = self.get_company(company_id)
-            heads: dict[tuple[str, str], private_attribution.PrivateAttribution] = {}
-            for row in self._private_attribution_records(company_id):
-                key = (row.case_key, row.attribution_key)
-                if key not in heads or row.sequence > heads[key].sequence:
-                    heads[key] = row
-            cards = []
-            for row in sorted(heads.values(), key=lambda r: r.recorded_at, reverse=True):
-                head = private_attribution.attribution_review_head(
-                    row, self.list_private_attribution_reviews(company_id, row.revision_id)
-                )
-                cards.append(
-                    dict(
-                        company_id=company_id,
-                        company_name=company.name,
-                        case_key=row.case_key,
-                        revision_id=row.revision_id,
-                        origin=row.origin,
-                        first_month=row.first_month.isoformat(),
-                        months=row.months,
-                        decision=head.request.decision if head else None,
-                    )
-                )
-            return cards
+        try:
+            if str(uuid.UUID(record_id)) != record_id:
+                raise ValueError("Noncanonical identifier")
+        except ValueError as exc:
+            raise NotFound(record_id) from exc
+        with self._tx() as cur:
+            row = cur.execute(
+                f"select record from {table} where company_id=%s and {key}=%s", (company_id, record_id)
+            ).fetchone()
+        if row is None:
+            raise NotFound(record_id)
+        return model.model_validate(row["record"])
 
     def _private_attribution_records(self, company_id: str) -> list[private_attribution.PrivateAttribution]:
         require_grant_reader(company_id)
@@ -370,199 +214,14 @@ class PostgresRepository:
                 ),
             )
 
-    def _private_attribution(self, company_id: str, revision_id: str) -> private_attribution.PrivateAttribution:
-        require_grant_reader(company_id)
-        result = next((r for r in self._private_attribution_records(company_id) if r.revision_id == revision_id), None)
-        if result is None:
-            raise NotFound(revision_id)
-        return private_attribution.PrivateAttribution.model_validate(result.model_dump(mode="json"))
-
-    def list_private_attributions(
-        self, company_id: str, case_key: str, key: str
-    ) -> list[private_attribution.PrivateAttribution]:
-        require_grant_reader(company_id)
-        validate_grant_key(case_key)
-        validate_grant_key(key)
-        self.get_company(company_id)
-        return sorted(
-            (
-                r
-                for r in self._private_attribution_records(company_id)
-                if r.case_key == case_key and r.attribution_key == key
-            ),
-            key=lambda r: r.sequence,
-        )
-
-    def list_private_attribution_reviews(
-        self, company_id: str, revision_id: str
-    ) -> list[private_attribution.AttributionReview]:
-        self._private_attribution(company_id, revision_id)
-        return self._private_attribution_review_records(company_id, revision_id)
-
-    def record_private_attribution(
-        self,
-        company_id: str,
-        case_key: str,
-        key: str,
-        request: private_attribution.AttributionRequest,
-        environment_id: str,
-    ) -> private_attribution.PrivateAttribution:
-        principal = require_intake_writer(company_id)
-        request = private_attribution.AttributionRequest.model_validate(request.model_dump(mode="json"))
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            revisions = self.list_private_attributions(company_id, case_key, key)
-            retry = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
-            if retry:
-                if retry.request != request or retry.author != principal.subject:
-                    raise Conflict("Private attribution idempotency key belongs to another request or author")
-                return retry
-            previous = revisions[-1] if revisions else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private attribution history changed; reload its current head")
-            observation = self.usable_private_observation(company_id, request.observation_id, environment_id)
-            baseline, plan = self._private_execution_context(company_id, observation.baseline_id)
-            events = self.list_private_execution_events(company_id, baseline.baseline_id)
-            if request.expected_execution_head_sha256 != (events[-1].content_sha256 if events else None):
-                raise Conflict("Private execution history changed; reload its current head")
-            result = private_attribution.prepare_attribution(
-                company_id, case_key, key, request, observation, baseline, plan, events, previous
-            )
-            self._save_private_attribution(result)
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_attribution",
-                    event_type="private_attribution_revision",
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "revision_id": result.revision_id,
-                        "sha256": result.content_sha256,
-                        "observation_id": observation.observation_id,
-                    },
-                )
-            )
-            return result
-
-    def _current_private_attribution(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> private_attribution.PrivateAttribution:
-        result = self._private_attribution(company_id, revision_id)
-        if (
-            self.list_private_attributions(company_id, result.case_key, result.attribution_key)[-1].revision_id
-            != revision_id
-        ):
-            raise ValueError("private attribution is superseded")
-        observation = self.usable_private_observation(company_id, result.request.observation_id, environment_id)
-        baseline, plan = self._private_execution_context(company_id, result.baseline_id)
-        events = self.list_private_execution_events(company_id, result.baseline_id)
-        private_attribution.verify_attribution(result, observation, baseline, plan, events)
-        private_attribution.require_current_execution_support(result, observation, baseline, plan, events)
-        return result
-
-    def _check_private_attribution_reservations(self, proposal: private_attribution.PrivateAttribution) -> None:
-        heads: dict[str, private_attribution.PrivateAttribution] = {}
-        for candidate in self._private_attribution_records(proposal.company_id):
-            if (candidate.case_key, candidate.baseline_id) != (proposal.case_key, proposal.baseline_id):
-                continue
-            previous = heads.get(candidate.attribution_key)
-            if previous is None or candidate.sequence > previous.sequence:
-                heads[candidate.attribution_key] = candidate
-        accepted = []
-        for candidate in heads.values():
-            review = private_attribution.attribution_review_head(
-                candidate, self.list_private_attribution_reviews(candidate.company_id, candidate.revision_id)
-            )
-            if review and review.request.decision == "accept":
-                accepted.append(candidate)
-        private_attribution.require_disjoint_accepted_windows(proposal, accepted)
-
-    def review_private_attribution(
-        self,
-        company_id: str,
-        revision_id: str,
-        request: private_attribution.AttributionReviewRequest,
-        environment_id: str,
-    ) -> private_attribution.AttributionReview:
-        principal = require_finance_reviewer(company_id)
-        request = private_attribution.AttributionReviewRequest.model_validate(request.model_dump(mode="json"))
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            proposal = self._private_attribution(company_id, revision_id)
-            reviews = self.list_private_attribution_reviews(company_id, revision_id)
-            retry = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
-            if retry:
-                if retry.request != request or retry.author != principal.subject:
-                    raise Conflict("Attribution review idempotency key belongs to another request or author")
-                return retry
-            previous = private_attribution.attribution_review_head(proposal, reviews)
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Attribution review history changed; reload its current head")
-            events = self.list_private_execution_events(company_id, proposal.baseline_id)
-            if request.expected_execution_head_sha256 != (events[-1].content_sha256 if events else None):
-                raise Conflict("Private execution history changed; reload its current head")
-            if request.decision != "withdraw":
-                proposal = self._current_private_attribution(company_id, revision_id, environment_id)
-            if request.decision == "accept":
-                self._check_private_attribution_reservations(proposal)
-            result = private_attribution.prepare_attribution_review(proposal, request, reviews)
-            if events and events[-1].recorded_at > result.recorded_at:
-                raise ValueError("attribution review predates its execution history")
-            self._save_private_attribution_review(result, proposal)
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_attribution_review",
-                    event_type="private_attribution_review",
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "review_id": result.review_id,
-                        "sha256": result.content_sha256,
-                        "revision_id": revision_id,
-                    },
-                )
-            )
-            return result
-
-    def usable_private_attribution(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> tuple[private_attribution.PrivateAttribution, private_attribution.AttributionReview]:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            result = self._current_private_attribution(company_id, revision_id, environment_id)
-            reviews = self.list_private_attribution_reviews(company_id, revision_id)
-            review = private_attribution.attribution_review_head(result, reviews)
-            if review is None or review.request.decision != "accept":
-                raise ValueError("attribution requires current finance acceptance")
-            observation = self.usable_private_observation(company_id, result.request.observation_id, environment_id)
-            baseline, plan = self._private_execution_context(company_id, result.baseline_id)
-            events = self.list_private_execution_events(company_id, result.baseline_id)
-            private_attribution.verify_review_evidence(result, reviews, observation, baseline, plan, events)
-            self._check_private_attribution_reservations(result)
-            return result, review
-
     def _private_execution_context(
         self, company_id: str, baseline_id: str
     ) -> tuple[PrivateBaseline, PrivateCapacityRevision]:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(baseline_id)) != baseline_id:
-                raise ValueError("Noncanonical baseline identifier")
-        except ValueError as exc:
-            raise NotFound(baseline_id) from exc
-        with self._tx() as cur:
-            row = cur.execute(
-                "select record from private_baselines where company_id=%s and baseline_id=%s", (company_id, baseline_id)
-            ).fetchone()
-            if row is None:
-                raise NotFound(baseline_id)
-            baseline = PrivateBaseline.model_validate(row["record"])
-            return baseline, self._private_capacity_revision(company_id, baseline.request.capacity_revision_id)
+        baseline = self._private_baseline(company_id, baseline_id)
+        return baseline, self._private_capacity_revision(company_id, baseline.request.capacity_revision_id)
+
+    def _private_baseline(self, company_id: str, baseline_id: str) -> PrivateBaseline:
+        return self._private_row(PrivateBaseline, "private_baselines", "baseline_id", company_id, baseline_id)
 
     def list_private_execution_events(self, company_id: str, baseline_id: str) -> list[PrivateExecutionEvent]:
         self._private_execution_context(company_id, baseline_id)
@@ -575,91 +234,8 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def record_private_execution(
-        self, company_id: str, baseline_id: str, request: PrivateExecutionRequest, environment_id: str
-    ) -> PrivateExecutionEvent:
-        request = PrivateExecutionRequest.model_validate(request.model_dump(mode="json"))
-        principal = require_private_execution_author(company_id, request)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            baseline, plan = self._private_execution_context(company_id, baseline_id)
-            events = self.list_private_execution_events(company_id, baseline_id)
-            replay = next((e for e in events if e.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private execution idempotency key belongs to another request or author")
-                return replay
-            previous = events[-1] if events else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private execution history changed; reload its current head")
-            if not execution_reducing_support(request):
-                view = self.private_baseline_status(company_id, baseline_id, environment_id)
-                if not view["usable_for_comparison"]:
-                    raise ValueError("private execution requires a currently supported baseline")
-            result = prepare_private_execution(company_id, baseline, plan, request, events)
-            cur.execute(
-                """insert into private_execution_events
-                (event_id,company_id,case_key,baseline_id,baseline_sha256,sequence,previous_sha256,idempotency_key,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    result.event_id,
-                    company_id,
-                    result.case_key,
-                    baseline_id,
-                    request.baseline_sha256,
-                    result.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    result.content_sha256,
-                    Jsonb(result.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_execution",
-                    event_type="private_execution_" + request.payload.kind,
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "event_id": result.event_id,
-                        "baseline_id": baseline_id,
-                        "sha256": result.content_sha256,
-                        "kind": request.payload.kind,
-                    },
-                )
-            )
-            return result
-
-    def private_execution_status(self, company_id: str, baseline_id: str, environment_id: str) -> dict[str, Any]:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            baseline, plan = self._private_execution_context(company_id, baseline_id)
-            view = self.private_baseline_status(company_id, baseline_id, environment_id)
-            return private_execution_view(
-                baseline,
-                plan,
-                self.list_private_execution_events(company_id, baseline_id),
-                baseline_supported=view["usable_for_comparison"],
-            )
-
     def _private_counterfactual(self, company_id: str, record_id: str) -> PrivateCounterfactual:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(record_id)) != record_id:
-                raise ValueError("Noncanonical identifier")
-        except ValueError as exc:
-            raise NotFound(record_id) from exc
-        with self._tx() as cur:
-            row = cur.execute(
-                "select record from private_counterfactuals where company_id=%s and revision_id=%s",
-                (company_id, record_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(record_id)
-            return PrivateCounterfactual.model_validate(row["record"])
+        return self._private_row(PrivateCounterfactual, "private_counterfactuals", "revision_id", company_id, record_id)
 
     def list_private_counterfactuals(self, company_id: str, case_key: str, key: str) -> list[PrivateCounterfactual]:
         require_grant_reader(company_id)
@@ -676,20 +252,7 @@ class PostgresRepository:
             ]
 
     def _private_observation(self, company_id: str, record_id: str) -> PrivateObservation:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(record_id)) != record_id:
-                raise ValueError("Noncanonical identifier")
-        except ValueError as exc:
-            raise NotFound(record_id) from exc
-        with self._tx() as cur:
-            row = cur.execute(
-                "select record from private_observations where company_id=%s and observation_id=%s",
-                (company_id, record_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(record_id)
-            return PrivateObservation.model_validate(row["record"])
+        return self._private_row(PrivateObservation, "private_observations", "observation_id", company_id, record_id)
 
     def list_private_observations(self, company_id: str, case_key: str, key: str) -> list[PrivateObservation]:
         require_grant_reader(company_id)
@@ -716,260 +279,10 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def _private_measurement_baseline(
-        self, company_id: str, baseline_id: str, environment_id: str
-    ) -> tuple[PrivateBaseline, PrivateFinancialSnapshot]:
-        view = self.private_baseline_status(company_id, baseline_id, environment_id)
-        if not view["usable_for_comparison"]:
-            raise ValueError("private comparison baseline is no longer currently supported")
-        baseline = PrivateBaseline.model_validate(view["baseline"])
-        anchor = next(
-            (
-                s
-                for s in self.list_private_financial_snapshots(company_id, baseline.case_key)
-                if s.content_sha256 == baseline.financial_snapshot_sha256
-            ),
-            None,
-        )
-        if anchor is None:
-            raise NotFound(baseline.financial_snapshot_sha256)
-        return baseline, anchor
-
-    def record_private_counterfactual(
-        self, company_id: str, case_key: str, key: str, request: CounterfactualRequest, environment_id: str
-    ) -> PrivateCounterfactual:
-        principal = require_intake_writer(company_id)
-        request = CounterfactualRequest.model_validate(request.model_dump(mode="json"))
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            revisions = self.list_private_counterfactuals(company_id, case_key, key)
-            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private counterfactual idempotency key belongs to another request or author")
-                return replay
-            previous = revisions[-1] if revisions else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private counterfactual history changed; reload its current head")
-            baseline, anchor = self._private_measurement_baseline(company_id, request.baseline_id, environment_id)
-            result = prepare_counterfactual(company_id, case_key, key, request, baseline, anchor, previous)
-            cur.execute(
-                """insert into private_counterfactuals (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,counterfactual_key,baseline_id,baseline_sha256,financial_snapshot_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    result.revision_id,
-                    company_id,
-                    result.case_key,
-                    result.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    result.content_sha256,
-                    key,
-                    baseline.baseline_id,
-                    baseline.content_sha256,
-                    anchor.content_sha256,
-                    Jsonb(result.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_counterfactual",
-                    event_type="private_counterfactual_revision",
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "revision_id": result.revision_id,
-                        "sha256": result.content_sha256,
-                        "baseline_id": baseline.baseline_id,
-                    },
-                )
-            )
-            return result
-
-    def _current_private_counterfactual(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> PrivateCounterfactual:
-        result = self._private_counterfactual(company_id, revision_id)
-        if (
-            self.list_private_counterfactuals(company_id, result.case_key, result.counterfactual_key)[-1].revision_id
-            != revision_id
-        ):
-            raise ValueError("private counterfactual is superseded")
-        baseline, anchor = self._private_measurement_baseline(company_id, result.request.baseline_id, environment_id)
-        verify_counterfactual(result, baseline, anchor)
-        return result
-
-    def review_private_counterfactual(
-        self, company_id: str, revision_id: str, request: CounterfactualReviewRequest, environment_id: str
-    ) -> CounterfactualReview:
-        principal = require_finance_reviewer(company_id)
-        request = CounterfactualReviewRequest.model_validate(request.model_dump(mode="json"))
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            proposal = self._private_counterfactual(company_id, revision_id)
-            reviews = self.list_private_counterfactual_reviews(company_id, revision_id)
-            replay = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Counterfactual review idempotency key belongs to another request or author")
-                return replay
-            previous = counterfactual_review_head(proposal, reviews)
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Counterfactual review history changed; reload its current head")
-            if request.decision != "withdraw":
-                proposal = self._current_private_counterfactual(company_id, revision_id, environment_id)
-            result = prepare_counterfactual_review(proposal, request, reviews)
-            cur.execute(
-                """insert into private_counterfactual_reviews (review_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,counterfactual_revision_id,counterfactual_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    result.review_id,
-                    company_id,
-                    result.case_key,
-                    result.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    result.content_sha256,
-                    proposal.revision_id,
-                    proposal.content_sha256,
-                    Jsonb(result.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_counterfactual_review",
-                    event_type="private_counterfactual_review",
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "review_id": result.review_id,
-                        "sha256": result.content_sha256,
-                        "revision_id": revision_id,
-                    },
-                )
-            )
-            return result
-
-    def usable_private_counterfactual(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> tuple[PrivateCounterfactual, CounterfactualReview]:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            result = self._current_private_counterfactual(company_id, revision_id, environment_id)
-            review = counterfactual_review_head(
-                result, self.list_private_counterfactual_reviews(company_id, revision_id)
-            )
-            if review is None or review.request.decision != "accept":
-                raise ValueError("counterfactual requires current finance acceptance")
-            return result, review
-
-    def record_private_observation(
-        self, company_id: str, case_key: str, key: str, request: PrivateObservationRequest, environment_id: str
-    ) -> PrivateObservation:
-        principal = require_snapshot_writer(company_id)
-        request = PrivateObservationRequest.model_validate(request.model_dump(mode="json"))
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            observations = self.list_private_observations(company_id, case_key, key)
-            replay = next((r for r in observations if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private observation idempotency key belongs to another request or author")
-                return replay
-            previous = observations[-1] if observations else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private observation history changed; reload its current head")
-            proposal, review = self.usable_private_counterfactual(
-                company_id, request.counterfactual_revision_id, environment_id
-            )
-            baseline, anchor = self._private_measurement_baseline(
-                company_id, proposal.request.baseline_id, environment_id
-            )
-            actual = self.usable_private_financial_snapshot(company_id, request.actual_snapshot_id, environment_id)
-            result = prepare_private_observation(
-                company_id, case_key, key, request, proposal, review, baseline, actual, anchor, previous
-            )
-            cur.execute(
-                """insert into private_observations (observation_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,measurement_key,baseline_id,baseline_sha256,counterfactual_revision_id,counterfactual_sha256,counterfactual_review_sha256,actual_snapshot_id,actual_snapshot_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    result.observation_id,
-                    company_id,
-                    result.case_key,
-                    result.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    result.content_sha256,
-                    key,
-                    baseline.baseline_id,
-                    baseline.content_sha256,
-                    proposal.revision_id,
-                    proposal.content_sha256,
-                    review.content_sha256,
-                    actual.snapshot_id,
-                    actual.content_sha256,
-                    Jsonb(result.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_observation",
-                    event_type="private_observation",
-                    actor=result.author,
-                    created_at=result.recorded_at,
-                    payload={
-                        "observation_id": result.observation_id,
-                        "sha256": result.content_sha256,
-                        "counterfactual_revision_id": proposal.revision_id,
-                        "actual_snapshot_id": actual.snapshot_id,
-                    },
-                )
-            )
-            return result
-
-    def usable_private_observation(
-        self, company_id: str, observation_id: str, environment_id: str
-    ) -> PrivateObservation:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            result = self._private_observation(company_id, observation_id)
-            if (
-                self.list_private_observations(company_id, result.case_key, result.measurement_key)[-1].observation_id
-                != observation_id
-            ):
-                raise ValueError("private observation is superseded")
-            proposal, review = self.usable_private_counterfactual(
-                company_id, result.request.counterfactual_revision_id, environment_id
-            )
-            baseline, anchor = self._private_measurement_baseline(
-                company_id, proposal.request.baseline_id, environment_id
-            )
-            actual = self.usable_private_financial_snapshot(
-                company_id, result.request.actual_snapshot_id, environment_id
-            )
-            verify_observation(result, proposal, review, baseline, actual, anchor)
-            return result
-
     def _private_capacity_revision(self, company_id: str, revision_id: str) -> PrivateCapacityRevision:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(revision_id)) != revision_id:
-                raise ValueError("Noncanonical revision identifier")
-        except ValueError as exc:
-            raise NotFound(revision_id) from exc
-        with self._tx() as cur:
-            row = cur.execute(
-                "select record from private_capacity_plans where company_id=%s and revision_id=%s",
-                (company_id, revision_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(revision_id)
-            return PrivateCapacityRevision.model_validate(row["record"])
+        return self._private_row(
+            PrivateCapacityRevision, "private_capacity_plans", "revision_id", company_id, revision_id
+        )
 
     def list_private_plan_reviews(self, company_id: str, revision_id: str) -> list[PrivatePlanReview]:
         self._private_capacity_revision(company_id, revision_id)
@@ -981,68 +294,6 @@ class PostgresRepository:
                     (company_id, revision_id),
                 ).fetchall()
             ]
-
-    def review_private_capacity(
-        self, company_id: str, revision_id: str, request: PlanReviewRequest, environment_id: str
-    ) -> PrivatePlanReview:
-        principal = require_private_plan_reviewer(company_id, request.review_kind)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            plan = self._private_capacity_revision(company_id, revision_id)
-            reviews = self.list_private_plan_reviews(company_id, revision_id)
-            replay = next(
-                (
-                    r
-                    for r in reviews
-                    if r.review_kind == request.review_kind and r.request.idempotency_key == request.idempotency_key
-                ),
-                None,
-            )
-            if replay:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Private plan review idempotency key belongs to another request or author")
-                return replay
-            previous = private_review_heads(plan, reviews).get(request.review_kind)
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private plan review history changed; reload its current role head")
-            if request.decision != "withdraw":
-                plan = self.usable_private_capacity_plan(company_id, revision_id, environment_id)
-            review = prepare_private_plan_review(plan, request, reviews)
-            cur.execute(
-                """insert into private_plan_reviews
-                (review_id,company_id,case_key,capacity_revision_id,capacity_sha256,review_kind,sequence,previous_sha256,idempotency_key,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    review.review_id,
-                    company_id,
-                    plan.case_key,
-                    plan.revision_id,
-                    plan.content_sha256,
-                    review.review_kind,
-                    review.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    review.content_sha256,
-                    Jsonb(review.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_plan_review",
-                    event_type="private_plan_review",
-                    actor=review.actor,
-                    created_at=review.recorded_at,
-                    payload={
-                        "review_id": review.review_id,
-                        "sha256": review.content_sha256,
-                        "capacity_revision_id": revision_id,
-                        "review_kind": review.review_kind,
-                    },
-                )
-            )
-            return review
 
     def list_private_baselines(self, company_id: str, case_key: str) -> list[PrivateBaseline]:
         require_grant_reader(company_id)
@@ -1057,127 +308,6 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def freeze_private_baseline(
-        self, company_id: str, case_key: str, request: BaselineRequest, environment_id: str
-    ) -> PrivateBaseline:
-        principal = require_private_baseline_author(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            baselines = self.list_private_baselines(company_id, case_key)
-            replay = next((b for b in baselines if b.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private baseline idempotency key belongs to another request or author")
-                return replay
-            previous = baselines[-1] if baselines else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private baseline history changed; reload its current head")
-            plan = self.usable_private_capacity_plan(company_id, request.capacity_revision_id, environment_id)
-            baseline = prepare_private_baseline(
-                company_id,
-                case_key,
-                request,
-                plan,
-                self.list_private_plan_reviews(company_id, plan.revision_id),
-                previous,
-            )
-            cur.execute(
-                """insert into private_baselines
-                (baseline_id,company_id,case_key,sequence,previous_sha256,idempotency_key,capacity_revision_id,capacity_sha256,
-                 finance_review_id,finance_review_sha256,operating_review_id,operating_review_sha256,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    baseline.baseline_id,
-                    company_id,
-                    case_key,
-                    baseline.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    request.capacity_revision_id,
-                    request.expected_capacity_sha256,
-                    request.finance_review_id,
-                    request.finance_review_sha256,
-                    request.operating_review_id,
-                    request.operating_review_sha256,
-                    baseline.content_sha256,
-                    Jsonb(baseline.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_baseline",
-                    event_type="private_baseline_designation",
-                    actor=baseline.author,
-                    created_at=baseline.recorded_at,
-                    payload={
-                        "baseline_id": baseline.baseline_id,
-                        "sha256": baseline.content_sha256,
-                        "capacity_revision_id": plan.revision_id,
-                    },
-                )
-            )
-            return baseline
-
-    def private_baseline_status(self, company_id: str, baseline_id: str, environment_id: str) -> dict[str, Any]:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            try:
-                if str(uuid.UUID(baseline_id)) != baseline_id:
-                    raise ValueError("Noncanonical baseline identifier")
-            except ValueError as exc:
-                raise NotFound(baseline_id) from exc
-            row = cur.execute(
-                "select record from private_baselines where company_id=%s and baseline_id=%s", (company_id, baseline_id)
-            ).fetchone()
-            if row is None:
-                raise NotFound(baseline_id)
-            baseline = PrivateBaseline.model_validate(row["record"])
-            plan = self._private_capacity_revision(company_id, baseline.request.capacity_revision_id)
-            underwriting = next(
-                (
-                    r
-                    for r in self.list_private_underwriting(company_id, plan.case_key)
-                    if r.revision_id == plan.request.underwriting_revision_id
-                ),
-                None,
-            )
-            if underwriting is None:
-                raise NotFound(plan.request.underwriting_revision_id)
-            financials = next(
-                (
-                    s
-                    for s in self.list_private_financial_snapshots(company_id, plan.case_key)
-                    if s.snapshot_id == underwriting.request.inputs.financial_snapshot_id
-                ),
-                None,
-            )
-            if financials is None:
-                raise NotFound(underwriting.request.inputs.financial_snapshot_id)
-            # Historical comparison needs current processing permission, but not
-            # current-source acceptance. Reproduce originals before reporting support.
-            raw = self.private_intake_source(
-                company_id, financials.request.intake_id, environment_id, accepted_only=False
-            )
-            verify_private_financial_snapshot(
-                financials, self._private_intake(company_id, financials.request.intake_id), raw
-            )
-            verify_private_capacity(plan, underwriting, financials)
-            try:
-                self.usable_private_financial_snapshot(company_id, financials.snapshot_id, environment_id)
-                source_current = True
-            except ValueError:
-                source_current = False
-            return private_baseline_view(
-                baseline,
-                plan,
-                self.list_private_plan_reviews(company_id, plan.revision_id),
-                self.list_private_baselines(company_id, baseline.case_key),
-                source_current=source_current,
-            )
-
     def list_private_capacity_plans(self, company_id: str, case_key: str) -> list[PrivateCapacityRevision]:
         require_grant_reader(company_id)
         validate_grant_key(case_key)
@@ -1190,96 +320,6 @@ class PostgresRepository:
                     (company_id, case_key),
                 ).fetchall()
             ]
-
-    def record_private_capacity_plan(
-        self, company_id: str, case_key: str, request: CapacityPlanRequest, environment_id: str
-    ) -> PrivateCapacityRevision:
-        principal = require_intake_writer(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            revisions = self.list_private_capacity_plans(company_id, case_key)
-            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private capacity idempotency key belongs to another request or author")
-                return replay
-            previous = revisions[-1] if revisions else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private capacity history changed; reload its current head")
-            underwriting = self.usable_private_underwriting(
-                company_id, request.underwriting_revision_id, environment_id
-            )
-            financials = self.usable_private_financial_snapshot(
-                company_id,
-                underwriting.request.inputs.financial_snapshot_id,
-                environment_id,
-            )
-            revision = prepare_private_capacity(company_id, case_key, request, underwriting, financials, previous)
-            cur.execute(
-                """insert into private_capacity_plans
-                (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,underwriting_sha256,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    revision.revision_id,
-                    company_id,
-                    case_key,
-                    revision.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    underwriting.content_sha256,
-                    revision.content_sha256,
-                    Jsonb(revision.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_capacity",
-                    event_type="private_capacity_revision",
-                    actor=revision.author,
-                    created_at=revision.recorded_at,
-                    payload={
-                        "revision_id": revision.revision_id,
-                        "sha256": revision.content_sha256,
-                        "underwriting_revision_id": underwriting.revision_id,
-                    },
-                )
-            )
-            return revision
-
-    def usable_private_capacity_plan(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> PrivateCapacityRevision:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            try:
-                if str(uuid.UUID(revision_id)) != revision_id:
-                    raise ValueError("Noncanonical revision identifier")
-            except ValueError as exc:
-                raise NotFound(revision_id) from exc
-            row = cur.execute(
-                "select record from private_capacity_plans where company_id=%s and revision_id=%s",
-                (company_id, revision_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(revision_id)
-            revision = PrivateCapacityRevision.model_validate(row["record"])
-            if self.list_private_capacity_plans(company_id, revision.case_key)[-1].revision_id != revision_id:
-                raise ValueError("private capacity revision is superseded")
-            underwriting = self.usable_private_underwriting(
-                company_id,
-                revision.request.underwriting_revision_id,
-                environment_id,
-            )
-            financials = self.usable_private_financial_snapshot(
-                company_id,
-                underwriting.request.inputs.financial_snapshot_id,
-                environment_id,
-            )
-            verify_private_capacity(revision, underwriting, financials)
-            return revision
 
     def list_private_underwriting(self, company_id: str, case_key: str) -> list[PrivateUnderwritingRevision]:
         require_grant_reader(company_id)
@@ -1294,86 +334,6 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def record_private_underwriting(
-        self, company_id: str, case_key: str, request: UnderwritingRequest, environment_id: str
-    ) -> PrivateUnderwritingRevision:
-        principal = require_intake_writer(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            revisions = self.list_private_underwriting(company_id, case_key)
-            replay = next((r for r in revisions if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private underwriting idempotency key belongs to another request or author")
-                return replay
-            previous = revisions[-1] if revisions else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private underwriting history changed; reload its current head")
-            snapshot = self.usable_private_financial_snapshot(
-                company_id, request.inputs.financial_snapshot_id, environment_id
-            )
-            revision = prepare_private_underwriting(company_id, case_key, request, snapshot, previous)
-            cur.execute(
-                """insert into private_underwriting
-                (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,snapshot_sha256,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    revision.revision_id,
-                    company_id,
-                    case_key,
-                    revision.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    snapshot.content_sha256,
-                    revision.content_sha256,
-                    Jsonb(revision.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_underwriting",
-                    event_type="private_underwriting_revision",
-                    actor=revision.author,
-                    created_at=revision.recorded_at,
-                    payload={
-                        "revision_id": revision.revision_id,
-                        "sha256": revision.content_sha256,
-                        "snapshot_id": snapshot.snapshot_id,
-                    },
-                )
-            )
-            return revision
-
-    def usable_private_underwriting(
-        self, company_id: str, revision_id: str, environment_id: str
-    ) -> PrivateUnderwritingRevision:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            try:
-                if str(uuid.UUID(revision_id)) != revision_id:
-                    raise ValueError("Noncanonical revision identifier")
-            except ValueError as exc:
-                raise NotFound(revision_id) from exc
-            row = cur.execute(
-                "select record from private_underwriting where company_id=%s and revision_id=%s",
-                (company_id, revision_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(revision_id)
-            revision = PrivateUnderwritingRevision.model_validate(row["record"])
-            if self.list_private_underwriting(company_id, revision.case_key)[-1].revision_id != revision_id:
-                raise ValueError("private underwriting revision is superseded")
-            snapshot = self.usable_private_financial_snapshot(
-                company_id,
-                revision.request.inputs.financial_snapshot_id,
-                environment_id,
-            )
-            verify_private_underwriting(revision, snapshot)
-            return revision
-
     def list_private_financial_snapshots(self, company_id: str, case_key: str) -> list[PrivateFinancialSnapshot]:
         require_grant_reader(company_id)
         validate_grant_key(case_key)
@@ -1386,101 +346,6 @@ class PostgresRepository:
                     (company_id, case_key),
                 ).fetchall()
             ]
-
-    def record_private_financial_snapshot(
-        self, company_id: str, case_key: str, request: FinancialSnapshotRequest, environment_id: str
-    ) -> PrivateFinancialSnapshot:
-        principal = require_snapshot_writer(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            snapshots = self.list_private_financial_snapshots(company_id, case_key)
-            replay = next((r for r in snapshots if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.author != principal.subject:
-                    raise Conflict("Private financial idempotency key belongs to another request or author")
-                return replay
-            previous = snapshots[-1] if snapshots else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private financial history changed; reload its current head")
-            record = self._private_intake(company_id, request.intake_id)
-            snapshot = prepare_snapshot(
-                company_id,
-                case_key,
-                request,
-                record,
-                self._private_source(company_id, record.intake_id),
-                self.list_private_grants(company_id, record.request.grant_key),
-                self.list_private_finance_reviews(company_id, record.intake_id),
-                self.list_private_intakes(company_id, record.dataset_key)[-1],
-                previous,
-                environment_id,
-            )
-            cur.execute(
-                """insert into private_financial_snapshots
-                (snapshot_id,company_id,case_key,sequence,previous_sha256,idempotency_key,intake_id,intake_sha256,finance_review_sha256,grant_key,grant_sha256,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    snapshot.snapshot_id,
-                    company_id,
-                    case_key,
-                    snapshot.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    record.intake_id,
-                    record.content_sha256,
-                    request.expected_finance_review_sha256,
-                    record.request.grant_key,
-                    request.expected_grant_sha256,
-                    snapshot.content_sha256,
-                    Jsonb(snapshot.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_financials",
-                    event_type="private_financial_snapshot",
-                    actor=snapshot.author,
-                    created_at=snapshot.recorded_at,
-                    payload={
-                        "snapshot_id": snapshot.snapshot_id,
-                        "sha256": snapshot.content_sha256,
-                        "intake_id": record.intake_id,
-                    },
-                )
-            )
-            return snapshot
-
-    def usable_private_financial_snapshot(
-        self, company_id: str, snapshot_id: str, environment_id: str
-    ) -> PrivateFinancialSnapshot:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(snapshot_id)) != snapshot_id:
-                raise ValueError("Noncanonical snapshot identifier")
-        except ValueError as exc:
-            raise NotFound(snapshot_id) from exc
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            row = cur.execute(
-                "select record from private_financial_snapshots where company_id=%s and snapshot_id=%s",
-                (company_id, snapshot_id),
-            ).fetchone()
-            if row is None:
-                raise NotFound(snapshot_id)
-            snapshot = PrivateFinancialSnapshot.model_validate(row["record"])
-            record = self._private_intake(company_id, snapshot.request.intake_id)
-            require_current_snapshot(
-                snapshot,
-                record,
-                self._private_source(company_id, record.intake_id),
-                self.list_private_grants(company_id, record.request.grant_key),
-                self.list_private_finance_reviews(company_id, record.intake_id),
-                self.list_private_intakes(company_id, record.dataset_key)[-1],
-                environment_id,
-            )
-            return snapshot
 
     def list_private_intakes(self, company_id: str, dataset_key: str) -> list[PrivateIntake]:
         require_grant_reader(company_id)
@@ -1496,19 +361,7 @@ class PostgresRepository:
             ]
 
     def _private_intake(self, company_id: str, intake_id: str) -> PrivateIntake:
-        require_grant_reader(company_id)
-        try:
-            if str(uuid.UUID(intake_id)) != intake_id:
-                raise ValueError("Noncanonical intake identifier")
-        except ValueError as exc:
-            raise NotFound(intake_id) from exc
-        with self._tx() as cur:
-            row = cur.execute(
-                "select record from private_intakes where company_id=%s and intake_id=%s", (company_id, intake_id)
-            ).fetchone()
-        if row is None:
-            raise NotFound(intake_id)
-        return PrivateIntake.model_validate(row["record"])
+        return self._private_row(PrivateIntake, "private_intakes", "intake_id", company_id, intake_id)
 
     def _private_source(self, company_id: str, intake_id: str) -> bytes:
         with self._tx() as cur:
@@ -1530,146 +383,6 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def record_private_intake(
-        self, company_id: str, dataset_key: str, request: IntakeRequest, raw: bytes, environment_id: str
-    ) -> PrivateIntake:
-        principal = require_intake_writer(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            records = self.list_private_intakes(company_id, dataset_key)
-            replay = next((r for r in records if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if (
-                    replay.request != request
-                    or replay.actor != principal.subject
-                    or replay.source_sha256 != hashlib.sha256(raw).hexdigest()
-                ):
-                    raise Conflict("Private intake idempotency key belongs to another request, source or actor")
-                return replay
-            previous = records[-1] if records else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private dataset changed; reload its current head")
-            record = prepare_intake(
-                company_id,
-                dataset_key,
-                request,
-                raw,
-                self.list_private_grants(company_id, request.grant_key),
-                previous,
-                environment_id,
-            )
-            cur.execute(
-                """insert into private_intakes
-              (intake_id,company_id,dataset_key,sequence,previous_sha256,idempotency_key,grant_key,grant_sha256,content_sha256,source_sha256,source_bytes,record)
-              values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    record.intake_id,
-                    company_id,
-                    dataset_key,
-                    record.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    request.grant_key,
-                    request.expected_grant_sha256,
-                    record.content_sha256,
-                    record.source_sha256,
-                    raw,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_intake",
-                    event_type="private_source_recorded",
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={
-                        "intake_id": record.intake_id,
-                        "sha256": record.content_sha256,
-                        "status": record.preflight.status,
-                    },
-                )
-            )
-            return record
-
-    def review_private_intake(
-        self, company_id: str, intake_id: str, request: FinanceReviewRequest, environment_id: str
-    ) -> FinanceReview:
-        principal = require_finance_reviewer(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            record = self._private_intake(company_id, intake_id)
-            reviews = self.list_private_finance_reviews(company_id, intake_id)
-            replay = next((r for r in reviews if r.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Private review idempotency key belongs to another request or actor")
-                return replay
-            if self.list_private_intakes(company_id, record.dataset_key)[-1].intake_id != intake_id:
-                raise Conflict("Private intake was superseded; review its replacement")
-            previous = reviews[-1] if reviews else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private finance review changed; reload its current head")
-            review = prepare_private_review(
-                record,
-                self._private_source(company_id, intake_id),
-                request,
-                self.list_private_grants(company_id, record.request.grant_key),
-                previous,
-                environment_id,
-            )
-            cur.execute(
-                """insert into private_intake_reviews
-              (review_id,company_id,intake_id,intake_sha256,sequence,previous_sha256,idempotency_key,grant_key,grant_sha256,content_sha256,decision,actor_type,record)
-              values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    review.review_id,
-                    company_id,
-                    intake_id,
-                    record.content_sha256,
-                    review.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    record.request.grant_key,
-                    request.expected_grant_sha256,
-                    review.content_sha256,
-                    request.decision,
-                    review.actor_type,
-                    Jsonb(review.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_intake",
-                    event_type="private_finance_" + request.decision,
-                    actor=review.actor,
-                    created_at=review.recorded_at,
-                    payload={"intake_id": intake_id, "review_id": review.review_id, "sha256": review.content_sha256},
-                )
-            )
-            return review
-
-    def private_intake_source(
-        self, company_id: str, intake_id: str, environment_id: str, *, accepted_only: bool = False
-    ) -> bytes:
-        require_grant_reader(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            self._lock_private_company(cur, company_id)
-            record = self._private_intake(company_id, intake_id)
-            return authorize_source(
-                record,
-                self._private_source(company_id, intake_id),
-                self.list_private_grants(company_id, record.request.grant_key),
-                self.list_private_finance_reviews(company_id, intake_id),
-                self.list_private_intakes(company_id, record.dataset_key)[-1],
-                environment_id,
-                accepted_only=accepted_only,
-            )
-
     def list_private_grants(self, company_id: str, grant_key: str) -> list[GrantEvent]:
         require_grant_reader(company_id)
         validate_grant_key(grant_key)
@@ -1683,55 +396,287 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def record_private_grant(self, company_id: str, grant_key: str, request: GrantRequest) -> GrantEvent:
-        principal = require_grant_author(company_id)
-        with self.approval_transaction(), self._tx() as cur:
-            # Serialize initial grants as well as revisions and revocations. The
-            # company row exists before any grant stream and is protected by RLS.
-            if not cur.execute(
-                "select company_id from companies where company_id=%s for update", (company_id,)
-            ).fetchone():
-                raise NotFound(company_id)
-            events = self.list_private_grants(company_id, grant_key)
-            replay = next((e for e in events if e.request.idempotency_key == request.idempotency_key), None)
-            if replay:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Private grant idempotency key belongs to another request or actor")
-                return replay
-            previous = events[-1] if events else None
-            if request.expected_previous_sha256 != (previous.content_sha256 if previous else None):
-                raise Conflict("Private grant changed; reload its current head")
-            record = prepare_grant_event(company_id, grant_key, request, previous)
+    def _private_underwriting_revision(self, company_id: str, revision_id: str) -> PrivateUnderwritingRevision:
+        return self._private_row(
+            PrivateUnderwritingRevision, "private_underwriting", "revision_id", company_id, revision_id
+        )
+
+    def _private_financial_snapshot(self, company_id: str, snapshot_id: str) -> PrivateFinancialSnapshot:
+        return self._private_row(
+            PrivateFinancialSnapshot, "private_financial_snapshots", "snapshot_id", company_id, snapshot_id
+        )
+
+    # Inserts run on the private transaction's cursor; related records supply binding columns.
+    def _save_private_execution(self, record: PrivateExecutionEvent) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_execution_events
+                (event_id,company_id,case_key,baseline_id,baseline_sha256,sequence,previous_sha256,idempotency_key,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.event_id,
+                    record.company_id,
+                    record.case_key,
+                    record.baseline_id,
+                    record.request.baseline_sha256,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_counterfactual(
+        self, record: PrivateCounterfactual, baseline: PrivateBaseline, anchor: PrivateFinancialSnapshot
+    ) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_counterfactuals (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,counterfactual_key,baseline_id,baseline_sha256,financial_snapshot_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.revision_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.content_sha256,
+                    record.counterfactual_key,
+                    baseline.baseline_id,
+                    baseline.content_sha256,
+                    anchor.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_counterfactual_review(
+        self, record: CounterfactualReview, proposal: PrivateCounterfactual
+    ) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_counterfactual_reviews (review_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,counterfactual_revision_id,counterfactual_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.review_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.content_sha256,
+                    proposal.revision_id,
+                    proposal.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_observation(
+        self,
+        record: PrivateObservation,
+        baseline: PrivateBaseline,
+        proposal: PrivateCounterfactual,
+        review: CounterfactualReview,
+        actual: PrivateFinancialSnapshot,
+    ) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_observations (observation_id,company_id,case_key,sequence,previous_sha256,idempotency_key,content_sha256,measurement_key,baseline_id,baseline_sha256,counterfactual_revision_id,counterfactual_sha256,counterfactual_review_sha256,actual_snapshot_id,actual_snapshot_sha256,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.observation_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.content_sha256,
+                    record.measurement_key,
+                    baseline.baseline_id,
+                    baseline.content_sha256,
+                    proposal.revision_id,
+                    proposal.content_sha256,
+                    review.content_sha256,
+                    actual.snapshot_id,
+                    actual.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_plan_review(self, record: PrivatePlanReview, plan: PrivateCapacityRevision) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_plan_reviews
+                (review_id,company_id,case_key,capacity_revision_id,capacity_sha256,review_kind,sequence,previous_sha256,idempotency_key,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.review_id,
+                    record.company_id,
+                    plan.case_key,
+                    plan.revision_id,
+                    plan.content_sha256,
+                    record.review_kind,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_baseline(self, record: PrivateBaseline) -> None:
+        request = record.request
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_baselines
+                (baseline_id,company_id,case_key,sequence,previous_sha256,idempotency_key,capacity_revision_id,capacity_sha256,
+                 finance_review_id,finance_review_sha256,operating_review_id,operating_review_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.baseline_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    request.expected_previous_sha256,
+                    request.idempotency_key,
+                    request.capacity_revision_id,
+                    request.expected_capacity_sha256,
+                    request.finance_review_id,
+                    request.finance_review_sha256,
+                    request.operating_review_id,
+                    request.operating_review_sha256,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_capacity_plan(
+        self, record: PrivateCapacityRevision, underwriting: PrivateUnderwritingRevision
+    ) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_capacity_plans
+                (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,underwriting_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.revision_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    underwriting.content_sha256,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_underwriting(
+        self, record: PrivateUnderwritingRevision, snapshot: PrivateFinancialSnapshot
+    ) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_underwriting
+                (revision_id,company_id,case_key,sequence,previous_sha256,idempotency_key,snapshot_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.revision_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    snapshot.content_sha256,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_financial_snapshot(self, record: PrivateFinancialSnapshot, intake: PrivateIntake) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_financial_snapshots
+                (snapshot_id,company_id,case_key,sequence,previous_sha256,idempotency_key,intake_id,intake_sha256,finance_review_sha256,grant_key,grant_sha256,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.snapshot_id,
+                    record.company_id,
+                    record.case_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    intake.intake_id,
+                    intake.content_sha256,
+                    record.request.expected_finance_review_sha256,
+                    intake.request.grant_key,
+                    record.request.expected_grant_sha256,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_intake(self, record: PrivateIntake, raw: bytes) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_intakes
+              (intake_id,company_id,dataset_key,sequence,previous_sha256,idempotency_key,grant_key,grant_sha256,content_sha256,source_sha256,source_bytes,record)
+              values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.intake_id,
+                    record.company_id,
+                    record.dataset_key,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.request.grant_key,
+                    record.request.expected_grant_sha256,
+                    record.content_sha256,
+                    record.source_sha256,
+                    raw,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_finance_review(self, record: FinanceReview, intake: PrivateIntake) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into private_intake_reviews
+              (review_id,company_id,intake_id,intake_sha256,sequence,previous_sha256,idempotency_key,grant_key,grant_sha256,content_sha256,decision,actor_type,record)
+              values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.review_id,
+                    record.company_id,
+                    record.intake_id,
+                    intake.content_sha256,
+                    record.sequence,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    intake.request.grant_key,
+                    record.request.expected_grant_sha256,
+                    record.content_sha256,
+                    record.request.decision,
+                    record.actor_type,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_private_grant(self, record: GrantEvent) -> None:
+        with self._tx() as cur:
             cur.execute(
                 """insert into private_processing_grants
                 (event_id,company_id,grant_key,sequence,previous_sha256,idempotency_key,action,actor_type,content_sha256,recorded_at,record)
                 values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                 (
                     record.event_id,
-                    company_id,
-                    grant_key,
+                    record.company_id,
+                    record.grant_key,
                     record.sequence,
-                    request.expected_previous_sha256,
-                    request.idempotency_key,
-                    request.action,
+                    record.request.expected_previous_sha256,
+                    record.request.idempotency_key,
+                    record.request.action,
                     record.actor_type,
                     record.content_sha256,
                     record.recorded_at,
                     Jsonb(record.model_dump(mode="json")),
                 ),
             )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=company_id,
-                    step="private_intake",
-                    event_type="private_processing_" + request.action,
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={"grant_key": grant_key, "event_id": record.event_id, "sha256": record.content_sha256},
-                )
-            )
-            return record
 
     def create_investment_case(self, company_id: str, case_id: str, label: str, currency: str) -> InvestmentCase:
         with self.approval_transaction(), self._tx() as cur:
@@ -1774,6 +719,132 @@ class PostgresRepository:
                 raise NotFound(case_id)
             return self._investment_case(row)
 
+    def _save_case_revision(self, record: CaseRevision, case: InvestmentCase) -> None:
+        with self._tx() as cur:
+            cur.execute(
+                """insert into case_revisions(revision_id,company_id,case_id,sequence,parent_revision_id,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.revision_id,
+                    record.company_id,
+                    case.case_id,
+                    record.sequence,
+                    record.parent_revision_id,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+            cur.execute(
+                "update investment_cases set version=%s,current_revision_id=%s,original_revision_id=coalesce(original_revision_id,%s) where case_id=%s",
+                (record.sequence, record.revision_id, record.revision_id, case.case_id),
+            )
+
+    def _save_execution_event(self, record: ExecutionEvent) -> None:
+        request = record.request
+        payload = request.payload
+        support = (
+            payload.assignment
+            if isinstance(payload, Delivery)
+            else payload.delivery
+            if isinstance(payload, Acceptance)
+            else payload.acceptance
+            if isinstance(payload, ClaimLink)
+            else None
+        )
+        with self._tx() as cur:
+            cur.execute(
+                """insert into case_execution_events(event_id,company_id,case_id,baseline_id,baseline_sha256,mode,kind,stream_key,sequence,previous_id,ingestion_key,actor_type,effective_on,supporting_event_id,supporting_sha256,attribution_id,attribution_sha256,content_sha256,recorded_at,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.event_id,
+                    record.company_id,
+                    record.case_id,
+                    request.baseline_id,
+                    request.baseline_sha256,
+                    request.mode,
+                    payload.kind,
+                    record.stream_key,
+                    record.sequence,
+                    request.expected_previous_id,
+                    request.ingestion_key,
+                    record.actor_type,
+                    request.effective_on,
+                    support.event_id if support else None,
+                    support.sha256 if support else None,
+                    payload.attribution_id if isinstance(payload, ClaimLink) else None,
+                    payload.attribution_sha256 if isinstance(payload, ClaimLink) else None,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_case_observation(self, record: Observation) -> None:
+        request = record.request
+        with self._tx() as cur:
+            cur.execute(
+                "insert into case_observations (observation_id,company_id,case_id,baseline_id,baseline_sha256,period_start,period_end,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    record.observation_id,
+                    record.company_id,
+                    record.case_id,
+                    request.baseline_id,
+                    request.baseline_sha256,
+                    request.observed.start,
+                    request.observed.end,
+                    record.sequence,
+                    request.expected_previous_id,
+                    request.ingestion_key,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_case_attribution(self, record: Attribution) -> None:
+        request = record.request
+        with self._tx() as cur:
+            cur.execute(
+                "insert into case_attributions (attribution_id,company_id,case_id,observation_id,observation_sha256,mode,actor_type,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    record.attribution_id,
+                    record.company_id,
+                    record.case_id,
+                    request.observation_id,
+                    request.observation_sha256,
+                    request.mode,
+                    record.actor_type,
+                    record.sequence,
+                    request.expected_previous_id,
+                    request.ingestion_key,
+                    record.content_sha256,
+                    record.recorded_at,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
+    def _save_close_baseline(self, record: CloseBaseline) -> None:
+        request = record.request
+        with self._tx() as cur:
+            cur.execute(
+                """insert into case_close_baselines(baseline_id,company_id,case_id,sequence,revision_id,revision_sha256,review_id,mode,previous_id,actor_type,content_sha256,record)
+                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    record.baseline_id,
+                    record.company_id,
+                    record.case_id,
+                    record.sequence,
+                    request.revision_id,
+                    request.revision_sha256,
+                    request.review_id,
+                    request.mode,
+                    request.expected_previous_id,
+                    record.actor_type,
+                    record.content_sha256,
+                    Jsonb(record.model_dump(mode="json")),
+                ),
+            )
+
     def get_case_revision(self, revision_id: str) -> CaseRevision:
         try:
             uuid.UUID(revision_id)
@@ -1796,46 +867,6 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def append_case_revision(self, case_id: str, expected_parent: str | None, draft: RevisionDraft) -> CaseRevision:
-        with self.approval_transaction(), self._tx() as cur:
-            row = cur.execute("select * from investment_cases where case_id = %s for update", (case_id,)).fetchone()
-            if row is None:
-                raise NotFound(case_id)
-            case = self._investment_case(row)
-            if expected_parent != case.current_revision_id:
-                raise Conflict("Case changed; reload the current revision before appending")
-            parent = self.get_case_revision(expected_parent) if expected_parent else None
-            record = prepare_revision(case, draft, parent)
-            cur.execute(
-                """insert into case_revisions(revision_id,company_id,case_id,sequence,parent_revision_id,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    record.revision_id,
-                    record.company_id,
-                    case_id,
-                    record.sequence,
-                    record.parent_revision_id,
-                    record.content_sha256,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            cur.execute(
-                "update investment_cases set version=%s,current_revision_id=%s,original_revision_id=coalesce(original_revision_id,%s) where case_id=%s",
-                (record.sequence, record.revision_id, record.revision_id, case_id),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=case.company_id,
-                    step="case_review",
-                    event_type="case_revision_appended",
-                    actor=record.author,
-                    created_at=record.recorded_at,
-                    payload={"case_id": case_id, "revision_id": record.revision_id, "sha256": record.content_sha256},
-                )
-            )
-            return record
-
     def list_close_baselines(self, case_id: str) -> list[CloseBaseline]:
         self.get_investment_case(case_id)
         with self._tx() as cur:
@@ -1856,98 +887,6 @@ class PostgresRepository:
                     (case_id,),
                 ).fetchall()
             ]
-
-    def record_execution_event(self, case_id: str, request: ExecutionRequest) -> ExecutionEvent:
-        with self.approval_transaction(), self._tx() as cur:
-            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
-            if row is None:
-                raise NotFound(case_id)
-            case = self._investment_case(row)
-            principal = writer(case.company_id)
-            events = self.list_execution_events(case_id)
-            replay = next((e for e in events if e.request.ingestion_key == request.ingestion_key), None)
-            if replay is not None:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Execution ingestion key belongs to different content or author")
-                return replay
-            baselines = self.list_close_baselines(case_id)
-            baseline = next((b for b in baselines if b.baseline_id == request.baseline_id), None)
-            if baseline is None:
-                raise NotFound(request.baseline_id)
-            chain = [
-                e
-                for e in events
-                if e.request.baseline_id == request.baseline_id and e.stream_key == stream_key(request.payload)
-            ]
-            previous = max(chain, key=lambda e: e.sequence) if chain else None
-            if request.expected_previous_id != (previous.event_id if previous else None):
-                raise Conflict("Execution stream changed; bind its latest receipt")
-            record = prepare_execution(
-                case,
-                baseline,
-                self.get_case_revision(baseline.request.revision_id),
-                self.list_case_reviews(case_id),
-                baselines,
-                events,
-                self.list_case_observations(case_id),
-                self.list_case_attributions(case_id),
-                request,
-                previous,
-            )
-            payload = request.payload
-            support = (
-                payload.assignment
-                if isinstance(payload, Delivery)
-                else payload.delivery
-                if isinstance(payload, Acceptance)
-                else payload.acceptance
-                if isinstance(payload, ClaimLink)
-                else None
-            )
-            cur.execute(
-                """insert into case_execution_events(event_id,company_id,case_id,baseline_id,baseline_sha256,mode,kind,stream_key,sequence,previous_id,ingestion_key,actor_type,effective_on,supporting_event_id,supporting_sha256,attribution_id,attribution_sha256,content_sha256,recorded_at,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    record.event_id,
-                    case.company_id,
-                    case_id,
-                    request.baseline_id,
-                    request.baseline_sha256,
-                    request.mode,
-                    payload.kind,
-                    record.stream_key,
-                    record.sequence,
-                    request.expected_previous_id,
-                    request.ingestion_key,
-                    record.actor_type,
-                    request.effective_on,
-                    support.event_id if support else None,
-                    support.sha256 if support else None,
-                    payload.attribution_id if isinstance(payload, ClaimLink) else None,
-                    payload.attribution_sha256 if isinstance(payload, ClaimLink) else None,
-                    record.content_sha256,
-                    record.recorded_at,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=case.company_id,
-                    step="case_execution",
-                    event_type="execution_" + request.payload.kind + "_recorded",
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={
-                        "case_id": case_id,
-                        "event_id": record.event_id,
-                        "sha256": record.content_sha256,
-                        "previous_id": request.expected_previous_id,
-                        "mode": request.mode,
-                    },
-                )
-            )
-            return record
 
     def case_execution(self, case_id: str, baseline_id: str, as_of: date) -> dict[str, Any]:
         row = self._case_snapshot(case_id)
@@ -1993,147 +932,6 @@ class PostgresRepository:
                 ).fetchall()
             ]
 
-    def record_case_observation(self, case_id: str, request: ObservationRequest) -> Observation:
-        with self.approval_transaction(), self._tx() as cur:
-            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
-            if row is None:
-                raise NotFound(case_id)
-            case = self._investment_case(row)
-            principal = writer(case.company_id)
-            existing = self.list_case_observations(case_id)
-            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
-            if replay is not None:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Ingestion key already belongs to another request or author")
-                return replay
-            baselines = self.list_close_baselines(case_id)
-            baseline = next((b for b in baselines if b.baseline_id == request.baseline_id), None)
-            if baseline is None:
-                raise NotFound(request.baseline_id)
-            chain = [
-                r
-                for r in existing
-                if r.request.baseline_id == request.baseline_id and r.request.observed.start == request.observed.start
-            ]
-            previous = max(chain, key=lambda r: r.sequence) if chain else None
-            if request.expected_previous_id != (previous.observation_id if previous else None):
-                raise Conflict("Observation changed; explicitly bind the latest snapshot")
-            record = prepare_observation(
-                case,
-                baseline,
-                self.get_case_revision(baseline.request.revision_id),
-                self.list_case_reviews(case_id),
-                baselines,
-                request,
-                previous,
-            )
-            cur.execute(
-                "insert into case_observations (observation_id,company_id,case_id,baseline_id,baseline_sha256,period_start,period_end,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (
-                    record.observation_id,
-                    case.company_id,
-                    case_id,
-                    request.baseline_id,
-                    request.baseline_sha256,
-                    request.observed.start,
-                    request.observed.end,
-                    record.sequence,
-                    request.expected_previous_id,
-                    request.ingestion_key,
-                    record.content_sha256,
-                    record.recorded_at,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=case.company_id,
-                    step="case_realization",
-                    event_type="case_observation_recorded",
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={
-                        "case_id": case_id,
-                        "observation_id": record.observation_id,
-                        "sha256": record.content_sha256,
-                        "previous_id": request.expected_previous_id,
-                    },
-                )
-            )
-            return record
-
-    def record_case_attribution(self, case_id: str, request: AttributionRequest) -> Attribution:
-        with self.approval_transaction(), self._tx() as cur:
-            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
-            if row is None:
-                raise NotFound(case_id)
-            case = self._investment_case(row)
-            principal = writer(case.company_id)
-            existing = self.list_case_attributions(case_id)
-            replay = next((r for r in existing if r.request.ingestion_key == request.ingestion_key), None)
-            if replay is not None:
-                if replay.request != request or replay.actor != principal.subject:
-                    raise Conflict("Ingestion key already belongs to another request or author")
-                return replay
-            baselines = self.list_close_baselines(case_id)
-            observations = self.list_case_observations(case_id)
-            observation = next((o for o in observations if o.observation_id == request.observation_id), None)
-            if observation is None:
-                raise NotFound(request.observation_id)
-            if any(o.request.expected_previous_id == observation.observation_id for o in observations):
-                raise Conflict("Corrected observations require fresh attribution against the new snapshot")
-            baseline = next(b for b in baselines if b.baseline_id == observation.request.baseline_id)
-            chain = [r for r in existing if r.request.observation_id == request.observation_id]
-            previous = max(chain, key=lambda r: r.sequence) if chain else None
-            if request.expected_previous_id != (previous.attribution_id if previous else None):
-                raise Conflict("Attribution changed; explicitly bind the latest claims")
-            record = prepare_attribution(
-                case,
-                baseline,
-                self.get_case_revision(baseline.request.revision_id),
-                self.list_case_reviews(case_id),
-                baselines,
-                observation,
-                request,
-                previous,
-            )
-            cur.execute(
-                "insert into case_attributions (attribution_id,company_id,case_id,observation_id,observation_sha256,mode,actor_type,sequence,previous_id,ingestion_key,content_sha256,recorded_at,record) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (
-                    record.attribution_id,
-                    case.company_id,
-                    case_id,
-                    request.observation_id,
-                    request.observation_sha256,
-                    request.mode,
-                    record.actor_type,
-                    record.sequence,
-                    request.expected_previous_id,
-                    request.ingestion_key,
-                    record.content_sha256,
-                    record.recorded_at,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=case.company_id,
-                    step="case_realization",
-                    event_type="case_attribution_recorded",
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={
-                        "case_id": case_id,
-                        "attribution_id": record.attribution_id,
-                        "sha256": record.content_sha256,
-                        "previous_id": request.expected_previous_id,
-                    },
-                )
-            )
-            return record
-
     def _case_snapshot(self, case_id: str) -> dict[str, Any]:
         # One statement gives a coherent committed snapshot without requiring a
         # write lock or UPDATE grants from a read-only database identity.
@@ -2171,56 +969,6 @@ class PostgresRepository:
             [Observation.model_validate(r) for r in row["observations"]],
             [Attribution.model_validate(r) for r in row["attributions"]],
         )
-
-    def designate_close_baseline(self, case_id: str, request: CloseBaselineRequest) -> CloseBaseline:
-        with self.approval_transaction(), self._tx() as cur:
-            row = cur.execute("select * from investment_cases where case_id=%s for update", (case_id,)).fetchone()
-            if row is None:
-                raise NotFound(case_id)
-            case = self._investment_case(row)
-            revision = self.get_case_revision(request.revision_id)
-            existing = [b for b in self.list_close_baselines(case_id) if b.request.mode == request.mode]
-            previous = existing[-1] if existing else None
-            if request.expected_previous_id != (previous.baseline_id if previous else None):
-                raise Conflict("Close baseline changed; bind the latest designation explicitly")
-            record = prepare_close_baseline(case, revision, self.list_case_reviews(case_id), request, previous)
-            cur.execute(
-                """insert into case_close_baselines(baseline_id,company_id,case_id,sequence,revision_id,revision_sha256,review_id,mode,previous_id,actor_type,content_sha256,record)
-                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    record.baseline_id,
-                    record.company_id,
-                    case_id,
-                    record.sequence,
-                    request.revision_id,
-                    request.revision_sha256,
-                    request.review_id,
-                    request.mode,
-                    request.expected_previous_id,
-                    record.actor_type,
-                    record.content_sha256,
-                    Jsonb(record.model_dump(mode="json")),
-                ),
-            )
-            self.append_audit(
-                AuditEvent(
-                    run_id=None,
-                    company_id=case.company_id,
-                    step="case_review",
-                    event_type="close_baseline_designated",
-                    actor=record.actor,
-                    created_at=record.recorded_at,
-                    payload={
-                        "case_id": case_id,
-                        "baseline_id": record.baseline_id,
-                        "revision_id": request.revision_id,
-                        "review_id": request.review_id,
-                        "mode": request.mode,
-                        "sha256": record.content_sha256,
-                    },
-                )
-            )
-            return record
 
     def list_case_reviews(self, case_id: str) -> list[CaseReview]:
         with self._tx() as cur:
