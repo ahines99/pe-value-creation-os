@@ -16,15 +16,15 @@ jobs:
   infrastructure:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate workflows, shell, Compose, Terraform and alert rules
         run: bash infra/scripts/check-infrastructure.sh
 
   compose-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -67,12 +67,12 @@ jobs:
           uv run python tests/browser/capture_private_review.py var/private-review-workspace/site
           mkdir -p var/browser-checks/private-review
           docker run --rm --network none --entrypoint python -v "$PWD/var/private-review-workspace/site:/site:ro" -v "$PWD/var/browser-checks/private-review:/artifacts" -v "$PWD/scripts/check_private_review_browser.py:/check-private.py:ro" pvc-browser-check /check-private.py /site /artifacts
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: browser-acceptance
           path: var/browser-checks
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: compose-acceptance
@@ -86,8 +86,8 @@ jobs:
     env:
       PVC_ENV: dev
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -116,8 +116,8 @@ jobs:
     env:
       PVC_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pvc_test
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --frozen --extra dev
@@ -131,17 +131,17 @@ jobs:
       contents: read
       pull-requests: read   # gitleaks-action lists the PR's commits to scan
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Dependency audit
         run: uv export --frozen --no-hashes --extra server --extra research --no-emit-project > requirements-audit.txt && uv run pip-audit -r requirements-audit.txt --strict
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -151,14 +151,14 @@ jobs:
     env:
       PVC_ENV: dev
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Deterministic eval gate
         run: uv run pvc eval --suite all --gate --report var/eval-report.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: eval-report
@@ -169,8 +169,8 @@ jobs:
     env:
       PVC_ENV: dev
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
       - name: Build and install the distribution with locked runtime dependencies
@@ -206,14 +206,14 @@ jobs:
           /tmp/pvc-installed/bin/pvc decision-memo --brief "$GITHUB_WORKSPACE/data/constructed/progress/allocation-brief.json" --facts "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --growth "$GITHUB_WORKSPACE/data/public/progress/growth-context.json" --peers "$GITHUB_WORKSPACE/data/public/progress/peer-context.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/allocation-underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/allocation-plan.json" --balances "$GITHUB_WORKSPACE/data/public/progress/balance-facts.json" --valuation "$GITHUB_WORKSPACE/data/constructed/progress/historical-valuation.json" --output allocation-memo --case-review allocation-review.json
           /tmp/pvc-installed/bin/pvc decision-memo --brief "$GITHUB_WORKSPACE/data/constructed/progress/allocation-brief.json" --facts "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --growth "$GITHUB_WORKSPACE/data/public/progress/growth-context.json" --peers "$GITHUB_WORKSPACE/data/public/progress/peer-context.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/allocation-underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/allocation-plan.json" --balances "$GITHUB_WORKSPACE/data/public/progress/balance-facts.json" --valuation "$GITHUB_WORKSPACE/data/constructed/progress/historical-valuation.json" --output allocation-lineage-memo --case-review allocation-lineage-review.json
           /tmp/pvc-installed/bin/pvc eval --suite all --gate --report eval-report.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: installed-package-evidence
           path: /tmp/pvc-package-smoke/
       - name: Record package checksums
         run: sha256sum dist/* > dist/SHA256SUMS
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-distributions
           path: dist/
@@ -222,7 +222,7 @@ jobs:
     # PVC-096: build the production image and fail on all HIGH/CRITICAL vulnerabilities, including unfixed.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build image
         run: docker build --pull --tag "pvc:ci-${GITHUB_SHA}" .
       - name: Import runtime entrypoints without development dependencies
@@ -257,7 +257,7 @@ jobs:
           format: json
           output: trivy-database.json
           version: v0.70.0
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: image-vulnerability-report
