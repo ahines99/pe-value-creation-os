@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -67,12 +67,12 @@ jobs:
           uv run python tests/browser/capture_private_review.py var/private-review-workspace/site
           mkdir -p var/browser-checks/private-review
           docker run --rm --network none --entrypoint python -v "$PWD/var/private-review-workspace/site:/site:ro" -v "$PWD/var/browser-checks/private-review:/artifacts" -v "$PWD/scripts/check_private_review_browser.py:/check-private.py:ro" pvc-browser-check /check-private.py /site /artifacts
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: browser-acceptance
           path: var/browser-checks
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: compose-acceptance
@@ -87,7 +87,7 @@ jobs:
       PVC_ENV: dev
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -117,7 +117,7 @@ jobs:
       PVC_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pvc_test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --frozen --extra dev
@@ -134,7 +134,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
@@ -152,13 +152,13 @@ jobs:
       PVC_ENV: dev
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - name: Deterministic eval gate
         run: uv run pvc eval --suite all --gate --report var/eval-report.json
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: eval-report
@@ -170,7 +170,7 @@ jobs:
       PVC_ENV: dev
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.12"
       - name: Build and install the distribution with locked runtime dependencies
@@ -206,14 +206,14 @@ jobs:
           /tmp/pvc-installed/bin/pvc decision-memo --brief "$GITHUB_WORKSPACE/data/constructed/progress/allocation-brief.json" --facts "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --growth "$GITHUB_WORKSPACE/data/public/progress/growth-context.json" --peers "$GITHUB_WORKSPACE/data/public/progress/peer-context.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/allocation-underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/allocation-plan.json" --balances "$GITHUB_WORKSPACE/data/public/progress/balance-facts.json" --valuation "$GITHUB_WORKSPACE/data/constructed/progress/historical-valuation.json" --output allocation-memo --case-review allocation-review.json
           /tmp/pvc-installed/bin/pvc decision-memo --brief "$GITHUB_WORKSPACE/data/constructed/progress/allocation-brief.json" --facts "$GITHUB_WORKSPACE/data/public/progress/financial-facts.json" --growth "$GITHUB_WORKSPACE/data/public/progress/growth-context.json" --peers "$GITHUB_WORKSPACE/data/public/progress/peer-context.json" --underwriting "$GITHUB_WORKSPACE/data/constructed/progress/allocation-underwriting.json" --operating-plan "$GITHUB_WORKSPACE/data/constructed/progress/allocation-plan.json" --balances "$GITHUB_WORKSPACE/data/public/progress/balance-facts.json" --valuation "$GITHUB_WORKSPACE/data/constructed/progress/historical-valuation.json" --output allocation-lineage-memo --case-review allocation-lineage-review.json
           /tmp/pvc-installed/bin/pvc eval --suite all --gate --report eval-report.json
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: installed-package-evidence
           path: /tmp/pvc-package-smoke/
       - name: Record package checksums
         run: sha256sum dist/* > dist/SHA256SUMS
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-distributions
           path: dist/
@@ -257,7 +257,7 @@ jobs:
           format: json
           output: trivy-database.json
           version: v0.70.0
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: image-vulnerability-report
